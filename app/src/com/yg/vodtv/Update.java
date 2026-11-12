@@ -3,6 +3,7 @@ package com.yg.vodtv;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -24,6 +25,9 @@ public final class Update {
     public static final String REPO = "yg-vodtv";
     private static final String LATEST = "https://api.github.com/repos/" + OWNER + "/" + REPO
             + "/releases/latest";
+
+    /** 下载目录：放外部存储，系统安装器（另一个 uid）才读得到。 */
+    private static final String DIR = "YG影视TV";
 
     private Update() {
     }
@@ -77,18 +81,30 @@ public final class Update {
             r.notes = notes == null ? "" : notes.trim();
             JSONArray assets = o.optJSONArray("assets");
             if (assets != null) {
+                String firstApk = "";
+                long firstSize = 0;
                 for (int i = 0; i < assets.length(); i++) {
                     JSONObject a = assets.optJSONObject(i);
                     if (a == null) {
                         continue;
                     }
                     String url = a.optString("browser_download_url", "");
-                    if (url.toLowerCase().endsWith(".apk")) {
-                        r.apkUrl = url;
-                        r.size = a.optLong("size", 0);
+                    if (!url.toLowerCase().endsWith(".apk")) {
+                        continue;
+                    }
+                    // 优先拿纯 ASCII 名字那个：中文名被 GitHub 转码成 YG.TV.apk，照样能用
+                    if (firstApk.length() == 0) {
+                        firstApk = url;
+                        firstSize = a.optLong("size", 0);
+                    }
+                    if (url.endsWith("/YGTV.apk")) {
+                        firstApk = url;
+                        firstSize = a.optLong("size", 0);
                         break;
                     }
                 }
+                r.apkUrl = firstApk;
+                r.size = firstSize;
             }
             r.ok = true;
             boolean newer = compare(r.version, Ver.NAME) > 0;
@@ -156,14 +172,41 @@ public final class Update {
         void onProgress(int percent);
     }
 
-    /** 后台线程下载到 cache，返回文件；失败 null。 */
+    /**
+     * 下载目录。必须放在外部存储：系统安装器是另一个 uid，
+     * 读不到我们 /data/data 下的私有 cache（Android 5.1 上 file:// 会直接装失败）。
+     */
+    private static File targetDir() {
+        try {
+            File ext = Environment.getExternalStorageDirectory();
+            if (ext != null) {
+                File d = new File(new File(ext, "Download"), DIR);
+                if (!d.exists()) {
+                    d.mkdirs();
+                }
+                if (d.isDirectory() && d.canWrite()) {
+                    return d;
+                }
+            }
+        } catch (Throwable t) {
+            Trace.err("update", "外部存储不可用", t);
+        }
+        return null;
+    }
+
+    /** 后台线程下载，返回文件；失败 null。 */
     public static File download(Context ctx, Info info, Progress p) {
         InputStream in = null;
         FileOutputStream out = null;
         try {
-            File f = new File(ctx.getCacheDir(), "update.apk");
+            File dir = targetDir();
+            if (dir == null) {
+                Trace.add("update", "外部存储不可写，无法下载安装包");
+                return null;
+            }
+            File f = new File(dir, "YGTV-new.apk");
             if (f.exists() && !f.delete()) {
-                Trace.add("update", "旧安装包删不掉，换个名字");
+                Trace.add("update", "旧安装包删不掉，直接覆盖");
             }
             java.net.HttpURLConnection c = Http.open(info.apkUrl, null);
             int code = c.getResponseCode();
@@ -200,7 +243,7 @@ public final class Update {
                 Trace.add("update", "下载的文件太小 " + f.length() + "B");
                 return null;
             }
-            Trace.add("update", "下载完成 " + f.length() + "B");
+            Trace.add("update", "下载完成 " + f.length() + "B -> " + f.getAbsolutePath());
             return f;
         } catch (Throwable t) {
             Trace.err("update", "下载失败", t);
@@ -221,14 +264,14 @@ public final class Update {
         }
     }
 
-    /** 调系统安装器（targetSdk 22 可直接用 file://）。 */
+    /** 调系统安装器（targetSdk 22 可用 file://，但文件必须在安装器读得到的外部存储）。 */
     public static boolean install(Context ctx, File apk) {
         try {
             Intent it = new Intent(Intent.ACTION_VIEW);
             it.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
             it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(it);
-            Trace.add("update", "已调用系统安装器");
+            Trace.add("update", "已调用系统安装器：" + apk.getAbsolutePath());
             return true;
         } catch (Throwable t) {
             Trace.err("update", "调安装器失败", t);

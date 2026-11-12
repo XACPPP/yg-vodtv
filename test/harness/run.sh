@@ -43,6 +43,7 @@ mkdir -p "$OUT"
     android/content/Context.java \
     android/content/Intent.java \
     android/net/Uri.java \
+    android/os/Environment.java \
     android/os/Handler.java \
     android/os/Looper.java \
     org/json/JSONObject.java \

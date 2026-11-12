@@ -34,7 +34,7 @@ public final class Upd {
         eq("v1.4 → 1.4", call(clean, "v1.4"), "1.4");
         eq("V1.4 → 1.4", call(clean, "V1.4"), "1.4");
         eq("1.4 → 1.4", call(clean, "1.4"), "1.4");
-        eq("release-1.4 → (空)", call(clean, "release-1.4"), "");
+        eq("release-1.4 → 1.4（跳过前缀）", call(clean, "release-1.4"), "1.4");
         eq("v1.4-beta → 1.4", call(clean, "v1.4-beta"), "1.4");
 
         System.out.println();
@@ -63,6 +63,21 @@ public final class Upd {
             System.out.println("  检查失败：" + err);
         }
         ok("能连上 GitHub 并解析 Release（仓库未建时会失败，属预期）", okFlag);
+        ok("挑的是纯 ASCII 那个 asset（/YGTV.apk）", apkUrl.endsWith("/YGTV.apk"));
+
+        System.out.println();
+        System.out.println("-- 真下载一次（和 App 里点「下载并安装」同一条路径）--");
+        android.content.Context ctx = new android.content.Context();
+        java.io.File got = Update.download(ctx, cast(info), null);
+        ok("下载成功", got != null);
+        if (got != null) {
+            System.out.println("  文件 = " + got.getAbsolutePath());
+            System.out.println("  大小 = " + got.length() + "B");
+            ok("文件大小与 Release 声明一致", got.length() == size);
+            ok("落在外部存储（系统安装器读得到）",
+                    got.getAbsolutePath().replace('\\', '/').contains("/build/sdcard/"));
+            ok("是合法 zip（APK 本质是 zip）", isZip(got));
+        }
 
         System.out.println();
         if (fail == 0) {
@@ -75,6 +90,31 @@ public final class Upd {
 
     private static Object call(Method m, String s) throws Exception {
         return m.invoke(null, s);
+    }
+
+    private static Update.Info cast(Object o) {
+        return (Update.Info) o;
+    }
+
+    private static boolean isZip(java.io.File f) {
+        java.io.FileInputStream in = null;
+        try {
+            in = new java.io.FileInputStream(f);
+            byte[] h = new byte[4];
+            if (in.read(h) != 4) {
+                return false;
+            }
+            return (h[0] & 0xFF) == 'P' && (h[1] & 0xFF) == 'K';
+        } catch (Throwable t) {
+            return false;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Throwable t) {
+            }
+        }
     }
 
     private static int cmp(String x, String y) throws Exception {
