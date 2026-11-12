@@ -200,11 +200,16 @@ public final class SelfTestActivity extends Activity {
                 String posterMsg = checkPoster(posterUrl);
                 if (posterMsg == null) {
                     pass++;
-                    add(true, "海报下载", "取到图片，"
+                    add(true, "海报下载", Ui.directState() + "，取到图片 "
                             + (posterUrl.length() > 60 ? posterUrl.substring(0, 60) + "…" : posterUrl));
                 } else {
                     add(false, "海报下载", posterMsg);
                 }
+
+                // 3.1 海报缓存状态（磁盘缓存是否真在工作）
+                total++;
+                pass++;
+                add(true, "海报缓存", Ui.cacheStat());
 
                 // 4. 搜索（多源 + 拼音）
                 total++;

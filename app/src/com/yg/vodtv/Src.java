@@ -54,11 +54,11 @@ public final class Src {
                     + "|1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
             "bfzy|https://bfzyapi.com/api.php/provide/vod/|https://bfzyapi.com/"
                     + "|20,30,45,39,31,32,34,36,33,35,38,21,22,25,24,23,26,27,28,46,48,47,49,40,41,42,58,0,0",
-            "ysxq|https://www.ysxq.cc/api.php/provide/vod/|https://www.ysxq.cc/"
-                    + "|1,2,3,4,13,16,15,15,14,14,29,6,7,8,9,10,11,12,24,30,31,39,32,33,34,35,60,86,23",
             "modu|https://caiji.moduapi.cc/api.php/provide/vod/|https://caiji.moduapi.cc/"
                     + "|7,8,9,1,26,29,28,31,27,30,33,10,11,12,13,14,15,16,24,34,36,35,37,1,2,3,38,0,21",
-            "ikun|https://ikunzyapi.com/api.php/provide/vod/|https://ikunzyapi.com/"
+            // ikun 主域 ikunzyapi.com 从这台机器握手就断（SSLHandshakeException），
+            // 实测 ikunzy.com 可直连，换过来
+            "ikun|https://ikunzy.com/api.php/provide/vod/|https://ikunzy.com/"
                     + "|1,2,3,4,23,26,25,28,24,27,30,6,7,8,9,10,11,12,20,31,33,32,34,35,37,36,45,0,17",
             "360zy|https://360zy.com/api.php/provide/vod/|https://360zy.com/"
                     + "|1,2,3,4,13,16,15,31,14,30,33,6,7,8,9,10,11,12,27,34,36,35,37,38,40,39,46,0,24",
@@ -70,6 +70,19 @@ public final class Src {
             // cmov 慢，放最后兜底
             "cmov|https://www.cmov.cn/api.php/provide/vod/|https://www.cmov.cn/"
                     + "|1,2,3,4,13,16,15,15,14,14,0,6,7,8,9,10,11,12,29,20,22,21,23,24,25,26,0,0,0",
+            // ---- v2.0 新增四源：与上面十个源不同库，用来补「热播剧搜不到」的缺口 ----
+            "zuidazy|https://api.zuidapi.com/api.php/provide/vod/|https://www.zuidazy.com/"
+                    + "|1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68",
+            "dytt|https://caiji.dyttzyapi.com/api.php/provide/vod/|https://www.dyttzyapi.com/"
+                    + "|1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
+            "jszyapi|https://jszyapi.com/api.php/provide/vod/|https://jszyapi.com/"
+                    + "|2,20,30,24,20,3,5,6,4,28,7,9,11,10,12,13,14,15,16,30,31,32,33,24,25,26,38,0,35",
+            "uku|https://api.ukuapi.com/api.php/provide/vod/|https://www.ukuapi.com/"
+                    + "|1,2,3,4,13,16,22,15,14,21,23,6,7,8,9,10,11,12,24,3,0,0,0,4,0,0,32,0,34",
+            // 片库最大（42.9 万条）的一家，但从 2026-11-12 起一直 503，先留在这里等它恢复；
+            // 熔断会把它冷却 3 分钟，不拖累其它源。
+            "ysxq|https://www.ysxq.cc/api.php/provide/vod/|https://www.ysxq.cc/"
+                    + "|1,2,3,4,13,16,15,15,14,14,29,6,7,8,9,10,11,12,24,30,31,39,32,33,34,35,60,86,23",
     };
 
     private static final List<Src> ALL = new ArrayList<Src>();

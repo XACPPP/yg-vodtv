@@ -209,6 +209,7 @@ public final class Multi {
                 srcs.add(s);
             }
         }
+        final boolean ascii = isAscii(k);
         final List<Vod>[] got = new List[srcs.size() + 1];
         final CountDownLatch latch = new CountDownLatch(srcs.size() + 1);
 
@@ -218,7 +219,9 @@ public final class Multi {
             POOL.execute(new Runnable() {
                 public void run() {
                     try {
-                        got[idx] = Api.wd(s, k);
+                        // 纯字母/全拼：各源的 wd= 实测全 0（拼音根本不进库），
+                        // 直接问 suggest 又快又准；中文才走 wd=
+                        got[idx] = ascii ? Api.suggest(s, k) : Api.wd(s, k);
                         if (got[idx] == null && !"wsyzy".equals(s.key)) {
                             markDown(s);
                         }
@@ -231,7 +234,9 @@ public final class Multi {
                 }
             });
         }
-        // 拼音联想单开一格，只有 wsyzy 支持
+        // 拼音联想：wsyzy 那条留下当兜底，其余源各自再问一次 suggest
+        // （实测 ffzy/360zy/yhzy/maoyan/bfzy/modu/ikun/zuidazy/jszyapi/dytt 都能用，
+        //  输 xiaochengliangfang 直接命中「小城良方」；cmov 空、uku 非 JSON、ysxq 超时，静默跳过）
         POOL.execute(new Runnable() {
             public void run() {
                 try {
@@ -262,6 +267,8 @@ public final class Multi {
             }
         }
         Api.rank(out, k);
+        // 剪掉「只是碰巧带这几个字」的噪声：搜「逐玉」不该出现枭雄、逐爱、没问题
+        out = Api.prune(out, k);
         Trace.add("multi", "搜索 " + k + " → " + out.size() + " 条（" + count(got) + " 个源有结果）");
         return out;
     }
@@ -322,6 +329,20 @@ public final class Multi {
         String n = v.name.trim();
         n = n.replace(' ', '\u0000').replace('\u3000', '\u0000');
         return n + "|" + (v.year == null ? "" : v.year.trim());
+    }
+
+    /** 关键词是不是纯字母/数字（全拼、缩写）——这类走各源 wd= 基本查不到，得靠 suggest。 */
+    private static boolean isAscii(String s) {
+        if (s == null || s.length() == 0) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c > 127) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

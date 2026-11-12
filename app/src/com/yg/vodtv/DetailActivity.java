@@ -393,9 +393,9 @@ public final class DetailActivity extends Activity {
             }
             epRows.addView(row, rlp);
         }
-        if (d.epNames.length <= 1 && d.epUrls.length == 1) {
-            play(d, 0);
-        }
+        // v2.0：不再自动播放。
+        // 之前「只有 1 集就自动播」是给电影用的，结果简介、导演、地区全还没看就跳走了，
+        // 遥控器上还得按返回再进来一次。改成一律等用户点选集按钮。
     }
 
     private void play(Vod d, int idx) {

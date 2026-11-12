@@ -57,6 +57,15 @@ public final class Ui {
         screenW = c.getResources().getDisplayMetrics().widthPixels;
         screenH = c.getResources().getDisplayMetrics().heightPixels;
         scale = screenW / 1920f;
+        // 海报磁盘缓存目录：第二次开 App、或者翻回已看过的页，直接读盘不走网络
+        try {
+            DISK = new java.io.File(c.getCacheDir(), "poster");
+            if (!DISK.exists()) {
+                DISK.mkdirs();
+            }
+        } catch (Throwable t) {
+            DISK = null;
+        }
     }
 
     public static int px(float v) {
@@ -128,6 +137,10 @@ public final class Ui {
 
     /** ============ 海报加载 ============ */
 
+    /**
+     * 内存缓存。key 用海报原始地址：同一部片在首页、搜索页、详情页共用一张图。
+     * 48MB 大约能放 200 张 234x351 的 RGB_565 海报。
+     */
     private static final LruCache<String, Bitmap> CACHE = new LruCache<String, Bitmap>(48 * 1024 * 1024) {
         @Override
         protected int sizeOf(String key, Bitmap b) {
@@ -153,9 +166,157 @@ public final class Ui {
     private static final long DEAD_COOLDOWN = 90000;
     private static final int DEAD_MAX = 2;
 
-    /** 同时下载几张图。比 6 更小，避免瞬时并发把图床惹毛。 */
+    /** 同时下载几张「当前看得见」的图。比 6 更小，避免瞬时并发把图床惹毛。 */
     private static final ExecutorService POOL = Executors.newFixedThreadPool(4);
+
+    /**
+     * 预加载专用线程池，和 POOL 分开。
+     *
+     * 分开的原因：预加载是「趁现在空闲多下几张」，绝不能抢占当前屏幕的配额。
+     * 只有 2 条线程，慢慢下，滚到那儿的时候通常已经在内存里了。
+     */
+    private static final ExecutorService PREFETCH = Executors.newFixedThreadPool(2);
+
+    /** 已排进预加载队列的地址，避免同一条反复排队。 */
+    private static final java.util.Set<String> QUEUED =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
+
+    /** 一次最多预取多少张（一页 84 张里先预热前 56 张，剩下的滚到再说）。 */
+    private static final int PREFETCH_MAX = 56;
+
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+
+    /* ============ 磁盘缓存 ============ */
+
+    /** 海报磁盘缓存目录（cacheDir/poster）。电视内存小，重启后全靠它。 */
+    private static java.io.File DISK;
+    private static int diskOps = 0;
+    private static final int DISK_MAX_FILES = 600;
+
+    private static String diskName(String url, int w, int h) {
+        int hash = (url.hashCode() & 0x7fffffff);
+        return hash + "-" + url.length() + "-" + w + "x" + h + ".jpg";
+    }
+
+    private static Bitmap fromDisk(String url, int w, int h) {
+        if (DISK == null) {
+            return null;
+        }
+        try {
+            java.io.File f = new java.io.File(DISK, diskName(url, w, h));
+            if (!f.exists() || f.length() < 200) {
+                return null;
+            }
+            return BitmapFactory.decodeFile(f.getAbsolutePath());
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static void putDisk(String url, int w, int h, Bitmap b) {
+        if (DISK == null || b == null) {
+            return;
+        }
+        java.io.File tmp = null;
+        try {
+            java.io.File f = new java.io.File(DISK, diskName(url, w, h));
+            if (f.exists() && f.length() > 200) {
+                return; // 已经有了，别重复写
+            }
+            tmp = new java.io.File(DISK, f.getName() + ".tmp");
+            java.io.FileOutputStream out = new java.io.FileOutputStream(tmp);
+            b.compress(Bitmap.CompressFormat.JPEG, 86, out);
+            out.flush();
+            out.close();
+            if (!tmp.renameTo(f)) {
+                tmp.delete();
+            } else if (++diskOps % 40 == 0) {
+                pruneDisk();
+            }
+        } catch (Throwable t) {
+            try {
+                if (tmp != null) {
+                    tmp.delete();
+                }
+            } catch (Throwable t2) {
+            }
+        }
+    }
+
+    /** 文件数超上限时删最老的一半，防止缓存目录长到几个 G。 */
+    private static void pruneDisk() {
+        try {
+            java.io.File[] fs = DISK.listFiles();
+            if (fs == null || fs.length <= DISK_MAX_FILES) {
+                return;
+            }
+            java.util.Arrays.sort(fs, new java.util.Comparator<java.io.File>() {
+                public int compare(java.io.File a, java.io.File b) {
+                    long x = a.lastModified();
+                    long y = b.lastModified();
+                    return x < y ? -1 : (x > y ? 1 : 0);
+                }
+            });
+            int drop = fs.length - DISK_MAX_FILES / 2;
+            for (int i = 0; i < drop; i++) {
+                fs[i].delete();
+            }
+            Trace.add("poster", "磁盘缓存超限，清掉 " + drop + " 张");
+        } catch (Throwable t) {
+        }
+    }
+
+    /** 自检页显示用：磁盘上有多少张海报。 */
+    public static int diskCount() {
+        try {
+            java.io.File[] fs = DISK == null ? null : DISK.listFiles();
+            return fs == null ? 0 : fs.length;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    /* ============ 直连可用性（自适应跳跳） ============ */
+
+    /**
+     * 连续多少次「原始地址」失败后，就暂时认为图床直连不通。
+     *
+     * 国内网络看图床，最常见的情况是整片域名都连不上：每张图都先花 3 秒等超时
+     * 再走代理，84 张卡就是 4 分钟纯等待。这里记一个「直连挂了」的截止时刻，
+     * 挂了就直接跳第二跳，把那 3 秒省掉；过一会儿再试一次直连，恢复了就自动切回来。
+     */
+    private static int directFails = 0;
+    private static long directDownUntil = 0;
+    private static final int DIRECT_FAIL_LIMIT = 3;
+    private static final long DIRECT_DOWN_MS = 120000;
+
+    private static boolean directDown() {
+        return System.currentTimeMillis() < directDownUntil;
+    }
+
+    private static void noteDirect(boolean ok) {
+        if (ok) {
+            if (directFails > 0 || directDownUntil > 0) {
+                Trace.add("poster", "图床直连恢复，回到直连优先");
+            }
+            directFails = 0;
+            directDownUntil = 0;
+            return;
+        }
+        directFails++;
+        if (directFails >= DIRECT_FAIL_LIMIT && directDownUntil == 0) {
+            directDownUntil = System.currentTimeMillis() + DIRECT_DOWN_MS;
+            Trace.add("poster", "图床直连连续失败 " + directFails
+                    + " 次，接下来 2 分钟直接走图片代理");
+        }
+    }
+
+    /** 自检页显示用：直连是不是被判定为不可用。 */
+    public static String directState() {
+        return directDown() ? "直连已判定不通（走代理）" : "直连优先";
+    }
+
+    /* ============ 失败冷却 ============ */
 
     private static boolean dead(String key) {
         long[] v = DEAD.get(key);
@@ -178,11 +339,30 @@ public final class Ui {
         }
     }
 
+    /** 换源后想强制重试某张图时调用（自检页用）。 */
+    public static void forgetFailures() {
+        DEAD.clear();
+    }
+
+    /** 自检页显示用：当前有多少地址在冷却中。 */
+    public static int deadCount() {
+        long now = System.currentTimeMillis();
+        int n = 0;
+        for (long[] v : DEAD.values()) {
+            if (v[1] >= DEAD_MAX || now - v[0] < DEAD_COOLDOWN) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    /* ============ 对外加载入口 ============ */
+
     /**
      * 载入海报。三种结果都可辨认：
      * 1) 成功 → 真图；
-     * 2) 还没好 → 灰底「载入中」；
-     * 3) 彻底失败 → 片名首字色块（不是死灰块），并在 Trace 里留痕。
+     * 2) 还没好 → 暗一档的首字色块（看得出在等）；
+     * 3) 彻底失败 → 亮白首字色块，并在 Trace 里留痕。
      */
     public static void loadPoster(final ImageView iv, final String url, final int w, final int h) {
         loadPoster(iv, url, w, h, null);
@@ -208,26 +388,8 @@ public final class Ui {
             iv.setImageBitmap(letter(w, h, name));
             return;
         }
-        // 先放占位，图到了再覆盖：这样一眼能看出是没图还是没加载出来
-        iv.setImageBitmap(loading(w, h));
+        iv.setImageBitmap(loading(w, h, name));
         startLoad(iv, url, w, h, name);
-    }
-
-    /** 换源后想强制重试某张图时调用（自检页用）。 */
-    public static void forgetFailures() {
-        DEAD.clear();
-    }
-
-    /** 自检页显示用：当前有多少地址在冷却中。 */
-    public static int deadCount() {
-        long now = System.currentTimeMillis();
-        int n = 0;
-        for (long[] v : DEAD.values()) {
-            if (v[1] >= DEAD_MAX || now - v[0] < DEAD_COOLDOWN) {
-                n++;
-            }
-        }
-        return n;
     }
 
     /* ============ 惰性加载：滚到哪下哪 ============ */
@@ -254,7 +416,7 @@ public final class Ui {
      * 只登记，不下载。
      *
      * 一页 84 张卡如果全部立刻发请求，就要排队好几分钟才轮到最后一张，
-     * 期间整墙都是「载入中」，看起来就是卡。改成进入视口附近才真取。
+     * 期间整墙都是占位图，看起来就是卡。改成进入视口附近才真取。
      */
     public static void loadPosterDeferred(ImageView iv, String url, int w, int h, String name) {
         if (iv == null) {
@@ -275,7 +437,7 @@ public final class Ui {
             iv.setImageBitmap(letter(w, h, name));
             return;
         }
-        iv.setImageBitmap(loading(w, h));
+        iv.setImageBitmap(loading(w, h, name));
         WAITING.put(iv, new Pending(url, w, h, name));
     }
 
@@ -291,7 +453,7 @@ public final class Ui {
         container.getLocationOnScreen(loc);
         int top = loc[1];
         int bottom = top + container.getHeight();
-        // 多预取一屏，滚动时不会一片「载入中」
+        // 多预取一屏，滚动时不会一片占位
         int pad = Math.max(200, container.getHeight());
 
         java.util.Iterator<Map.Entry<ImageView, Pending>> it = WAITING.entrySet().iterator();
@@ -316,6 +478,63 @@ public final class Ui {
         }
     }
 
+    /**
+     * 预加载：把这一页的海报提前下好，滚的时候直接命中内存/磁盘。
+     *
+     * 用户的原话是「加载不出来或者加载很慢，给人感知很差」。
+     * 惰性加载解决的是「别把带宽一次性烧光」，但第一屏仍然要等网络。
+     * 所以在渲染完之后，按顺序把这批图排进 2 条后台线程慢慢下：
+     * 用户还在看第一排的时候，第三、四排已经在路上了。
+     */
+    public static void prefetch(final java.util.List<Vod> items, final int w, final int h) {
+        if (items == null || items.isEmpty() || w <= 0 || h <= 0) {
+            return;
+        }
+        int n = 0;
+        for (int i = 0; i < items.size() && n < PREFETCH_MAX; i++) {
+            Vod v = items.get(i);
+            if (v == null || v.pic == null || v.pic.length() == 0) {
+                continue;
+            }
+            final String url = v.pic;
+            if (CACHE.get(url) != null || dead(url)) {
+                continue;
+            }
+            if (!QUEUED.add(url)) {
+                continue;
+            }
+            n++;
+            final int fw = w;
+            final int fh = h;
+            PREFETCH.execute(new Runnable() {
+                public void run() {
+                    try {
+                        if (CACHE.get(url) != null) {
+                            return;
+                        }
+                        Bitmap b = fromDisk(url, fw, fh);
+                        if (b == null) {
+                            b = fetchAny(url, fw, fh);
+                        }
+                        if (b == null) {
+                            markDead(url);
+                            return;
+                        }
+                        putDisk(url, fw, fh, b);
+                        CACHE.put(url, b);
+                        DEAD.remove(url);
+                    } catch (Throwable t) {
+                    } finally {
+                        QUEUED.remove(url);
+                    }
+                }
+            });
+        }
+        if (n > 0) {
+            Trace.add("poster", "预加载排队 " + n + " 张");
+        }
+    }
+
     /** 真正发起下载（内部用，loadPoster 与 pump 共用）。 */
     private static void startLoad(final ImageView iv, final String url, final int w, final int h,
                                   final String name) {
@@ -325,7 +544,13 @@ public final class Ui {
         }
         POOL.execute(new Runnable() {
             public void run() {
-                final Bitmap b = fetchAny(url, w, h);
+                // 先翻磁盘：第二遍看同一页、或者重启后再进来，这里直接就命中了
+                Bitmap b = fromDisk(url, w, h);
+                boolean fromNet = false;
+                if (b == null) {
+                    b = fetchAny(url, w, h);
+                    fromNet = b != null;
+                }
                 if (b == null) {
                     markDead(key);
                     MAIN.post(new Runnable() {
@@ -337,12 +562,16 @@ public final class Ui {
                     });
                     return;
                 }
+                if (fromNet) {
+                    putDisk(url, w, h, b);
+                }
                 CACHE.put(key, b);
                 DEAD.remove(key);
+                final Bitmap fb = b;
                 MAIN.post(new Runnable() {
                     public void run() {
                         if (key.equals(iv.getTag())) {
-                            iv.setImageBitmap(b);
+                            iv.setImageBitmap(fb);
                         }
                     }
                 });
@@ -367,10 +596,16 @@ public final class Ui {
     private static Bitmap fetchAny(String raw, int w, int h) {
         String up = toHttps(raw);
 
-        // 第一跳：原始地址，快超时
-        Bitmap b = fetch(up, w, h, 3000, 5000);
-        if (b != null) {
-            return b;
+        // 第一跳：原始地址，快超时。
+        // 已经判定直连不通就整跳跳过，不给每张图都白等 3 秒。
+        Bitmap b = null;
+        if (!directDown()) {
+            b = fetch(up, w, h, 3000, 5000);
+            if (b != null) {
+                noteDirect(true);
+                return b;
+            }
+            noteDirect(false);
         }
 
         // 第二跳：图片代理（针对「图床域名在国内不可达」）
@@ -419,9 +654,22 @@ public final class Ui {
         return url;
     }
 
-    /** 灰底 + 「载入中」占位图。 */
+    /** 灰底 + 「载入中」占位图（不知道片名时用）。 */
     public static Bitmap loading(int w, int h) {
-        return placeholder(w, h, "载入中");
+        return loading(w, h, null);
+    }
+
+    /**
+     * 载入中的占位：有片名就画成暗一档的首字色块，没有就画灰底「载入中」。
+     *
+     * 为什么要这样：整墙灰块在视觉上像「坏了」，而暗色首字块像「正在出」，
+     * 同样的等待时间，观感差别很大。
+     */
+    public static Bitmap loading(int w, int h, String name) {
+        if (name == null || name.trim().length() == 0) {
+            return placeholder(w, h, "载入中");
+        }
+        return letterBlock(w, h, name, 0x66FFFFFF);
     }
 
     /** 灰底 + 文字占位图（老接口，等价于 loading）。 */
@@ -451,14 +699,18 @@ public final class Ui {
     }
 
     /**
-     * 首字色块：取片名第一个字的网络可达色，做成识别度更高的失败占位。
+     * 首字色块：取片名第一个字，配一组低饱和深色背景。
      * 比「暂无封面」四个字强——至少能一眼认出这是哪部片。
      */
     public static Bitmap letter(int w, int h, String name) {
+        return letterBlock(w, h, name, 0xE6FFFFFF);
+    }
+
+    private static Bitmap letterBlock(int w, int h, String name, int charColor) {
         int bw = Math.max(8, w);
         int bh = Math.max(8, h);
         String ch = firstChar(name);
-        String k = "L" + bw + "x" + bh + ch;
+        String k = "L" + bw + "x" + bh + ch + Integer.toHexString(charColor);
         Bitmap hit = PLACEHOLDERS.get(k);
         if (hit != null) {
             return hit;
@@ -468,7 +720,7 @@ public final class Ui {
         cv.drawColor(palette(ch));
         Paint p = new Paint();
         p.setAntiAlias(true);
-        p.setColor(0xE6FFFFFF);
+        p.setColor(charColor);
         p.setTypeface(Typeface.DEFAULT_BOLD);
         p.setTextSize(Math.max(12, Math.min(bw, bh) * 0.42f));
         p.setTextAlign(Paint.Align.CENTER);
@@ -502,7 +754,7 @@ public final class Ui {
     }
 
     /**
-     * 自检用：完全按真实加载链（https → http → 图片代理）取一次图。
+     * 自检用：完全按真实加载链（原始 → 图片代理 → http）取一次图。
      * @return null 表示成功；否则是能直接显示在自检页的失败原因。
      */
     public static String probe(String url) {
@@ -511,9 +763,14 @@ public final class Ui {
         }
         Bitmap b = fetchAny(url, px(300), px(450));
         if (b == null) {
-            return "三种方式都取不到（https / http / 图片代理），详见下方日志";
+            return "三跳都取不到（原始 / 图片代理 / http），详见下方日志";
         }
         return null;
+    }
+
+    /** 自检页显示用：一句话说明三块缓存的状态。 */
+    public static String cacheStat() {
+        return "内存 " + CACHE.size() + " 张 · 磁盘 " + diskCount() + " 张 · 冷却 " + deadCount() + " 个";
     }
 
     private static Bitmap fetch(String url, int reqW, int reqH) {

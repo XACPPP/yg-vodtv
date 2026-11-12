@@ -394,6 +394,10 @@ public final class MainActivity extends Activity {
                 Ui.pump(rows);
             }
         });
+        // 预加载：趁用户还在看第一排，把后面几排的图先下到内存/磁盘
+        if (p != null && p.items != null) {
+            Ui.prefetch(p.items, cardW, posterH);
+        }
     }
 
     private void openDetail(Vod v) {
@@ -692,6 +696,7 @@ public final class MainActivity extends Activity {
                 Ui.pump(resultRows);
             }
         });
+        Ui.prefetch(list, searchCardW, searchPosterH);
     }
 
     /** ==================== 更新 ==================== */

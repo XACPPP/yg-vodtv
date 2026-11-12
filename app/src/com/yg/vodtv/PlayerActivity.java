@@ -1,6 +1,7 @@
 package com.yg.vodtv;
 
 import android.app.Activity;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ public final class PlayerActivity extends Activity {
     private TextView toast;
     private TextView timeLabel;
     private LinearLayout bottomBar;
+    /** 顶部标题条。以前是局部变量，导致它永远不会隐藏，一直压着画面顶部。 */
+    private LinearLayout topBar;
     private FrameLayout root;
     private TextView titleView;
 
@@ -49,6 +52,18 @@ public final class PlayerActivity extends Activity {
     private boolean retried = false;
     /** updateProgress 每秒跑一次，用它控制落盘频率。 */
     private int tickCount = 0;
+
+    /**
+     * 画面模式。0 = 适应（等比完整，多余部分留黑边，默认）；
+     * 1 = 铺满（等比放大到填满屏幕，超出部分裁掉）。
+     *
+     * 为什么要两个：竖屏短剧（抖音那种 9:16）在 16:9 电视上按比例完整显示时，
+     * 画面只占中间约三分之一宽，两边全黑，看着像没全屏。铺满模式能填满，
+     * 代价是上下裁掉一截。这个只能让用户自己选，程序猜不出来。
+     */
+    private static final int MODE_FIT = 0;
+    private static final int MODE_FILL = 1;
+    private int scaleMode = MODE_FIT;
 
     private Runnable hideToast;
     private Runnable hideControls;
@@ -117,28 +132,34 @@ public final class PlayerActivity extends Activity {
         root = new FrameLayout(this);
         root.setBackgroundColor(0xFF000000);
 
-        vv = new VideoView(this);
+        // 原生 VideoView 会把控件按视频比例测量（API22 的兼容逻辑，见类尾注释），
+        // 这是我们要的行为——4:3、竖屏短剧都能等比完整显示。
+        // 真正的 bug 是 FrameLayout 默认把子 View 摆在左上角，缩小的控件就贴左边了，
+        // 右边/下边留一大片黑。所以这一行 Gravity.CENTER 才是修截断的关键。
+        vv = new FitVideoView(this);
         vv.setFocusable(true);
         vv.setFocusableInTouchMode(true);
         root.addView(vv, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER));
 
         busy = new ProgressBar(this);
         root.addView(busy, new FrameLayout.LayoutParams(Ui.px(90), Ui.px(90), Gravity.CENTER));
 
-        // 顶部标题
-        LinearLayout top = new LinearLayout(this);
-        top.setOrientation(LinearLayout.HORIZONTAL);
-        top.setGravity(Gravity.CENTER_VERTICAL);
-        top.setBackgroundColor(0x99000000);
-        top.setPadding(Ui.px(32), Ui.px(14), Ui.px(32), Ui.px(14));
+        // 顶部标题。用字段而不是局部变量：局部变量的话 hideControlsNow() 拿不到它，
+        // 控制条收起时这条黑条会永远压在画面上沿。
+        topBar = new LinearLayout(this);
+        topBar.setOrientation(LinearLayout.HORIZONTAL);
+        topBar.setGravity(Gravity.CENTER_VERTICAL);
+        topBar.setBackgroundColor(0x99000000);
+        topBar.setPadding(Ui.px(32), Ui.px(14), Ui.px(32), Ui.px(14));
         titleView = Ui.text(this, "", 30, 0xFFFFFFFF);
         titleView.setSingleLine(true);
         titleView.setEllipsize(TextUtils.TruncateAt.END);
-        top.addView(titleView, new LinearLayout.LayoutParams(0,
+        topBar.addView(titleView, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        top.addView(Ui.text(this, "OK 暂停/播放   上下键选集   左右键快进退", 22, 0xFFBFC7D2));
-        root.addView(top, new FrameLayout.LayoutParams(
+        topBar.addView(Ui.text(this, "OK 暂停/播放   上下键选集   左右键快进退   菜单键画面比例", 22, 0xFFBFC7D2));
+        root.addView(topBar, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.TOP));
 
@@ -327,7 +348,16 @@ public final class PlayerActivity extends Activity {
                 prepared = true;
                 busy.setVisibility(View.GONE);
                 mp.setScreenOnWhilePlaying(true);
+                applyScaling();
                 vv.start();
+                // VideoView.onPrepared 是先回调我们、之后才把 mVideoWidth/mVideoHeight 赋上去的，
+                // 所以这里不能直接读尺寸。等这一轮消息走完再量一次，
+                // 否则 4:3/竖屏片子会一直停在「还没尺寸」时的铺满状态。
+                vv.post(new Runnable() {
+                    public void run() {
+                        vv.requestLayout();
+                    }
+                });
                 // 上次看到一半的，接着看：只在保存位置离片头和片尾都不太近时才跳
                 int saved = Store.pos(key, index);
                 int dur = 0;
@@ -341,8 +371,21 @@ public final class PlayerActivity extends Activity {
                 }
                 updateProgress();
                 showControls();
-                Trace.add("player", "起播成功 第" + (index + 1) + "集 "
-                        + (mp.getVideoWidth() > 0 ? mp.getVideoWidth() + "x" + mp.getVideoHeight() : "尺寸未知"));
+                Trace.add("player", "起播成功 第" + (index + 1) + "集 " + sizeInfo(mp)
+                        + " 屏幕 " + Ui.w() + "x" + Ui.h() + " 模式 " + modeName());
+            }
+        });
+        // HLS 多码率切换时分辨率会变（比如 640x360 → 1280x720），
+        // VideoView 内部会把新尺寸写给 mVideoWidth/mVideoHeight，但不会主动重新测量，
+        // 结果就是播到一半画面突然变形或缩到一角。这里自己 requestLayout 一次。
+        vv.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING
+                        || what == MediaPlayer.MEDIA_INFO_BUFFERING_START
+                        || what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+                    vv.requestLayout();
+                }
+                return false;
             }
         });
         vv.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -427,6 +470,9 @@ public final class PlayerActivity extends Activity {
         if (bottomBar != null) {
             bottomBar.setVisibility(View.VISIBLE);
         }
+        if (topBar != null) {
+            topBar.setVisibility(View.VISIBLE);
+        }
         if (hideControls != null) {
             ui.removeCallbacks(hideControls);
         }
@@ -443,6 +489,10 @@ public final class PlayerActivity extends Activity {
         if (bottomBar != null && !epVisible) {
             bottomBar.setVisibility(View.GONE);
         }
+        // 顶部标题条同样要收起来，否则它会一直盖在画面最上面
+        if (topBar != null && !epVisible) {
+            topBar.setVisibility(View.GONE);
+        }
     }
 
     private void showToast(String msg) {
@@ -457,6 +507,51 @@ public final class PlayerActivity extends Activity {
             }
         };
         ui.postDelayed(hideToast, 4000);
+    }
+
+    /** 把当前画面模式应用到 VideoView，并在 Trace 里留个记录。 */
+    private void applyScaling() {
+        if (vv instanceof FitVideoView) {
+            ((FitVideoView) vv).setFill(scaleMode == MODE_FILL);
+        }
+    }
+
+    /** 切「适应 / 铺满」。竖屏短剧和宽银幕老片都靠它。 */
+    private void toggleScaleMode() {
+        scaleMode = (scaleMode == MODE_FIT) ? MODE_FILL : MODE_FIT;
+        applyScaling();
+        showToast(scaleMode == MODE_FILL ? "画面：铺满（超出部分裁掉）" : "画面：适应（完整显示，两侧留黑）");
+        Trace.add("player", "画面模式切到 " + modeName());
+    }
+
+    private String modeName() {
+        return scaleMode == MODE_FILL ? "铺满" : "适应";
+    }
+
+    /** 视频尺寸与比例描述，写日志用。「竖屏」「4:3」这类词比 1440x1080 直观。 */
+    private String sizeInfo(MediaPlayer mp) {
+        int w = 0;
+        int h = 0;
+        try {
+            w = mp.getVideoWidth();
+            h = mp.getVideoHeight();
+        } catch (Throwable t) {
+        }
+        if (w <= 0 || h <= 0) {
+            return "尺寸未知";
+        }
+        double ar = (double) w / (double) h;
+        String shape;
+        if (ar < 0.85) {
+            shape = "竖屏";
+        } else if (ar < 1.5) {
+            shape = "4:3";
+        } else if (ar < 1.9) {
+            shape = "16:9";
+        } else {
+            shape = "宽银幕";
+        }
+        return w + "x" + h + " " + shape + " " + String.format(Locale.US, "%.2f", ar);
     }
 
     private static String fmt(int ms) {
@@ -492,6 +587,9 @@ public final class PlayerActivity extends Activity {
                     showControls();
                 }
                 return true;
+            case KeyEvent.KEYCODE_MENU:
+                toggleScaleMode();
+                return true;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:
                 togglePlay();
@@ -517,6 +615,112 @@ public final class PlayerActivity extends Activity {
                 return true;
             default:
                 return super.onKeyDown(code, e);
+        }
+    }
+
+    /**
+     * 按比例自动缩放的 VideoView。
+     *
+     * 为什么要自己写 onMeasure——原生 VideoView 在 API 22 的行为是这样的（AOSP 源码注释原文）：
+     *
+     *     // the size is fixed
+     *     width = widthSpecSize; height = heightSpecSize;
+     *     // for compatibility, we adjust size based on aspect ratio
+     *     if (mVideoWidth * height  < width * mVideoHeight) {
+     *         width = height * mVideoWidth / mVideoHeight;   // 视频更高（竖屏）
+     *     } else if (mVideoWidth * height  > width * mVideoHeight) {
+     *         height = width * mVideoHeight / mVideoWidth;   // 视频更宽（电影宽银幕）
+     *     }
+     *
+     * 也就是说：控件会被压成视频的比例，永远有一边小于父容器。
+     * 这个行为本身**没错**（等比完整显示就是这个意思），错的是 ViewGroup 怎么摆它。
+     *
+     * 而 FrameLayout 的默认 layout_gravity 是 START|TOP，于是：
+     *   4:3 片子     → 控件 1440×1080，贴在 x=0，右边 480px 纯黑
+     *   竖屏 9:16    → 控件 607×1080，贴在 x=0，右边 1313px 纯黑（用户说的「左边一小块」）
+     *   宽银幕 2.35  → 控件 1920×817，贴在 y=0，看起来没事，但其实上边对齐、下边空
+     * 这就是「部分影片画面被截断、右边一大片全黑」的真因，跟顶部标题栏无关。
+     *
+     * 修法分成两层：
+     * 1) 布局层：外面用 Gravity.CENTER 摆这个控件 → 缩小的控件居中，两侧对称留黑（已在 buildUi 做）。
+     * 2) 缩放层：如果用户选「铺满」，就把控件按比例放大到盖满父容器，
+     *    由父容器 FrameLayout 的 clipChildren（默认 true）裁掉溢出部分。
+     *
+     * 覆盖 onMeasure 而不是只靠 layout_gravity 的原因：API 22 上
+     * MediaPlayer.setVideoScalingMode 对「控件比 Surface 大」这种情况支持不稳，
+     * 有的 ROM 会直接黑屏。用控件尺寸控制最保险，各版本行为一致。
+     */
+    static final class FitVideoView extends VideoView {
+
+        FitVideoView(Context c) {
+            super(c);
+        }
+
+        /** false = 适应（等比完整），true = 铺满（等比放大后裁掉溢出）。 */
+        private boolean fill = false;
+
+        void setFill(boolean fill) {
+            if (this.fill != fill) {
+                this.fill = fill;
+                requestLayout();
+            }
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int vw = 0;
+            int vh = 0;
+            try {
+                vw = getMeasuredVideoWidth();
+                vh = getMeasuredVideoHeight();
+            } catch (Throwable t) {
+            }
+            // 还没拿到视频尺寸（刚 new 出来、纯音频流、或解析器还没探到 SPS）：
+            // 先按父容器来，别撑成 0；等尺寸回来后会 requestLayout 重新量。
+            // vw/vh 大于 8192 基本是解析异常（有的源会把 mVideoWidth 写成垃圾值），
+            // 也走这条兜底，否则会算出一个几万像素的 View 直接 OOM。
+            if (vw <= 0 || vh <= 0 || vw > 8192 || vh > 8192) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                return;
+            }
+            int availW = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+            int availH = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+            if (availW <= 0 || availH <= 0) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                return;
+            }
+
+            // 等比缩放系数：适应取小（完整装进容器），铺满取大（盖住容器后裁掉溢出）。
+            // 两种模式都严格保持视频宽高比，绝不会把画拉变形。
+            double sx = (double) availW / (double) vw;
+            double sy = (double) availH / (double) vh;
+            double scale = fill ? Math.max(sx, sy) : Math.min(sx, sy);
+            int outW = Math.max(1, (int) Math.round(vw * scale));
+            int outH = Math.max(1, (int) Math.round(vh * scale));
+            setMeasuredDimension(outW, outH);
+        }
+
+        /**
+         * 拿视频尺寸。API 22 的 VideoView 没有公开 getVideoWidth()，
+         * 只能通过反射读它的私有字段 mVideoWidth/mVideoHeight。
+         * 反射失败就退化成「不知道尺寸」，此时按父容器铺满，不会黑屏。
+         */
+        private int getMeasuredVideoWidth() {
+            return reflectInt("mVideoWidth");
+        }
+
+        private int getMeasuredVideoHeight() {
+            return reflectInt("mVideoHeight");
+        }
+
+        private int reflectInt(String field) {
+            try {
+                java.lang.reflect.Field f = VideoView.class.getDeclaredField(field);
+                f.setAccessible(true);
+                return f.getInt(this);
+            } catch (Throwable t) {
+                return 0;
+            }
         }
     }
 }

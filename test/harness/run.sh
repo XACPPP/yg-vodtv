@@ -11,6 +11,7 @@
 #   bash run.sh rank   跑 Rank（检查搜索结果的贴合度排序）
 #   bash run.sh meta   跑 Meta（刮削字段 + 海报双通道）
 #   bash run.sh upd    跑 Upd（版本号解析 + GitHub Release 检查）
+#   bash run.sh search 跑 Search（用真实 Multi.search 查当前热播剧）
 set -e
 cd "$(dirname "$0")"
 ROOT="$(cd ../../.. && pwd)"
@@ -33,6 +34,8 @@ elif [ "$1" = "meta" ]; then
     MAIN="Meta"
 elif [ "$1" = "upd" ]; then
     MAIN="Upd"
+elif [ "$1" = "search" ]; then
+    MAIN="Search"
 fi
 
 rm -rf "$OUT"
@@ -64,7 +67,8 @@ mkdir -p "$OUT"
     Dump.java \
     Rank.java \
     Meta.java \
-    Upd.java
+    Upd.java \
+    Search.java
 
 [ -f "$OUT/$MAIN.class" ] || { echo "FAILED: 编译未产出 $MAIN.class"; exit 1; }
 

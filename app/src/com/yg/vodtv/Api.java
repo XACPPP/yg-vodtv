@@ -97,6 +97,46 @@ public final class Api {
     }
 
     /** 拼音联想：只有 wsyzy 的 index.php/ajax/suggest 支持（返回精简条目，需再查详情）。 */
+    /**
+     * 某个源的拼音联想。
+     *
+     * 实测（2026-11-12）除 wsyzy 外还有 ffzy / 360zy / yhzy / maoyan / bfzy / modu /
+     * ikun / zuidazy / jszyapi / dytt 都能用，输 xiaochengliangfang 直接命中「小城良方」；
+     * cmov 返回空数组，uku 返回非 JSON，ysxq 超时 —— 这几家失败就静默跳过，
+     * 不能因为「这家没有联想接口」把它判进熔断。
+     */
+    public static List<Vod> suggest(Src s, String kw) {
+        List<Vod> out = new ArrayList<Vod>();
+        if (s == null || kw == null || kw.trim().length() == 0) {
+            return out;
+        }
+        try {
+            // 用接口自己的 host，不要用 referer：ffzy 的 referer 是 www.ffzyapi.com，
+            // 那个域名的 TLS 握不上手，而 api.ffzyapi.com 是好的
+            String url = root(s.api) + "/index.php/ajax/suggest?mid=1&wd="
+                    + URLEncoder.encode(kw.trim(), "UTF-8");
+            String body = Http.get(url, s.referer, 5000, 6000);
+            if (body == null) {
+                return out;
+            }
+            JSONObject o = new JSONObject(body);
+            JSONArray arr = o.optJSONArray("list");
+            if (arr != null) {
+                for (int i = 0; i < arr.length(); i++) {
+                    Vod v = Vod.from(arr.optJSONObject(i), s.key);
+                    if (v != null) {
+                        out.add(v);
+                    }
+                }
+            }
+            rank(out, kw);
+        } catch (Throwable t) {
+            // 这家没有 suggest 或者返回非 JSON：不算源故障，安静跳过
+            Trace.add("api", "联想不可用 " + s.key);
+        }
+        return out;
+    }
+
     public static List<Vod> suggest(String kw) {
         List<Vod> out = new ArrayList<Vod>();
         try {
@@ -173,6 +213,65 @@ public final class Api {
                 return la - lb;
             }
         });
+    }
+
+    /** 从接口前缀里取 scheme://host（suggest 接口挂在同一个 host 下）。 */
+    private static String root(String api) {
+        if (api == null) {
+            return "";
+        }
+        int i = api.indexOf("://");
+        if (i < 0) {
+            return api;
+        }
+        int j = api.indexOf('/', i + 3);
+        return j < 0 ? api : api.substring(0, j);
+    }
+
+    /** 对外的贴合度打分（Multi 用它筛掉纯噪声）。 */
+    public static int scoreOf(Vod v, String kw) {
+        String k = kw == null ? "" : kw.trim().toLowerCase(Locale.US);
+        return k.length() == 0 ? 0 : score(v, k);
+    }
+
+    /**
+     * 把「只是碰巧带这几个字」的结果扔掉。
+     *
+     * 实测：搜「逐玉」，bfzy 会一次吐 20 条（枭雄 / 逐爱 / 没问题 / 玉逐云光…），
+     * 混进来以后 20 条里只有第 1 条是真片，用户翻两下就以为搜不到。
+     * 规则：只要存在「名称含关键词」的强命中（≥500 分），就只留强命中的；
+     * 一条强命中都没有时原样返回，避免把冷门片也筛没了。
+     */
+    public static List<Vod> prune(List<Vod> list, String kw) {
+        if (list == null || list.size() < 2) {
+            return list;
+        }
+        String k = kw == null ? "" : kw.trim().toLowerCase(Locale.US);
+        if (k.length() == 0) {
+            return list;
+        }
+        int best = 0;
+        for (int i = 0; i < list.size(); i++) {
+            int sc = score(list.get(i), k);
+            if (sc > best) {
+                best = sc;
+            }
+        }
+        // 连一条「名称里带关键词」的都没有，就别筛了
+        if (best < 500) {
+            return list;
+        }
+        List<Vod> out = new ArrayList<Vod>();
+        for (int i = 0; i < list.size(); i++) {
+            Vod v = list.get(i);
+            if (score(v, k) >= 500) {
+                out.add(v);
+            }
+        }
+        if (out.size() > 0) {
+            Trace.add("api", "搜索「" + kw + "」筛掉 " + (list.size() - out.size()) + " 条不相关，留 " + out.size());
+        }
+        return out.size() > 0 ? out : list;
     }
 
     private static int score(Vod v, String k) {

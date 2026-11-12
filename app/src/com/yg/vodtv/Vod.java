@@ -44,7 +44,7 @@ public final class Vod {
         v.src = src == null ? "" : src;
         v.id = o.optInt("vod_id", o.optInt("id", 0));
         v.name = o.optString("vod_name", o.optString("name", ""));
-        v.pic = o.optString("vod_pic", o.optString("pic", ""));
+        v.pic = normPic(o.optString("vod_pic", o.optString("pic", "")));
         v.remarks = o.optString("vod_remarks", "");
         v.typeName = o.optString("vod_class", o.optString("type_name", ""));
         v.year = o.optString("vod_year", "");
@@ -59,6 +59,31 @@ public final class Vod {
         v.content = o.optString("vod_content", "");
         v.parseEpisodes();
         return v.name.length() == 0 ? null : v;
+    }
+
+    /**
+     * 海报地址规范化。
+     *
+     * 实测 maoyan 有约 13%（4/30）的 vod_pic 是相对路径（upload/vod/2026...jpg），
+     * 而且把它拼到任何一个已知域名上都 404 —— 这张图在源侧就已经没了。
+     * 以前原样存下来，客户端会当成相对 URL 去解析、连试三跳都失败，
+     * 白等十几秒才落到首字色块；现在直接判空，走色块一步到位。
+     */
+    private static String normPic(String p) {
+        if (p == null) {
+            return "";
+        }
+        String s = p.trim();
+        if (s.length() == 0) {
+            return "";
+        }
+        if (s.startsWith("//")) {
+            return "https:" + s;
+        }
+        if (s.startsWith("http://") || s.startsWith("https://")) {
+            return s;
+        }
+        return "";
     }
 
     public boolean hasEpisodes() {
