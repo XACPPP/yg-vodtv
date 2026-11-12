@@ -168,7 +168,6 @@ public final class Ui {
 
     /** 同时下载几张「当前看得见」的图。比 6 更小，避免瞬时并发把图床惹毛。 */
     private static final ExecutorService POOL = Executors.newFixedThreadPool(4);
-
     /**
      * 预加载专用线程池，和 POOL 分开。
      *
@@ -176,6 +175,15 @@ public final class Ui {
      * 只有 2 条线程，慢慢下，滚到那儿的时候通常已经在内存里了。
      */
     private static final ExecutorService PREFETCH = Executors.newFixedThreadPool(2);
+
+    /**
+     * 读磁盘专用线程池。
+     *
+     * v2.1 修 bug：以前 fromDisk 是在 POOL（网络池）里做的，于是「磁盘命中」
+     * 也要排在同页一堆网络请求后面 —— 明明图就在手机上，第二次打开还是要等。
+     * 磁盘读只要几毫秒，必须走独立的两条线程，命中后立刻上屏。
+     */
+    private static final ExecutorService DISKPOOL = Executors.newFixedThreadPool(2);
 
     /** 已排进预加载队列的地址，避免同一条反复排队。 */
     private static final java.util.Set<String> QUEUED =
@@ -193,9 +201,25 @@ public final class Ui {
     private static int diskOps = 0;
     private static final int DISK_MAX_FILES = 600;
 
+    /**
+     * 缓存文件名。
+     *
+     * v2.1：尺寸不再精确进 key，改成 64px 一档。
+     * 首页卡片 234×351、搜索结果卡 200×300、详情页 380×570 —— 精确 key 的话
+     * 同一张图会按三种尺寸存三份，磁盘涨得快、命中率却低（换个页面就 miss）。
+     * 量化以后几种尺寸大概率落在同一档，一份图多处复用。
+     */
     private static String diskName(String url, int w, int h) {
         int hash = (url.hashCode() & 0x7fffffff);
-        return hash + "-" + url.length() + "-" + w + "x" + h + ".jpg";
+        return hash + "-" + url.length() + "-" + bucket(w) + "x" + bucket(h) + ".jpg";
+    }
+
+    /** 把像素尺寸量化到 64 的整数倍，用来减少同一张图存多份。 */
+    private static int bucket(int v) {
+        if (v <= 0) {
+            return 0;
+        }
+        return ((v + 63) / 64) * 64;
     }
 
     private static Bitmap fromDisk(String url, int w, int h) {
@@ -271,6 +295,23 @@ public final class Ui {
         try {
             java.io.File[] fs = DISK == null ? null : DISK.listFiles();
             return fs == null ? 0 : fs.length;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    /** 自检页显示用：磁盘缓存占了多少字节（老板反馈「数据 7M 多」，得有地方能看到）。 */
+    public static long diskBytes() {
+        try {
+            java.io.File[] fs = DISK == null ? null : DISK.listFiles();
+            if (fs == null) {
+                return 0;
+            }
+            long n = 0;
+            for (int i = 0; i < fs.length; i++) {
+                n += fs[i].length();
+            }
+            return n;
         } catch (Throwable t) {
             return 0;
         }
@@ -444,17 +485,27 @@ public final class Ui {
     /**
      * 把进入视口（含下方一屏预取）的待加载海报真正发出去。
      * 由 MainActivity 在滚动和渲染后调用，主线程执行，只做可见性判断。
+     *
+     * v2.1 修 bug：以前视口是拿 container 自己的高度算的，而 container 是
+     * ScrollView 里面那一整块 rows —— 它的高度等于全部内容高度（12 排 × 351px
+     * ≈ 4200px，超过屏幕 4 倍）。于是 `bottom = top + 4200`、`pad = 4200`，
+     * 判定条件对任何一张卡都成立，pump 一次就把 84 张全排进队列，
+     * 「滚到哪下哪」彻底失效：首屏要等 84 张排完，体感就是「每次都还在加载」。
+     * 现在改用 getGlobalVisibleRect —— 它返回的是被所有祖先裁过之后的可见区域，
+     * 再加一屏预取，才是真正的视口。
      */
     public static void pump(View container) {
         if (container == null || WAITING.isEmpty()) {
             return;
         }
-        int[] loc = new int[2];
-        container.getLocationOnScreen(loc);
-        int top = loc[1];
-        int bottom = top + container.getHeight();
+        android.graphics.Rect vis = new android.graphics.Rect();
+        if (!container.getGlobalVisibleRect(vis)) {
+            return; // 整个容器都不在屏幕上（比如搜索层盖住了），先不下
+        }
+        int top = vis.top;
+        int bottom = vis.bottom;
         // 多预取一屏，滚动时不会一片占位
-        int pad = Math.max(200, container.getHeight());
+        int pad = Math.max(200, vis.height());
 
         java.util.Iterator<Map.Entry<ImageView, Pending>> it = WAITING.entrySet().iterator();
         while (it.hasNext()) {
@@ -464,6 +515,7 @@ public final class Ui {
                 it.remove();
                 continue;
             }
+            int[] loc = new int[2];
             iv.getLocationOnScreen(loc);
             int y = loc[1];
             if (y + iv.getHeight() < top - pad) {
@@ -475,6 +527,37 @@ public final class Ui {
             Pending p = e.getValue();
             it.remove();
             startLoad(iv, p.url, p.w, p.h, p.name);
+        }
+    }
+
+    /**
+     * 预取成功后，把图直接贴到已经绑定同一地址的卡片上。
+     *
+     * v2.1：这是「预加载白干」的补丁。预取线程下完图只写了 CACHE/DISK，
+     * 而屏幕上那些 ImageView 是在 WAITING 里等 pump 的 —— pump 只认视口，
+     * 用户不滚就永远不触发。所以这里主动扫一遍 WAITING，同 url 的直接上屏。
+     */
+    private static void applyToWaiting(String url, Bitmap b) {
+        if (WAITING.isEmpty()) {
+            return;
+        }
+        java.util.Iterator<Map.Entry<ImageView, Pending>> it = WAITING.entrySet().iterator();
+        int hit = 0;
+        while (it.hasNext()) {
+            Map.Entry<ImageView, Pending> e = it.next();
+            Pending p = e.getValue();
+            if (p == null || !url.equals(p.url)) {
+                continue;
+            }
+            ImageView iv = e.getKey();
+            it.remove();
+            if (iv != null && iv.getParent() != null && url.equals(iv.getTag())) {
+                iv.setImageBitmap(b);
+                hit++;
+            }
+        }
+        if (hit > 0) {
+            Trace.add("poster", "预取命中直接上屏 " + hit + " 张");
         }
     }
 
@@ -523,6 +606,16 @@ public final class Ui {
                         putDisk(url, fw, fh, b);
                         CACHE.put(url, b);
                         DEAD.remove(url);
+                        final Bitmap fb = b;
+                        // v2.1 修 bug：以前下完就只扔进 CACHE，屏幕上已经绑好的
+                        // ImageView 完全不知道 —— 图明明在内存里，卡片还是灰的，
+                        // 非得等用户滚一下触发 pump 才显示。用户的原话就是
+                        //「预加载完就不管后续封面了」。
+                        MAIN.post(new Runnable() {
+                            public void run() {
+                                applyToWaiting(url, fb);
+                            }
+                        });
                     } catch (Throwable t) {
                     } finally {
                         QUEUED.remove(url);
@@ -542,15 +635,40 @@ public final class Ui {
         if (!key.equals(iv.getTag())) {
             return; // 这张卡已经被复用了，别再往它身上贴图
         }
+        // 内存命中就地解决，连线程都不用起
+        Bitmap hit = CACHE.get(key);
+        if (hit != null) {
+            iv.setImageBitmap(hit);
+            return;
+        }
+        // 先单独问一遍磁盘线程池：几毫秒的事，不该排在网络请求后面
+        DISKPOOL.execute(new Runnable() {
+            public void run() {
+                final Bitmap disk = fromDisk(url, w, h);
+                if (disk != null) {
+                    CACHE.put(key, disk);
+                    DEAD.remove(key);
+                    MAIN.post(new Runnable() {
+                        public void run() {
+                            if (key.equals(iv.getTag())) {
+                                iv.setImageBitmap(disk);
+                            }
+                        }
+                    });
+                    return;
+                }
+                netLoad(iv, url, w, h, name);
+            }
+        });
+    }
+
+    /** 磁盘没有，才走网络（在 POOL 里跑）。 */
+    private static void netLoad(final ImageView iv, final String url, final int w, final int h,
+                                final String name) {
+        final String key = url;
         POOL.execute(new Runnable() {
             public void run() {
-                // 先翻磁盘：第二遍看同一页、或者重启后再进来，这里直接就命中了
-                Bitmap b = fromDisk(url, w, h);
-                boolean fromNet = false;
-                if (b == null) {
-                    b = fetchAny(url, w, h);
-                    fromNet = b != null;
-                }
+                Bitmap b = fetchAny(url, w, h);
                 if (b == null) {
                     markDead(key);
                     MAIN.post(new Runnable() {
@@ -562,9 +680,7 @@ public final class Ui {
                     });
                     return;
                 }
-                if (fromNet) {
-                    putDisk(url, w, h, b);
-                }
+                putDisk(url, w, h, b);
                 CACHE.put(key, b);
                 DEAD.remove(key);
                 final Bitmap fb = b;
@@ -770,7 +886,12 @@ public final class Ui {
 
     /** 自检页显示用：一句话说明三块缓存的状态。 */
     public static String cacheStat() {
-        return "内存 " + CACHE.size() + " 张 · 磁盘 " + diskCount() + " 张 · 冷却 " + deadCount() + " 个";
+        long by = diskBytes();
+        String size = by < 1024 * 1024
+                ? (by / 1024) + "KB"
+                : String.format(java.util.Locale.US, "%.1fMB", by / 1048576.0);
+        return "内存 " + CACHE.size() + " 张 · 磁盘 " + diskCount() + " 张/" + size
+                + " · 冷却 " + deadCount() + " 个";
     }
 
     private static Bitmap fetch(String url, int reqW, int reqH) {

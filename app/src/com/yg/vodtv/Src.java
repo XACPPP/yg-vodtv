@@ -158,6 +158,25 @@ public final class Src {
         return ALL.isEmpty() ? null : ALL.get(0);
     }
 
+    /**
+     * 取接口的 scheme://host。
+     *
+     * 用途：suggest 接口返回的海报是站内相对路径（bfzy 100% 如此），
+     * 必须拼上接口自己的域名才能取到图。注意要用 api 的 host 而不是 referer 的，
+     * 因为有的源两者不同域（ffzy 的 referer 域名连 TLS 都握不上手）。
+     */
+    public static String root(String api) {
+        if (api == null || api.length() == 0) {
+            return "";
+        }
+        int i = api.indexOf("://");
+        if (i < 0) {
+            return "";
+        }
+        int j = api.indexOf('/', i + 3);
+        return j > 0 ? api.substring(0, j) : api;
+    }
+
     /** 详情不要，只要一个短名字显示在卡片角上。 */
     public String label() {
         return key;

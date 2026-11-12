@@ -1,0 +1,33 @@
+=== bfzy suggest 相对路径拼接测试 ===
+  相对路径样本: id=136549 name=逐玉 pic=/upload/vod/20260306-1/95fa1e6579dc6542aa3a1a285c3699ee.webp
+  https://p.bfvp26.com             -> 200 len=15892 magic=52494646
+  https://bfzyapi.com              -> 200 len=15892 magic=52494646
+  https://www.bfzyapi.com          -> URLError len=0 magic=
+  https://bfzyapi.com/             -> 200 len=15892 magic=52494646
+  http://p.bfvp26.com              -> 200 len=15892 magic=52494646
+
+=== suggest id -> detail 补全测试（用 maoyan）===
+  suggest 返回 5 条，前 3 个 id: [155300, 153403, 142380]
+  id=155300   name=逐玉           pic=http://www.maoyanimg.top/upload/vod/20260306-1/056fad68 content=9字
+  id=153403   name=驻院医生第5季      pic=http://www.maoyanimg.top/upload/vod/20251222-1/7f4502cb content=14字
+  id=142380   name=倚天屠龙记之魔教教主（粤） pic=http://www.maoyanimg.top/upload/vod/20250717-4/eb7b99e5 content=300字
+
+=== bfzy suggest id -> detail ===
+  id=136549   name=逐玉         pic=https://p.bfvp26.com/upload/vod/20260306-1/95fa1e6579dc654 content=160字
+  id=46748    name=祝愿你：我心中你的旋律（电影版） pic=https://p.bfvp26.com/upload/vod/20230424-47/cdee2e67e30151 content=25字
+  id=46749    name=驻院医生第六季    pic=https://p.bfvp26.com/upload/vod/20230424-47/9e01dc8091770c content=17字
+
+=== 各源 suggest 相对路径占比（关键词 zhuyu）===
+  maoyan   n=5   相对=0   空=0  
+  ffzy     n=20  相对=0   空=0  
+  bfzy     n=20  相对=20  空=0  
+  modu     n=20  相对=0   空=0  
+  ikun     n=20  相对=0   空=0  
+  360zy    n=20  相对=0   空=0  
+  yhzy     n=20  相对=0   空=0  
+  wsyzy    n=20  相对=0   空=0  
+  cmov     n=20  相对=0   空=0  
+  zuidazy  n=20  相对=0   空=0  
+  dytt     n=20  相对=0   空=0  
+  jszyapi  n=20  相对=0   空=0  
+  uku      FAIL JSONDecodeError

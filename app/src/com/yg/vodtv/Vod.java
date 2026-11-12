@@ -44,7 +44,7 @@ public final class Vod {
         v.src = src == null ? "" : src;
         v.id = o.optInt("vod_id", o.optInt("id", 0));
         v.name = o.optString("vod_name", o.optString("name", ""));
-        v.pic = normPic(o.optString("vod_pic", o.optString("pic", "")));
+        v.pic = normPic(o.optString("vod_pic", o.optString("pic", "")), baseOf(v.src));
         v.remarks = o.optString("vod_remarks", "");
         v.typeName = o.optString("vod_class", o.optString("type_name", ""));
         v.year = o.optString("vod_year", "");
@@ -64,12 +64,22 @@ public final class Vod {
     /**
      * 海报地址规范化。
      *
-     * 实测 maoyan 有约 13%（4/30）的 vod_pic 是相对路径（upload/vod/2026...jpg），
-     * 而且把它拼到任何一个已知域名上都 404 —— 这张图在源侧就已经没了。
-     * 以前原样存下来，客户端会当成相对 URL 去解析、连试三跳都失败，
-     * 白等十几秒才落到首字色块；现在直接判空，走色块一步到位。
+     * 历史坑（v2.0 的 bug）：以前这里对任何非绝对地址一律返回空串，理由是
+     * 「maoyan 有 13% 的 vod_pic 是相对路径，拼哪个域名都 404」。
+     * 那个结论只对 maoyan 成立，却把 bfzy 整条联想链路打死了：
+     * bfzy 的 suggest 接口返回的 pic 100% 是 `/upload/vod/...` 这种以斜杠开头的
+     * 站内路径（实测 20/20），拼上接口自己的域名 https://bfzyapi.com 就能 200
+     * 拿到真图（15892 字节 RIFF/WebP）。判空 = 搜索结果里 bfzy 的条目全没有封面。
+     *
+     * 现在的规则：
+     * - `//host/x`   → 补 https:
+     * - `http(s)://` → 原样
+     * - `/x`         → 拼 base + `/x`（base 为该源的 scheme://host）
+     * - `x/y`        → 拼 base + `/x/y`
+     * - 没有 base 可用（早期单源代码、或 base 解析失败）时，仍然判空，
+     *   避免客户端拿相对地址去解析、白等三跳超时。
      */
-    private static String normPic(String p) {
+    private static String normPic(String p, String base) {
         if (p == null) {
             return "";
         }
@@ -83,7 +93,25 @@ public final class Vod {
         if (s.startsWith("http://") || s.startsWith("https://")) {
             return s;
         }
-        return "";
+        if (base == null || base.length() == 0) {
+            return "";
+        }
+        if (s.startsWith("/")) {
+            return base + s;
+        }
+        return base + "/" + s;
+    }
+
+    /** 从源 key 查出它的 scheme://host，供相对海报地址拼接。查不到返回空串。 */
+    private static String baseOf(String srcKey) {
+        if (srcKey == null || srcKey.length() == 0) {
+            return "";
+        }
+        Src s = Src.byKey(srcKey);
+        if (s == null || s.api == null) {
+            return "";
+        }
+        return Src.root(s.api);
     }
 
     public boolean hasEpisodes() {

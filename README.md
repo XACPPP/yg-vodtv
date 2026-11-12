@@ -4,7 +4,7 @@
 （Android 5.1.1 / API 22，已 root）定制。片源来自 **14 个苹果CMS采集源聚合**，App 内部只认
 统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
 
-当前版本：**v2.0（versionCode 11）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.1（versionCode 12）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -164,6 +164,11 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
+### v2.1：修「搜索没封面 / 预加载白干 / 缓存没用」
+
+三处真 bug 的定位与改法见上面 `### 海报（v2.1 修「预加载白干」三处真 bug）`。
+一句话总结：**图从来不是取不到，是我们自己把地址丢了、把图下完没上屏、把整页都当成「可见」。**
+
 ### v2.0 实发记录
 
 - CI run `43202720182` 一次通过（37 秒），只有 3 条 action 版本弃用警告。
@@ -266,6 +271,21 @@ v1.9 三处改动：
 - **同一个词不重复请求**（`lastKw` 比对），改一个字母才重新发。
 - **结果回来时校验词是否还一致**：用户已经改了词就丢弃这批结果，避免旧结果盖新结果。
 - 结果区也是惰性取图，4 列（左栏占 760，右栏约 1050）。
+
+### 海报（v2.1 修「预加载白干」三处真 bug）
+
+老板原话：「预加载完就不管后续封面和简介了，我搜索出来的基本都没封面」「预加载也没用，
+数据有 7M 多，每次打开还是要加载，像是没用缓存」。三条都是真 bug，已逐条定位：
+
+| 症状 | 真因 | 改法 |
+| --- | --- | --- |
+| 搜索出来的条目基本没封面 | `Vod.normPic()` 把任何非绝对地址**一律判空**。bfzy 的 `suggest` 接口返回的 `pic` 100% 是 `/upload/vod/...` 站内路径（实测 20/20），拼上 `https://bfzyapi.com` 就能 200 拿到真图（15892 字节 RIFF/WebP）——却被判空丢掉了 | `normPic(p, base)` 按 base 拼回绝对地址；`Src.root(api)` 取该源的 `scheme://host`；`Vod.baseOf(srcKey)` 从源 key 反查 |
+| 预加载下完图，屏幕上的卡还是灰的 | `prefetch` 线程体只写 `CACHE`/`DISK`，**从不通知已经绑好地址的 ImageView**；而卡片在 `WAITING` 里等 `pump`，`pump` 只认视口，用户不滚就永远不触发 | 新增 `Ui.applyToWaiting(url, bitmap)`：预取成功后在主线程扫一遍 `WAITING`，同地址的直接上屏 |
+| 每次打开都要重新加载、缓存像没生效 | `pump` 的视口算错了 —— 用的是 container（ScrollView 里那一整块 `rows`，高约 4200px ≈ 屏幕 4 倍）自己的高度，于是判定对任何卡都成立，**一次把 84 张全排进队列**，「滚到哪下哪」彻底失效；另外 `fromDisk` 跑在 4 线程网络池里，磁盘命中也要排队 | `pump` 改用 `getGlobalVisibleRect`（被祖先裁剪后的真实可见区域）+ 一屏预取；新增独立 `DISKPOOL`（2 线程），磁盘命中直接上屏、不走网络池 |
+
+**顺带压盘**：`diskName` 的尺寸量化到 64px 一档（首页 234×351 / 搜索 200×300 / 详情 380×570
+以前是同一张图存三份），`cacheStat()` 增加实际占用字节数（「内存 N 张 · 磁盘 N 张/12.3MB · 冷却 N 个」），
+自检页能直接看到磁盘到底存了多少。
 
 ### 海报（v2.0 加预加载 + 磁盘缓存）
 
@@ -625,11 +645,11 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿。最近一次（v2.0）：APK **70097 字节**，dex **121888 字节**（v1.9 是 111944）；
-dex 内确认含 `FitVideoView`、`toggleScaleMode`、`sizeInfo`、`letterBlock`、`prefetch`、`cacheStat`、
-`directState`、`normPic`、`prune`、`scoreOf`、`zuidazy`、`dytt`、`jszyapi`、`uku`
-（播放比例、预加载、直连自适应、搜索剪枝、四个新源确实打进去了，不是只改了源码没进包）。
-`aapt2 dump badging` → `versionCode='11' versionName='2.0'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`build.sh` 六步全绿。最近一次（v2.1）：APK **74193 字节**，dex **124488 字节**（v2.0 是 121888）；
+dex 内确认含 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
+以及 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`
+（v2.1 的缓存三处修复、v2.0 的播放比例/预加载/搜索剪枝/四个新源确实打进去了，不是只改了源码没进包）。
+`aapt2 dump badging` → `versionCode='12' versionName='2.1'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
@@ -669,7 +689,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.0」
+6. 标题栏「检查更新」显示「已是最新版本 v2.1」
 
 ## 六、目录
 

@@ -1,0 +1,56 @@
+=== 每个源：列表页 + suggest 的海报路径形态，以及相对路径能否解析 ===
+  maoyan   [ABS] http://www.maoyanimg.top/upload/vod/20260525-1/46480d8344b004898743036
+  maoyan   [ABS] http://www.maoyanimg.top/upload/vod/20260412-1/6a1c0c125a9f7b71816af08
+  maoyan   [ABS] http://www.maoyanimg.top/upload/vod/20260406-1/e60e5a140f9fd489ce8f9c7
+  ffzy     [ABS] https://fffgood.com/upload/vod/20260821-1/e614173991eb18f0562ea9bb3e5a
+  ffzy     [ABS] https://fffgood.com/upload/vod/20261008-1/69f516d32ad3859c1455e5d8cf78
+  ffzy     [ABS] https://fffgood.com/upload/vod/20261105-1/bfbfe7b945b3ca3f09266bdbe8f8
+  bfzy     [ABS] https://p.bfvp26.com/upload/vod/20261105-1/9ec09c80471d07a57af18ac3772
+  bfzy     [ABS] https://p.bfvp26.com/upload/vod/20261105-1/40ca30f8b3b75aa69a61fff1fa3
+  bfzy     [ABS] https://p.bfvp26.com/upload/vod/20261112-1/83c2482f547cddf5254ea7d6a5e
+  modu     [ABS] https://www.mdzypic.com/upload/vod/20261105-1/d10d90c24512c154156ba0f7
+  modu     [ABS] https://www.mdzypic.com/upload/vod/20261112-1/f3d2a03edca3fb504a5f6f92
+  modu     [ABS] https://www.mdzypic.com/upload/vod/20261112-1/c526a7ecca43fc6740976b19
+  ikun     [ABS] https://ynztctv.com/upload/vod/20261105-1/0f0c862e5b55d429c2d1203b7795
+  ikun     [ABS] https://ynztctv.com/upload/vod/20261015-1/77167f37052b54071f675c41619c
+  ikun     [ABS] https://ynztctv.com/upload/vod/20260118-1/c105061b43308a49743c5cc24d87
+  360zy    [ABS] https://www.imgzy360.com:7788/upload/vod/20261106-1/9ffa17c238fc802bca
+  360zy    [ABS] https://www.imgzy360.com:7788/upload/vod/20261112-1/5a1eaf279fa865f515
+  360zy    [ABS] https://www.imgzy360.com:7788/upload/vod/20261112-1/2d57dc33145c7603e0
+  yhzy     [ABS] https://pic.jegms.com/upload/vod/20261112-1/45e876054fce7866d36b9dc9b7
+  yhzy     [ABS] https://pic.jegms.com/upload/vod/20261112-1/5691df18daf7ab3277c7d9f0f9
+  yhzy     [ABS] https://pic.jegms.com/upload/vod/20261112-1/9e730a3330f75397980a7e1bec
+  wsyzy    [ABS] https://img1.wsyzy.org/upload/vod/20261112-1/034c2a41ef210fca1e3b4c6e6
+  wsyzy    [ABS] https://img1.wsyzy.org/upload/vod/20261112-1/a7c47c5acdb9400a7f3526903
+  wsyzy    [ABS] https://img1.wsyzy.org/upload/vod/20261112-1/6095193797ed4161b16cc8c85
+  cmov     [ABS] https://pps.vodfeiss.com/upload/vod/20260620-1/4bb2c4b0334adf91c071ec7
+  cmov     [ABS] https://pps.vodfeiss.com/upload/vod/20260619-1/739ce8d773e34de9f113062
+  cmov     [ABS] https://viptulz.com/upload/vod/20260427-1/6b2642ca77f70a2a0a7a23ced091
+  zuidazy  [ABS] https://ok.zuidapic.com/upload/vod/20261112-1/d1388d541b707b09d85ff484
+  zuidazy  [ABS] https://ok.zuidapic.com/upload/vod/20261112-1/82a086e12dd7db81180e04a0
+  zuidazy  [ABS] https://ok.zuidapic.com/upload/vod/20261112-1/eafc53918099555d5bba5a7c
+  dytt     [ABS] https://img.dytt-tupian.com/upload/vod/20261105-1/085d3254ee251e042826
+  dytt     [ABS] https://img.dytt-tupian.com/upload/vod/20261105-1/1d67e1140b81da899ca3
+  dytt     [ABS] https://img.dytt-tupian.com/upload/vod/20261015-1/b5d256738c12722b8d53
+  jszyapi  [ABS] https://img.jisuimage.com/cover/4e28c5073443af1433e1e0107f3e3a4f.jpg
+  jszyapi  [ABS] https://img.jisuimage.com/cover/edcbb16417f7a00253240c23ef93dfb6.jpg
+  jszyapi  [ABS] https://img.jisuimage.com/cover/4390d85d9625806b78ad7ecb81044845.jpg
+  uku      [ABS] https://img.ukuapi88.com/upload/vod/20261112-1/e77f88782018fbee1f55eb2
+  uku      [ABS] https://img.ukuapi88.com/upload/vod/20261112-1/557f453aec12323206b016b
+  uku      [ABS] https://img.ukuapi88.com/upload/vod/20261112-1/17561d019e7e966b33c2a66
+
+=== 各源 suggest 的 pic 形态（关键词 zhuyu）===
+  maoyan   n=5   {'ABS': 5}
+  ffzy     n=20  {'ABS': 20}
+  bfzy     n=20  {'SLASH': 20}
+      -> https://bfzyapi.com/upload/vod/20260306-1/95fa1e6579dc6542aa3a1a285c36 15892 52494646
+  modu     n=20  {'ABS': 20}
+  ikun     n=20  {'ABS': 20}
+  360zy    n=20  {'ABS': 20}
+  yhzy     n=20  {'ABS': 20}
+  wsyzy    n=20  {'ABS': 20}
+  cmov     n=20  {'ABS': 20}
+  zuidazy  n=20  {'ABS': 20}
+  dytt     n=20  {'ABS': 20}
+  jszyapi  n=20  {'ABS': 20}
+  uku      FAIL JSONDecodeError
