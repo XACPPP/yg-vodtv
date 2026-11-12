@@ -7,3 +7,6 @@ test/harness/build/
 app/yg.keystore
 *.jks
 *.keystore
+
+# apksigner v4 签名副产物
+app/*.idsig
