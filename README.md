@@ -169,6 +169,13 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 三处真 bug 的定位与改法见上面 `### 海报（v2.1 修「预加载白干」三处真 bug）`。
 一句话总结：**图从来不是取不到，是我们自己把地址丢了、把图下完没上屏、把整页都当成「可见」。**
 
+- CI run `43207971822` 一次通过。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.1>。
+- 资产 `YG.TV.apk` / `YGTV.apk` 均 **74193 字节**，sha256
+  `61b3badd6534bc4f03bf311e375a5797edd0d5071b2be5f0363a31b495c6eaaa`；
+  经 `gh-proxy.com` 镜像下载**字节数与 sha256 全部一致**。
+- dex **124488 字节**（v2.0 是 121888），含 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`baseOf`。
+
 ### v2.0 实发记录
 
 - CI run `43202720182` 一次通过（37 秒），只有 3 条 action 版本弃用警告。
