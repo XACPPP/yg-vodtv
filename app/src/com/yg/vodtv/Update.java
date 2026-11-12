@@ -26,6 +26,16 @@ public final class Update {
     private static final String LATEST = "https://api.github.com/repos/" + OWNER + "/" + REPO
             + "/releases/latest";
 
+    /**
+     * 国内直连 api.github.com 经常不通，下载也常被掐。
+     * 元信息只认能代理 api 的镜像（ghfast 对 api.github.com 回 403）；
+     * 下载用三个通道都行。实测两者返回内容与官方一致（元信息 6KB 级、安装包同 md5）。
+     */
+    private static final String[] API_PROXIES =
+            { "", "https://gh-proxy.com/" };
+    private static final String[] DL_PROXIES =
+            { "", "https://gh-proxy.com/", "https://ghfast.top/" };
+
     /** 下载目录：放外部存储，系统安装器（另一个 uid）才读得到。 */
     private static final String DIR = "YG影视TV";
 
@@ -67,9 +77,18 @@ public final class Update {
     static Info checkSync() {
         Info r = new Info();
         try {
-            String body = Http.get(LATEST, null);
+            String body = null;
+            for (int i = 0; i < API_PROXIES.length && body == null; i++) {
+                String url = API_PROXIES[i] + LATEST;
+                // 6 秒连接、8 秒读取：直连被墙时快速跳到镜像，别让用户干等
+                body = Http.getQuick(url, null, 6000, 8000);
+                if (body == null) {
+                    Trace.add("update", "检查更新走不通：" + (API_PROXIES[i].length() == 0
+                            ? "直连" : API_PROXIES[i]));
+                }
+            }
             if (body == null) {
-                r.error = "连不上 GitHub";
+                r.error = "连不上 GitHub（直连和镜像都失败）";
                 Trace.add("update", "检查更新失败：无响应");
                 return r;
             }
@@ -194,28 +213,57 @@ public final class Update {
         return null;
     }
 
-    /** 后台线程下载，返回文件；失败 null。 */
+    /** 后台线程下载，返回文件；失败 null。直连不通时自动走镜像。 */
     public static File download(Context ctx, Info info, Progress p) {
+        File dir;
+        try {
+            dir = targetDir();
+        } catch (Throwable t) {
+            dir = null;
+        }
+        if (dir == null) {
+            Trace.add("update", "外部存储不可写，无法下载安装包");
+            return null;
+        }
+        String url = info.apkUrl;
+        if (url == null || url.length() == 0) {
+            // 兜底：GitHub 的 latest/download 永久地址，不依赖具体 tag
+            url = "https://github.com/" + OWNER + "/" + REPO + "/releases/latest/download/YGTV.apk";
+        }
+        for (int i = 0; i < DL_PROXIES.length; i++) {
+            String tryUrl = DL_PROXIES[i] + url;
+            File f = downloadOnce(dir, tryUrl, info.size, p);
+            if (f != null) {
+                if (DL_PROXIES[i].length() > 0) {
+                    Trace.add("update", "直连下载失败，镜像 " + DL_PROXIES[i] + " 成功");
+                }
+                return f;
+            }
+            if (i < DL_PROXIES.length - 1) {
+                Trace.add("update", "下载走不通：" + (DL_PROXIES[i].length() == 0
+                        ? "直连" : DL_PROXIES[i]));
+            }
+        }
+        Trace.add("update", "下载失败：直连和镜像都没成");
+        return null;
+    }
+
+    private static File downloadOnce(File dir, String url, long size, Progress p) {
         InputStream in = null;
         FileOutputStream out = null;
         try {
-            File dir = targetDir();
-            if (dir == null) {
-                Trace.add("update", "外部存储不可写，无法下载安装包");
-                return null;
-            }
             File f = new File(dir, "YGTV-new.apk");
             if (f.exists() && !f.delete()) {
                 Trace.add("update", "旧安装包删不掉，直接覆盖");
             }
-            java.net.HttpURLConnection c = Http.open(info.apkUrl, null);
+            java.net.HttpURLConnection c = Http.open(url, null);
             int code = c.getResponseCode();
             if (code != 200) {
-                Trace.add("update", "下载返回 " + code);
+                Trace.add("update", "下载返回 " + code + " " + Http.shortUrl(url));
                 c.disconnect();
                 return null;
             }
-            long total = info.size > 0 ? info.size : c.getContentLength();
+            long total = size > 0 ? size : c.getContentLength();
             in = c.getInputStream();
             out = new FileOutputStream(f);
             byte[] buf = new byte[16384];

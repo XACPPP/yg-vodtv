@@ -61,10 +61,16 @@ public final class Http {
     }
 
     public static HttpURLConnection open(String url, String referer) throws Exception {
+        return open(url, referer, 12000, 20000);
+    }
+
+    /** 换个超时：更新检查要快速失败，不能卡在 12 秒的 connect 上。 */
+    public static HttpURLConnection open(String url, String referer, int connectMs, int readMs)
+            throws Exception {
         trustAll();
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        c.setConnectTimeout(12000);
-        c.setReadTimeout(20000);
+        c.setConnectTimeout(connectMs);
+        c.setReadTimeout(readMs);
         c.setRequestProperty("User-Agent", UA);
         c.setRequestProperty("Accept", "*/*");
         if (referer != null) {
@@ -125,6 +131,32 @@ public final class Http {
             return b;
         } catch (Throwable t) {
             Trace.err("http", "GET* 失败 " + shortUrl(url), t);
+            return null;
+        }
+    }
+
+    /**
+     * 快速 GET：单次尝试、短超时。检查更新要连着试好几个镜像地址，
+     * 用普通 get() 的 12s/20s 超时会让「直连不通」这个最常见的场景卡上一分钟。
+     */
+    public static String getQuick(String url, String referer, int connectMs, int readMs) {
+        try {
+            HttpURLConnection c = open(url, referer, connectMs, readMs);
+            int code = c.getResponseCode();
+            if (code != 200) {
+                c.disconnect();
+                Trace.add("http", "GET~ " + code + " " + shortUrl(url));
+                return null;
+            }
+            byte[] b = readAll(c.getInputStream());
+            c.disconnect();
+            if (b == null) {
+                Trace.add("http", "读取中断 " + shortUrl(url));
+                return null;
+            }
+            return new String(b, "UTF-8");
+        } catch (Throwable t) {
+            Trace.add("http", "GET~ 失败 " + shortUrl(url) + " " + t.getClass().getSimpleName());
             return null;
         }
     }

@@ -66,6 +66,30 @@ public final class Upd {
         ok("挑的是纯 ASCII 那个 asset（/YGTV.apk）", apkUrl.endsWith("/YGTV.apk"));
 
         System.out.println();
+        System.out.println("-- 镜像兜底（国内直连 api.github.com 经常不通）--");
+        java.lang.reflect.Field pf = Update.class.getDeclaredField("API_PROXIES");
+        pf.setAccessible(true);
+        String[] api = (String[]) pf.get(null);
+        java.lang.reflect.Field df = Update.class.getDeclaredField("DL_PROXIES");
+        df.setAccessible(true);
+        String[] dl = (String[]) df.get(null);
+        System.out.println("  元信息：直连 → " + api[1]);
+        System.out.println("  下载  ：直连 → " + dl[1] + " → " + dl[2]);
+        ok("元信息两条通道（直连 + gh-proxy）", api.length == 2 && api[0].length() == 0
+                && api[1].contains("gh-proxy.com"));
+        ok("下载三条通道（直连 + gh-proxy + ghfast）", dl.length == 3 && dl[0].length() == 0
+                && dl[1].contains("gh-proxy.com") && dl[2].contains("ghfast.top"));
+        String latest = "https://api.github.com/repos/" + Update.OWNER + "/" + Update.REPO
+                + "/releases/latest";
+        for (int i = 1; i < api.length; i++) {
+            String via = Http.getQuick(api[i] + latest, null, 8000, 10000);
+            boolean has = via != null && via.indexOf("\"tag_name\"") >= 0;
+            System.out.println("  " + api[i] + " 取 Release 元信息 → "
+                    + (has ? "成功 " + via.length() + "B" : "失败"));
+            ok("镜像 " + api[i] + " 能取到 Release 元信息（镜像挂了这条会失败）", has);
+        }
+
+        System.out.println();
         System.out.println("-- 真下载一次（和 App 里点「下载并安装」同一条路径）--");
         android.content.Context ctx = new android.content.Context();
         java.io.File got = Update.download(ctx, cast(info), null);
