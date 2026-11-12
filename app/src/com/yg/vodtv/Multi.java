@@ -22,12 +22,75 @@ public final class Multi {
 
     /** 单个页最多展示多少条（7 列 × 12 行）。 */
     private static final int PAGE_CAP = 84;
-    /** 分类页等多久就开始渲染。 */
-    private static final long LIST_BUDGET = 7000;
+    /**
+     * 分类页等多久就开始渲染。
+     * 加上了连接层重试（每次失败最多多花 1.2s），预算从 7s 放宽到 9s，
+     * 否则被 reset 的源还没轮到重试就被截断了。
+     */
+    private static final long LIST_BUDGET = 9000;
     /** 搜索是用户主动操作，可以多等一点。 */
-    private static final long SEARCH_BUDGET = 8000;
+    private static final long SEARCH_BUDGET = 10000;
 
-    private static final ExecutorService POOL = Executors.newFixedThreadPool(8);
+    /** 搜索拿到几个源的结果就算够（够排序出个像样的列表了）。 */
+    private static final int SEARCH_ENOUGH_N = 5;
+
+    /**
+     * 分类页至少等到几个源回来才肯出画面。
+     * 6 个能保证首屏混着六家站的片；少于这个就再等等，
+     * 但如果预算到了还没凑够，也照样出画面（有总比没有强）。
+     */
+    private static final int MIN_SRC = 6;
+
+    /**
+     * 并发度。
+     *
+     * 原来开 8 条，实测电视上十个源同一瞬间各发一次 TLS 握手，
+     * 会被中间设备当成异常流量 reset（日志里 modu/ysxq/ikun 三条
+     * SocketException(Connection reset) 基本是同一秒出现的）。
+     * 收到 6 条既不会挤爆连接，也还在预算内跑得完。
+     */
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(6);
+
+    /**
+     * 源级熔断：某个源连续失败就冷处理一段时间。
+     *
+     * 实测一个源彻底挂掉（比如 ikun 现在握手就断）时，每个频道都要白等它
+     * 3 次重试共 ~6 秒，港剧/港台综艺直接顶到 9 秒预算上限。
+     * 记一次失败、冷却 3 分钟，期间直接跳过它，用户完全感觉不到。
+     */
+    private static final long COOLDOWN = 180000;
+    private static final java.util.Map<String, Long> DOWN =
+            new java.util.concurrent.ConcurrentHashMap<String, Long>();
+
+    private static boolean isDown(Src s) {
+        Long t = DOWN.get(s.key);
+        if (t == null) {
+            return false;
+        }
+        if (System.currentTimeMillis() - t > COOLDOWN) {
+            DOWN.remove(s.key);
+            return false;
+        }
+        return true;
+    }
+
+    private static void markDown(Src s) {
+        if (DOWN.put(s.key, System.currentTimeMillis()) == null) {
+            Trace.add("multi", "源 " + s.key + " 连续失败，冷却 3 分钟不再请求");
+        }
+    }
+
+    /** 自检页/调试用：现在有几个源处于冷却中。 */
+    public static int downCount() {
+        long now = System.currentTimeMillis();
+        int n = 0;
+        for (Long t : DOWN.values()) {
+            if (now - t <= COOLDOWN) {
+                n++;
+            }
+        }
+        return n;
+    }
 
     private Multi() {
     }
@@ -46,7 +109,11 @@ public final class Multi {
         final List<Src> srcs = new ArrayList<Src>();
         for (int i = 0; i < Src.all().size(); i++) {
             if (Src.all().get(i).has(ch)) {
-                srcs.add(Src.all().get(i));
+                Src s = Src.all().get(i);
+                if (isDown(s)) {
+                    continue;
+                }
+                srcs.add(s);
             }
         }
         final Api.Page[] got = new Api.Page[srcs.size()];
@@ -58,7 +125,11 @@ public final class Multi {
                 public void run() {
                     try {
                         got[idx] = Api.list(s, ch, pg);
+                        if (got[idx] == null || got[idx].failed) {
+                            markDown(s);
+                        }
                     } catch (Throwable t) {
+                        markDown(s);
                         Trace.err("multi", "源 " + s.key + " 取分类失败 ch=" + ch, t);
                     } finally {
                         latch.countDown();
@@ -66,11 +137,63 @@ public final class Multi {
                 }
             });
         }
-        try {
-            latch.await(LIST_BUDGET, TimeUnit.MILLISECONDS);
-        } catch (Throwable t) {
-        }
+        // 不再死等满预算：边等边看，手上够了就立刻出画面。
+        // 电视上快源 1 秒内就回来了，慢源再等它 8 秒毫无意义。
+        awaitEnough(latch, got, LIST_BUDGET);
         return merge(srcs, got, pg);
+    }
+
+    /** 搜索侧的「够用就走」，判定依据是已经拿到多少个源的结果。 */
+    private static void awaitSearch(CountDownLatch latch, List<Vod>[] got,
+            long timeout, int enoughSources) {
+        long end = System.currentTimeMillis() + timeout;
+        while (System.currentTimeMillis() < end) {
+            try {
+                if (latch.await(80, TimeUnit.MILLISECONDS)) {
+                    return;
+                }
+            } catch (Throwable t) {
+                return;
+            }
+            int n = 0;
+            for (int i = 0; i < got.length; i++) {
+                if (got[i] != null && !got[i].isEmpty()) {
+                    n++;
+                }
+            }
+            if (n >= enoughSources) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * 等到「够用了」就返回，而不是等满 timeout。
+     *
+     * 判据按**源数**而不是条数：两个源各自 30/20 条就能凑够 50 条，
+     * 但那样整墙就只剩两家站的片，多源聚合的意义全没了。
+     * 所以要求至少 MIN_SRC 个源回来了，或者预算用尽。
+     */
+    private static void awaitEnough(CountDownLatch latch, Api.Page[] got, long timeout) {
+        long end = System.currentTimeMillis() + timeout;
+        while (System.currentTimeMillis() < end) {
+            try {
+                if (latch.await(60, TimeUnit.MILLISECONDS)) {
+                    return; // 全部源都回来了
+                }
+            } catch (Throwable t) {
+                return;
+            }
+            int n = 0;
+            for (int i = 0; i < got.length; i++) {
+                if (got[i] != null && !got[i].items.isEmpty()) {
+                    n++;
+                }
+            }
+            if (n >= MIN_SRC) {
+                return; // 够热闹了，剩下的慢源不等
+            }
+        }
     }
 
     /** 搜索：中文走各源 wd=，纯字母/拼音走 wsyzy 联想，两路合并。 */
@@ -79,7 +202,13 @@ public final class Multi {
             return new ArrayList<Vod>();
         }
         final String k = kw.trim();
-        final List<Src> srcs = Src.all();
+        final List<Src> srcs = new ArrayList<Src>();
+        for (int i = 0; i < Src.all().size(); i++) {
+            Src s = Src.all().get(i);
+            if (!isDown(s)) {
+                srcs.add(s);
+            }
+        }
         final List<Vod>[] got = new List[srcs.size() + 1];
         final CountDownLatch latch = new CountDownLatch(srcs.size() + 1);
 
@@ -90,7 +219,11 @@ public final class Multi {
                 public void run() {
                     try {
                         got[idx] = Api.wd(s, k);
+                        if (got[idx] == null && !"wsyzy".equals(s.key)) {
+                            markDown(s);
+                        }
                     } catch (Throwable t) {
+                        markDown(s);
                         Trace.err("multi", "源 " + s.key + " 搜索失败", t);
                     } finally {
                         latch.countDown();
@@ -111,10 +244,8 @@ public final class Multi {
             }
         });
 
-        try {
-            latch.await(SEARCH_BUDGET, TimeUnit.MILLISECONDS);
-        } catch (Throwable t) {
-        }
+        // 搜索也一样：够铺一屏就不等慢源了
+        awaitSearch(latch, got, SEARCH_BUDGET, SEARCH_ENOUGH_N);
 
         List<Vod> out = new ArrayList<Vod>();
         Set<String> seen = new HashSet<String>();

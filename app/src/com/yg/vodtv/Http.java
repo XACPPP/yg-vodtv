@@ -25,9 +25,57 @@ public final class Http {
             "Mozilla/5.0 (Linux; Android 5.1.1; VIDAA TV) AppleWebKit/537.36 "
             + "(KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36";
 
+    /**
+     * 连接层最多试几次。实测电视上 TLS 会被中间设备 reset（日志里的
+     * SocketException(Connection reset)），这类错误重试一次基本就过了，
+     * 只试一次会把好好的源白白判死——搜索只剩 2 个源就是这么来的。
+     */
+    private static final int ATTEMPTS = 3;
+
+    /** 各次重试前的等待：第一次快一点，后面给中间设备一点恢复时间。 */
+    private static final long[] BACKOFF = { 300, 900 };
+
     private static boolean inited = false;
 
     private Http() {
+    }
+
+    static {
+        // 电视网络没有 IPv6 出口，但 Android 优先选 AAAA 记录，
+        // 日志里就是卡在 connect ikunzyapi.com/[::]:443 上。
+        // 必须在任何网络类初始化之前设置才生效，所以放静态块。
+        try {
+            if (System.getProperty("java.net.preferIPv4Stack") == null) {
+                System.setProperty("java.net.preferIPv4Stack", "true");
+            }
+        } catch (Throwable t) {
+        }
+    }
+
+    /** 连接层/读超时这类错误值得重试；4xx 这种确定性错误不该重试。 */
+    private static boolean retryable(Throwable t) {
+        if (t instanceof java.net.SocketException
+                || t instanceof java.net.SocketTimeoutException
+                || t instanceof java.net.ConnectException
+                || t instanceof java.net.UnknownHostException
+                || t instanceof java.io.IOException
+                || t instanceof javax.net.ssl.SSLException) {
+            // 证书/协议类错误重试也没用，但 SSLException 常见于握手被 reset，
+            // 这里一律当瞬时错误处理，反正最多多花两次握手的时间。
+            return true;
+        }
+        return false;
+    }
+
+    /** 自检页要显示「连接层最多重试几次」，别的地方不用管。 */
+    public static int attempts() {
+        return ATTEMPTS;
+    }
+
+    private static void backoff(int attempt) {
+        if (attempt < BACKOFF.length) {
+            sleep(BACKOFF[attempt]);
+        }
     }
 
     public static synchronized void trustAll() {
@@ -89,15 +137,15 @@ public final class Http {
      * 否则一个卡住的站会把整页拖到预算上限。
      */
     public static String get(String url, String referer, int connectMs, int readMs) {
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
             try {
                 HttpURLConnection c = open(url, referer, connectMs, readMs);
                 int code = c.getResponseCode();
                 if (code != 200) {
                     c.disconnect();
                     // 5xx 是上游/CDN 抖动，值得立刻再来一次；4xx 重试没意义
-                    if (code >= 500 && attempt == 0) {
-                        sleep(400);
+                    if (code >= 500 && attempt < ATTEMPTS - 1) {
+                        backoff(attempt);
                         continue;
                     }
                     Trace.add("http", "GET " + code + " " + shortUrl(url));
@@ -106,16 +154,21 @@ public final class Http {
                 byte[] b = readAll(c.getInputStream());
                 c.disconnect();
                 if (b == null) {
+                    // 读到一半断流，换一次连接往往就好了
+                    if (attempt < ATTEMPTS - 1) {
+                        backoff(attempt);
+                        continue;
+                    }
                     Trace.add("http", "读取中断 " + shortUrl(url));
                     return null;
                 }
                 return new String(b, "UTF-8");
             } catch (Throwable t) {
-                if (attempt == 0) {
-                    sleep(400);
+                if (attempt < ATTEMPTS - 1 && retryable(t)) {
+                    backoff(attempt);
                     continue;
                 }
-                Trace.err("http", "GET 失败 " + shortUrl(url), t);
+                Trace.err("http", "GET 失败 " + shortUrl(url) + " (第 " + (attempt + 1) + " 次)", t);
                 return null;
             }
         }
@@ -123,24 +176,45 @@ public final class Http {
     }
 
     public static byte[] getBytes(String url, String referer) {
-        try {
-            HttpURLConnection c = open(url, referer);
-            int code = c.getResponseCode();
-            if (code != 200) {
-                Trace.add("http", "GET* " + code + " " + shortUrl(url));
+        return getBytes(url, referer, 12000, 20000);
+    }
+
+    /** 指定超时的取字节：海报快跳、更新下载都用它。 */
+    public static byte[] getBytes(String url, String referer, int connectMs, int readMs) {
+        for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
+            try {
+                HttpURLConnection c = open(url, referer, connectMs, readMs);
+                int code = c.getResponseCode();
+                if (code != 200) {
+                    c.disconnect();
+                    if (code >= 500 && attempt < ATTEMPTS - 1) {
+                        backoff(attempt);
+                        continue;
+                    }
+                    Trace.add("http", "GET* " + code + " " + shortUrl(url));
+                    return null;
+                }
+                byte[] b = readAll(c.getInputStream());
                 c.disconnect();
+                if (b == null) {
+                    if (attempt < ATTEMPTS - 1) {
+                        backoff(attempt);
+                        continue;
+                    }
+                    Trace.add("http", "读取中断 " + shortUrl(url));
+                    return null;
+                }
+                return b;
+            } catch (Throwable t) {
+                if (attempt < ATTEMPTS - 1 && retryable(t)) {
+                    backoff(attempt);
+                    continue;
+                }
+                Trace.err("http", "GET* 失败 " + shortUrl(url) + " (第 " + (attempt + 1) + " 次)", t);
                 return null;
             }
-            byte[] b = readAll(c.getInputStream());
-            c.disconnect();
-            if (b == null) {
-                Trace.add("http", "读取中断 " + shortUrl(url));
-            }
-            return b;
-        } catch (Throwable t) {
-            Trace.err("http", "GET* 失败 " + shortUrl(url), t);
-            return null;
         }
+        return null;
     }
 
     /**

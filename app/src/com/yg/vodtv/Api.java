@@ -29,6 +29,12 @@ public final class Api {
         public int page = 1;
         public int pagecount = 1;
         public int total = 0;
+        /**
+         * 网络层失败（连接被 reset / 超时 / 非 200 / JSON 解析失败）。
+         * 和「这一页本来就没内容」要分开：前者说明源挂了该熔断，
+         * 后者只是这个分类在这个源上确实空。
+         */
+        public boolean failed = false;
     }
 
     /** ==================== 单源取数 ==================== */
@@ -207,6 +213,7 @@ public final class Api {
         Page p = new Page();
         if (body == null) {
             Trace.add("api", "无响应 " + what);
+            p.failed = true;
             return p;
         }
         try {
@@ -227,8 +234,9 @@ public final class Api {
                 Trace.add("api", "空列表 " + what + " len=" + body.length());
             }
         } catch (Throwable t) {
-            // 部分分类返回非 JSON，容错为空页
+            // 部分分类返回非 JSON，容错为空页；但这属于源侧异常，要标记出来给熔断用
             Trace.err("api", "JSON 解析失败 " + what + " 头部=" + head(body), t);
+            p.failed = true;
         }
         return p;
     }

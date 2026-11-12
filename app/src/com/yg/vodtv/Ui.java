@@ -211,30 +211,46 @@ public final class Ui {
     }
 
     /**
-     * 三跳兜底：https → http → 公共图片代理。
-     * 前两跳针对证书/协议问题，第三跳针对「图床整个域名在国内不可达」。
-     * 三条都失败才算真失败，并把具体跳数写进 Trace，方便电视上自检定位。
+     * 多跳兜底，但不再串行等满三轮。
+     *
+     * 之前是 https 失败等完 12s 连接超时、再试 http 等 12s、再试图片代理，
+     * 电视上一篇海报要 3 秒起（日志里 [selftest] 海报 OK 3018ms），整墙就废了。
+     *
+     * 现在的策略：
+     * 1) 先用「快超时」试原始地址（3s/5s）——正常网络下 1 秒内就回来了；
+     * 2) 原始地址失败就直接上图片代理（同一份 UA，代理侧更容易连通），
+     *    用正常超时，因为代理慢一点没关系，它几乎不会失败；
+     * 3) 代理也失败才回到 http 降级 + 正常超时，作为最后一道。
+     *
+     * 这样最常见的两种场景都只花一跳：图床直连通的走 1，图床被墙的走 2。
      */
     private static Bitmap fetchAny(String raw, int w, int h) {
         String up = toHttps(raw);
-        Bitmap b = fetch(up, w, h);
+
+        // 第一跳：原始地址，快超时
+        Bitmap b = fetch(up, w, h, 3000, 5000);
         if (b != null) {
             return b;
         }
-        String down = httpize(raw);
-        if (!down.equals(up)) {
-            b = fetch(down, w, h);
-            if (b != null) {
-                Trace.add("poster", "https 没取到，http 兜底成功 " + Http.shortUrl(raw));
-                return b;
-            }
-        }
-        b = fetch(proxied(raw), w, h);
+
+        // 第二跳：图片代理（针对「图床域名在国内不可达」）
+        b = fetch(proxied(raw), w, h, 6000, 12000);
         if (b != null) {
             Trace.add("poster", "直连失败，图片代理兜底成功 " + Http.shortUrl(raw));
             return b;
         }
-        Trace.add("poster", "海报三次都失败（https/http/代理）" + Http.shortUrl(raw));
+
+        // 第三跳：http 降级（针对「证书链太旧/只监听 80 端口」的老图床）
+        String down = httpize(raw);
+        if (!down.equals(up)) {
+            b = fetch(down, w, h, 6000, 10000);
+            if (b != null) {
+                Trace.add("poster", "https/代理都没取到，http 兜底成功 " + Http.shortUrl(raw));
+                return b;
+            }
+        }
+
+        Trace.add("poster", "海报三跳全失败（原始/代理/http）" + Http.shortUrl(raw));
         return null;
     }
 
@@ -361,8 +377,15 @@ public final class Ui {
     }
 
     private static Bitmap fetch(String url, int reqW, int reqH) {
+        return fetch(url, reqW, reqH, 0, 0);
+    }
+
+    /** 带超时的取图；connectMs/readMs 传 0 表示用 Http 的默认 12s/20s。 */
+    private static Bitmap fetch(String url, int reqW, int reqH, int connectMs, int readMs) {
         try {
-            byte[] data = Http.getBytes(url, null);
+            byte[] data = connectMs > 0
+                    ? Http.getBytes(url, null, connectMs, readMs)
+                    : Http.getBytes(url, null);
             if (data == null) {
                 return null;
             }
