@@ -225,6 +225,12 @@ build-tools 30.0.3）→ 从 Secret `KEYSTORE_B64` 还原 `app/yg.keystore` → 
 `app/build-ci.sh` 是 `build.sh` 的 Linux 版：同样的 aapt2 → javac → d8 → 打包 → zipalign → apksigner 六步，
 只是工具路径来自 `ANDROID_HOME`、没有 `.exe` 后缀、用系统自带的 `javac`/`python3`。
 
+**v1.7 实发记录**：`git tag -a v1.7 && git push origin master v1.7` 后 CI run
+[43168907319](https://github.com/XACPPP/yg-vodtv/actions/runs/43168907319) 一次通过（约 1 分钟），
+Release <https://github.com/XACPPP/yg-vodtv/releases/tag/v1.7> 已挂 `YG.TV.apk` 与 `YGTV.apk`（均 61905 字节），
+与本地构建产物同尺寸。CI 报的 3 条 annotation 都是 action 版本弃用警告（Node.js 20、setup-java@v4、
+ubuntu-latest 标签迁移），不影响出包。
+
 **踩坑记录**：仓库刚建、workflow 文件推上去后，`gh api .../actions/workflows` 长时间返回
 `total_count: 0`，`gh workflow run build.yml` 报 `HTTP 404: workflow build.yml not found on the default branch`，
 空 commit、重写文件、甚至 PUT `actions/permissions` 都没用。**推一个 tag 就好了** —— tag 事件会强制
@@ -313,8 +319,8 @@ APK 信息：`package=com.yg.vodtv`、`versionCode=6`、`versionName=1.5`、`min
 `targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 
-`build.sh` 里有防假成功的检查：javac 之后逐个确认 14 个 class 都产出了，并比对
-`MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
+`build.sh` 里有防假成功的检查：javac 之后逐个确认 16 个 class 都产出了（v1.7 把 `Src`、`Multi`
+也加进了清单），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
 
 ## 四、安装
 
@@ -327,8 +333,11 @@ APK 信息：`package=com.yg.vodtv`、`versionCode=6`、`versionName=1.5`、`min
 
 ### 方式 A+：手机/其他设备下载
 
-<https://github.com/XACPPP/yg-vodtv/releases/latest> 直接下 `YGTV.apk`。
+<https://github.com/XACPPP/yg-vodtv/releases/latest> 直接下 `YGTV.apk`（当前 Latest 是 v1.7，61905 字节）。
 **装过一次 v1.4 或更新版本之后就不用再手动装了** —— App 里点「检查更新」自己升级。
+
+电视端那条更新链路如果卡住（国内直连 GitHub 的 TLS 会被中间设备打断），从 v1.7 起元信息优先走
+`gh-proxy.com` 镜像，只有镜像也失败才回落到直连，所以正常情况下电视自己就能升级。
 
 ### 方式 B：ADB（需要电视开启 ADB 调试）
 
@@ -437,9 +446,7 @@ dex 内确认含 `Src`、`Multi`、`fillIntro`、`CH_REC`、`hasH`、`letter`、
 （新增的多源与三跳海报代码确实打进去了，不是只改了源码没进包）。
 `aapt2 dump badging` → `versionCode='8' versionName='1.7'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
-签名 `apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）。
-
-签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false；
+签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
 SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`。
 
