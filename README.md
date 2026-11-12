@@ -4,7 +4,7 @@
 （Android 5.1.1 / API 22，已 root）定制。片源来自 `wsyzy` 系列接口，属于 `88lin/video_vip`
 用户脚本所依赖的同一套「无损云解析」链路，但本 App 是原生重写，不依赖浏览器和油猴脚本。
 
-当前版本：**v1.5（versionCode 6）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v1.6（versionCode 7）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -100,9 +100,16 @@ http 兜底通道同样 200 且字节数一致 —— 说明服务端两种协�
 | 步骤 | 做法 | 注意 |
 | --- | --- | --- |
 | 选 asset | 优先 `browser_download_url` 以 `/YGTV.apk` 结尾的那个 | GitHub 会把中文名 `YG影视TV.apk` 转码成 `YG.TV.apk`，认名字不可靠 |
+| **查元信息** | 直连 `api.github.com` → 失败退 `https://gh-proxy.com/` | 6 秒连接 / 8 秒读取，直连被墙时快速跳镜像，不让用户干等 |
+| **下载** | 直连 → `gh-proxy.com` → `ghfast.top` | 下载地址兜底用 `releases/latest/download/YGTV.apk`，不依赖具体 tag |
 | 下载目录 | `Environment.getExternalStorageDirectory()/Download/YG影视TV/` | **不能用 `getCacheDir()`**：系统安装器是另一个 uid，读不到 `/data/data/...` |
 | 安装 | `Intent.ACTION_VIEW` + `Uri.fromFile` + `application/vnd.android.package-archive` | targetSdk 22 可以直接 `file://`，不用 FileProvider |
 | 权限 | `REQUEST_INSTALL_PACKAGES` + `WRITE_EXTERNAL_STORAGE` | Android 8+ 才要「允许安装未知应用」，5.1 只弹一次系统确认 |
+
+**镜像实测（2026-11-12）**：`gh-proxy.com` 能代理 `api.github.com`（返回 6129 字节、tag 一致）；
+`ghfast.top` 对 `api.github.com` 回 403、只代理 Release 下载，所以元信息和下载用两套列表。
+两个镜像下载的 `YGTV.apk` 与官方 md5 完全一致（`f919064c03d0a8ab7d0a86fe921d0171`）。
+`ghproxy.net`、`hub.gitmirror.com`、`gh.llkk.cc` 当时全部不通，没有采用。
 
 签名是同一把 key（见下），所以新包能原地覆盖升级，不用卸载。
 
@@ -253,7 +260,7 @@ env -u MSYS_NO_PATHCONV bash run.sh wire   # Wire：用原始 Socket 模拟 NuPl
 env -u MSYS_NO_PATHCONV bash run.sh tabs   # Tabs：27 个分类逐项验证，27 项
 env -u MSYS_NO_PATHCONV bash run.sh rank   # Rank：搜索结果贴合度排序，4 组
 env -u MSYS_NO_PATHCONV bash run.sh meta   # Meta：刮削字段 + 海报双通道，9 项
-env -u MSYS_NO_PATHCONV bash run.sh upd    # Upd：版本号 + 真实 Release 下载，16 项
+env -u MSYS_NO_PATHCONV bash run.sh upd    # Upd：版本号 + 镜像兜底 + 真实 Release 下载，19 项
 env -u MSYS_NO_PATHCONV bash run.sh dump   # 打印真实改写的播放列表头部
 ```
 
@@ -276,8 +283,10 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 样本「尚公主」导演秦榛、地区中国大陆、语言汉语普通话、年份 2026、简介两段且无 HTML 标签与残留实体；
 海报 https 通道 6/6 全 JPEG（20593–33146 字节），http 兜底通道同样 200。
 
-**Upd（16/16 PASS，v1.4 新增）**：`v1.4`/`V1.4`/`1.4`/`release-1.4`/`v1.4-beta` 清洗全对；
+**Upd（19/19 PASS，v1.4 新增，v1.6 扩镜像）**：`v1.4`/`V1.4`/`1.4`/`release-1.4`/`v1.4-beta` 清洗全对；
 `1.10 > 1.9`、`1.4.1 > 1.4` 分段比较正确；真实请求 GitHub Release API 拿到 `/YGTV.apk`；
+元信息两条通道（直连 + `gh-proxy.com`）、下载三条通道（直连 + `gh-proxy` + `ghfast.top`）逐个校验，
+并**真的经 `gh-proxy.com` 拉了一次 release API**（拿到 `tag_name`）；
 **真的下载了一次**（53713 字节，落在外部存储 `Download/YG影视TV/YGTV-new.apk`，是合法 zip）。
 
 **Tabs（27/27 PASS）**：首页 27 个分类标签逐个拉第一页，要求「有数据 + 有海报」。
@@ -319,10 +328,12 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿。最近一次（v1.5）：APK 53713 字节，md5 `7bbb1e9d87ecf406c760beaeeba6973d`
-（`YG影视TV.apk` 与 `YGTV.apk` 同一份）；`classes.dex` 87552 字节；dex 内确认含 `Ver`、`Update`、
-`checkSync`、`fetchAny`、`intro`、`vod_actor`、`vod_content`、`Download`、`v1.5`。
-`aapt2 dump badging` → `versionCode='6' versionName='1.5'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`build.sh` 六步全绿。最近一次（v1.6）：APK 53713 字节，本地 md5 `676a162e188db6960d92e7a2a65c4064`、
+CI 产物 md5 `4e40fe0f84d46476222004e2ee371ca2`（两个 APK 同一份；本地与 CI 的 md5 不同属 zip 时间戳差异，
+dex 都是 89044 字节）；dex 内确认含 `Ver`、`Update`、`checkSync`、`fetchAny`、`intro`、`vod_actor`、
+`vod_content`、`Download`、`getQuick`、`downloadOnce`、`API_PROXIES`、`DL_PROXIES`、`gh-proxy.com`、
+`ghfast.top`、`v1.6`。
+`aapt2 dump badging` → `versionCode='7' versionName='1.6'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名 `apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）。
 
@@ -387,7 +398,7 @@ YG影视TV/
     │   ├── Tabs.java            # 27 个分类逐项验证（有数据 + 有海报）
     │   ├── Rank.java            # 搜索结果贴合度排序验证
     │   ├── Meta.java            # 刮削字段 + 海报双通道验证（9 项）
-    │   ├── Upd.java             # 版本号解析/比较 + 真实 Release 下载（16 项）
+    │   ├── Upd.java             # 版本号解析/比较 + 镜像兜底 + 真实 Release 下载（19 项）
     │   ├── Dump.java            # 打印改写后的播放列表
     │   ├── android/*.java       # android.util/net/os/content 替身
     │   └── org/json/*.java            # org.json 替身
