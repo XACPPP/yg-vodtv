@@ -177,6 +177,14 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 
 另加：顶栏「清缓存」按钮（只删海报，播放记录/搜索历史在 SharedPreferences 里不受影响）+ 一条 2.5 秒自动消失的提示条。
 
+- CI run [`43211283062`](https://github.com/XACPPP/yg-vodtv/actions/runs/43211283062) 一次通过。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.2>（2026-11-12 19:41）。
+- 资产 `YG.TV.apk` / `YGTV.apk` 均 **74193 字节**，sha256
+  `b74975e8f15a46195b2c97c38fccb91e29930953ed5e28b596608bedad33ba04`；
+  经 `gh-proxy.com` 镜像下载 **74193 字节一致**（md5 `2122fd3861a9e86fe939ffa2f0ce63d8`）。
+- dex **128176 字节**（v2.1 是 124488），内确认含 `MODE_AUTO`、`wantFill`、`describe`、
+  `DISK_MAX_BYTES`、`clearDisk`、`trimDiskAsync`、`clearCacheConfirm`、`banner`、`diskLimit`。
+
 ### v2.1：修「搜索没封面 / 预加载白干 / 缓存没用」
 
 三处真 bug 的定位与改法见上面 `### 海报（v2.1 修「预加载白干」三处真 bug）`。
@@ -707,11 +715,12 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿。最近一次（v2.1）：APK **74193 字节**，dex **124488 字节**（v2.0 是 121888）；
-dex 内确认含 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
-以及 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`
-（v2.1 的缓存三处修复、v2.0 的播放比例/预加载/搜索剪枝/四个新源确实打进去了，不是只改了源码没进包）。
-`aapt2 dump badging` → `versionCode='12' versionName='2.1'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.2）：APK **74193 字节**，dex **128176 字节**（v2.1 是 124488）；
+dex 内确认含 `MODE_AUTO`、`wantFill`、`describe`、`DISK_MAX_BYTES`、`clearDisk`、`trimDiskAsync`、
+`clearCacheConfirm`、`banner`、`diskLimit`，以及 v2.1 的 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
+还有 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`
+（每版改动确实打进去了，不是只改源码没进包）。
+`aapt2 dump badging` → `versionCode='13' versionName='2.2'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
@@ -719,7 +728,10 @@ SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`。
 
 ### 未验证
 
-**v2.0 这三处改动都只在桌面上验证过，电视上还没跑过：**播放画面比例（`FitVideoView` 的
+**v2.2 的两处改动也只验证了逻辑，没上真机：**「自动」比例档的 `MAX_CROP=0.34` 是否合手感（20:9 手机放
+21:9 老片会怎么选）、磁盘缓存按字节清理在 `getCacheDir()` 真可写时的实际表现（自检页第 5 步会直接读数）。
+
+**v2.0 的三处改动同样只在桌面上验证过：**播放画面比例（`FitVideoView` 的
 `onMeasure` 反射读 `mVideoWidth` 在 VIDAA 的 ROM 上能不能拿到值）、海报预加载与磁盘缓存
 （`getCacheDir()` 在已 root 的电视上是否可写）、四个新源的实际播放（m3u8 只在桌面用 python 拉过首包）。
 
@@ -751,7 +763,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.1」
+6. 标题栏「检查更新」显示「已是最新版本 v2.2」
 
 ## 六、目录
 
