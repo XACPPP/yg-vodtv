@@ -195,6 +195,18 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 交付：`test/icon_candidates/` 下的 `robot_512.png`（512 大图）、`robot_round.png`（圆形裁切）、
   `robot_ladder.png`（32/40/48/72/96/144/192 七档同屏对比，用来验小尺寸可读性）。
 
+生成脚本 `test/make_icon_robot.py` 会把图量化到 200 色调色板再落盘——这个图标一共就 6 个色系
+加渐变，肉眼看不出差别，192px 从 30KB 降到 13KB，五个密度总共只让 APK 长了 25KB
+（74193 → 99185）。
+
+- CI run [`43215127017`](https://github.com/XACPPP/yg-vodtv/actions/runs/43215127017) 一次通过。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.3>（2026-11-12 20:08）。
+- 资产 `YG.TV.apk` / `YGTV.apk` 均 **99185 字节**，sha256
+  `27173ae660ea41aecc6b28f50bc3c836ce7c8ec30bb54bf0f4eb58eaf64f5b65`。
+- `aapt2 dump badging` → `versionCode='14' versionName='2.3'`，五个密度的
+  `application-icon-160/240/320/480/640` 全部指向新的 `ic_launcher.png`。
+- dex **128176 字节**（与 v2.2 一致——这版只改了资源和版本号，没动代码）。
+
 ### v2.2：画面「自动」比例 + 缓存按字节封顶
 
 老板两条反馈：「手机上看虽然画面正常了但没全屏」「预加载不能让缓存一直无限增大」。
@@ -745,12 +757,12 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.2）：APK **74193 字节**，dex **128176 字节**（v2.1 是 124488）；
+`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.3）：APK **99185 字节**，dex **128176 字节**（v2.2 也是 128176——v2.3 只动资源和版本号，没改代码）；
 dex 内确认含 `MODE_AUTO`、`wantFill`、`describe`、`DISK_MAX_BYTES`、`clearDisk`、`trimDiskAsync`、
 `clearCacheConfirm`、`banner`、`diskLimit`，以及 v2.1 的 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
 还有 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`
 （每版改动确实打进去了，不是只改源码没进包）。
-`aapt2 dump badging` → `versionCode='13' versionName='2.2'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`aapt2 dump badging` → `versionCode='14' versionName='2.3'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
@@ -793,7 +805,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.2」
+6. 标题栏「检查更新」显示「已是最新版本 v2.3」
 
 ## 六、目录
 
@@ -808,7 +820,8 @@ YG影视TV/
 │   ├── build-ci.sh              # 六步构建脚本（Linux / GitHub Actions）
 │   ├── yg.keystore              # 签名（yg123456）—— 不进仓库，CI 用 Secret 还原
 │   ├── res/values/strings.xml
-│   ├── res/drawable/ic_launcher.png
+│   ├── res/drawable/ic_launcher.png          # 192px 兜底（电视 banner 复用）
+│   ├── res/drawable-{m,h,xh,xxh,xxxh}dpi/    # v2.3 机器人图标五档密度
 │   ├── src/com/yg/vodtv/*.java  # 16 个源文件（v1.7 新增 Src.java / Multi.java）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
@@ -841,6 +854,8 @@ YG影视TV/
     ├── class_all.json           # 十源完整 class 表（JSON）
     ├── class_wsyzy.json         # 仅 wsyzy 的 60 个分类
     ├── class_view.txt           # 十源 `id=名称` 对照表（UTF-8，Src.SPEC 就是照它填的）
+    ├── make_icon_robot.py       # v2.3 图标生成器（Pillow 纯代码画，五档密度一起出）
+    ├── icon_candidates/         # 图标大图 + 七档尺寸对比图（验小尺寸可读性）
     └── samples/                 # 已抓的 *.ts / *.m3u8
 ```
 
