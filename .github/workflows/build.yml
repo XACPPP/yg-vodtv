@@ -1,0 +1,87 @@
+name: build
+
+# 打 tag（如 v1.4）就自动出包并发 Release；
+# 也能在 Actions 页面手动点一次，只出包不发 Release。
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取代码
+        uses: actions/checkout@v4
+
+      - name: 装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 装 Android SDK 组件
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-30 build-tools;30.0.3'
+
+      - name: 还原签名文件
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::缺少仓库 Secret KEYSTORE_B64（yg.keystore 的 base64），无法用固定签名出包"
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > app/yg.keystore
+          ls -l app/yg.keystore
+
+      - name: 校验 tag 与 Ver.NAME 一致
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER=$(grep -oP 'NAME\s*=\s*"\K[^"]+' app/src/com/yg/vodtv/Ver.java | head -1)
+          echo "tag=$TAG  Ver.NAME=$VER"
+          if [ "$TAG" != "$VER" ]; then
+            echo "::error::tag（$TAG）与 Ver.java 里的 NAME（$VER）不一致，请先改 Ver.java 再打 tag"
+            exit 1
+          fi
+
+      - name: 构建 APK
+        run: bash app/build-ci.sh
+
+      - name: 记录产物信息
+        run: |
+          ls -l app/*.apk
+          md5sum app/YG影视TV.apk app/YGTV.apk
+          echo "### 构建结果" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          md5sum app/YG影视TV.apk | sed 's/  / /' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: YGTV-apk
+          path: |
+            app/YG影视TV.apk
+            app/YGTV.apk
+
+      - name: 发 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            自动构建发布于 ${{ github.event.head_commit.timestamp }}。
+
+            电视/手机上直接装 `YGTV.apk`；App 里点「检查更新」也能自己升级。
+          files: |
+            app/YG影视TV.apk
+            app/YGTV.apk
+          fail_on_unmatched_files: true

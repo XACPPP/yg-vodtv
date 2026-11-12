@@ -1,0 +1,9 @@
+# 构建产物
+app/build/
+app/*.apk
+test/harness/build/
+
+# 本机工具链与签名私钥：不进仓库
+app/yg.keystore
+*.jks
+*.keystore
