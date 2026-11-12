@@ -54,16 +54,25 @@ public final class PlayerActivity extends Activity {
     private int tickCount = 0;
 
     /**
-     * 画面模式。0 = 适应（等比完整，多余部分留黑边，默认）；
-     * 1 = 铺满（等比放大到填满屏幕，超出部分裁掉）。
+     * 画面模式。
      *
-     * 为什么要两个：竖屏短剧（抖音那种 9:16）在 16:9 电视上按比例完整显示时，
-     * 画面只占中间约三分之一宽，两边全黑，看着像没全屏。铺满模式能填满，
-     * 代价是上下裁掉一截。这个只能让用户自己选，程序猜不出来。
+     * 0 = 自动（默认）：裁得少就铺满，裁得多就退回适应
+     * 1 = 适应：等比完整显示，多余留黑
+     * 2 = 铺满：等比放大到盖满屏幕，超出部分裁掉
+     *
+     * 为什么加「自动」：老板在手机上装完反馈「画面正常了但没全屏」。
+     * 手机是 20:9 左右，16:9 的片子按「适应」只能占中间那一块，左右留黑边 ——
+     * 这不是 bug，是「完整显示」的必然结果。但铺满只裁掉上下各一小条，观感完全能接受；
+     * 而竖屏短剧（9:16）铺满要裁掉七成以上，那就不能铺。所以按「裁切比例」判断：
+     * 裁得少就铺满，裁得多就适应。
      */
-    private static final int MODE_FIT = 0;
-    private static final int MODE_FILL = 1;
-    private int scaleMode = MODE_FIT;
+    private static final int MODE_AUTO = 0;
+    private static final int MODE_FIT = 1;
+    private static final int MODE_FILL = 2;
+    private int scaleMode = MODE_AUTO;
+
+    /** 自动模式下能容忍的最大裁切比例，超过就走「适应」。 */
+    private static final double MAX_CROP = 0.34;
 
     private Runnable hideToast;
     private Runnable hideControls;
@@ -512,20 +521,39 @@ public final class PlayerActivity extends Activity {
     /** 把当前画面模式应用到 VideoView，并在 Trace 里留个记录。 */
     private void applyScaling() {
         if (vv instanceof FitVideoView) {
-            ((FitVideoView) vv).setFill(scaleMode == MODE_FILL);
+            ((FitVideoView) vv).setMode(scaleMode, MAX_CROP);
         }
     }
 
-    /** 切「适应 / 铺满」。竖屏短剧和宽银幕老片都靠它。 */
+    /** 切「自动 / 适应 / 铺满」三档，循环。竖屏短剧和宽银幕老片都靠它。 */
     private void toggleScaleMode() {
-        scaleMode = (scaleMode == MODE_FIT) ? MODE_FILL : MODE_FIT;
+        scaleMode = (scaleMode + 1) % 3;
         applyScaling();
-        showToast(scaleMode == MODE_FILL ? "画面：铺满（超出部分裁掉）" : "画面：适应（完整显示，两侧留黑）");
-        Trace.add("player", "画面模式切到 " + modeName());
+        String tip;
+        if (scaleMode == MODE_FIT) {
+            tip = "画面：适应（完整显示，两侧留黑）";
+        } else if (scaleMode == MODE_FILL) {
+            tip = "画面：铺满（超出部分裁掉）";
+        } else {
+            tip = "画面：自动（按片源比例自己判断）";
+        }
+        showToast(tip);
+        Trace.add("player", "画面模式切到 " + modeName() + "；" + scalingDetail());
     }
 
     private String modeName() {
-        return scaleMode == MODE_FILL ? "铺满" : "适应";
+        if (scaleMode == MODE_FIT) {
+            return "适应";
+        }
+        return scaleMode == MODE_FILL ? "铺满" : "自动";
+    }
+
+    /** 当前这次实际是铺满还是适应、裁/黑了多少，写日志和 toast 用。 */
+    private String scalingDetail() {
+        if (!(vv instanceof FitVideoView)) {
+            return "";
+        }
+        return ((FitVideoView) vv).describe();
     }
 
     /** 视频尺寸与比例描述，写日志用。「竖屏」「4:3」这类词比 1440x1080 直观。 */
@@ -656,14 +684,51 @@ public final class PlayerActivity extends Activity {
             super(c);
         }
 
-        /** false = 适应（等比完整），true = 铺满（等比放大后裁掉溢出）。 */
-        private boolean fill = false;
+        /** 当前模式：MODE_AUTO / MODE_FIT / MODE_FILL。 */
+        private int mode = MODE_AUTO;
+        /** 自动模式下能容忍的最大裁切比例。 */
+        private double maxCrop = 0.34;
 
-        void setFill(boolean fill) {
-            if (this.fill != fill) {
-                this.fill = fill;
+        /** 上一次测量实际用了哪种方式，给日志/提示用。 */
+        private boolean lastFill = false;
+        private int lastVw = 0;
+        private int lastVh = 0;
+
+        void setMode(int mode, double maxCrop) {
+            if (this.mode != mode || this.maxCrop != maxCrop) {
+                this.mode = mode;
+                this.maxCrop = maxCrop;
                 requestLayout();
             }
+        }
+
+        /**
+         * 自动模式的核心判断：铺满要裁掉多少？
+         *
+         * 裁切比例 = 1 - (可见宽 / 放大后宽) 之类，用「短边占比」算最直观：
+         * - 视频 16:9 放在 20:9 手机上：两边各裁 240px，占比 (2400-1920)/2400 = 20% → 铺满
+         * - 视频 16:9 放在 16:9 电视上：裁 0% → 铺满（本来就刚好）
+         * - 视频 9:16 放在 16:9 电视上：竖屏铺满要裁掉 (1920*16/9 - 1080)/(1920*16/9) ≈ 68% → 适应
+         * - 视频 2.35:1 放在 16:9 上：上下各裁 8% → 铺满
+         */
+        private boolean wantFill(int availW, int availH, int vw, int vh) {
+            if (mode == MODE_FILL) {
+                return true;
+            }
+            if (mode == MODE_FIT) {
+                return false;
+            }
+            double sx = (double) availW / (double) vw;
+            double sy = (double) availH / (double) vh;
+            double bigger = Math.max(sx, sy);
+            // 铺满后的实际尺寸
+            double outW = vw * bigger;
+            double outH = vh * bigger;
+            // 被裁掉的比例：超出容器的部分占放大后尺寸的比例，取两个方向的较大者
+            double cropW = outW > 0 ? (outW - availW) / outW : 0;
+            double cropH = outH > 0 ? (outH - availH) / outH : 0;
+            double crop = Math.max(cropW, cropH);
+            return crop <= maxCrop;
         }
 
         @Override
@@ -680,24 +745,54 @@ public final class PlayerActivity extends Activity {
             // vw/vh 大于 8192 基本是解析异常（有的源会把 mVideoWidth 写成垃圾值），
             // 也走这条兜底，否则会算出一个几万像素的 View 直接 OOM。
             if (vw <= 0 || vh <= 0 || vw > 8192 || vh > 8192) {
+                lastFill = false;
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 return;
             }
             int availW = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
             int availH = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
             if (availW <= 0 || availH <= 0) {
+                lastFill = false;
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 return;
             }
 
             // 等比缩放系数：适应取小（完整装进容器），铺满取大（盖住容器后裁掉溢出）。
             // 两种模式都严格保持视频宽高比，绝不会把画拉变形。
+            boolean fill = wantFill(availW, availH, vw, vh);
             double sx = (double) availW / (double) vw;
             double sy = (double) availH / (double) vh;
             double scale = fill ? Math.max(sx, sy) : Math.min(sx, sy);
             int outW = Math.max(1, (int) Math.round(vw * scale));
             int outH = Math.max(1, (int) Math.round(vh * scale));
+            lastFill = fill;
+            lastVw = vw;
+            lastVh = vh;
             setMeasuredDimension(outW, outH);
+        }
+
+        /** 「1920x1080 → 铺满 2400x1350（裁上下 20%）」这种描述，写日志用。 */
+        String describe() {
+            if (lastVw <= 0 || lastVh <= 0) {
+                return "尺寸未知";
+            }
+            int availW = getWidth();
+            int availH = getHeight();
+            if (availW <= 0 || availH <= 0) {
+                return lastVw + "x" + lastVh;
+            }
+            double sx = (double) availW / (double) lastVw;
+            double sy = (double) availH / (double) lastVh;
+            double bigger = Math.max(sx, sy);
+            double cropW = lastVw * bigger > 0
+                    ? Math.max(0, (lastVw * bigger - availW) / (lastVw * bigger)) : 0;
+            double cropH = lastVh * bigger > 0
+                    ? Math.max(0, (lastVh * bigger - availH) / (lastVh * bigger)) : 0;
+            double crop = Math.max(cropW, cropH);
+            String how = lastFill ? "铺满" : "适应";
+            String cut = lastFill && crop > 0.01
+                    ? "，裁掉 " + Math.round(crop * 100) + "%" : "";
+            return lastVw + "x" + lastVh + " " + how + "（容器 " + availW + "x" + availH + cut + "）";
         }
 
         /**

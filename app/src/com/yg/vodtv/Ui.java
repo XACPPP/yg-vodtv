@@ -63,6 +63,8 @@ public final class Ui {
             if (!DISK.exists()) {
                 DISK.mkdirs();
             }
+            // 启动时后台核一次总大小，老版本留下的超大目录会被顺手收掉
+            trimDiskAsync();
         } catch (Throwable t) {
             DISK = null;
         }
@@ -199,7 +201,19 @@ public final class Ui {
     /** 海报磁盘缓存目录（cacheDir/poster）。电视内存小，重启后全靠它。 */
     private static java.io.File DISK;
     private static int diskOps = 0;
-    private static final int DISK_MAX_FILES = 600;
+
+    /**
+     * 磁盘缓存上限。
+     *
+     * v2.2：以前按「文件数 600 张」限制，问题是一张图可能 15KB 也可能 400KB，
+     * 600 张最坏能到 200MB+，手机上看着就是「缓存无限变大」。
+     * 现在改成按**字节**硬限：
+     * - 超过 {@link #DISK_MAX_BYTES} 就开始清理，一直清到 {@link #DISK_TRIM_BYTES} 以下；
+     * - 清理按「最久没被访问」删（读命中会 touch 修改时间），常用的图不会先被删掉；
+     * - App 启动时在后台先扫一次，防止历史版本留下的目录一直躺着。
+     */
+    private static final long DISK_MAX_BYTES = 64L * 1024 * 1024;   // 64MB 触发清理
+    private static final long DISK_TRIM_BYTES = 40L * 1024 * 1024;  // 清到 40MB 停
 
     /**
      * 缓存文件名。
@@ -231,6 +245,12 @@ public final class Ui {
             if (!f.exists() || f.length() < 200) {
                 return null;
             }
+            // LRU 的「用过」标记：改一下修改时间，清理时就不会先删它。
+            // 每分钟最多 touch 一次，避免天天刷文件系统。
+            long now = System.currentTimeMillis();
+            if (now - f.lastModified() > 60000L) {
+                f.setLastModified(now);
+            }
             return BitmapFactory.decodeFile(f.getAbsolutePath());
         } catch (Throwable t) {
             return null;
@@ -245,6 +265,7 @@ public final class Ui {
         try {
             java.io.File f = new java.io.File(DISK, diskName(url, w, h));
             if (f.exists() && f.length() > 200) {
+                f.setLastModified(System.currentTimeMillis());
                 return; // 已经有了，别重复写
             }
             tmp = new java.io.File(DISK, f.getName() + ".tmp");
@@ -254,8 +275,10 @@ public final class Ui {
             out.close();
             if (!tmp.renameTo(f)) {
                 tmp.delete();
-            } else if (++diskOps % 40 == 0) {
-                pruneDisk();
+            } else if (++diskOps % 20 == 0) {
+                // 以前每 40 次才查一次，手机上一次性刷 84 张，中间能涨出十几 MB。
+                // 改成 20 次，并且检查本身是「按字节算」，不会漏。
+                pruneDisk(false);
             }
         } catch (Throwable t) {
             try {
@@ -267,11 +290,30 @@ public final class Ui {
         }
     }
 
-    /** 文件数超上限时删最老的一半，防止缓存目录长到几个 G。 */
-    private static void pruneDisk() {
+    /**
+     * 按字节清理磁盘缓存。
+     *
+     * 排序键用 lastModified（读命中会 touch），所以是「最久没被看过的先删」，
+     * 而不是「最早下载的先删」——常看的剧的封面会一直留着。
+     *
+     * @param force true 表示不管有没有超限都先算一遍（启动时用）
+     */
+    private static void pruneDisk(boolean force) {
+        if (DISK == null) {
+            return;
+        }
         try {
             java.io.File[] fs = DISK.listFiles();
-            if (fs == null || fs.length <= DISK_MAX_FILES) {
+            if (fs == null || fs.length == 0) {
+                return;
+            }
+            long total = 0;
+            for (int i = 0; i < fs.length; i++) {
+                total += fs[i].length();
+            }
+            // 没超上限就不动。force 只表示「这次不管计数器，真的去算一遍大小」，
+            // 不代表「可以不超限也删」——删用户正在用的图没必要。
+            if (total <= DISK_MAX_BYTES) {
                 return;
             }
             java.util.Arrays.sort(fs, new java.util.Comparator<java.io.File>() {
@@ -281,11 +323,48 @@ public final class Ui {
                     return x < y ? -1 : (x > y ? 1 : 0);
                 }
             });
-            int drop = fs.length - DISK_MAX_FILES / 2;
-            for (int i = 0; i < drop; i++) {
-                fs[i].delete();
+            long freed = 0;
+            int dropped = 0;
+            for (int i = 0; i < fs.length && total > DISK_TRIM_BYTES; i++) {
+                long len = fs[i].length();
+                if (fs[i].delete()) {
+                    total -= len;
+                    freed += len;
+                    dropped++;
+                }
             }
-            Trace.add("poster", "磁盘缓存超限，清掉 " + drop + " 张");
+            Trace.add("poster", "缓存清理：删 " + dropped + " 张，释放 "
+                    + (freed / 1024) + "KB，现存 " + (total / 1024) + "KB");
+        } catch (Throwable t) {
+        }
+    }
+
+    /** 启动时在后台扫一次，别让历史遗留的大目录一直躺着。 */
+    public static void trimDiskAsync() {
+        if (DISK == null) {
+            return;
+        }
+        DISKPOOL.execute(new Runnable() {
+            public void run() {
+                pruneDisk(true);
+            }
+        });
+    }
+
+    /** 设置页/自检页的「清空缓存」按钮。 */
+    public static void clearDisk() {
+        if (DISK == null) {
+            return;
+        }
+        try {
+            java.io.File[] fs = DISK.listFiles();
+            if (fs != null) {
+                for (int i = 0; i < fs.length; i++) {
+                    fs[i].delete();
+                }
+            }
+            CACHE.evictAll();
+            DEAD.clear();
         } catch (Throwable t) {
         }
     }
@@ -300,7 +379,7 @@ public final class Ui {
         }
     }
 
-    /** 自检页显示用：磁盘缓存占了多少字节（老板反馈「数据 7M 多」，得有地方能看到）。 */
+    /** 自检页显示用：磁盘缓存占了多少字节，以及上限是多少。 */
     public static long diskBytes() {
         try {
             java.io.File[] fs = DISK == null ? null : DISK.listFiles();
@@ -315,6 +394,11 @@ public final class Ui {
         } catch (Throwable t) {
             return 0;
         }
+    }
+
+    /** 磁盘缓存上限（字节），自检页显示用。 */
+    public static long diskLimit() {
+        return DISK_MAX_BYTES;
     }
 
     /* ============ 直连可用性（自适应跳跳） ============ */
@@ -887,11 +971,16 @@ public final class Ui {
     /** 自检页显示用：一句话说明三块缓存的状态。 */
     public static String cacheStat() {
         long by = diskBytes();
-        String size = by < 1024 * 1024
-                ? (by / 1024) + "KB"
-                : String.format(java.util.Locale.US, "%.1fMB", by / 1048576.0);
-        return "内存 " + CACHE.size() + " 张 · 磁盘 " + diskCount() + " 张/" + size
-                + " · 冷却 " + deadCount() + " 个";
+        long lim = diskLimit();
+        return "内存 " + CACHE.size() + " 张 · 磁盘 " + diskCount() + " 张/"
+                + mb(by) + "（上限 " + mb(lim) + "）· 冷却 " + deadCount() + " 个";
+    }
+
+    private static String mb(long b) {
+        if (b < 1024 * 1024) {
+            return (b / 1024) + "KB";
+        }
+        return String.format(java.util.Locale.US, "%.1fMB", b / 1048576.0);
     }
 
     private static Bitmap fetch(String url, int reqW, int reqH) {

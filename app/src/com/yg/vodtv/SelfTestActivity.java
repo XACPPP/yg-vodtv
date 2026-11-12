@@ -206,10 +206,18 @@ public final class SelfTestActivity extends Activity {
                     add(false, "海报下载", posterMsg);
                 }
 
-                // 3.1 海报缓存状态（磁盘缓存是否真在工作）
+                // 3.1 海报缓存状态（磁盘缓存是否真在工作、有没有超上限）
+                // 以前这一步是无条件 pass，就算缓存涨到 500MB 也显示绿色，等于没测。
+                // 现在按「实际占用 vs 上限」判定。
                 total++;
-                pass++;
-                add(true, "海报缓存", Ui.cacheStat());
+                long cacheBytes = Ui.diskBytes();
+                long cacheLimit = Ui.diskLimit();
+                if (cacheBytes > cacheLimit) {
+                    add(false, "海报缓存", Ui.cacheStat() + " —— 已超上限，清理没生效");
+                } else {
+                    pass++;
+                    add(true, "海报缓存", Ui.cacheStat());
+                }
 
                 // 4. 搜索（多源 + 拼音）
                 total++;

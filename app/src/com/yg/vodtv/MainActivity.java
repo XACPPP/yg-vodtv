@@ -90,6 +90,15 @@ public final class MainActivity extends Activity {
     private int cardW = 240;
     private int posterH = 336;
 
+    private TextView banner;
+    private final Runnable hideBanner = new Runnable() {
+        public void run() {
+            if (banner != null) {
+                banner.setVisibility(View.GONE);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -155,6 +164,19 @@ public final class MainActivity extends Activity {
         tlp.leftMargin = Ui.px(12);
         bar.addView(testBtn, tlp);
 
+        // 清缓存：海报磁盘缓存有 64MB 硬上限，正常不用手动清；
+        // 但万一某天缓存目录被别的东西撑满，这里能一键清干净（只删海报，不动播放记录）。
+        TextView clearBtn = chip("清缓存", false);
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                clearCacheConfirm();
+            }
+        });
+        LinearLayout.LayoutParams clp2 = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        clp2.leftMargin = Ui.px(12);
+        bar.addView(clearBtn, clp2);
+
         TextView ver = Ui.text(this, Ver.FULL, 18, Ui.FG_DIM);
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -173,6 +195,18 @@ public final class MainActivity extends Activity {
         ulp.leftMargin = Ui.px(12);
         bar.addView(updateChip, ulp);
         col.addView(bar);
+
+        // 提示条（默认隐藏）：清缓存、刷新被限流这类「刚做完一件事」的反馈放这儿，
+        // 比弹窗轻，不打断遥控器操作。
+        banner = Ui.text(this, "", 20, 0xFF12161C);
+        banner.setBackground(Ui.round(Ui.ACCENT, 8, 0, 0));
+        banner.setPadding(Ui.px(20), Ui.px(10), Ui.px(20), Ui.px(10));
+        banner.setVisibility(View.GONE);
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        blp.leftMargin = Ui.px(56);
+        blp.topMargin = Ui.px(4);
+        col.addView(banner, blp);
 
         // 分类条
         HorizontalScrollView chipScroll = new HorizontalScrollView(this);
@@ -324,6 +358,32 @@ public final class MainActivity extends Activity {
         });
         rows.addView(t);
         t.requestFocus();
+    }
+
+    /**
+     * 清缓存。只在内存里做，不弹系统对话框 —— 电视上没有触摸，
+     * 二次确认用一个 toast 式的开关太别扭，所以直接清 + 提示，清掉的只是海报缓存，
+     * 播放记录、搜索历史都在 SharedPreferences 里，不受影响。
+     */
+    private void clearCacheConfirm() {
+        long before = Ui.diskBytes();
+        Ui.clearDisk();
+        Trace.add("cache", "手动清缓存，释放 " + (before / 1024) + "KB");
+        showBanner("缓存已清空（释放 " + (before / 1024) + "KB），海报会重新下载");
+        if (rows != null && rows.getChildCount() > 0) {
+            load(curType, 1, false);
+        }
+    }
+
+    /** 顶栏下方飘一条提示，2.5 秒后自己消失。 */
+    private void showBanner(String msg) {
+        if (banner == null) {
+            return;
+        }
+        banner.setText(msg);
+        banner.setVisibility(View.VISIBLE);
+        ui.removeCallbacks(hideBanner);
+        ui.postDelayed(hideBanner, 2500);
     }
 
     private void renderPage(final Multi.Result p, boolean append) {
