@@ -166,8 +166,15 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 
 ### v2.0 实发记录
 
-- 版本号 `2.0`（versionCode 11），构建时间见标题栏。
-- APK **70097 字节**，`classes.dex` **121888 字节**。
+- CI run `43202720182` 一次通过（37 秒），只有 3 条 action 版本弃用警告。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.0>，发布于 2026-11-12 18:43（北京时间）。
+- 资产 `YG.TV.apk` / `YGTV.apk` 均 **70097 字节**。
+- 本地构建 md5 `0f541a31b9e03bde2c78e59fc2afabca`；CI 产物两条下载通道
+  （`gh-proxy` 1.1s / `ghfast` 1.7s）md5 都是 `e6ec00bd732587471c7d999f05102ee2`，
+  与本地不同只是因为 apksigner 每次签名带时间戳，正常。
+- 元信息经 `gh-proxy.com` 1.0s 取到，`tag_name = v2.0`、`size = 70097`。
+- 注意：本机**直连** GitHub 是 `SSL: CERTIFICATE_VERIFY_FAILED`（DNS 被旁路由劫持到 198.19.x），
+  所以直连那一路在这台机器上验不了，App 里它本来就只当兜底。
 - dex 内确认含 `FitVideoView`、`toggleScaleMode`、`sizeInfo`、`letterBlock`、`prefetch`、
   `cacheStat`、`directState`、`normPic`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`。
 
