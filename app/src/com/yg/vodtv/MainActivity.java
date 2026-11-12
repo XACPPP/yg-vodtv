@@ -57,11 +57,22 @@ public final class MainActivity extends Activity {
 
     private LinearLayout searchOverlay;
     private LinearLayout keypad;
+    private LinearLayout historyRow;
     private ScrollView resultScroll;
     private LinearLayout resultRows;
     private TextView searchInput;
     private TextView resultTitle;
     private String query = "";
+
+    /** 停手多久自动搜。电视遥控器一个字一个字点，太快会把十个源打爆。 */
+    private static final int AUTO_SEARCH_MS = 2000;
+    /** 左栏放键盘所以右栏列数要少：1920 宽下左 760 + 间距 28，右剩约 1050。 */
+    private static final int SEARCH_COLS = 4;
+    private int searchCardW = 200;
+    private int searchPosterH = 300;
+    /** 上一次真搜过的词与结果数，同一个词不重复请求。 */
+    private String lastKw = "";
+    private int lastCount = -1;
 
     private TextView updateChip;
     private FrameLayout updateOverlay;
@@ -205,6 +216,16 @@ public final class MainActivity extends Activity {
         rows.setPadding(Ui.px(52), Ui.px(8), Ui.px(52), Ui.px(36));
         scroll.addView(rows);
 
+        // 惰性取图：滚动时只把进入视口（含一屏预取）的海报发出去。
+        // 一页 84 张全量请求要排队好几分钟，期间整墙是「载入中」，用户看到就是卡死。
+        ScrollView sc = scroll;
+        sc.getViewTreeObserver().addOnScrollChangedListener(
+                new android.view.ViewTreeObserver.OnScrollChangedListener() {
+                    public void onScrollChanged() {
+                        Ui.pump(rows);
+                    }
+                });
+
         status = Ui.text(this, "", 24, Ui.FG_DIM);
         status.setPadding(Ui.px(8), Ui.px(20), 0, Ui.px(20));
         rows.addView(status);
@@ -217,6 +238,12 @@ public final class MainActivity extends Activity {
         int avail = Ui.w() - Ui.px(112) - (COLS - 1) * Ui.px(20);
         cardW = avail / COLS;
         posterH = Math.round(cardW * Cards.RATIO);
+
+        // 搜索页右栏 4 列；左栏 760 + 间距 28 + 两侧内边距 80
+        int searchAvail = Ui.w() - Ui.px(80) - Ui.px(760) - Ui.px(28)
+                - (SEARCH_COLS - 1) * Ui.px(16);
+        searchCardW = searchAvail / SEARCH_COLS;
+        searchPosterH = Math.round(searchCardW * Cards.RATIO);
 
         setContentView(root);
         buildSearch();
@@ -360,6 +387,13 @@ public final class MainActivity extends Activity {
             lp.bottomMargin = Ui.px(40);
             rows.addView(nextBtn, lp);
         }
+
+        // 卡片是刚加的，布局还没走完，等一帧再决定哪些海报进视口
+        rows.post(new Runnable() {
+            public void run() {
+                Ui.pump(rows);
+            }
+        });
     }
 
     private void openDetail(Vod v) {
@@ -374,57 +408,59 @@ public final class MainActivity extends Activity {
 
     /** ==================== 搜索 ==================== */
 
+    /**
+     * 搜索：一屏搞定，左边键盘 + 历史，右边结果。
+     *
+     * 旧版是「弹出全屏键盘 → 敲完按「搜索」→ 键盘消失 → 出结果 → 想改词再点「重新输入」」，
+     * 光改一个字母就要按四次键。电视上遥控器操作次数是硬成本。
+     *
+     * 新版：进来就能打字，停手 2 秒自动搜；结果在右边实时刷新，键盘一直看得见，
+     * 随时接着改。历史词在左上，一下就能命中最常用的那几个。
+     */
     private void buildSearch() {
         searchOverlay = new LinearLayout(this);
-        ((LinearLayout) searchOverlay).setOrientation(LinearLayout.VERTICAL);
+        searchOverlay.setOrientation(LinearLayout.HORIZONTAL);
         searchOverlay.setBackgroundColor(Ui.BG);
         searchOverlay.setVisibility(View.GONE);
+        searchOverlay.setPadding(Ui.px(40), Ui.px(24), Ui.px(40), Ui.px(24));
 
-        LinearLayout head = new LinearLayout(this);
-        head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-        head.setPadding(Ui.px(44), Ui.px(24), Ui.px(44), Ui.px(10));
+        /* ---------- 左栏：输入框 + 历史 + 键盘 ---------- */
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        int leftW = Ui.px(760);
 
-        TextView back = chip("← 返回", false);
-        back.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                closeSearch();
-            }
-        });
-        head.addView(back);
-
-        searchInput = Ui.text(this, "", 34, Ui.FG);
-        searchInput.setPadding(Ui.px(24), 0, 0, 0);
+        searchInput = Ui.bold(this, "", 30, Ui.FG);
         searchInput.setSingleLine(true);
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(0,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        head.addView(searchInput, ilp);
+        searchInput.setPadding(Ui.px(18), Ui.px(12), Ui.px(18), Ui.px(12));
+        searchInput.setBackground(Ui.round(Ui.BG_CARD, 10, 0, 0));
+        left.addView(searchInput);
 
-        resultTitle = Ui.text(this, "输入片名全拼或中文，例如 fanhua / 繁花（首字母缩写搜不到）", 22, Ui.FG_DIM);
-        head.addView(resultTitle);
-        searchOverlay.addView(head);
+        resultTitle = Ui.text(this, "输入片名，停手 2 秒自动搜", 20, Ui.FG_DIM);
+        resultTitle.setPadding(Ui.px(4), Ui.px(10), 0, Ui.px(8));
+        left.addView(resultTitle);
 
-        LinearLayout keypadWrap = new LinearLayout(this);
-        keypadWrap.setOrientation(LinearLayout.VERTICAL);
-        keypadWrap.setPadding(Ui.px(44), Ui.px(4), Ui.px(44), Ui.px(10));
+        // 历史词：横向一条，点一下直接搜
+        historyRow = new LinearLayout(this);
+        historyRow.setOrientation(LinearLayout.HORIZONTAL);
+        left.addView(historyRow);
 
         keypad = new LinearLayout(this);
         keypad.setOrientation(LinearLayout.VERTICAL);
-        int kw = Ui.px(150);
-        int kh = Ui.px(92);
+        int kw = Ui.px(115);
+        int kh = Ui.px(78);
         for (int r = 0; r < 5; r++) {
             LinearLayout line = new LinearLayout(this);
             line.setOrientation(LinearLayout.HORIZONTAL);
             for (int c = 0; c < 6; c++) {
                 final String key = KEYS[r * 6 + c];
-                TextView k = Ui.text(this, key, 30, Ui.FG);
+                TextView k = Ui.bold(this, key, 26, Ui.FG);
                 k.setGravity(Gravity.CENTER);
                 k.setFocusable(true);
                 k.setClickable(true);
                 k.setBackground(Ui.focusBg(Ui.BG_CARD, 8, Ui.ACCENT));
                 LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(kw, kh);
-                klp.rightMargin = Ui.px(12);
-                klp.bottomMargin = Ui.px(12);
+                klp.rightMargin = Ui.px(10);
+                klp.bottomMargin = Ui.px(10);
                 k.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         onKey(key);
@@ -434,17 +470,30 @@ public final class MainActivity extends Activity {
             }
             keypad.addView(line);
         }
-        keypadWrap.addView(keypad);
-        searchOverlay.addView(keypadWrap);
+        left.addView(keypad);
 
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                leftW, LinearLayout.LayoutParams.MATCH_PARENT);
+        llp.rightMargin = Ui.px(28);
+        searchOverlay.addView(left, llp);
+
+        /* ---------- 右栏：结果 ---------- */
         resultScroll = new ScrollView(this);
-        resultScroll.setVisibility(View.GONE);
+        resultScroll.setVerticalScrollBarEnabled(false);
         resultRows = new LinearLayout(this);
         resultRows.setOrientation(LinearLayout.VERTICAL);
-        resultRows.setPadding(Ui.px(40), 0, Ui.px(40), Ui.px(30));
+        resultRows.setPadding(0, 0, 0, Ui.px(30));
         resultScroll.addView(resultRows);
+
+        // 结果区也做惰性取图
+        resultScroll.getViewTreeObserver().addOnScrollChangedListener(
+                new android.view.ViewTreeObserver.OnScrollChangedListener() {
+                    public void onScrollChanged() {
+                        Ui.pump(resultRows);
+                    }
+                });
         searchOverlay.addView(resultScroll, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+                0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
 
         root.addView(searchOverlay, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -453,10 +502,44 @@ public final class MainActivity extends Activity {
     private void openSearch() {
         query = "";
         updateInput();
-        keypad.setVisibility(View.VISIBLE);
-        resultScroll.setVisibility(View.GONE);
+        renderHistory();
+        resultRows.removeAllViews();
+        TextView tip = Ui.text(this, "输入片名，停手 2 秒自动搜", 24, Ui.FG_DIM);
+        tip.setPadding(0, Ui.px(10), 0, 0);
+        resultRows.addView(tip);
         searchOverlay.setVisibility(View.VISIBLE);
         focusFirstKey();
+    }
+
+    /** 历史词条：点一下就把词填进去并立刻搜。 */
+    private void renderHistory() {
+        historyRow.removeAllViews();
+        java.util.List<String> hs = Store.history();
+        if (hs.isEmpty()) {
+            return;
+        }
+        TextView label = Ui.text(this, "最近：", 20, Ui.FG_DIM);
+        label.setPadding(0, Ui.px(8), Ui.px(8), Ui.px(8));
+        historyRow.addView(label);
+        for (int i = 0; i < hs.size(); i++) {
+            final String h = hs.get(i);
+            TextView t = Ui.text(this, h, 20, Ui.FG);
+            t.setFocusable(true);
+            t.setClickable(true);
+            t.setBackground(Ui.focusBg(Ui.BG_CARD, 16, Ui.ACCENT));
+            t.setPadding(Ui.px(16), Ui.px(7), Ui.px(16), Ui.px(7));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = Ui.px(8);
+            t.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    query = h;
+                    updateInput();
+                    searchNow();
+                }
+            });
+            historyRow.addView(t, lp);
+        }
     }
 
     /** keypad 的直接子节点是“行”，行本身不可聚焦，必须落到行里的第一颗按键。 */
@@ -472,6 +555,7 @@ public final class MainActivity extends Activity {
     }
 
     private void closeSearch() {
+        ui.removeCallbacks(autoSearch);
         searchOverlay.setVisibility(View.GONE);
         if (!tabChips.isEmpty()) {
             tabChips.get(tabIndex).requestFocus();
@@ -479,7 +563,7 @@ public final class MainActivity extends Activity {
     }
 
     private void updateInput() {
-        searchInput.setText("搜索：" + query + "▌");
+        searchInput.setText(query.length() == 0 ? "搜索片名…" : query + "▌");
     }
 
     private void onKey(String key) {
@@ -488,15 +572,21 @@ public final class MainActivity extends Activity {
                 query = query.substring(0, query.length() - 1);
             }
             updateInput();
+            scheduleAutoSearch();
             return;
         }
         if ("清空".equals(key)) {
             query = "";
             updateInput();
+            ui.removeCallbacks(autoSearch);
+            resultRows.removeAllViews();
+            TextView tip = Ui.text(this, "输入片名，停手 2 秒自动搜", 24, Ui.FG_DIM);
+            tip.setPadding(0, Ui.px(10), 0, 0);
+            resultRows.addView(tip);
             return;
         }
         if ("搜索".equals(key)) {
-            doSearch();
+            searchNow();
             return;
         }
         if ("空格".equals(key)) {
@@ -507,23 +597,50 @@ public final class MainActivity extends Activity {
         }
         query = query + key.toLowerCase();
         updateInput();
+        scheduleAutoSearch();
     }
 
-    private void doSearch() {
-        final String kw = query.trim();
-        if (kw.length() == 0) {
-            resultTitle.setText("先输入关键词");
+    /**
+     * 停手 2 秒自动搜。
+     *
+     * 电视遥控器一个字一个字点，每点一次就发一次搜索会打爆片源（十源并发），
+     * 所以要等手停下来。2 秒是手感与请求量的折中。
+     */
+    private void scheduleAutoSearch() {
+        ui.removeCallbacks(autoSearch);
+        if (query.trim().length() == 0) {
             return;
         }
+        resultTitle.setText("停手 2 秒自动搜…");
+        ui.postDelayed(autoSearch, AUTO_SEARCH_MS);
+    }
+
+    private final Runnable autoSearch = new Runnable() {
+        public void run() {
+            searchNow();
+        }
+    };
+
+    /** 立刻搜（点「搜索」键、点历史词、自动搜到点都走这里）。 */
+    private void searchNow() {
+        ui.removeCallbacks(autoSearch);
+        final String kw = query.trim();
+        if (kw.length() == 0) {
+            return;
+        }
+        if (kw.equals(lastKw) && lastCount >= 0) {
+            resultTitle.setText("「" + kw + "」" + lastCount + " 个结果");
+            return; // 同一个词不重复打片源
+        }
         resultTitle.setText("搜索中…");
-        keypad.setVisibility(View.GONE);
-        resultScroll.setVisibility(View.VISIBLE);
-        resultRows.removeAllViews();
         io.execute(new Runnable() {
             public void run() {
                 final java.util.List<Vod> list = Multi.search(kw);
                 ui.post(new Runnable() {
                     public void run() {
+                        if (!kw.equals(query.trim())) {
+                            return; // 用户已经改了词，这批结果作废
+                        }
                         showResult(list, kw);
                     }
                 });
@@ -532,62 +649,49 @@ public final class MainActivity extends Activity {
     }
 
     private void showResult(java.util.List<Vod> list, String kw) {
-        resultRows.removeAllViews();
-        resultTitle.setText("「" + kw + "」找到 " + list.size() + " 个结果   按 ← 返回重新输入");
+        lastKw = kw;
+        lastCount = list.size();
+        Store.addHistory(kw);
+        renderHistory();
 
-        LinearLayout actRow = new LinearLayout(this);
-        actRow.setOrientation(LinearLayout.HORIZONTAL);
-        actRow.setPadding(0, Ui.px(6), 0, Ui.px(16));
-        TextView again = chip("重新输入", false);
-        again.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                keypad.setVisibility(View.VISIBLE);
-                resultScroll.setVisibility(View.GONE);
-                focusFirstKey();
-            }
-        });
-        actRow.addView(again);
-        resultRows.addView(actRow);
+        resultRows.removeAllViews();
+        resultTitle.setText("「" + kw + "」" + list.size() + " 个结果");
 
         if (list.isEmpty()) {
-            TextView t = Ui.text(this, "没找到，换个全拼或中文试试（首字母缩写搜不到）", 26, Ui.FG_DIM);
-            t.setPadding(0, Ui.px(30), 0, 0);
+            TextView t = Ui.text(this, "没找到，换个全拼或中文试试（首字母缩写搜不到）", 24, Ui.FG_DIM);
+            t.setPadding(0, Ui.px(20), 0, 0);
             resultRows.addView(t);
-            again.requestFocus();
             return;
         }
 
         int i = 0;
-        boolean first = true;
         while (i < list.size()) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.bottomMargin = Ui.px(14);
-            for (int k = 0; k < COLS && i < list.size(); k++, i++) {
+            for (int k = 0; k < SEARCH_COLS && i < list.size(); k++, i++) {
                 final Vod v = list.get(i);
-                View card = Cards.poster(this, v, cardW, posterH, new View.OnClickListener() {
-                    public void onClick(View x) {
-                        openDetail(v);
-                    }
-                });
-                LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(cardW,
+                View card = Cards.poster(this, v, searchCardW, searchPosterH,
+                        new View.OnClickListener() {
+                            public void onClick(View x) {
+                                openDetail(v);
+                            }
+                        });
+                LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(searchCardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-                clp.rightMargin = Ui.px(20);
+                clp.rightMargin = Ui.px(16);
                 row.addView(card, clp);
-                if (first) {
-                    first = false;
-                    final View fv = card;
-                    card.post(new Runnable() {
-                        public void run() {
-                            fv.requestFocus();
-                        }
-                    });
-                }
             }
             resultRows.addView(row, rlp);
         }
+
+        resultRows.post(new Runnable() {
+            public void run() {
+                Ui.pump(resultRows);
+            }
+        });
     }
 
     /** ==================== 更新 ==================== */

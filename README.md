@@ -4,7 +4,7 @@
 （Android 5.1.1 / API 22，已 root）定制。片源来自 **10 个苹果CMS采集源聚合**，App 内部只认
 统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
 
-当前版本：**v1.8（versionCode 9）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v1.9（versionCode 10）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -13,7 +13,8 @@
 
 - 首页：**24 个统一频道**（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、悬疑剧……）海报墙，
   每页最多 84 条、10 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页
-- 搜索：自绘拼音/英文键盘；**中文关键词并发问 10 个源的 `wd=`，纯拼音再补一路 wsyzy 联想**，
+- 搜索：**一屏左右分栏**——左边键盘 + 最近搜过的词，右边实时结果；**停手 2 秒自动搜**，
+  不用再按「搜索」；中文关键词并发问 10 个源的 `wd=`，纯拼音再补一路 wsyzy 联想，
   两路结果合并后按贴合度重排
 - 详情：海报 + **导演/主演/地区/语言 + 简介（点一下展开全文，缺失时自动跨源回填）** + 选集列表，每行 10 个选集按钮
 - 播放：全屏 HLS 播放，上下键选集、左右键快进快退 15 秒、OK 暂停、自动连播下一集
@@ -147,6 +148,10 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
+### v1.9 实发记录
+
+- 待发布后回填（CI run、Release 链接、APK 字节数、dex 校验）。
+
 ### v1.8 实发记录
 
 - CI run `43172267408` 一次通过（约 40 秒）。
@@ -169,6 +174,65 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 | 海报自检 3018ms | https/http/代理三跳串行，每跳都要等满超时 | 第一跳用**快超时 3s/5s**，失败直接上图片代理；常见场景只花一跳 |
 
 自检页因此多了第 1 步「网络参数」，直接显示 IPv4 是否强制生效、重试次数、以及当前有几个源在冷却。
+
+### v1.9：卡顿与「很多片没封面」的根因（同一件事）
+
+v1.8 上线后老板在手机上装了一次，反馈「还是很多视频没封面，整体很卡」。
+桌面端 42 张海报全部 200 可下载（10 个源各取 6 张），所以**不是片源没给图**，
+问题在客户端一次要的太多。
+
+算一笔账就明白了：
+
+```
+一页 84 张卡 × 每张 6 个 View  = 504 个 View 在主线程一次性建完
+同时 84 个海报请求全丢进线程池 = 队列排 14 轮
+每张失败要重试 3 次，单张最坏 = 24 秒
+→ 最后一排海报要 5.6 分钟后才拿到
+```
+
+更要命的是失败处理：**任何一张图失败一次就被塞进 `DEAD` 集合，本次运行内永不重试**。
+84 张同时轰出去，网络稍有波动就成片失败，于是整墙被永久标记成灰块——
+「很多片没封面」就是这么来的，不是图挂了，是客户端把图拉黑了。
+
+v1.9 三处改动：
+
+| 改动 | 具体做法 | 效果 |
+| --- | --- | --- |
+| **惰性取图** | `Ui.loadPosterDeferred()` 只登记；滚动时 `Ui.pump()` 把进入视口（含下方一屏预取）的发出去 | 首屏只需下约 40 张，不再排队几分钟 |
+| **失败不再永久毒化** | `DEAD` 从裸 `HashSet` 改成 `Map<url, {时间, 次数}>`；冷却 90 秒后自动重试，连续失败 2 次才真正放弃 | 网络抖一下不会把整墙变灰 |
+| **降并发** | 海报线程池 6 → 4 | 不把图床惹毛（对应 v1.8 的 reset 问题） |
+
+顺带压掉 View 数量：卡片外层由 `LinearLayout` 改 `FrameLayout`，`ImageView` 不再单独设圆角
+背景（每张一个 `GradientDrawable` 是几十个 Drawable，滚动掉帧的隐性成本），
+角标没有 `remarks` 时不创建。
+
+### 搜索（v1.9 重做交互）
+
+旧版：点「搜索」→ 弹出**全屏**键盘 →一个字一个字点 →按「搜索」→键盘消失→出结果
+→想改一个字母得再点「重新输入」。遥控器上改一个字母要按四次键。
+
+新版一屏搞定：
+
+```
+┌─────────────────────┬──────────────────────────────┐
+│ 搜索片名…            │                              │
+│ 停手 2 秒自动搜       │        ← 结果实时刷新         │
+│ 最近：繁花 庆余年 …   │        4 列海报               │
+│ ┌─┬─┬─┬─┬─┬─┐        │                              │
+│ │A│B│C│D│E│F│        │                              │
+│ ├─┼─┼─┼─┼─┼─┤        │                              │
+│ │…│…│…│…│…│…│        │                              │
+│ └─┴─┴─┴─┴─┴─┘        │                              │
+└─────────────────────┴──────────────────────────────┘
+```
+
+- **停手 2 秒自动搜**（`AUTO_SEARCH_MS = 2000`）：遥控器一个字一个字点，每点一次就搜会把
+  十个源打爆，所以等手停下来。每次输入都会重置计时器。
+- **结果实时刷新，键盘不消失**：接着改词直接看右边变化，没有「重新输入」这一步。
+- **最近 6 个搜索词**在输入框下方，一下就能命中最常用的（`Store.history()` / `Store.addHistory()`）。
+- **同一个词不重复请求**（`lastKw` 比对），改一个字母才重新发。
+- **结果回来时校验词是否还一致**：用户已经改了词就丢弃这批结果，避免旧结果盖新结果。
+- 结果区也是惰性取图，4 列（左栏占 760，右栏约 1050）。
 
 ### 海报（v1.7 重做三跳兜底）
 
@@ -266,7 +330,7 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 `HH:mm:ss [tag] msg` 格式）。`Http` / `Api` / `Proxy` / `PlayerActivity` 每个失败点都会写一条，
 自检页下半屏直接显示最近 14 条，**拍照即可反馈**。
 
-自检页 7 个步骤，逐步验证：
+自检页 8 个步骤，逐步验证：
 
 | 步骤 | 验证内容 | 失败意味着 |
 | --- | --- | --- |
@@ -298,10 +362,11 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 
 | 文件 | 作用 |
 | --- | --- |
-| `app/src/com/yg/vodtv/MainActivity.java` | 首页：分类条 + 海报墙 + 拼音键盘搜索 |
+| `app/src/com/yg/vodtv/MainActivity.java` | 首页：分类条 + 海报墙 + 左右分栏搜索（自动搜 + 历史词） |
 | `app/src/com/yg/vodtv/DetailActivity.java` | 详情页：海报 + meta + 选集网格 |
 | `app/src/com/yg/vodtv/PlayerActivity.java` | 播放页：VideoView + 自绘进度条 + 选集浮层 |
 | `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：8 步链路检测（含海报下载）+ 错误日志面板 |
+| `app/src/com/yg/vodtv/Store.java` | 播放位置 + 最近观看 + **搜索历史 6 条**（都按「源_id」区分） |
 | `app/src/com/yg/vodtv/Proxy.java` | 本地 HLS 代理（见上） |
 | `app/src/com/yg/vodtv/Src.java` | **采集源定义**：10 个源的 base/Referer + 统一频道 → 各源 `type_id` 映射 |
 | `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填 |
@@ -309,8 +374,8 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 | `app/src/com/yg/vodtv/Vod.java` | 影片模型 + `vod_play_url` 选集解析 |
 | `app/src/com/yg/vodtv/Http.java` | HTTP 封装 + 信任全部证书的 SSLContext + 5xx 一次重试 |
 | `app/src/com/yg/vodtv/Trace.java` | 环形错误日志（120 条） |
-| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + LRU 缓存 + 首字色块兜底 |
-| `app/src/com/yg/vodtv/Cards.java` | 海报卡片：底部渐变压暗 + 片名压在图上 + 角标 + 焦点放大 |
+| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + **惰性取图** + LRU 缓存 + 首字色块兜底 |
+| `app/src/com/yg/vodtv/Cards.java` | 海报卡片：底部渐变压暗 + 片名压在图上 + 角标 + 焦点放大，支持惰性加载 |
 | `app/src/com/yg/vodtv/Ver.java` | 版本号与构建时间（首页右上角显示） |
 | `app/src/com/yg/vodtv/Store.java` | SharedPreferences 播放记忆：每剧每集看到哪儿、上次看到哪一集 |
 | `app/src/com/yg/vodtv/Update.java` | 应用内升级：查 GitHub Release、下载 APK、拉起系统安装器 |
@@ -372,7 +437,7 @@ D:\platform-tools\adb.exe install -r "D:\Codexspace\做点小玩意\YG影视TV\a
 D:\platform-tools\adb.exe shell am start -n com.yg.vodtv/.MainActivity
 ```
 
-装好后第一件事：点标题栏右侧的「自检」，7 项全绿就说明片源链路通；有红的，看下半屏错误日志。
+装好后第一件事：点标题栏右侧的「自检」，8 项全绿就说明片源链路通；有红的，看下半屏错误日志。
 
 ## 五、验证记录
 
@@ -419,9 +484,9 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 **真的下载了一次**（53713 字节，落在外部存储 `Download/YG影视TV/YGTV-new.apk`，是合法 zip）。
 直连一路在本机是 `SSL: CERTIFICATE_VERIFY_FAILED`，所以测试里显式跳过、App 里只当兜底。
 
-**Tabs（24/24 PASS，v1.8 改为「集齐 6 源就出画面」后复测）**：首页 24 个统一频道逐个拉第一页，
+**Tabs（24/24 PASS，v1.9 复测）**：首页 24 个统一频道逐个拉第一页，
 要求「有数据 + 有海报」。空分类是最容易被忽略的坑 —— App 能开，点进去一片空白。
-实测**共聚合 1704 条，每个频道都有数据且全部带海报**，每个频道 2~8 个源返回：
+实测**共聚合 1721 条，每个频道都有数据且全部带海报**，每个频道 2~8 个源返回：
 
 | 频道 | ch | 聚合条 | 源数 | 耗时 | 频道 | ch | 聚合条 | 源数 | 耗时 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -463,10 +528,10 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿。最近一次（v1.8）：APK **61905 字节**，dex **105572 字节**（v1.7 是 104124）；
+`build.sh` 六步全绿。最近一次（v1.9）：APK **66001 字节**，dex **111944 字节**（v1.8 是 105572）；
 dex 内确认含 `Src`、`Multi`、`fillIntro`、`CH_REC`、`hasH`、`letter`、`proxied`、`wsrv.nl`、`preferIPv4Stack`、`attempts`
 （新增的多源、三跳海报、IPv4 强制与重试代码确实打进去了，不是只改了源码没进包）。
-`aapt2 dump badging` → `versionCode='9' versionName='1.8'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`aapt2 dump badging` → `versionCode='10' versionName='1.9'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
@@ -502,7 +567,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 8 项全绿（**含「网络参数」与「海报下载」两步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v1.8」
+6. 标题栏「检查更新」显示「已是最新版本 v1.9」
 
 ## 六、目录
 

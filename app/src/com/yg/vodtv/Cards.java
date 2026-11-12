@@ -12,6 +12,11 @@ import android.widget.TextView;
 /**
  * 影片卡片：海报 + 底部渐变压暗 + 片名压在图上 + 角标。
  * 全部纯代码构建，避免 layout 资源（工具链没有 aapt 之外的资源处理）。
+ *
+ * v1.9 两处针对卡顿的改动：
+ * 1) 支持「惰性加载」（lazy=true）——只登记不下载，滚到视口附近才真取；
+ * 2) ImageView 不再设圆角背景。每张卡一个 GradientDrawable 是几十个 Drawable，
+ *    这是滚动掉帧的隐性成本；卡片外框已有 focusBg，视觉上不差这一层。
  */
 public final class Cards {
 
@@ -22,38 +27,55 @@ public final class Cards {
     }
 
     public static View poster(Context c, Vod v, int outerW, int posterH, View.OnClickListener click) {
+        return poster(c, v, outerW, posterH, click, true);
+    }
+
+    /**
+     * @param lazy true = 只登记，滚到视口再下载。首页海报墙必须用 true：
+     *             一页 84 张卡同时发请求，队列要几分钟才轮到最后一排，
+     *             期间整墙都是「载入中」，看起来就是卡死。
+     */
+    public static View poster(Context c, Vod v, int outerW, int posterH,
+                              View.OnClickListener click, boolean lazy) {
         final int w = outerW;
         final int h = posterH;
 
-        LinearLayout box = new LinearLayout(c);
-        box.setOrientation(LinearLayout.VERTICAL);
+        FrameLayout box = new FrameLayout(c);
         box.setFocusable(true);
         box.setClickable(true);
         box.setBackground(Ui.focusBg(0x00000000, 12, Ui.ACCENT));
         int pad = Ui.px(4);
         box.setPadding(pad, pad, pad, pad);
 
+        // 内层给死尺寸：外层在 MainActivity 里是 WRAP_CONTENT，
+        // 直接用 MATCH_PARENT 的子 View 会被量成 0 高。
         FrameLayout f = new FrameLayout(c);
-        f.setClipToOutline(false);
+        box.addView(f, new FrameLayout.LayoutParams(w, h));
 
         ImageView iv = new ImageView(c);
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        iv.setBackground(Ui.round(Ui.BG_CARD, 12, 0, 0));
         iv.setFocusable(false);
-        f.addView(iv, new FrameLayout.LayoutParams(w, h));
-        Ui.loadPoster(iv, v.pic, w, h, v.name);
+        f.addView(iv, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        if (lazy) {
+            Ui.loadPosterDeferred(iv, v.pic, w, h, v.name);
+        } else {
+            Ui.loadPoster(iv, v.pic, w, h, v.name);
+        }
 
         // 底部渐变压暗：片名压在海报内左下角，卡片才有「内容」而不是贴图
         View scrim = new View(c);
-        scrim.setBackground(Ui.roundGrad(0x00000000, 0xF20B0E13, 12));
-        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(w, Math.round(h * 0.46f));
+        scrim.setBackground(Ui.roundGrad(0x00000000, 0xE60B0E13, 12));
+        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, Math.round(h * 0.42f));
         slp.gravity = Gravity.BOTTOM;
         f.addView(scrim, slp);
 
-        if (v.remarks != null && v.remarks.length() > 0) {
-            TextView tag = Ui.bold(c, v.remarks, 15, 0xFFFFFFFF);
-            int bgColor = tagColor(v.remarks);
-            tag.setBackground(Ui.round(bgColor, 4, 1, 0x33FFFFFF));
+        // 角标：只有真的有 remarks 才建，省掉一半空 TextView
+        String remark = v.remarks == null ? "" : v.remarks.trim();
+        if (remark.length() > 0) {
+            TextView tag = Ui.bold(c, remark, 15, 0xFFFFFFFF);
+            tag.setBackground(Ui.round(tagColor(remark), 4, 1, 0x33FFFFFF));
             tag.setPadding(Ui.px(7), Ui.px(2), Ui.px(7), Ui.px(2));
             tag.setSingleLine(true);
             tag.setEllipsize(TextUtils.TruncateAt.END);
@@ -68,27 +90,23 @@ public final class Cards {
         }
 
         // 片名压在海报上
-        TextView t = Ui.bold(c, v.name, 22, Ui.FG);
-        t.setSingleLine(true);
-        t.setEllipsize(TextUtils.TruncateAt.END);
-        t.setShadowLayer(Ui.px(6), 0, Ui.px(2), 0xCC000000);
+        TextView nm = Ui.bold(c, v.name, 22, Ui.FG);
+        nm.setSingleLine(true);
+        nm.setEllipsize(TextUtils.TruncateAt.END);
+        nm.setShadowLayer(Ui.px(6), 0, Ui.px(2), 0xCC000000);
         FrameLayout.LayoutParams tlp = new FrameLayout.LayoutParams(
                 Math.round(w - Ui.px(20)), FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.START);
         tlp.leftMargin = Ui.px(10);
         tlp.bottomMargin = Ui.px(10);
-        f.addView(t, tlp);
+        f.addView(nm, tlp);
 
-        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(w, h);
-        box.addView(f, flp);
-
-        // 焦点：放大 + 上移 + 打亮邻居之外的那一张，一眼可辨
+        // 焦点：放大 + 上移，一眼可辨。setZ 让放大的卡片不被同排邻居盖住
         box.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean has) {
                 v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f)
                         .translationY(has ? -Ui.px(4) : 0)
                         .setDuration(180).start();
-                v.setAlpha(1f);
                 v.setZ(has ? 10f : 0f);
             }
         });

@@ -12,14 +12,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.LruCache;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -140,11 +139,44 @@ public final class Ui {
     private static final Map<String, Bitmap> PLACEHOLDERS = new HashMap<String, Bitmap>();
     private static final int PLACEHOLDER_MAX = 24;
 
-    /** 已经彻底取不到的地址：同一部片不反复重试，免得每次滚动都打十几次请求。 */
-    private static final Set<String> DEAD = new HashSet<String>();
+    /**
+     * 取不到的地址，但**不是永久黑名单**。
+     *
+     * 之前是个裸 HashSet，一张图失败一次就永远显示首字色块，用户滚动回来也不重试。
+     * 电视上 84 张图同一瞬间轰出去，网络稍有波动就成片失败，整墙就全变灰块——
+     * 「很多片没封面」的根因就在这里，而不是片源没给图。
+     *
+     * 现在记「上次失败时刻」，冷却 90 秒后再试；并且失败次数计入 DEAD_MAX，
+     * 真的坏地址（404 之类）最多重试两次就被真正放弃。
+     */
+    private static final Map<String, long[]> DEAD = new HashMap<String, long[]>();
+    private static final long DEAD_COOLDOWN = 90000;
+    private static final int DEAD_MAX = 2;
 
-    private static final ExecutorService POOL = Executors.newFixedThreadPool(6);
+    /** 同时下载几张图。比 6 更小，避免瞬时并发把图床惹毛。 */
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(4);
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+
+    private static boolean dead(String key) {
+        long[] v = DEAD.get(key);
+        if (v == null) {
+            return false;
+        }
+        if (v[1] >= DEAD_MAX) {
+            return true; // 连续失败太多次，这个地址真没图
+        }
+        return System.currentTimeMillis() - v[0] < DEAD_COOLDOWN;
+    }
+
+    private static void markDead(String key) {
+        long[] v = DEAD.get(key);
+        if (v == null) {
+            DEAD.put(key, new long[] { System.currentTimeMillis(), 1 });
+        } else {
+            v[0] = System.currentTimeMillis();
+            v[1] = v[1] + 1;
+        }
+    }
 
     /**
      * 载入海报。三种结果都可辨认：
@@ -166,24 +198,136 @@ public final class Ui {
             iv.setImageBitmap(letter(w, h, name));
             return;
         }
-        final String key = url;
-        iv.setTag(key);
-        Bitmap hit = CACHE.get(key);
+        iv.setTag(url);
+        Bitmap hit = CACHE.get(url);
         if (hit != null) {
             iv.setImageBitmap(hit);
             return;
         }
-        if (DEAD.contains(key)) {
+        if (dead(url)) {
             iv.setImageBitmap(letter(w, h, name));
             return;
         }
         // 先放占位，图到了再覆盖：这样一眼能看出是没图还是没加载出来
         iv.setImageBitmap(loading(w, h));
+        startLoad(iv, url, w, h, name);
+    }
+
+    /** 换源后想强制重试某张图时调用（自检页用）。 */
+    public static void forgetFailures() {
+        DEAD.clear();
+    }
+
+    /** 自检页显示用：当前有多少地址在冷却中。 */
+    public static int deadCount() {
+        long now = System.currentTimeMillis();
+        int n = 0;
+        for (long[] v : DEAD.values()) {
+            if (v[1] >= DEAD_MAX || now - v[0] < DEAD_COOLDOWN) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    /* ============ 惰性加载：滚到哪下哪 ============ */
+
+    /** 一张待加载的海报。先登记，等它进入视口再真正下载。 */
+    private static final class Pending {
+        final String url;
+        final int w;
+        final int h;
+        final String name;
+
+        Pending(String url, int w, int h, String name) {
+            this.url = url;
+            this.w = w;
+            this.h = h;
+            this.name = name;
+        }
+    }
+
+    private static final Map<ImageView, Pending> WAITING =
+            new java.util.WeakHashMap<ImageView, Pending>();
+
+    /**
+     * 只登记，不下载。
+     *
+     * 一页 84 张卡如果全部立刻发请求，就要排队好几分钟才轮到最后一张，
+     * 期间整墙都是「载入中」，看起来就是卡。改成进入视口附近才真取。
+     */
+    public static void loadPosterDeferred(ImageView iv, String url, int w, int h, String name) {
+        if (iv == null) {
+            return;
+        }
+        if (url == null || url.length() == 0) {
+            iv.setTag("__none__");
+            iv.setImageBitmap(letter(w, h, name));
+            return;
+        }
+        iv.setTag(url);
+        Bitmap hit = CACHE.get(url);
+        if (hit != null) {
+            iv.setImageBitmap(hit);
+            return;
+        }
+        if (dead(url)) {
+            iv.setImageBitmap(letter(w, h, name));
+            return;
+        }
+        iv.setImageBitmap(loading(w, h));
+        WAITING.put(iv, new Pending(url, w, h, name));
+    }
+
+    /**
+     * 把进入视口（含下方一屏预取）的待加载海报真正发出去。
+     * 由 MainActivity 在滚动和渲染后调用，主线程执行，只做可见性判断。
+     */
+    public static void pump(View container) {
+        if (container == null || WAITING.isEmpty()) {
+            return;
+        }
+        int[] loc = new int[2];
+        container.getLocationOnScreen(loc);
+        int top = loc[1];
+        int bottom = top + container.getHeight();
+        // 多预取一屏，滚动时不会一片「载入中」
+        int pad = Math.max(200, container.getHeight());
+
+        java.util.Iterator<Map.Entry<ImageView, Pending>> it = WAITING.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<ImageView, Pending> e = it.next();
+            ImageView iv = e.getKey();
+            if (iv == null || iv.getParent() == null) {
+                it.remove();
+                continue;
+            }
+            iv.getLocationOnScreen(loc);
+            int y = loc[1];
+            if (y + iv.getHeight() < top - pad) {
+                continue; // 还在上面，等它滚回来再说
+            }
+            if (y > bottom + pad) {
+                continue; // 太靠下，还没轮到
+            }
+            Pending p = e.getValue();
+            it.remove();
+            startLoad(iv, p.url, p.w, p.h, p.name);
+        }
+    }
+
+    /** 真正发起下载（内部用，loadPoster 与 pump 共用）。 */
+    private static void startLoad(final ImageView iv, final String url, final int w, final int h,
+                                  final String name) {
+        final String key = url;
+        if (!key.equals(iv.getTag())) {
+            return; // 这张卡已经被复用了，别再往它身上贴图
+        }
         POOL.execute(new Runnable() {
             public void run() {
                 final Bitmap b = fetchAny(url, w, h);
                 if (b == null) {
-                    DEAD.add(key);
+                    markDead(key);
                     MAIN.post(new Runnable() {
                         public void run() {
                             if (key.equals(iv.getTag())) {
@@ -194,6 +338,7 @@ public final class Ui {
                     return;
                 }
                 CACHE.put(key, b);
+                DEAD.remove(key);
                 MAIN.post(new Runnable() {
                     public void run() {
                         if (key.equals(iv.getTag())) {
@@ -203,11 +348,6 @@ public final class Ui {
                 });
             }
         });
-    }
-
-    /** 换源后想强制重试某张图时调用（自检页用）。 */
-    public static void forgetFailures() {
-        DEAD.clear();
     }
 
     /**

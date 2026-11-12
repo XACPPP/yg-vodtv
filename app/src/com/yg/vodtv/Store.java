@@ -80,4 +80,63 @@ public final class Store {
             Trace.err("store", "保存播放位置失败", t);
         }
     }
+
+    /* ==================== 搜索历史 ==================== */
+
+    private static final String K_HIST = "hist";
+    private static final int HIST_MAX = 6;
+
+    /** 最近搜过的词，最新的在前。 */
+    public static java.util.List<String> history() {
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        if (sp == null) {
+            return out;
+        }
+        try {
+            String s = sp.getString(K_HIST, "");
+            if (s == null || s.length() == 0) {
+                return out;
+            }
+            for (String p : s.split(",")) {
+                if (p != null && p.length() > 0) {
+                    out.add(p);
+                }
+            }
+        } catch (Throwable t) {
+            Trace.err("store", "读搜索历史失败", t);
+        }
+        return out;
+    }
+
+    /** 记一个搜索词：去重、置顶、最多 6 个。 */
+    public static void addHistory(String kw) {
+        if (sp == null || kw == null) {
+            return;
+        }
+        String w = kw.trim();
+        if (w.length() == 0) {
+            return;
+        }
+        // 逗号是分隔符，词里带逗号会拆错，直接不记（实际片名几乎没有逗号）
+        if (w.indexOf(',') >= 0) {
+            return;
+        }
+        try {
+            StringBuilder sb = new StringBuilder(w);
+            int n = 1;
+            for (String p : history()) {
+                if (n >= HIST_MAX) {
+                    break;
+                }
+                if (p.equals(w)) {
+                    continue;
+                }
+                sb.append(',').append(p);
+                n++;
+            }
+            sp.edit().putString(K_HIST, sb.toString()).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "存搜索历史失败", t);
+        }
+    }
 }
