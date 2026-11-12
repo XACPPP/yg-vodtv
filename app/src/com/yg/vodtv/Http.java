@@ -81,9 +81,17 @@ public final class Http {
     }
 
     public static String get(String url, String referer) {
+        return get(url, referer, 12000, 20000);
+    }
+
+    /**
+     * 指定超时的取文本。多源聚合时用它把「慢源」快速判死，
+     * 否则一个卡住的站会把整页拖到预算上限。
+     */
+    public static String get(String url, String referer, int connectMs, int readMs) {
         for (int attempt = 0; attempt < 2; attempt++) {
             try {
-                HttpURLConnection c = open(url, referer);
+                HttpURLConnection c = open(url, referer, connectMs, readMs);
                 int code = c.getResponseCode();
                 if (code != 200) {
                     c.disconnect();

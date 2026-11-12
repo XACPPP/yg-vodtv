@@ -10,3 +10,6 @@ app/yg.keystore
 
 # apksigner v4 签名副产物
 app/*.idsig
+
+# 探测过程的滚动日志（体积大，随时可重跑）
+test/probe_run*.log

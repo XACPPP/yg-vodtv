@@ -42,6 +42,8 @@ public final class PlayerActivity extends Activity {
     private String[] names = new String[0];
     private int index = 0;
     private int vid = 0;
+    /** 多源唯一标识：源_id，播放位置按它存。 */
+    private String key = "";
     private String title = "";
     private boolean prepared = false;
     private boolean retried = false;
@@ -65,6 +67,7 @@ public final class PlayerActivity extends Activity {
         names = getIntent().getStringArrayExtra("names");
         index = getIntent().getIntExtra("index", 0);
         vid = getIntent().getIntExtra("id", 0);
+        key = Store.vid(getIntent().getStringExtra("src"), vid);
         title = getIntent().getStringExtra("title");
         if (urls == null) {
             urls = new String[0];
@@ -286,7 +289,7 @@ public final class PlayerActivity extends Activity {
             timeLabel.setText(fmt(p) + " / " + fmt(d));
             // 每 5 秒落一次盘就够了，写太勤对闪存不友好
             if (++tickCount % 5 == 0) {
-                Store.savePos(vid, index, p);
+                Store.savePos(key, index, p);
             }
         } catch (Throwable t) {
         }
@@ -298,7 +301,7 @@ public final class PlayerActivity extends Activity {
             return;
         }
         try {
-            Store.savePos(vid, index, vv.getCurrentPosition());
+            Store.savePos(key, index, vv.getCurrentPosition());
         } catch (Throwable t) {
         }
     }
@@ -326,7 +329,7 @@ public final class PlayerActivity extends Activity {
                 mp.setScreenOnWhilePlaying(true);
                 vv.start();
                 // 上次看到一半的，接着看：只在保存位置离片头和片尾都不太近时才跳
-                int saved = Store.pos(vid, index);
+                int saved = Store.pos(key, index);
                 int dur = 0;
                 try {
                     dur = vv.getDuration();
@@ -368,7 +371,7 @@ public final class PlayerActivity extends Activity {
             public void onCompletion(MediaPlayer mp) {
                 prepared = false;
                 // 这集看完了，把位置清零，下次点进来从头播，不要「接着看」跳到片尾
-                Store.savePos(vid, index, 0);
+                Store.savePos(key, index, 0);
                 if (idx + 1 < urls.length) {
                     showToast("自动播放下一集");
                     playAt(idx + 1);

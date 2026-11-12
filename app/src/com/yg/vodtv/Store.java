@@ -6,9 +6,10 @@ import android.content.SharedPreferences;
 /**
  * 本机记录：每部剧每一集看到哪儿。
  *
- * 存法：一条记录一个 key，"p_" + 影片id + "_" + 集号，值是毫秒。
- * 另外用一个 "recent" 记最近看过的顺序，方便首页将来做「继续观看」（目前只记录，不展示）。
- * 全部落 SharedPreferences，不需要权限，卸载即清。
+ * 存法：一条记录一个 key，"p_" + 源_影片id + "_" + 集号，值是毫秒。
+ * 多源之后影片 id 会撞（maoyan 的 123 和 ffzy 的 123 是两部不同的剧），
+ * 所以 key 里必须带源名。
+ * 另外用一个 "recent" 记最近看过的顺序，方便首页将来做「继续观看」。
  */
 public final class Store {
 
@@ -28,9 +29,17 @@ public final class Store {
         }
     }
 
+    /** 多源下的影片唯一标识：源名_id。 */
+    public static String vid(String src, int id) {
+        if (src == null || src.length() == 0) {
+            return String.valueOf(id);
+        }
+        return src + "_" + id;
+    }
+
     /** 读出某剧某集的播放位置（毫秒），没有记录返回 0。 */
-    public static int pos(int vid, int ep) {
-        if (sp == null || vid <= 0) {
+    public static int pos(String vid, int ep) {
+        if (sp == null || vid == null || vid.length() == 0) {
             return 0;
         }
         try {
@@ -41,8 +50,8 @@ public final class Store {
     }
 
     /** 记住某剧某集看到哪儿；同时把这部剧挪到「最近观看」最前面。 */
-    public static void savePos(int vid, int ep, int ms) {
-        if (sp == null || vid <= 0 || ms < 0) {
+    public static void savePos(String vid, int ep, int ms) {
+        if (sp == null || vid == null || vid.length() == 0 || ms < 0) {
             return;
         }
         try {

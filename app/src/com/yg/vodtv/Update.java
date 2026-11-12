@@ -27,14 +27,14 @@ public final class Update {
             + "/releases/latest";
 
     /**
-     * 国内直连 api.github.com 经常不通，下载也常被掐。
-     * 元信息只认能代理 api 的镜像（ghfast 对 api.github.com 回 403）；
-     * 下载用三个通道都行。实测两者返回内容与官方一致（元信息 6KB 级、安装包同 md5）。
+     * 国内直连 api.github.com 经常不通（实测直连那一路是 SSL 握手就失败），
+     * 所以镜像排前面、直连放最后兜底；ghfast 对 api.github.com 回 403，不用于元信息。
      */
     private static final String[] API_PROXIES =
-            { "", "https://gh-proxy.com/" };
+            { "https://gh-proxy.com/", "" };
+    /** 下载：镜像优先，再退直连、ghfast。 */
     private static final String[] DL_PROXIES =
-            { "", "https://gh-proxy.com/", "https://ghfast.top/" };
+            { "https://gh-proxy.com/", "https://ghfast.top/", "" };
 
     /** 下载目录：放外部存储，系统安装器（另一个 uid）才读得到。 */
     private static final String DIR = "YG影视TV";
@@ -80,8 +80,8 @@ public final class Update {
             String body = null;
             for (int i = 0; i < API_PROXIES.length && body == null; i++) {
                 String url = API_PROXIES[i] + LATEST;
-                // 6 秒连接、8 秒读取：直连被墙时快速跳到镜像，别让用户干等
-                body = Http.getQuick(url, null, 6000, 8000);
+                // 4 秒连接、7 秒读取：镜像先试，失败也快点走下一步，别让用户干等
+                body = Http.getQuick(url, null, 4000, 7000);
                 if (body == null) {
                     Trace.add("update", "检查更新走不通：" + (API_PROXIES[i].length() == 0
                             ? "直连" : API_PROXIES[i]));

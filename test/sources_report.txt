@@ -1,0 +1,1798 @@
+============================================================================================================
+ MacCMS V10 采集接口实测报告
+ 候选 243 / 可用 153 / 其中正常影视 112 / 疑似成人 41
+ 时间: 2026-11-12 12:13:31
+ UA: Android5.1.1 VIDAA TV Chrome78   超时 12s
+ 判定: HTTP200 + 合法JSON + list + vod_id/name/pic/play_url + m3u8 + 图片非空 + 2025/2026内容
+============================================================================================================
+
+[A] 推荐接入（正常影视 + 2026 内容 + m3u8 直连）
+------------------------------------------------------------------------------------------------------------
+#   域名                             条数   剧   综    动漫  m3u8 图    首条剧(年份)
+------------------------------------------------------------------------------------------------------------
+1   api.maoyanapi.top              30   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+2   maoyanzy.com                   30   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+3   api.guangsuapi.com             20   Y   Y     Y  LIVE Y    谷雨(2026)
+4   caiji.moduapi.cc               20   Y   Y     Y  LIVE Y    尬先生(2026)
+5   api.ukuapi.com                 20   Y   Y     Y  LIVE Y    尚公主(2026)
+6   360zy.tv                       20   Y   Y     Y  LIVE Y    天命·成凰(2026)
+7   360zy.com                      20   Y   Y     Y  LIVE Y    天命·成凰(2026)
+8   api.xinlangapi.com             20   Y   Y     Y  LIVE Y    谷雨(2026)
+9   api.guangsuapi.com             20   Y   Y     Y  LIVE Y    谷雨(2026)
+10  www.cmov.cn                    20   Y   Y     Y  LIVE Y    炽夏(2026)
+11  www.ysxq.cc                    20   Y   Y     Y  LIVE Y    走马上任(2026)
+12  www.cmov.cn                    20   Y   Y     Y  LIVE Y    炽夏(2026)
+13  360zyzz.com                    20   Y   Y     Y  LIVE Y    天命·成凰(2026)
+14  api.apiyhzy.com                20   Y   Y     Y  LIVE Y    以神之名，对话万物(2026)
+15  api.ukuapi88.com               20   Y   Y     Y  LIVE Y    尚公主(2026)
+16  api.xinlangapi.com             20   Y   Y     Y  LIVE Y    谷雨(2026)
+17  m3u8.apiyhzy.com               20   Y   Y     Y  LIVE Y    以神之名，对话万物(2026)
+18  www.mdzyapi.com                20   Y   Y     Y  LIVE Y    尬先生(2026)
+19  www.moduzy.com                 20   Y   Y     Y  LIVE Y    尬先生(2026)
+20  yhzy.cc                        20   Y   Y     Y  LIVE Y    以神之名，对话万物(2026)
+21  jszyapi.com                    20   Y   Y     Y  LIVE Y    谷雨(2026)
+22  jinyingzy.com                  20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+23  iqiyizyapi.com                 20   Y   Y     Y  LIVE Y    天命·成凰(2026)
+24  jinyingzy.com                  20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+25  hhzyapi.com                    20   Y   Y     Y  LIVE Y    谷雨(2026)
+26  haohuazy.com                   20   Y   Y     Y  LIVE Y    谷雨(2026)
+27  huyazy.net                     20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+28  jyzyapi.com                    20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+29  jyzyapi.com                    20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+30  suonizy.net                    20   Y   Y     Y  LIVE Y    晚秋寄情(2026)
+31  www.haohuazy.com               20   Y   Y     Y  LIVE Y    谷雨(2026)
+32  www.huyaapi.com                20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+33  api.zuidapi.com                20   Y   Y     Y  LIVE Y    尚公主(2026)
+34  wsyzy.cc                       20   Y   Y     Y  LIVE Y    尚公主(2026)
+35  cj.ffzyapi.com                 20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+36  api.ffzyapi.com                20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+37  caiji.dyttzyapi.com            20   Y   Y     Y  LIVE Y    天命成凰2026(2026)
+38  api.wujinapi.me                20   Y   Y     Y  LIVE Y    天命成凰(2026)
+39  ffzy5.tv                       20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+40  cj.yayazy.net                  20   Y   Y     Y  LIVE Y    尚公主(2026)
+41  ikunzyapi.com                  20   Y   Y     Y  LIVE Y    谷雨(2026)
+42  cj.rycjapi.com                 20   Y   Y     Y  LIVE Y    天命成凰(2026)
+43  cj.ffzyapi.com                 20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+44  caiji.dyttzyapi.com            20   Y   Y     Y  LIVE Y    天命成凰2026(2026)
+45  cj.ffzyapi.com                 20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+46  ffzy3.tv                       20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+47  cj.rycjapi.com                 20   Y   Y     Y  LIVE Y    天命成凰(2026)
+48  ffzy1.tv                       20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+49  ffzy.tv                        20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+50  ffzy4.tv                       20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+51  ffzy5.tv                       20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+52  www.ffzy.tv                    20   Y   Y     Y  LIVE Y    十三种爱情(2026)
+53  zuidazy.me                     20   Y   Y     Y  LIVE Y    尚公主(2026)
+54  api.niuniuzy.me                20   Y   Y     Y  LIVE Y    尚公主(2026)
+55  api.wujinapi.cc                20   Y   Y     Y  LIVE Y    晚秋寄情(2026)
+56  api.wujinapi.com               20   Y   Y     Y  LIVE Y    晚秋寄情(2026)
+57  api.wsyzy.net                  20   Y   Y     Y  LIVE Y    尚公主(2026)
+58  api.wujinapi.net               20   Y   Y     Y  LIVE Y    晚秋寄情(2026)
+59  caiji.kuaichezy.org            20   Y   Y     Y  LIVE Y    尚公主(2026)
+60  ikunzy.vip                     20   Y   Y     Y  LIVE Y    谷雨(2026)
+61  niuniuzy3.com                  20   Y   Y     Y  LIVE Y    尚公主(2026)
+62  niuniuzy6.com                  20   Y   Y     Y  LIVE Y    尚公主(2026)
+63  seep.eu.org                    20   Y   Y     Y  LIVE Y    谷雨(2026)
+64  suoniapi.com                   20   Y   Y     Y  LIVE Y    尚公主(2026)
+65  www.ikunzy.com                 20   Y   Y     Y  LIVE Y    谷雨(2026)
+66  yayazy2.com                    20   Y   Y     Y  LIVE Y    尚公主(2026)
+67  zuidazy.me                     20   Y   Y     Y  LIVE Y    尚公主(2026)
+68  zuida.xyz                      20   Y   Y     Y  LIVE Y    尚公主(2026)
+69  zuidazy.co                     20   Y   Y     Y  LIVE Y    尚公主(2026)
+70  yonghu.ffzyapi8.com            20   Y   Y     Y  LIVE Y    天命·成凰(2026)
+71  by.bfzyapi.com                 20   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+72  api.juliang.live               20   Y   Y     Y  LIVE Y    山河对弈帝王棋(2026)
+73  app.bfzyapi.com                20   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+74  bf.xoxowin86cisyap.com         20   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+75  bfzyapi.com                    20   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+76  caiji.xgzyapi.com              20   Y   Y     Y  LIVE Y    自首真相(2026)
+77  subocaiji.com                  20   Y   Y     Y  LIVE Y    谷雨(2026)
+78  subocj.com                     20   Y   Y     Y  LIVE Y    谷雨(2026)
+79  www.subozy.com                 20   Y   Y     Y  LIVE Y    谷雨(2026)
+80  hongniuzy2.com                 20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+81  hongniuzy2.com                 20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+82  api.1080zyku.com               20   Y   Y     Y  LIVE Y    今天是太阳雨(2026)
+83  www.hongniuzy3.com             20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+84  www.hongniuzy2.com             20   Y   Y     Y  LIVE Y    伟大的长征(2026)
+85  cdn.dzzyapi.com                20   Y   Y     Y  LIVE Y    这不是一个谋杀谜团(2025)
+86  ys.cxkjg.cn                    20   Y   Y     Y  LIVE Y    豆腐妈妈(2025)
+87  caiji.maotaizy.cc              20   Y   Y     Y  DEAD Y    尚公主(2026)
+88  mtzy5.com                      20   Y   Y     Y  DEAD Y    尚公主(2026)
+89  tyyszy.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+90  tyyszy.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+91  tyyszyapi.com                  20   Y   Y     Y  DEAD Y    尚公主(2026)
+92  ty.tyyszy5.com                 20   Y   Y     Y  DEAD Y    尚公主(2026)
+93  cj.lziapi.com                  20   Y   Y     Y  DEAD Y    尚公主(2026)
+94  cj.lziapi.com                  20   Y   Y     Y  DEAD Y    尚公主(2026)
+95  lzizy.net                      20   Y   Y     Y  DEAD Y    尚公主(2026)
+96  www.lzzy.tv                    20   Y   Y     Y  DEAD Y    尚公主(2026)
+97  cj.lzcaiji.com                 20   Y   Y     Y  DEAD Y    尚公主(2026)
+98  lzizy3.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+99  lzizy1.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+100 lzizy.net                      20   Y   Y     Y  DEAD Y    尚公主(2026)
+101 lzizy2.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+102 lzizy5.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+103 lzizy4.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+104 lzizy8.com                     20   Y   Y     Y  DEAD Y    尚公主(2026)
+105 api.zeqaht.com                 20   Y   Y     Y  DEAD Y    谷雨(2026)
+106 ckzy.me                        20   -   -     -  LIVE Y    用巨物轰炸的教练前男友(2025)
+107 www.ckzy1.com                  20   -   -     -  LIVE Y    用巨物轰炸的教练前男友(2025)
+108 sdzyapi.com                    20   -   -     -  LIVE Y    假婚六年，当众清算(2026)
+109 api.okzyw.net                  20   -   -     -  LIVE Y    假婚六年，当众清算(2026)
+110 sdzyapi.com                    20   -   -     -  LIVE Y    假婚六年，当众清算(2026)
+111 xsd.sdzyapi.com                20   -   -     -  LIVE Y    假婚六年，当众清算(2026)
+112 hong.hgyx.vip                  20   -   Y     Y  DEAD Y    趁热打铁(2026)
+
+[B] 疑似成人内容（接口本身可用，播放正常，自行决定是否接入）
+------------------------------------------------------------------------------------------------------------
+1   150.109.94.44:1112                21      3    Y   LIVE  夏色之云掀起恋爱与风暴(2026)
+2   Naixxzy.com                       50     50    Y   LIVE  少妇大喊你好坏蛋哦我明天还要出差(2026)
+3   aosikazy8.com                     50     50    Y   LIVE  冷艳型高颜值女神带着眼镜御姐风吊带睡衣苗条身材美腿掰(2026)
+4   heiliaozyapi.com                  50     49    Y   LIVE  10musume070525011おんなの.こ.のし(2026)
+5   www.heiliaozyapi.com              50     49    Y   LIVE  10musume070525011おんなの.こ.のし(2026)
+6   api.11bat.com                     20     20    Y   LIVE  MBRBA-121 波崎美春爆乳裸体 狂干内射极品骚(-)
+7   fhapi9.com                        20     20    Y   LIVE  泳装女友海边湿身，巨乳爆操内射狂干(-)
+8   155api.com                        20     20    Y   LIVE  我会用我的奶子大量射精！乳头#史宾塞乳腺#乳线感性精(2026)
+9   api.xgbbk8.com                    20     20    Y   LIVE  【剛毛】超敏感ボディが大量おもらし びっしり生えそろ(2026)
+10  apilj.com                         20     20    Y   LIVE  OKG-002 纱纱原百合 健身服爆乳被干到失禁 网(-)
+11  beiyong.slapibf.com               20     20    Y   LIVE  JURA-166初次拍摄人妻纪录片第二章セン.タービ(2026)
+12  apidanaizi.com                    20     20    Y   LIVE  少女失踪案的原由(2026)
+13  dadiapi.com                       20     20    Y   LIVE  [重磅] 勾搭气质良家少妇 车震口爆内射(-)
+14  jkunzyapi.com                     20     20    Y   LIVE  YeYeBirdieBBCEp11YeYeBirdi(2026)
+15  json.xingba222.com                20     20    Y   LIVE  【剛毛】超敏感ボディが大量おもらし びっしり生えそろ(2026)
+16  jipinvip1.com                     20     20    Y   LIVE  IZHN-525 福利大神 男扮女装女厕偷拍50位美(2026)
+17  fqzy.me                           20     20    Y   LIVE  SNOS-209_终极女英雄将百分之百掌控你的小弟弟(2026)
+18  fqzy.me                           20     20    Y   LIVE  SNOS-209_终极女英雄将百分之百掌控你的小弟弟(2026)
+19  lbapi9.com                        20     20    Y   LIVE  WAAA-204-C 合宿淫窟：田径部双叶胡桃被教练(-)
+20  shayuapi.com                      20     20    Y   LIVE  022626001 极品女课长被部下狂干到沦陷 今田(-)
+21  shayuzy1.com                      20     20    Y   LIVE  022626001 极品女课长被部下狂干到沦陷 今田(-)
+22  slapibf.com                       20     20    Y   LIVE  JURA-166初次拍摄人妻纪录片第二章セン.タービ(2026)
+23  shayuzy.com                       20     20    Y   LIVE  022626001 极品女课长被部下狂干到沦陷 今田(-)
+24  seep.eu.org                       20     20    Y   LIVE  SNOS-209_终极女英雄将百分之百掌控你的小弟弟(2026)
+25  xingba111.com                     20     20    Y   LIVE  【剛毛】超敏感ボディが大量おもらし びっしり生えそろ(2026)
+26  xingba222.com                     20     20    Y   LIVE  【剛毛】超敏感ボディが大量おもらし びっしり生えそろ(2026)
+27  www.jingpinx.com                  20     20    Y   LIVE  好色上班族_4(2026)
+28  apiyutu.com                       10     10    Y   LIVE  MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停(2026)
+29  apilsbzy1.com                     10     10    Y   LIVE  MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停(2026)
+30  yutuzy10.com                      10     10    Y   LIVE  MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停(2026)
+31  bt4.cc                            30     30    Y   LIVE  杏吧/今天约了个18岁小妹-吴天(-)
+32  www.madouse.la                    30     30    Y   LIVE  与童帝的初次经会与性爱上集-辛尤里(-)
+33  www.tianmei.pw                    30     30    Y   LIVE  与童帝的初次经会与性爱上集-辛尤里(-)
+34  91md.me                           30     30    Y   LIVE  杏吧/今天约了个18岁小妹-吴天(-)
+35  seep.eu.org                       30     30    Y   LIVE  杏吧/今天约了个18岁小妹-吴天(-)
+36  seep.eu.org                       30     30    Y   LIVE  杏吧/今天约了个18岁小妹-吴天(-)
+37  javbus.sbs                        20     20    Y   LIVE  VENX-152 巨乳义母入浴爆操，推川悠里骚穴被狂(-)
+38  thzy1.me                          20     20    Y   LIVE  [FioraMMD]_バニーイ〇ニスでダーリンダンス(2026)
+39  api.heiapi.cc                     20     20    Y   DEAD  (18禁アニメ) [Queen Bee] たゆたゆ (2026)
+40  vnzyz.com                         20     20    Y   DEAD  h_189lxma00004 カップルOKマッサージ(2025)
+41  api.douapi.cc                     20     20    Y   DEAD  喜欢二次元 18岁反差婊~童颜巨乳 武汉06少女 深(2026)
+
+[C] 接口活着但不能直接当片源
+------------------------------------------------------------------------------------------------------------
+域名                                  条数 播放       原因
+------------------------------------------------------------------------------------------------------------
+  (无)
+
+[D] 不可用
+------------------------------------------------------------------------------------------------------------
+域名                                     HTTP   原因
+------------------------------------------------------------------------------------------------------------
+101.201.171.207:802                    200    play=none
+154.219.117.232:9981                   200    play=web
+cms.123jx.vip                          200    play=none
+ww96.taiee.xyz                         200    play=web
+19q.cc                                 0      conn: ('Connection aborted.', FileNotFoundError(2,
+8.134.205.252:39466                    200    no list (keys=class)
+91av.cyou                              403    http 403
+aosikazy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.1080zyku.com                       200    not json |head=<?xml version="1.0" encoding="utf-8
+api.apibdzy.com                        403    http 403
+api.apibdzy.com                        403    http 403
+api.ckzy.com                           403    http 403
+api.ddapi.cc                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.dyttzy.com                         0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.foxzyapi.com                       200    not json |head=<html><head><title>Loading...</titl
+api.fqzy.cc                            200    not json |head=<!DOCTYPE html> <html lang="en"> <h
+api.huosuapi.cc                        0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.kczy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.kuaifan.tv                         0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.lzizy.com                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.okzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.ryzy.com                           200    not json |head=<!DOCTYPE html> <html lang="en"> <h
+api.sdzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.sexnguon.com                       0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.souavzy.vip                        0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.souavzyw.net                       0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.tiankongapi.com                    200    not json |head=<!DOCTYPE html>  <html lang="x-defa
+api.tpzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.ukuzy.com                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.vnzyz.com                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.wwzy.tv                            200    not json |head=<!DOCTYPE html> <html lang="zh-CN">
+api.xiaojizy.live                      0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.xlzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.yjzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+api.yulecj.com                         200    not json |head=<!DOCTYPE html> <html lang="en" dat
+api.yzzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+bhziyuan.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+caiji.dbzy.tv                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+caiji.dbzy5.com                        0      conn: ('Connection aborted.', FileNotFoundError(2,
+caiji.kczyapi.com                      200    not json |head=<!doctype html><html lang="en"><hea
+chujia.cc                              0      conn: ('Connection aborted.', RemoteDisconnected('
+cj.10010888.xyz                        0      timeout>12s
+cj.jusj.top                            0      conn: ('Connection aborted.', FileNotFoundError(2,
+cj.vodimg.top                          403    http 403
+ckbh1.xyz                              0      conn: ('Connection aborted.', FileNotFoundError(2,
+collect.wolongzy.cc                    0      conn: ('Connection aborted.', FileNotFoundError(2,
+collect.wolongzyw.com                  200    not json |head=<!-- 450474717081 --> <!DOCTYPE htm
+dbzy.tv                                0      conn: ('Connection aborted.', FileNotFoundError(2,
+demo.if101.tv                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+doudouzy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+example.com                            404    http 404
+gayapi.com                             0      conn: ('Connection aborted.', FileNotFoundError(2,
+haiwaikan.com                          200    not json |head=<!doctype html><html lang="en"><hea
+hsckzy.vip                             0      conn: ('Connection aborted.', FileNotFoundError(2,
+hsckzy.xyz                             0      conn: ('Connection aborted.', FileNotFoundError(2,
+hsckzy888.com                          0      conn: ('Connection aborted.', FileNotFoundError(2,
+json02.heimuer.xyz                     200    not json |head=<!DOCTYPE html>  <html lang="x-defa
+kuaikan-api.com                        0      conn: ('Connection aborted.', FileNotFoundError(2,
+lbapiby.com                            502    http 502
+leshizyapi.com                         0      conn: ('Connection aborted.', FileNotFoundError(2,
+lovedan.net                            403    http 403
+m3u8.tiankongapi.com                   200    not json |head=<!DOCTYPE html>  <html lang="x-defa
+mozhuazy.com                           0      conn: ('Connection aborted.', FileNotFoundError(2,
+mtzy.me                                0      conn: ('Connection aborted.', FileNotFoundError(2,
+p2100.net                              403    http 403
+pg.cttv.vip                            200    not json |head=<html> <head><title>403 Forbidden</
+pg.fenwe078.cf                         0      conn: ('Connection aborted.', FileNotFoundError(2,
+seep.eu.org                            200    not json |head=<br /> <b>Parse error</b>:  syntax 
+shandianzy.com                         403    http 403
+tv.rcz168.com                          200    not json |head=<!-- 987727119811 --> <!DOCTYPE htm
+vipmv.cc                               403    http 403
+wolongzyw.com                          200    not json |head=<!-- 964980749162 --> <!DOCTYPE htm
+www.feisuzyapi.com                     0      conn: ('Connection aborted.', FileNotFoundError(2,
+www.kuaibozy.com                       0      conn: ('Connection aborted.', FileNotFoundError(2,
+www.lovedan.net                        403    http 403
+www.qilinzyz.com                       200    not json |head=IP未授权或已到期，请到vip.qilinzyz.com查看。|
+www.seacms.org                         0      timeout>12s
+www.xiangjiaozyw.com                   0      conn: ('Connection aborted.', FileNotFoundError(2,
+www.xxibaozyw.com                      0      timeout>12s
+www.zitv.cc                            403    http 403
+wwzy.tv                                200    not json |head=<!DOCTYPE html> <html lang="zh-CN">
+xxavs.com                              403    http 403
+xy.183933.xyz                          200    no list (keys=class,filters)
+xy.183933.xyz                          200    no list (keys=class,filters)
+xy.183933.xyz                          200    no list (keys=class)
+xy.183933.xyz                          200    no list (keys=class)
+xydm.baicai.buzz                       200    empty body
+zy.renrenmi.cc                         200    not json |head=<!doctype html><html lang="en"><hea
+zy.xiaomaomi.vip                       0      conn: ('Connection aborted.', RemoteDisconnected('
+zy.yilans.net:8090                     0      conn: ('Connection aborted.', RemoteDisconnected('
+
+[E] 明细
+------------------------------------------------------------------------------------------------------------
+https://api.maoyanapi.top/api.php/provide/vod/
+   http=200 ms=733 count=30 pic_ok=True m3u8_live=True adult=False
+   首条: 佐佐木与文鸟小哔第二季 | year=2026 | vod_time=2026-11-11 21:19:34
+   t=13: n=30 new2025+=30 首条=今天是太阳雨(2026)
+   电视剧: t=13(国产剧) n=30 首条=今天是太阳雨(2026)
+   综艺: t=34(大陆综艺) n=30 首条=听谁在唱歌第二季(2026)
+   动漫: t=39(欧美动漫) n=30 首条=巴斯×机械(2026)
+   m3u8: https://play.maoyanplay.top/20261008/KgleWpcI/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 17:体育 18:NBA 20:惊悚片 21:家庭篇 22:古装片 23:历史片 24:悬疑片 25:犯罪片 26:灾难片 27:纪录片 28:短片 29:动画片 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:国产动漫 39:欧美动漫 40:日韩动漫 41:足球 42:篮球 43:未分类 45:西部片 46:爽文短剧 
+
+https://maoyanzy.com/api.php/provide/vod/
+   http=200 ms=1019 count=30 pic_ok=True m3u8_live=True adult=False
+   首条: 聊斋问心 | year=2026 | vod_time=2026-11-12 11:19:49
+   t=13: n=30 new2025+=30 首条=今天是太阳雨(2026)
+   电视剧: t=13(国产剧) n=30 首条=今天是太阳雨(2026)
+   综艺: t=34(大陆综艺) n=30 首条=听谁在唱歌第二季(2026)
+   动漫: t=39(欧美动漫) n=30 首条=巴斯×机械(2026)
+   m3u8: https://play.maoyanplay.top/20261030/PMfjQHIn/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 17:体育 18:NBA 20:惊悚片 21:家庭篇 22:古装片 23:历史片 24:悬疑片 25:犯罪片 26:灾难片 27:纪录片 28:短片 29:动画片 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:国产动漫 39:欧美动漫 40:日韩动漫 41:足球 42:篮球 43:未分类 45:西部片 46:爽文短剧 
+
+https://api.guangsuapi.com/api.php/provide/vod/
+   http=200 ms=1172 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=20 首条=谷雨(2026)
+   电视剧: t=13(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=37(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=41(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://v.gsuus.com/play/e0R2wlyb/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:剧情片 11:恐怖片 12:战争片 13:大陆剧 14:欧美剧 15:港澳剧 16:韩剧 20:动漫电影 21:日剧 22:台湾剧 23:泰剧 24:记录片 25:伦理片 30:体育赛事 31:短剧 32:预告片 33:足球 34:篮球 35:台球 36:其他赛事 37:大陆综艺 38:日韩综艺 39:港台综艺 40:欧美综艺 41:中国动漫 42:日本动漫 43:欧美动漫 44:古装仙侠 45:现代都市 46:穿越年代 47:言情总裁 48:重生民国 49:反转爽剧 50:脑洞悬疑 51:擦边短剧
+
+https://caiji.moduapi.cc/api.php/provide/vod/
+   http=200 ms=1119 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 12:08:33
+   t=13: n=20 new2025+=20 首条=罪火焦点(2026)
+   电视剧: t=26(国产剧) n=20 首条=尬先生(2026)
+   综艺: t=34(大陆综艺) n=20 首条=欢乐集结号2026(2026)
+   动漫: t=1(国产动漫) n=20 首条=大夏守墓人(2026)
+   m3u8: https://play.modujx11.com/20260517/TN6VvViZ/index.m3u8
+   分类: 1:国产动漫 2:日韩动漫 3:欧美动漫 4:港台动漫 5:动漫电影 6:里番动漫 7:电影 8:连续剧 9:综艺 10:动作片 11:喜剧片 12:爱情片 13:科幻片 14:恐怖片 15:剧情片 16:战争片 17:惊悚片 18:家庭片 19:古装片 20:历史片 21:悬疑片 22:犯罪片 23:灾难片 24:记录片 25:短片 26:国产剧 27:香港剧 28:韩国剧 29:欧美剧 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:短剧 39:伦理片 40:体育 41:足球 42:AI漫剧
+
+https://api.ukuapi.com/api.php/provide/vod/
+   http=200 ms=1456 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 雪王来了！ | year=2026 | vod_time=2026-11-12 11:49:36
+   t=13: n=20 new2025+=20 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=3(综艺) n=20 首条=听，谁在唱歌2(2026)
+   动漫: t=20(动漫电影) n=20 首条=仙逆剧场版 弑仙之战(2026)
+   m3u8: https://ukzy.ukubf3.com/20260821/uQiFxuPm/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:港澳剧 15:日剧 16:欧美剧 20:动漫电影 21:台湾剧 22:韩剧 23:泰剧 24:记录片 25:伦理片 26:资讯 27:新闻资讯 28:预告资讯 30:影视资讯 31:明星资讯 32:短剧 33:奇幻片 34:犯罪片
+
+https://360zy.tv/api.php/provide/vod/
+   http=200 ms=1828 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 11:36:02
+   t=13: n=20 new2025+=20 首条=天命·成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命·成凰(2026)
+   综艺: t=34(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=38(国产动漫) n=20 首条=全民转职：我组建了BOSS军团(2025)
+   m3u8: https://vod1.maowushi.com/20260514/ZgPdr9n8/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 17:体育 18:NBA 20:惊悚片 21:家庭篇 22:古装片 23:历史片 24:悬疑片 25:犯罪片 26:灾难片 27:纪录片 28:短片 29:动画片 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:国产动漫 39:欧美动漫 40:日韩动漫 41:足球 42:篮球 43:未分类 45:西部片 46:爽文短剧 
+
+https://360zy.com/api.php/provide/vod/
+   http=200 ms=1898 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 11:36:02
+   t=13: n=20 new2025+=20 首条=天命·成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命·成凰(2026)
+   综艺: t=34(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=38(国产动漫) n=20 首条=全民转职：我组建了BOSS军团(2025)
+   m3u8: https://vod1.maowushi.com/20260514/ZgPdr9n8/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 17:体育 18:NBA 20:惊悚片 21:家庭篇 22:古装片 23:历史片 24:悬疑片 25:犯罪片 26:灾难片 27:纪录片 28:短片 29:动画片 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:国产动漫 39:欧美动漫 40:日韩动漫 41:足球 42:篮球 43:未分类 45:西部片 46:爽文短剧 
+
+http://api.xinlangapi.com/xinlangapi.php/provide/vod/
+   http=200 ms=976 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=20 首条=谷雨(2026)
+   电视剧: t=13(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=45(大陆综艺) n=20 首条=文明之旅第3季(2026)
+   动漫: t=38(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.xluuss.com/play/egJxRBGd/index.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:纪录片 6:动作片 7:爱情片 8:科幻片 9:战争片 10:剧情片 11:恐怖片 12:喜剧片 13:大陆剧 14:港澳剧 15:台湾剧 16:欧美剧 17:动画片 18:韩剧 20:日剧 21:泰剧 22:伦理片 23:体育 24:短剧 25:预告片 26:足球 27:篮球 28:台球 29:其他赛事 38:中国动漫 39:日本动漫 40:欧美动漫 41:灾难片 42:悬疑片 43:犯罪片 44:奇幻片 45:大陆综艺 46:日韩综艺 47:港台综艺 48:欧美综艺 49:古装仙侠 50:现代都市 51:穿越年代 52:言情总裁 53:重生民国
+
+http://api.guangsuapi.com/api.php/provide/vod/
+   http=200 ms=1015 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=20 首条=谷雨(2026)
+   电视剧: t=13(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=37(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=41(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://v.gsuus.com/play/e0R2wlyb/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:剧情片 11:恐怖片 12:战争片 13:大陆剧 14:欧美剧 15:港澳剧 16:韩剧 20:动漫电影 21:日剧 22:台湾剧 23:泰剧 24:记录片 25:伦理片 30:体育赛事 31:短剧 32:预告片 33:足球 34:篮球 35:台球 36:其他赛事 37:大陆综艺 38:日韩综艺 39:港台综艺 40:欧美综艺 41:中国动漫 42:日本动漫 43:欧美动漫 44:古装仙侠 45:现代都市 46:穿越年代 47:言情总裁 48:重生民国 49:反转爽剧 50:脑洞悬疑 51:擦边短剧
+
+https://www.cmov.cn/api.php/provide/vod/
+   http=200 ms=3678 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 诡秘之主特别篇猎物 | year=2026 | vod_time=2026-06-21 09:45:44
+   t=13: n=20 new2025+=20 首条=炽夏(2026)
+   电视剧: t=13(大陆剧) n=20 首条=炽夏(2026)
+   综艺: t=20(大陆综艺) n=20 首条=天赐的声音第七季(2026)
+   动漫: t=24(国产动漫) n=20 首条=诡秘之主特别篇猎物(2026)
+   m3u8: https://vip.ffzy-plays.com/20260620/54978_7207dfcc/index.m3u8
+   分类: 1:电影 2:剧集 3:综艺 4:动漫 5:分类5 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:大陆剧 14:港台剧 15:日韩剧 16:海外剧 17:子类12 18:子类113 20:大陆综艺 21:港台综艺 22:日韩综艺 23:欧美综艺 24:国产动漫 25:日韩动漫 26:欧美动漫 27:港台动漫 28:海外动漫 29:记录片
+
+https://www.ysxq.cc/api.php/provide/vod/
+   http=200 ms=2244 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 难得读叔 | year=2026 | vod_time=2026-11-12 12:01:06
+   t=13: n=20 new2025+=20 首条=走马上任(2026)
+   电视剧: t=13(国产剧) n=20 首条=走马上任(2026)
+   综艺: t=30(国内综艺) n=20 首条=不想睡的星期五(2026)
+   动漫: t=33(大陆动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://svip.yzzy33-play.vip/20261111/22559_246ba26b/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:B站 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:港台剧 15:日韩剧 16:欧美剧 20:惊悚片 21:奇幻片 22:文艺片 23:悬疑片 24:纪录片 25:犯罪片 26:动画片 27:伦理片 28:其他片 29:泰国剧 30:国内综艺 31:日韩综艺 32:欧美综艺 33:大陆动漫 34:日韩动漫 35:欧美动漫 37:BiLiBiLi 38: 新加坡 39:港台综艺 40:歌舞片 41:演唱会 42:古装片 43:历史片 44:冒险片 45:体育赛事 46:青春片 47:灾难
+
+http://www.cmov.cn/api.php/provide/vod/
+   http=200 ms=2987 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 诡秘之主特别篇猎物 | year=2026 | vod_time=2026-06-21 09:45:44
+   t=13: n=20 new2025+=20 首条=炽夏(2026)
+   电视剧: t=13(大陆剧) n=20 首条=炽夏(2026)
+   综艺: t=20(大陆综艺) n=20 首条=天赐的声音第七季(2026)
+   动漫: t=24(国产动漫) n=20 首条=诡秘之主特别篇猎物(2026)
+   m3u8: https://vip.ffzy-plays.com/20260620/54978_7207dfcc/index.m3u8
+   分类: 1:电影 2:剧集 3:综艺 4:动漫 5:分类5 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:大陆剧 14:港台剧 15:日韩剧 16:海外剧 17:子类12 18:子类113 20:大陆综艺 21:港台综艺 22:日韩综艺 23:欧美综艺 24:国产动漫 25:日韩动漫 26:欧美动漫 27:港台动漫 28:海外动漫 29:记录片
+
+https://360zyzz.com/api.php/provide/vod/
+   http=200 ms=1180 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 人气美食2026 | year=2026 | vod_time=2026-11-12 12:05:07
+   t=13: n=20 new2025+=20 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命·成凰(2026)
+   综艺: t=34(大陆综艺) n=20 首条=欢乐集结号2026(2026)
+   动漫: t=38(国产动漫) n=20 首条=掌中听澜(2026)
+   m3u8: https://vod1.maowushi.com/20260513/2Ras62hp/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 17:体育 18:NBA 20:惊悚片 21:家庭篇 22:古装片 23:历史片 24:悬疑片 25:犯罪片 26:灾难片 27:纪录片 28:短片 29:动画片 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:国产动漫 39:欧美动漫 40:日韩动漫 41:足球 42:篮球 43:未分类 45:西部片 46:爽文短剧 
+
+https://api.apiyhzy.com/api.php/provide/vod/
+   http=200 ms=1342 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 救命病栋24小时第6季 | year=2026 | vod_time=2026-11-12 12:00:22
+   t=13: n=20 new2025+=20 首条=以神之名，对话万物(2026)
+   电视剧: t=13(国产剧) n=20 首条=以神之名，对话万物(2026)
+   综艺: t=26(大陆综艺) n=20 首条=不想睡的星期五(2026)
+   动漫: t=30(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://vod12.wgslsw.com/20261014/hPEMAhc1cT87/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:韩国剧 17:公告 18:头条 20:犯罪片 21:纪录片 22:动画电影 23:日本剧 24:欧美剧 25:海外剧 26:大陆综艺 27:日韩综艺 28:港台综艺 29:欧美综艺 30:国产动漫 31:日本动漫 32:欧美动漫 33:海外动漫 34:伦理片
+
+https://api.ukuapi88.com/api.php/provide/vod/
+   http=200 ms=821 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 雪王来了！ | year=2026 | vod_time=2026-11-12 11:49:36
+   t=13: n=20 new2025+=20 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=3(综艺) n=20 首条=听，谁在唱歌2(2026)
+   动漫: t=20(动漫电影) n=20 首条=仙逆剧场版 弑仙之战(2026)
+   m3u8: https://ukzy.ukubf3.com/20260821/uQiFxuPm/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:港澳剧 15:日剧 16:欧美剧 20:动漫电影 21:台湾剧 22:韩剧 23:泰剧 24:记录片 25:伦理片 26:资讯 27:新闻资讯 28:预告资讯 30:影视资讯 31:明星资讯 32:短剧 33:奇幻片 34:犯罪片
+
+https://api.xinlangapi.com/xinlangapi.php/provide/vod/
+   http=200 ms=868 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=20 首条=谷雨(2026)
+   电视剧: t=13(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=45(大陆综艺) n=20 首条=文明之旅第3季(2026)
+   动漫: t=38(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.xluuss.com/play/egJxRBGd/index.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:纪录片 6:动作片 7:爱情片 8:科幻片 9:战争片 10:剧情片 11:恐怖片 12:喜剧片 13:大陆剧 14:港澳剧 15:台湾剧 16:欧美剧 17:动画片 18:韩剧 20:日剧 21:泰剧 22:伦理片 23:体育 24:短剧 25:预告片 26:足球 27:篮球 28:台球 29:其他赛事 38:中国动漫 39:日本动漫 40:欧美动漫 41:灾难片 42:悬疑片 43:犯罪片 44:奇幻片 45:大陆综艺 46:日韩综艺 47:港台综艺 48:欧美综艺 49:古装仙侠 50:现代都市 51:穿越年代 52:言情总裁 53:重生民国
+
+https://m3u8.apiyhzy.com/api.php/provide/vod/
+   http=200 ms=1175 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 救命病栋24小时第6季 | year=2026 | vod_time=2026-11-12 12:00:22
+   t=13: n=20 new2025+=20 首条=以神之名，对话万物(2026)
+   电视剧: t=13(国产剧) n=20 首条=以神之名，对话万物(2026)
+   综艺: t=26(大陆综艺) n=20 首条=不想睡的星期五(2026)
+   动漫: t=30(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://vod12.wgslsw.com/20261014/hPEMAhc1cT87/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:韩国剧 17:公告 18:头条 20:犯罪片 21:纪录片 22:动画电影 23:日本剧 24:欧美剧 25:海外剧 26:大陆综艺 27:日韩综艺 28:港台综艺 29:欧美综艺 30:国产动漫 31:日本动漫 32:欧美动漫 33:海外动漫 34:伦理片
+
+https://www.mdzyapi.com/api.php/provide/vod/
+   http=200 ms=1335 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 12:08:33
+   t=13: n=20 new2025+=20 首条=罪火焦点(2026)
+   电视剧: t=26(国产剧) n=20 首条=尬先生(2026)
+   综艺: t=34(大陆综艺) n=20 首条=欢乐集结号2026(2026)
+   动漫: t=1(国产动漫) n=20 首条=大夏守墓人(2026)
+   m3u8: https://play.modujx11.com/20260517/TN6VvViZ/index.m3u8
+   分类: 1:国产动漫 2:日韩动漫 3:欧美动漫 4:港台动漫 5:动漫电影 6:里番动漫 7:电影 8:连续剧 9:综艺 10:动作片 11:喜剧片 12:爱情片 13:科幻片 14:恐怖片 15:剧情片 16:战争片 17:惊悚片 18:家庭片 19:古装片 20:历史片 21:悬疑片 22:犯罪片 23:灾难片 24:记录片 25:短片 26:国产剧 27:香港剧 28:韩国剧 29:欧美剧 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:短剧 39:伦理片 40:体育 41:足球 42:AI漫剧
+
+https://www.moduzy.com/api.php/provide/vod/
+   http=200 ms=2161 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 12:08:33
+   t=13: n=20 new2025+=20 首条=罪火焦点(2026)
+   电视剧: t=26(国产剧) n=20 首条=尬先生(2026)
+   综艺: t=34(大陆综艺) n=20 首条=欢乐集结号2026(2026)
+   动漫: t=1(国产动漫) n=20 首条=大夏守墓人(2026)
+   m3u8: https://play.modujx11.com/20260517/TN6VvViZ/index.m3u8
+   分类: 1:国产动漫 2:日韩动漫 3:欧美动漫 4:港台动漫 5:动漫电影 6:里番动漫 7:电影 8:连续剧 9:综艺 10:动作片 11:喜剧片 12:爱情片 13:科幻片 14:恐怖片 15:剧情片 16:战争片 17:惊悚片 18:家庭片 19:古装片 20:历史片 21:悬疑片 22:犯罪片 23:灾难片 24:记录片 25:短片 26:国产剧 27:香港剧 28:韩国剧 29:欧美剧 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:短剧 39:伦理片 40:体育 41:足球 42:AI漫剧
+
+https://yhzy.cc/api.php/provide/vod/
+   http=200 ms=1179 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 救命病栋24小时第6季 | year=2026 | vod_time=2026-11-12 12:00:22
+   t=13: n=20 new2025+=20 首条=以神之名，对话万物(2026)
+   电视剧: t=13(国产剧) n=20 首条=以神之名，对话万物(2026)
+   综艺: t=26(大陆综艺) n=20 首条=不想睡的星期五(2026)
+   动漫: t=30(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://vod12.wgslsw.com/20261014/hPEMAhc1cT87/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:韩国剧 17:公告 18:头条 20:犯罪片 21:纪录片 22:动画电影 23:日本剧 24:欧美剧 25:海外剧 26:大陆综艺 27:日韩综艺 28:港台综艺 29:欧美综艺 30:国产动漫 31:日本动漫 32:欧美动漫 33:海外动漫 34:伦理片
+
+https://jszyapi.com/api.php/provide/vod/
+   http=200 ms=905 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:39:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=谷雨(2026)
+   综艺: t=30(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://vv.jisuzyv.com/play/elYvZKga/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:大陆综艺 31:日韩综艺 32:港台综艺 33:欧美综艺 34:灾难片 35:悬疑片 36:犯罪片 37:奇幻片 38:短剧 39:预告片 40:足球 41:篮球 42:台球 43:其他赛事 45:古装仙侠 46:现代都市 47:穿越年代 48:言情总裁 49:重
+
+https://jinyingzy.com/api.php/provide/vod/
+   http=200 ms=1097 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=36(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hd.kuktxu.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:大陆综艺 37:日韩综艺 38:港台综艺 39:欧美综艺 40:古装仙侠 41:现代都市 42:穿越年代 43:言情总裁 44:重生民国 45:反转爽剧 46:脑洞悬疑 47:擦边短剧 
+
+https://iqiyizyapi.com/api.php/provide/vod/
+   http=200 ms=2413 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 雪王来了！ | year=2026 | vod_time=2026-11-12 11:51:19
+   t=13: n=20 new2025+=19 首条=哥斯拉-0.0(2026)
+   电视剧: t=26(国产剧) n=20 首条=天命·成凰(2026)
+   综艺: t=34(大陆综艺) n=20 首条=笑动剧场2026(2026)
+   动漫: t=1(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://play.ly166.com:65/videos/20260821/6a87d4ae5c14f34ca5be2b1d/b2eb0b/index.m3u8
+   分类: 1:国产动漫 2:日韩动漫 3:欧美动漫 4:港台动漫 5:动漫电影 6:里番动漫 7:电影 8:连续剧 9:综艺 10:动作片 11:喜剧片 12:爱情片 13:科幻片 14:恐怖片 15:剧情片 16:战争片 17:惊悚片 18:家庭片 19:古装片 20:历史片 21:悬疑片 22:犯罪片 23:灾难片 24:记录片 25:短片 26:国产剧 27:香港剧 28:韩国剧 29:欧美剧 30:台湾剧 31:日本剧 32:海外剧 33:泰国剧 34:大陆综艺 35:港台综艺 36:日韩综艺 37:欧美综艺 38:短剧 39:伦理片 40:动漫 41:体育 42:足球 43:AI漫剧
+
+http://jinyingzy.com/provide/vod/
+   http=200 ms=1131 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=36(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hd.kuktxu.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:大陆综艺 37:日韩综艺 38:港台综艺 39:欧美综艺 40:古装仙侠 41:现代都市 42:穿越年代 43:言情总裁 44:重生民国 45:反转爽剧 46:脑洞悬疑 47:擦边短剧 
+
+https://hhzyapi.com/api.php/provide/vod/
+   http=200 ms=695 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:42:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=谷雨(2026)
+   综艺: t=30(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.hhuus.com/play/bkRwYJNa/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 30:大陆综艺 31:日韩综艺 32:港台综艺 33:欧美综艺 34:灾难片 35:悬疑片 36:犯罪片 37:奇幻片 38:短剧 39:预告片 40:体育赛事 41:足球 42:篮球 43:台球 44:其他赛事 45:古装仙侠 46:现代都市 47:穿越年代 48:言情总裁 49:重
+
+https://haohuazy.com/api.php/provide/vod/
+   http=200 ms=664 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:42:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=谷雨(2026)
+   综艺: t=30(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.hhuus.com/play/bkRwYJNa/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 30:大陆综艺 31:日韩综艺 32:港台综艺 33:欧美综艺 34:灾难片 35:悬疑片 36:犯罪片 37:奇幻片 38:短剧 39:预告片 40:体育赛事 41:足球 42:篮球 43:台球 44:其他赛事 45:古装仙侠 46:现代都市 47:穿越年代 48:言情总裁 49:重
+
+https://huyazy.net/api.php/provide/vod/
+   http=200 ms=1097 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:39:01
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=38(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://1080p.huyall.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 38:大陆综艺 39:日韩综艺 40:港台综艺 41:欧美综艺 42:古装仙侠 43:现代都市 44:穿越年代 45:言情总裁 46:重生民国 47:反转爽剧 48:脑洞悬疑 49:擦边短剧 
+
+https://jyzyapi.com/api.php/provide/vod/
+   http=200 ms=761 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=36(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hd.kuktxu.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:大陆综艺 37:日韩综艺 38:港台综艺 39:欧美综艺 40:古装仙侠 41:现代都市 42:穿越年代 43:言情总裁 44:重生民国 45:反转爽剧 46:脑洞悬疑 47:擦边短剧 
+
+https://jyzyapi.com/provide/vod/
+   http=200 ms=765 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=36(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hd.kuktxu.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:大陆综艺 37:日韩综艺 38:港台综艺 39:欧美综艺 40:古装仙侠 41:现代都市 42:穿越年代 43:言情总裁 44:重生民国 45:反转爽剧 46:脑洞悬疑 47:擦边短剧 
+
+https://suonizy.net/api.php/provide/vod/
+   http=200 ms=841 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 晚秋寄情 | year=2026 | vod_time=2026-11-12 12:07:16
+   t=13: n=0 new2025+=19 首条=-(-)
+   电视剧: t=13(国产剧) n=20 首条=晚秋寄情(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v14.rstu6.com/202611/10/dvdRBvpEwR27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://www.haohuazy.com/api.php/provide/vod/
+   http=200 ms=867 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:42:02
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=谷雨(2026)
+   综艺: t=30(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.hhuus.com/play/bkRwYJNa/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 30:大陆综艺 31:日韩综艺 32:港台综艺 33:欧美综艺 34:灾难片 35:悬疑片 36:犯罪片 37:奇幻片 38:短剧 39:预告片 40:体育赛事 41:足球 42:篮球 43:台球 44:其他赛事 45:古装仙侠 46:现代都市 47:穿越年代 48:言情总裁 49:重
+
+https://www.huyaapi.com/api.php/provide/vod/
+   http=200 ms=742 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:39:01
+   t=13: n=20 new2025+=19 首条=迷失许愿井路(2026)
+   电视剧: t=20(内地剧) n=20 首条=伟大的长征(2026)
+   综艺: t=38(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://1080p.huyall.com/play/ejRvXGPe/index.m3u8
+   分类: 1:电视剧 2:电影 3:欧美剧 4:香港剧 5:韩剧 6:日剧 7:马泰剧 8:伦理片 9:动作片 10:爱情片 11:喜剧片 12:科幻片 13:恐怖片 14:剧情片 15:战争片 16:记录片 17:动漫 20:内地剧 23:动画片 24:中国动漫 25:日本动漫 26:欧美动漫 27:综艺 28:台湾剧 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 38:大陆综艺 39:日韩综艺 40:港台综艺 41:欧美综艺 42:古装仙侠 43:现代都市 44:穿越年代 45:言情总裁 46:重生民国 47:反转爽剧 48:脑洞悬疑 49:擦边短剧 
+
+https://api.zuidapi.com/api.php/provide/vod/
+   http=200 ms=926 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 兽王武神丹帝拜恩 | year=2026 | vod_time=2026-11-12 10:04:15
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=时尚战争(2026)
+   动漫: t=29(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://v13.zuidazym3u8.com/yyv13/202610/08/P4Xw7LpzHp27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://wsyzy.cc/api.php/provide/vod/
+   http=200 ms=842 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 完美样本 | year=2026 | vod_time=2026-11-12 11:50:13
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v15.wsyzym3u8.com/202611/12/x3Esevgvdu27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://cj.ffzyapi.com/api.php/provide/vod/
+   http=200 ms=1296 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 十三种爱情 | year=2026 | vod_time=2026-11-12 12:06:43
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261109/45208_b6bbd11d/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+https://api.ffzyapi.com/api.php/provide/vod/
+   http=200 ms=1227 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 鉴定 | year=2026 | vod_time=2026-11-12 12:08:39
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44663_1ae78e32/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+https://caiji.dyttzyapi.com/api.php/provide/vod/
+   http=200 ms=1658 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 现在就出发第4季 | year=2026 | vod_time=2026-11-12 11:46:28
+   t=13: n=20 new2025+=18 首条=天命成凰2026(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命成凰2026(2026)
+   综艺: t=25(大陆综艺) n=20 首条=现在就出发第4季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://vip.dytt-tvs.com/20260905/35769_2831648e/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧 37:动画片
+
+https://api.wujinapi.me/api.php/provide/vod/
+   http=200 ms=600 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 十三种爱情 | year=2026 | vod_time=2026-11-12 11:59:41
+   t=13: n=20 new2025+=18 首条=天命成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命成凰(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v10.ppqrrs.com/wjv10/202611/06/QrtFba7q8j87/video/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:美国剧 17:公告 18:头条 20:伦理片 21:纪录片 22:韩国剧 23:日本剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:悬疑片 33:动画片 34:犯罪片 35:奇幻片 36:邵氏电影 37:泰剧 38:体育赛事 39:篮球 40:影视解说 41:短剧 42:港台动漫 43:海外动漫 44:演唱会 45:足球
+
+https://ffzy5.tv/api.php/provide/vod/
+   http=200 ms=1981 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 走马上任 | year=2026 | vod_time=2026-11-12 12:03:52
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44636_3df77411/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+https://cj.yayazy.net/api.php/provide/vod/
+   http=200 ms=880 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:49:32
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.rstuuv.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://ikunzyapi.com/api.php/provide/vod/
+   http=200 ms=783 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 转生成为魔剑了第二季 | year=2026 | vod_time=2026-11-12 00:09:41
+   t=13: n=20 new2025+=18 首条=巨蟒博尤纳(2022)
+   电视剧: t=23(国产剧) n=20 首条=谷雨(2026)
+   综艺: t=31(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=35(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://bfikuncdn.com/20261001/KhgbNd0r/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:惊悚片 14:家庭片 15:古装片 16:历史片 17:悬疑片 18:犯罪片 19:灾难片 20:记录片 21:短片 22:动画片 23:国产剧 24:香港剧 25:韩国剧 26:欧美剧 27:台湾剧 28:日本剧 29:海外剧 30:泰国剧 31:大陆综艺 32:港台综艺 33:日韩综艺 34:欧美综艺 35:国产动漫 36:欧美动漫 37:日本动漫 40:体育 41:足球 43:内地明星 44:港台明星 45:爽文短剧 46:德甲 47:意甲
+
+https://cj.rycjapi.com/api.php/provide/vod/
+   http=200 ms=1799 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 跟着书本去旅行 | year=2019 | vod_time=2026-11-12 12:09:00
+   t=13: n=20 new2025+=18 首条=天命成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命成凰(2026)
+   综艺: t=25(大陆综艺) n=20 首条=偏爱之恋2（加更版）(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://cdn.ryplay11.com/20240929/1356_292041c9/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 7:喜剧片 6:动作片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 47:动画电影
+
+http://cj.ffzyapi.com//api.php/provide/vod/
+   http=200 ms=1037 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 鉴定 | year=2026 | vod_time=2026-11-12 12:08:39
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44663_1ae78e32/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://caiji.dyttzyapi.com/api.php/provide/vod/
+   http=200 ms=1328 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 现在就出发第4季 | year=2026 | vod_time=2026-11-12 11:46:28
+   t=13: n=20 new2025+=18 首条=天命成凰2026(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命成凰2026(2026)
+   综艺: t=25(大陆综艺) n=20 首条=现在就出发第4季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://vip.dytt-tvs.com/20260905/35769_2831648e/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧 37:动画片
+
+http://cj.ffzyapi.com/api.php/provide/vod/
+   http=200 ms=1076 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 鉴定 | year=2026 | vod_time=2026-11-12 12:08:39
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44663_1ae78e32/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://ffzy3.tv/api.php/provide/vod/
+   http=200 ms=976 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 走马上任 | year=2026 | vod_time=2026-11-12 12:03:52
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44636_3df77411/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://cj.rycjapi.com/api.php/provide/vod/
+   http=200 ms=1468 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 跟着书本去旅行 | year=2019 | vod_time=2026-11-12 12:09:00
+   t=13: n=20 new2025+=18 首条=天命成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命成凰(2026)
+   综艺: t=25(大陆综艺) n=20 首条=偏爱之恋2（加更版）(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://cdn.ryplay11.com/20240929/1356_292041c9/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 7:喜剧片 6:动作片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 47:动画电影
+
+http://ffzy1.tv/api.php/provide/vod/
+   http=200 ms=1237 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 走马上任 | year=2026 | vod_time=2026-11-12 12:03:52
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44636_3df77411/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://ffzy.tv/api.php/provide/vod/
+   http=200 ms=1475 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 走马上任 | year=2026 | vod_time=2026-11-12 12:03:52
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44636_3df77411/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://ffzy4.tv/api.php/provide/vod/
+   http=200 ms=1554 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 走马上任 | year=2026 | vod_time=2026-11-12 12:03:52
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44636_3df77411/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://ffzy5.tv/api.php/provide/vod/
+   http=200 ms=1407 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 鉴定 | year=2026 | vod_time=2026-11-12 12:08:39
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44663_1ae78e32/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://www.ffzy.tv/api.php/provide/vod/
+   http=200 ms=1029 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 鉴定 | year=2026 | vod_time=2026-11-12 12:08:39
+   t=13: n=20 new2025+=18 首条=十三种爱情(2026)
+   电视剧: t=13(国产剧) n=20 首条=十三种爱情(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://super.ffzy-online6.com/20261102/44663_1ae78e32/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://zuidazy.me/api.php/provide/vod/
+   http=200 ms=797 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:48:41
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.zuidazym3u8.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://api.niuniuzy.me/api.php/provide/vod/
+   http=200 ms=743 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:49:00
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.gghijk.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://api.wujinapi.cc/api.php/provide/vod/
+   http=200 ms=636 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 天命成凰 | year=2026 | vod_time=2026-11-12 12:01:35
+   t=13: n=20 new2025+=18 首条=天命成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=晚秋寄情(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v10.ppqrrs.com/wjv10/202611/04/YSZ7y9YbxP93/video/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:美国剧 17:公告 18:头条 20:伦理片 21:纪录片 22:韩国剧 23:日本剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:悬疑片 33:动画片 34:犯罪片 35:奇幻片 36:邵氏电影 37:泰剧 38:体育赛事 39:篮球 40:影视解说 41:短剧 42:港台动漫 43:海外动漫 44:演唱会 45:足球
+
+https://api.wujinapi.com/api.php/provide/vod/
+   http=200 ms=911 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 十三种爱情 | year=2026 | vod_time=2026-11-12 11:59:41
+   t=13: n=20 new2025+=18 首条=天命成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=晚秋寄情(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v10.ppqrrs.com/wjv10/202611/06/QrtFba7q8j87/video/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:美国剧 17:公告 18:头条 20:伦理片 21:纪录片 22:韩国剧 23:日本剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:悬疑片 33:动画片 34:犯罪片 35:奇幻片 36:邵氏电影 37:泰剧 38:体育赛事 39:篮球 40:影视解说 41:短剧 42:港台动漫 43:海外动漫 44:演唱会 45:足球
+
+https://api.wsyzy.net/api.php/provide/vod/
+   http=200 ms=830 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 完美样本 | year=2026 | vod_time=2026-11-12 11:50:13
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v15.wsyzym3u8.com/202611/12/x3Esevgvdu27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://api.wujinapi.net/api.php/provide/vod/
+   http=200 ms=1000 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 晚秋寄情 | year=2026 | vod_time=2026-11-12 12:03:00
+   t=13: n=20 new2025+=18 首条=晚秋寄情(2026)
+   电视剧: t=13(国产剧) n=20 首条=晚秋寄情(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v11.ppqrrs.com/wjv11/202611/10/JK2JCKvDy390/video/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:资讯 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:台湾剧 16:美国剧 17:公告 18:头条 20:伦理片 21:纪录片 22:韩国剧 23:日本剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:悬疑片 33:动画片 34:犯罪片 35:奇幻片 36:邵氏电影 37:泰剧 38:体育赛事 39:篮球 40:影视解说 41:短剧 42:港台动漫 43:海外动漫 44:演唱会 45:足球
+
+https://caiji.kuaichezy.org/api.php/provide/vod/
+   http=200 ms=822 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:56:59
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.kuaichezym3u8.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://ikunzy.vip/api.php/provide/vod/
+   http=200 ms=2096 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 转生成为魔剑了第二季 | year=2026 | vod_time=2026-11-12 00:09:41
+   t=13: n=20 new2025+=18 首条=巨蟒博尤纳(2022)
+   电视剧: t=23(国产剧) n=20 首条=谷雨(2026)
+   综艺: t=31(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=35(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://bfikuncdn.com/20261001/KhgbNd0r/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:惊悚片 14:家庭片 15:古装片 16:历史片 17:悬疑片 18:犯罪片 19:灾难片 20:记录片 21:短片 22:动画片 23:国产剧 24:香港剧 25:韩国剧 26:欧美剧 27:台湾剧 28:日本剧 29:海外剧 30:泰国剧 31:大陆综艺 32:港台综艺 33:日韩综艺 34:欧美综艺 35:国产动漫 36:欧美动漫 37:日本动漫 40:体育 41:足球 43:内地明星 44:港台明星 45:爽文短剧 46:德甲 47:意甲
+
+https://niuniuzy3.com/api.php/provide/vod/
+   http=200 ms=879 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:49:00
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.gghijk.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://niuniuzy6.com/api.php/provide/vod/
+   http=200 ms=769 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:49:00
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.gghijk.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://seep.eu.org/https://ikunzyapi.com/api.php/provide/vod/
+   http=200 ms=1130 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 转生成为魔剑了第二季 | year=2026 | vod_time=2026-11-12 00:09:41
+   t=13: n=20 new2025+=18 首条=巨蟒博尤纳(2022)
+   电视剧: t=23(国产剧) n=20 首条=谷雨(2026)
+   综艺: t=31(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=35(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://bfikuncdn.com/20261001/KhgbNd0r/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:惊悚片 14:家庭片 15:古装片 16:历史片 17:悬疑片 18:犯罪片 19:灾难片 20:记录片 21:短片 22:动画片 23:国产剧 24:香港剧 25:韩国剧 26:欧美剧 27:台湾剧 28:日本剧 29:海外剧 30:泰国剧 31:大陆综艺 32:港台综艺 33:日韩综艺 34:欧美综艺 35:国产动漫 36:欧美动漫 37:日本动漫 40:体育 41:足球 43:内地明星 44:港台明星 45:爽文短剧 46:德甲 47:意甲
+
+https://suoniapi.com/api.php/provide/vod/
+   http=200 ms=718 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 黄金渔场 | year=2007 | vod_time=2026-11-12 10:00:54
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=伦敦娇妻第二季(2026)
+   动漫: t=29(国产动漫) n=20 首条=大夏守墓人(2026)
+   m3u8: https://v3.rstu6.com/202309/28/EWuzNpLSbJ2/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://www.ikunzy.com/api.php/provide/vod/
+   http=200 ms=1792 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 转生成为魔剑了第二季 | year=2026 | vod_time=2026-11-12 00:09:41
+   t=13: n=20 new2025+=18 首条=巨蟒博尤纳(2022)
+   电视剧: t=23(国产剧) n=20 首条=谷雨(2026)
+   综艺: t=31(大陆综艺) n=20 首条=第一届人宠友好宠物春晚(2026)
+   动漫: t=35(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://bfikuncdn.com/20261001/KhgbNd0r/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:伦理片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:惊悚片 14:家庭片 15:古装片 16:历史片 17:悬疑片 18:犯罪片 19:灾难片 20:记录片 21:短片 22:动画片 23:国产剧 24:香港剧 25:韩国剧 26:欧美剧 27:台湾剧 28:日本剧 29:海外剧 30:泰国剧 31:大陆综艺 32:港台综艺 33:日韩综艺 34:欧美综艺 35:国产动漫 36:欧美动漫 37:日本动漫 40:体育 41:足球 43:内地明星 44:港台明星 45:爽文短剧 46:德甲 47:意甲
+
+https://yayazy2.com/api.php/provide/vod/
+   http=200 ms=771 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:49:32
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.rstuuv.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://zuidazy.me/api.php/provide/vod/
+   http=200 ms=884 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:48:41
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.zuidazym3u8.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://zuida.xyz/api.php/provide/vod/
+   http=200 ms=941 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:48:41
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.zuidazym3u8.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://zuidazy.co/api.php/provide/vod/
+   http=200 ms=842 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:48:41
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=我们的抒情曲2(2026)
+   动漫: t=29(国产动漫) n=20 首条=太古神尊(2026)
+   m3u8: https://v13.zuidazym3u8.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩剧 16:日剧 17:港剧 18:台剧 19:泰剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 47:演唱会 48:体育赛事 49:篮球 50:足球 51:预告片 52:斯诺克 53:影视解说 54:爽文短剧 55:伦理 56:港台三级 57:韩国伦理 58:西方伦理 59:日本伦理 60
+
+https://yonghu.ffzyapi8.com/api.php/provide/vod/
+   http=200 ms=2231 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 黄金渔场 | year=2012 | vod_time=2026-11-12 10:06:34
+   t=13: n=20 new2025+=18 首条=天命·成凰(2026)
+   电视剧: t=13(国产剧) n=20 首条=天命·成凰(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划3(2026)
+   动漫: t=29(国产动漫) n=20 首条=东大高武学院(2026)
+   m3u8: https://vod.feifei-kan.com/20230921/18609_c4dceac4/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧
+
+http://by.bfzyapi.com/api.php/provide/vod/
+   http=200 ms=853 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 爱的修学旅行 第二季 | year=2026 | vod_time=2026-11-12 12:07:22
+   t=13: n=0 new2025+=17 首条=-(-)
+   电视剧: t=31(国产剧) n=20 首条=今天是太阳雨(2026)
+   综艺: t=46(大陆综艺) n=20 首条=娜就聊姐姐(2026)
+   动漫: t=40(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v.fengbao14.com/video/aidexiuxuelvxingdierji/3d5a8ce1e3f2/index.m3u8
+   分类: 20:电影片 21:动作片 22:喜剧片 23:恐怖片 24:科幻片 25:爱情片 26:剧情片 27:战争片 28:纪录片 29:理论片 30:连续剧 31:国产剧 32:欧美剧 33:香港剧 34:韩国剧 35:台湾剧 36:日本剧 37:海外剧 38:泰国剧 39:动漫片 40:国产动漫 41:日韩动漫 42:欧美动漫 43:港台动漫 44:海外动漫 45:综艺片 46:大陆综艺 47:港台综艺 48:日韩综艺 49:欧美综艺 50:动画片 51:电影解说 52:预告片 53:体育赛事 54:足球 55:篮球 56:网球 57:斯诺克 58:短剧大全 59:重生民国 60:穿越年代 61
+
+https://api.juliang.live/api/provide/vod/
+   http=200 ms=1737 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 穿成女频工具人，我掀翻剧本横扫万界     漫剧 | year=2026 | vod_time=2026-11-12 03:37:21
+   t=13: n=0 new2025+=17 首条=-(-)
+   电视剧: t=201(内地剧) n=20 首条=山河对弈帝王棋(2026)
+   综艺: t=401(大陆综艺) n=20 首条=男生女生向前冲 2025(2025)
+   动漫: t=301(中国动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://jimaoys88.com/public/playback/ecf8f5367ad268042b66fd284d8956c9/smart.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:短剧 6:体育赛事 7:AI制作 101:动作片 102:喜剧片 103:爱情片 104:科幻片 105:恐怖片 106:剧情片 107:悬疑片 108:惊悚片 109:犯罪片 110:奇幻片 111:冒险片 112:战争片 113:历史片 114:灾难片 115:纪录片 116:动画片 117:家庭片 118:音乐片 119:西部片 120:电视电影 190:伦理片 121:影视解说 122:预告片 199:其他电影 191:写真热舞 192:4K电影 201:内地剧 202:香港剧 203:台湾剧 204:韩剧 205:日剧 206:欧美剧 2
+
+https://app.bfzyapi.com/api.php/provide/vod/
+   http=200 ms=770 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 爱的修学旅行 第二季 | year=2026 | vod_time=2026-11-12 12:07:22
+   t=13: n=0 new2025+=17 首条=-(-)
+   电视剧: t=31(国产剧) n=20 首条=今天是太阳雨(2026)
+   综艺: t=46(大陆综艺) n=20 首条=闪光的创始人 第三季(2026)
+   动漫: t=40(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v.fengbao14.com/video/aidexiuxuelvxingdierji/3d5a8ce1e3f2/index.m3u8
+   分类: 20:电影片 21:动作片 22:喜剧片 23:恐怖片 24:科幻片 25:爱情片 26:剧情片 27:战争片 28:纪录片 29:理论片 30:连续剧 31:国产剧 32:欧美剧 33:香港剧 34:韩国剧 35:台湾剧 36:日本剧 37:海外剧 38:泰国剧 39:动漫片 40:国产动漫 41:日韩动漫 42:欧美动漫 43:港台动漫 44:海外动漫 45:综艺片 46:大陆综艺 47:港台综艺 48:日韩综艺 49:欧美综艺 50:动画片 51:电影解说 52:预告片 53:体育赛事 54:足球 55:篮球 56:网球 57:斯诺克 58:短剧大全 59:重生民国 60:穿越年代 61
+
+https://bf.xoxowin86cisyap.com/api.php/provide/vod/
+   http=200 ms=987 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 爱的修学旅行 第二季 | year=2026 | vod_time=2026-11-12 12:07:22
+   t=13: n=0 new2025+=17 首条=-(-)
+   电视剧: t=31(国产剧) n=20 首条=今天是太阳雨(2026)
+   综艺: t=46(大陆综艺) n=20 首条=闪光的创始人 第三季(2026)
+   动漫: t=40(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v.fengbao14.com/video/aidexiuxuelvxingdierji/3d5a8ce1e3f2/index.m3u8
+   分类: 20:电影片 21:动作片 22:喜剧片 23:恐怖片 24:科幻片 25:爱情片 26:剧情片 27:战争片 28:纪录片 29:理论片 30:连续剧 31:国产剧 32:欧美剧 33:香港剧 34:韩国剧 35:台湾剧 36:日本剧 37:海外剧 38:泰国剧 39:动漫片 40:国产动漫 41:日韩动漫 42:欧美动漫 43:港台动漫 44:海外动漫 45:综艺片 46:大陆综艺 47:港台综艺 48:日韩综艺 49:欧美综艺 50:动画片 51:电影解说 52:预告片 53:体育赛事 54:足球 55:篮球 56:网球 57:斯诺克 58:短剧大全 59:重生民国 60:穿越年代 61
+
+https://bfzyapi.com/api.php/provide/vod/
+   http=200 ms=819 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 爱的修学旅行 第二季 | year=2026 | vod_time=2026-11-12 12:07:22
+   t=13: n=0 new2025+=17 首条=-(-)
+   电视剧: t=31(国产剧) n=20 首条=今天是太阳雨(2026)
+   综艺: t=46(大陆综艺) n=20 首条=闪光的创始人 第三季(2026)
+   动漫: t=40(国产动漫) n=20 首条=雪王来了(2026)
+   m3u8: https://v.fengbao14.com/video/aidexiuxuelvxingdierji/3d5a8ce1e3f2/index.m3u8
+   分类: 20:电影片 21:动作片 22:喜剧片 23:恐怖片 24:科幻片 25:爱情片 26:剧情片 27:战争片 28:纪录片 29:理论片 30:连续剧 31:国产剧 32:欧美剧 33:香港剧 34:韩国剧 35:台湾剧 36:日本剧 37:海外剧 38:泰国剧 39:动漫片 40:国产动漫 41:日韩动漫 42:欧美动漫 43:港台动漫 44:海外动漫 45:综艺片 46:大陆综艺 47:港台综艺 48:日韩综艺 49:欧美综艺 50:动画片 51:电影解说 52:预告片 53:体育赛事 54:足球 55:篮球 56:网球 57:斯诺克 58:短剧大全 59:重生民国 60:穿越年代 61
+
+https://caiji.xgzyapi.com/api.php/provide/vod/
+   http=200 ms=1587 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 雪王来了！ | year=2026 | vod_time=2026-11-12 11:45:19
+   t=13: n=20 new2025+=17 首条=自首真相(2026)
+   电视剧: t=13(国产剧) n=20 首条=自首真相(2026)
+   综艺: t=25(大陆综艺) n=20 首条=音乐缘计划第三季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://svip.xgplay20.com/2026-08-21/46250_2aUW6j_myXFWmgsc57/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 36:短剧 37:动画片 38:女恋总裁 39:都市脑洞 40:闪婚离婚 41:现代言情 42:反转爽文 43:古装仙侠 44:重生民国 45:穿越年代 46:体育 47:足球 
+
+https://subocaiji.com/api.php/provide/vod/
+   http=200 ms=770 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:41:07
+   t=13: n=20 new2025+=12 首条=青春猪头少年不会梦到亲爱的朋友(2026)
+   电视剧: t=14(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=33(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.xluuss.com/play/egJxRBGd/index.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:纪录片 6:动作片 7:爱情片 8:科幻片 9:战争片 10:剧情片 11:恐怖片 12:喜剧片 13:动漫电影 14:大陆剧 15:台湾剧 16:韩剧 17:美剧 18:港澳剧 20:日剧 21:泰剧 22:伦理片 23:体育赛事 24:中国动漫 25:日本动漫 26:欧美动漫 27:短剧 28:预告片 29:足球 30:篮球 31:台球 32:其他赛事 33:大陆综艺 34:日韩综艺 35:港台综艺 36:欧美综艺 37:古装仙侠 38:现代都市 39:穿越年代 40:言情总裁 41:重生民国 42:反转爽剧 43:脑洞悬疑 44:擦边短剧 4
+
+https://subocj.com/api.php/provide/vod/
+   http=200 ms=924 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:41:07
+   t=13: n=20 new2025+=12 首条=青春猪头少年不会梦到亲爱的朋友(2026)
+   电视剧: t=14(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=33(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.xluuss.com/play/egJxRBGd/index.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:纪录片 6:动作片 7:爱情片 8:科幻片 9:战争片 10:剧情片 11:恐怖片 12:喜剧片 13:动漫电影 14:大陆剧 15:台湾剧 16:韩剧 17:美剧 18:港澳剧 20:日剧 21:泰剧 22:伦理片 23:体育赛事 24:中国动漫 25:日本动漫 26:欧美动漫 27:短剧 28:预告片 29:足球 30:篮球 31:台球 32:其他赛事 33:大陆综艺 34:日韩综艺 35:港台综艺 36:欧美综艺 37:古装仙侠 38:现代都市 39:穿越年代 40:言情总裁 41:重生民国 42:反转爽剧 43:脑洞悬疑 44:擦边短剧 4
+
+https://www.subozy.com/api.php/provide/vod/
+   http=200 ms=839 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:41:07
+   t=13: n=20 new2025+=12 首条=青春猪头少年不会梦到亲爱的朋友(2026)
+   电视剧: t=14(大陆剧) n=20 首条=谷雨(2026)
+   综艺: t=33(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=24(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://play.xluuss.com/play/egJxRBGd/index.m3u8
+   分类: 1:电影 2:电视剧 3:动漫 4:综艺 5:纪录片 6:动作片 7:爱情片 8:科幻片 9:战争片 10:剧情片 11:恐怖片 12:喜剧片 13:动漫电影 14:大陆剧 15:台湾剧 16:韩剧 17:美剧 18:港澳剧 20:日剧 21:泰剧 22:伦理片 23:体育赛事 24:中国动漫 25:日本动漫 26:欧美动漫 27:短剧 28:预告片 29:足球 30:篮球 31:台球 32:其他赛事 33:大陆综艺 34:日韩综艺 35:港台综艺 36:欧美综艺 37:古装仙侠 38:现代都市 39:穿越年代 40:言情总裁 41:重生民国 42:反转爽剧 43:脑洞悬疑 44:擦边短剧 4
+
+https://hongniuzy2.com/api.php/provide/vod/
+   http=200 ms=1023 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:40:03
+   t=13: n=20 new2025+=9 首条=囧探查过界(2010)
+   电视剧: t=12(国产剧) n=20 首条=伟大的长征(2026)
+   综艺: t=39(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=36(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hn.bfvvs.com/play/e9rpJxBa/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:动作片 6:喜剧片 7:爱情片 8:科幻片 9:恐怖片 10:剧情片 11:战争片 12:国产剧 13:港澳剧 14:日剧 15:欧美剧 16:台湾剧 17:泰剧 18:韩剧 19:纪录片 20:动漫电影 21:伦理片 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:中国动漫 37:日本动漫 38:欧美动漫 39:大陆综艺 40:日韩综艺 41:港台综艺 42:欧美综艺 43:古装仙侠 44:现代都市 45:穿越年代 46:言情总裁 47:重生民国 48:反转爽剧 49:脑洞悬疑 50:擦边短剧 
+
+http://hongniuzy2.com/api.php/provide/vod/
+   http=200 ms=862 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:40:03
+   t=13: n=20 new2025+=9 首条=囧探查过界(2010)
+   电视剧: t=12(国产剧) n=20 首条=伟大的长征(2026)
+   综艺: t=39(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=36(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hn.bfvvs.com/play/e9rpJxBa/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:动作片 6:喜剧片 7:爱情片 8:科幻片 9:恐怖片 10:剧情片 11:战争片 12:国产剧 13:港澳剧 14:日剧 15:欧美剧 16:台湾剧 17:泰剧 18:韩剧 19:纪录片 20:动漫电影 21:伦理片 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:中国动漫 37:日本动漫 38:欧美动漫 39:大陆综艺 40:日韩综艺 41:港台综艺 42:欧美综艺 43:古装仙侠 44:现代都市 45:穿越年代 46:言情总裁 47:重生民国 48:反转爽剧 49:脑洞悬疑 50:擦边短剧 
+
+https://api.1080zyku.com/inc/apijson.php/provide/vod/
+   http=200 ms=1243 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 今天是太阳雨 | year=2026 | vod_time=2026-11-12 12:06:35
+   t=13: n=20 new2025+=9 首条=针线缘(2026)
+   电视剧: t=12(国产剧) n=20 首条=今天是太阳雨(2026)
+   综艺: t=62(大陆综艺) n=20 首条=后会友期(2026)
+   动漫: t=66(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://player.yzzy37-play.vip/20261106/2079_654ad60e/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:动作片 6:喜剧片 7:爱情片 8:科幻片 9:恐怖片 10:剧情片 11:战争片 12:国产剧 13:台湾剧 14:韩国剧 15:欧美剧 16:香港剧 17:泰国剧 18:日本剧 19:福利 20:记录片 41:动画片 54:海外剧 61:倫理片 62:大陆综艺 63:港台综艺 64:日韩综艺 65:欧美综艺 66:国产动漫 67:日韩动漫 68:欧美动漫 69:港台动漫 70:海外动漫 78:搞笑 79:音乐 80:影视 81:汽车 83:短剧大全 94:体育 95:漫剧 96:玄幻 97:剧情 98:女性成长 99:权谋 100:豪门 101
+
+https://www.hongniuzy3.com/api.php/provide/vod/
+   http=200 ms=919 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:40:03
+   t=13: n=20 new2025+=9 首条=囧探查过界(2010)
+   电视剧: t=12(国产剧) n=20 首条=伟大的长征(2026)
+   综艺: t=39(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=36(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hn.bfvvs.com/play/e9rpJxBa/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:动作片 6:喜剧片 7:爱情片 8:科幻片 9:恐怖片 10:剧情片 11:战争片 12:国产剧 13:港澳剧 14:日剧 15:欧美剧 16:台湾剧 17:泰剧 18:韩剧 19:纪录片 20:动漫电影 21:伦理片 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:中国动漫 37:日本动漫 38:欧美动漫 39:大陆综艺 40:日韩综艺 41:港台综艺 42:欧美综艺 43:古装仙侠 44:现代都市 45:穿越年代 46:言情总裁 47:重生民国 48:反转爽剧 49:脑洞悬疑 50:擦边短剧 
+
+https://www.hongniuzy2.com/api.php/provide/vod/
+   http=200 ms=1056 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:40:03
+   t=13: n=20 new2025+=9 首条=囧探查过界(2010)
+   电视剧: t=12(国产剧) n=20 首条=伟大的长征(2026)
+   综艺: t=39(大陆综艺) n=20 首条=文明之旅第三季(2026)
+   动漫: t=36(中国动漫) n=20 首条=末世后的酒店(2026)
+   m3u8: https://hn.bfvvs.com/play/e9rpJxBa/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺 4:动漫 5:动作片 6:喜剧片 7:爱情片 8:科幻片 9:恐怖片 10:剧情片 11:战争片 12:国产剧 13:港澳剧 14:日剧 15:欧美剧 16:台湾剧 17:泰剧 18:韩剧 19:纪录片 20:动漫电影 21:伦理片 29:体育赛事 30:短剧 31:预告片 32:足球 33:篮球 34:台球 35:其他赛事 36:中国动漫 37:日本动漫 38:欧美动漫 39:大陆综艺 40:日韩综艺 41:港台综艺 42:欧美综艺 43:古装仙侠 44:现代都市 45:穿越年代 46:言情总裁 47:重生民国 48:反转爽剧 49:脑洞悬疑 50:擦边短剧 
+
+https://cdn.dzzyapi.com/api.php/provide/vod/
+   http=200 ms=845 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 卿色无双 | year=2025 | vod_time=2026-09-07 21:02:29
+   t=13: n=20 new2025+=2 首条=我的医妃不好惹 第二季(2023)
+   电视剧: t=44(海外剧) n=20 首条=这不是一个谋杀谜团(2025)
+   综艺: t=3(综艺) n=20 首条=名侦探学院第九季(2025)
+   动漫: t=31(日本动漫) n=20 首条=欺诈游戏动漫(2026)
+   m3u8: https://cdn.dzzybf3.com/20260629/MjW9SQNg/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:剧情片 7:爱情片 8:喜剧片 9:恐怖片 10:科幻片 11:战争片 12:惊悚片 13:国产剧 14:港台剧 15:欧美剧 16:日剧 17:子类12 18:子类113 20:伦理 21:体育 22:短剧 23:动画片 24:纪录片 25:韩剧 26:泰剧 30:国产动漫 31:日本动漫 32:欧美动漫 40:动作片 41:犯罪片 42:奇幻片 43:海外动漫 44:海外剧
+
+https://ys.cxkjg.cn/api/provide/vod/
+   http=200 ms=13062 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 豆腐妈妈 | year=2025 | vod_time=2026-11-12 10:30:43
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: t=1(电视剧) n=20 首条=豆腐妈妈(2025)
+   综艺: t=26(综艺) n=20 首条=第三调解室(2011)
+   动漫: t=20(动漫) n=20 首条=逆天邪神3D(2023)
+   m3u8: https://hd.kuktxu.com/play/dBBgoL2d/index.m3u8
+   分类: 1:电视剧 9:电影 19:记录片 20:动漫 26:综艺 31:体育赛事 36:短剧 43:现代都市 44:穿越年代
+
+https://caiji.maotaizy.cc/api.php/provide/vod/
+   http=200 ms=3599 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 原来我早就无敌了 动态漫画 | year=2023 | vod_time=2026-11-12 12:06:53
+   t=13: n=20 new2025+=20 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=25(大陆综艺) n=20 首条=难得读叔(2026)
+   动漫: t=20(动漫电影) n=20 首条=魔法秘境 Hexed .2026(2026)
+   m3u8: https://vodcnd03.tix8opu.cn/20250123/KihlJGqf/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺片 4:动漫 5:纪录片 6:动作片 7:爱情片 8:喜剧片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:欧美剧 16:韩剧 20:动漫电影 21:泰国剧 22:日本剧 23:台湾剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:演唱会 30:国产动漫 31:日本动漫 32:欧美动漫 33:海外动漫 34:伦理片 35:新闻资讯 36:体育赛事 37:短剧大全 38:篮球 39:足球 40:网球 41:斯诺克 42:LPL 43:重生民国 44:穿越现代 45:反转爽剧 46:言情总
+
+https://mtzy5.com/api.php/provide/vod/
+   http=200 ms=3569 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 原来我早就无敌了 动态漫画 | year=2023 | vod_time=2026-11-12 12:06:53
+   t=13: n=20 new2025+=20 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=25(大陆综艺) n=20 首条=难得读叔(2026)
+   动漫: t=30(国产动漫) n=20 首条=最强弃少(2026)
+   m3u8: https://vodcnd03.tix8opu.cn/20250123/KihlJGqf/index.m3u8
+   分类: 1:电影 2:连续剧 3:综艺片 4:动漫 5:纪录片 6:动作片 7:爱情片 8:喜剧片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:欧美剧 16:韩剧 20:动漫电影 21:泰国剧 22:日本剧 23:台湾剧 24:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:演唱会 30:国产动漫 31:日本动漫 32:欧美动漫 33:海外动漫 34:伦理片 35:新闻资讯 36:体育赛事 37:短剧大全 38:篮球 39:足球 40:网球 41:斯诺克 42:LPL 43:重生民国 44:穿越现代 45:反转爽剧 46:言情总
+
+https://tyyszy.com/api.php/provide/vod/
+   http=200 ms=762 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 妈妈发疯了 | year=2026 | vod_time=2026-11-12 11:57:46
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=时尚战争(2026)
+   动漫: t=29(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://tyyszywvod2.com/videos/202609/29/6abb2daeb86465f47d79f5f0/71431f/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩国剧 16:日本剧 17:港台剧 18:台湾剧 19:泰国剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 54:短剧 55:伦理 64:女频恋爱 65:反转爽剧 66:古装仙侠 67:年代穿越 68:脑洞悬疑 69:现代都市 73:ai短剧
+
+http://tyyszy.com/api.php/provide/vod/
+   http=200 ms=879 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 妈妈发疯了 | year=2026 | vod_time=2026-11-12 11:57:46
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=时尚战争(2026)
+   动漫: t=29(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://tyyszywvod2.com/videos/202609/29/6abb2daeb86465f47d79f5f0/71431f/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩国剧 16:日本剧 17:港台剧 18:台湾剧 19:泰国剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 54:短剧 55:伦理 64:女频恋爱 65:反转爽剧 66:古装仙侠 67:年代穿越 68:脑洞悬疑 69:现代都市 73:ai短剧
+
+https://tyyszyapi.com/api.php/provide/vod/
+   http=200 ms=907 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 妈妈发疯了 | year=2026 | vod_time=2026-11-12 11:57:46
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=时尚战争(2026)
+   动漫: t=29(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://tyyszywvod2.com/videos/202609/29/6abb2daeb86465f47d79f5f0/71431f/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩国剧 16:日本剧 17:港台剧 18:台湾剧 19:泰国剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 54:短剧 55:伦理 64:女频恋爱 65:反转爽剧 66:古装仙侠 67:年代穿越 68:脑洞悬疑 69:现代都市 73:ai短剧
+
+https://ty.tyyszy5.com/api.php/provide/vod/
+   http=200 ms=1385 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 妈妈发疯了 | year=2026 | vod_time=2026-11-12 11:57:46
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=26(日韩综艺) n=20 首条=时尚战争(2026)
+   动漫: t=29(国产动漫) n=20 首条=灵境行者(2026)
+   m3u8: https://tyyszywvod2.com/videos/202609/29/6abb2daeb86465f47d79f5f0/71431f/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:欧美剧 15:韩国剧 16:日本剧 17:港台剧 18:台湾剧 19:泰国剧 20:纪录片 23:海外剧 25:大陆综艺 26:日韩综艺 27:港台综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 39:动画片 44:港台动漫 45:海外动漫 54:短剧 55:伦理 64:女频恋爱 65:反转爽剧 66:古装仙侠 67:年代穿越 68:脑洞悬疑 69:现代都市 73:ai短剧
+
+https://cj.lziapi.com/api.php/provide/vod/
+   http=200 ms=1057 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+http://cj.lziapi.com/api.php/provide/vod/
+   http=200 ms=875 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+http://lzizy.net/api.php/provide/vod/
+   http=200 ms=832 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+http://www.lzzy.tv/api.php/provide/vod/
+   http=200 ms=896 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://cj.lzcaiji.com/api.php/provide/vod/
+   http=200 ms=837 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy3.com/api.php/provide/vod/
+   http=200 ms=811 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy1.com/api.php/provide/vod/
+   http=200 ms=976 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy.net/api.php/provide/vod/
+   http=200 ms=876 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy2.com/api.php/provide/vod/
+   http=200 ms=886 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy5.com/api.php/provide/vod/
+   http=200 ms=920 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy4.com/api.php/provide/vod/
+   http=200 ms=1061 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://lzizy8.com/api.php/provide/vod/
+   http=200 ms=983 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 跟着书本去旅行 | year=2024 | vod_time=2026-11-12 12:08:21
+   t=13: n=20 new2025+=17 首条=尚公主(2026)
+   电视剧: t=13(国产剧) n=20 首条=尚公主(2026)
+   综艺: t=28(欧美综艺) n=20 首条=爱情盲选第十一季(2026)
+   动漫: t=29(国产动漫) n=20 首条=雪王来了！(2026)
+   m3u8: https://v.cdnlz13.com/20240102/22319_4f56c2c1/index.m3u8
+   分类: 1:电影片 2:连续剧 3:综艺片 4:动漫片 6:动作片 7:喜剧片 8:爱情片 9:科幻片 10:恐怖片 11:剧情片 12:战争片 13:国产剧 14:香港剧 15:韩国剧 16:欧美剧 20:记录片 21:台湾剧 22:日本剧 23:海外剧 24:泰国剧 25:大陆综艺 26:港台综艺 27:日韩综艺 28:欧美综艺 29:国产动漫 30:日韩动漫 31:欧美动漫 32:港台动漫 33:海外动漫 34:伦理片 35:电影解说 36:体育 37:足球 38:篮球 39:网球 40:斯诺克 45:预告片 46:短剧 49:动画片 52:AI漫剧
+
+https://api.zeqaht.com/api.php/provide/vod/
+   http=200 ms=1553 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 越策越开心 | year=2002 | vod_time=2026-11-12 11:59:58
+   t=13: n=0 new2025+=15 首条=-(-)
+   电视剧: t=14(国产剧) n=20 首条=谷雨(2026)
+   综艺: t=70(港台综艺) n=20 首条=美食强人(2026)
+   动漫: t=75(国产动漫) n=20 首条=大夏守墓人(2026)
+   m3u8: https://ppvod01.6g9ba6.com/splitOut/20261016/1413218/V20261016160358720761413218/index.m3u8
+   分类: 1:电影 2:电视剧 3:综艺 4:动漫 6:世界杯 7:体育直播 14:国产剧 15:欧美剧 16:港台剧 22:喜剧 23:动作 25:战争 26:爱情 27:悬疑 30:科幻 31:冒险 33:动画 34:惊悚 35:犯罪 36:恐怖 37:剧情 43:其他 62:日韩剧 68:其他剧 69:国产综艺 70:港台综艺 72:日韩综艺 73:欧美综艺 74:其他综艺 75:国产动漫 76:日韩动漫 77:欧美动漫 78:港台动漫 80:其他动漫 81:灾难 83:伦理 87:奇幻 88:短剧 89:少儿 90:动画 93:亲子 94:剧情 95:爱情 96:古装 97:悬疑 98:惊悚 9
+
+https://ckzy.me/api.php/provide/vod/
+   http=200 ms=727 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 用巨物轰炸的教练前男友 | year=2025 | vod_time=2026-11-12 01:03:09
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://ckzy3.com/20260925/5a69f552c3742cb6/index.m3u8
+   分类: 20:伦理片 21:教程
+
+https://www.ckzy1.com/api.php/provide/vod/
+   http=200 ms=789 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 用巨物轰炸的教练前男友 | year=2025 | vod_time=2026-11-12 01:03:09
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://ckzy3.com/20260925/5a69f552c3742cb6/index.m3u8
+   分类: 20:伦理片 21:教程
+
+http://sdzyapi.com/api.php/provide/vod/
+   http=200 ms=3290 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:55:27
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://v13.qqqrst.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+
+https://api.okzyw.net/api.php/provide/vod/
+   http=200 ms=3738 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:50:45
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://v13.yaaabc.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+
+https://sdzyapi.com/api.php/provide/vod/
+   http=200 ms=8990 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:55:27
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://v13.qqqrst.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+
+https://xsd.sdzyapi.com/api.php/provide/vod/
+   http=200 ms=4296 count=20 pic_ok=True m3u8_live=True adult=False
+   首条: 假婚六年，当众清算 | year=2026 | vod_time=2026-11-12 11:55:27
+   t=13: n=20 new2025+=18 首条=尚公主(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://v13.qqqrst.com/yyv13/202611/12/gLXAiNVZDC27/video/index.m3u8
+
+https://hong.hgyx.vip/api.php/provide/vod/
+   http=200 ms=1134 count=20 pic_ok=True m3u8_live=False adult=False
+   首条: 趁热打铁 | year=2026 | vod_time=2026-11-12 11:43:31
+   t=13: n=20 new2025+=20 首条=趁热打铁(2026)
+   电视剧: 无对应分类
+   综艺: t=3(综艺) n=20 首条=趁热打铁(2026)
+   动漫: t=4(动漫) n=20 首条=大理寺日志 第三季(2026)
+   m3u8: https://v.lzcdn28.com/20261111/18097_2e234fac/index.m3u8
+   分类: 1:影视片 2:影视剧 3:综艺 4:动漫 20:短剧
+
+http://150.109.94.44:1112/api.php/provide/vod/
+   http=200 ms=10637 count=21 pic_ok=True m3u8_live=True adult=True
+   首条: 夏色之云掀起恋爱与风暴 | year=2026 | vod_time=2026-09-06 07:13:39
+   t=13: n=3 new2025+=3 首条=天地剑心(2025)
+   电视剧: t=1(电视剧) n=21 首条=恋爱保镖24小时2(2025)
+   综艺: t=3(综艺) n=21 首条=毛雪汪 2026(2026)
+   动漫: t=32(日韩动漫) n=21 首条=穹庐下的魔女(2026)
+   m3u8: https://player.yzzyvip-35.com/20260712/10620_89fee051/index.m3u8
+   分类: 1:电视剧 2:电影 3:综艺 4:动漫 5:短剧 6:少儿 12:纪录片 14:成人 15:动作片 16:喜剧片 17:爱情片 18:科幻片 19:恐怖片 20:战争片 21:国产剧 22:欧美剧 23:日韩剧 24:港剧 25:台剧 26:泰国剧 27:大陆综艺 28:日韩综艺 29:港台综艺 30:欧美综艺 31:大陆动漫 32:日韩动漫 33:欧美动漫 34:动画电影 35:体育 38:Netflix 39:Netflix电影 40:Netflix电视剧 46:日韩无码 47:欧美精品 48:国产精品 49:中文字幕 50:人妻系列 51:强奸乱伦 52:自拍偷拍 53:重口味 54:
+
+https://Naixxzy.com/api.php/provide/vod/
+   http=200 ms=1144 count=50 pic_ok=True m3u8_live=True adult=True
+   首条: 少妇大喊你好坏蛋哦我明天还要出差 | year=2026 | vod_time=2026-11-12 11:18:25
+   t=13: n=0 new2025+=50 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=37(剧情动漫) n=50 首条=くりいむレモン 01 媚・妹・Baby(2026)
+   m3u8: https://vostrely.com/20261111/tldK3VFx/index.m3u8
+   分类: 1:精品国产 2:精品日韩 3:精品综合 4:精品小说 5:精品美图 20:国产自拍 21:主播诱惑 22:探花约炮 23:偷拍偷窥 24:网曝吃瓜 25:抖阴短片 26:传媒剧情 27:日韩主播 28:日韩无码 29:中文字幕 30:AV解说 31:换脸明星 32:强奸乱伦 33:女优明星 34:欧美激情 35:重口激情 36:三级伦理 37:剧情动漫 38:SM调教 39:女同性恋 40:VR视角 41:都市言情 42:暴力侵犯 43:家庭伦伦 44:性感身体 45:角色扮演 46:福利姬 47:漫画连载
+
+https://aosikazy8.com/api.php/provide/vod/
+   http=200 ms=1462 count=50 pic_ok=True m3u8_live=True adult=True
+   首条: 冷艳型高颜值女神带着眼镜御姐风吊带睡衣苗条身材美腿掰穴手指揉搓浴室洗澡湿身摆弄各种姿势 | year=2026 | vod_time=2026-11-12 11:29:51
+   t=13: n=0 new2025+=50 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=29(激情动漫) n=50 首条=くりいむレモン 02 エスカレーション ～今夜はハードコア～(2026)
+   m3u8: https://iuewgnbvk.com/20261111/aJegi8XF/index.m3u8
+   分类: 20:国产视频 21:中文字幕 22:国产传媒 23:日本有码 24:日本无码 25:欧美无码 26:强奸乱伦 27:制服诱惑 28:国产主播 29:激情动漫 30:明星换脸 31:抖阴视频 32:女优明星 33:视频一区 34:视频二区 35:网曝黑料 36:视频三区 37:伦理三级 38:AV解说 39:SM调教 40:萝莉少女 41:极品媚黑 42:女同性恋 43:网红头条 44:视频四区 45:人妖系列 46:韩国主播 47:VR视角
+
+https://heiliaozyapi.com/api.php/provide/vod/
+   http=200 ms=1141 count=50 pic_ok=True m3u8_live=True adult=True
+   首条: 10musume070525011おんなの.こ.のしくみ~とにかく全てのパーツが美しい身体~ | year=2026 | vod_time=2026-11-12 06:30:04
+   t=13: n=0 new2025+=49 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=30(激情动漫) n=50 首条=YuisuiStudio礼香大人为什么要和你进行性战(2026)
+   m3u8: https://bf.qugt.com:65/videos/20261111/6af4e8e6d3ce4fae751505c5/2f6bc1/index.m3u8
+   分类: 1:中文字幕 2:日本有码 3:日本无码 4:AV解说 5:cosplay 20:都市激情 21:校园情事 22:人妻纵情 23:风俗伦理 24:另类小说 25:武侠古典 26:长篇连载 27:黑丝诱惑 28:SWAG 29:自拍偷拍 30:激情动漫 31:网红主播 32:探花系列 33:三级伦理 34:VR视角 35:国产传媒 36:素人搭讪 37:门事件 38:抖阴视频
+
+https://www.heiliaozyapi.com/api.php/provide/vod/
+   http=200 ms=1023 count=50 pic_ok=True m3u8_live=True adult=True
+   首条: 10musume070525011おんなの.こ.のしくみ~とにかく全てのパーツが美しい身体~ | year=2026 | vod_time=2026-11-12 06:30:04
+   t=13: n=0 new2025+=49 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=30(激情动漫) n=50 首条=YuisuiStudio礼香大人为什么要和你进行性战(2026)
+   m3u8: https://bf.qugt.com:65/videos/20261111/6af4e8e6d3ce4fae751505c5/2f6bc1/index.m3u8
+   分类: 1:中文字幕 2:日本有码 3:日本无码 4:AV解说 5:cosplay 20:都市激情 21:校园情事 22:人妻纵情 23:风俗伦理 24:另类小说 25:武侠古典 26:长篇连载 27:黑丝诱惑 28:SWAG 29:自拍偷拍 30:激情动漫 31:网红主播 32:探花系列 33:三级伦理 34:VR视角 35:国产传媒 36:素人搭讪 37:门事件 38:抖阴视频
+
+http://api.11bat.com/api.php/provide/vod/
+   http=200 ms=1357 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: MBRBA-121 波崎美春爆乳裸体 狂干内射极品骚穴 | year=- | vod_time=2026-11-08 18:51:46
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=21(动漫精品) n=20 首条=[樱宫姐妹] 姐妹花被睡服！爆操内射调教全纪录(2026)
+   m3u8: https://2609.lajiao2026.com/20261107/WwdPrYFK/index.m3u8
+   分类: 1:国产自拍 2:欧美极品 3:日韩无码 4:AV明星 17:公告 18:头条 20:中文字幕 21:动漫精品 22:极骚萝莉 23:人妖视频 24:重咸口味 25:三级自慰 26:强奸乱伦 27:独家擂台格斗 28:辣椒GIGA 31:HEYZO 32:独家DMM 33:HEY诱惑 34:童颜巨乳 35:高潮喷吹 36:激情口交 37:绝美少女 38:首次亮相 39:柚木TINA 40:原纱央莉 41:大桥未久 42:AV明星1 43:仁科百华 44:天海翼 45:小川阿佐美 46:三上悠亚 47:长泽梓
+
+http://fhapi9.com/api.php/provide/vod/
+   http=200 ms=576 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 泳装女友海边湿身，巨乳爆操内射狂干 | year=- | vod_time=2026-11-11 14:20:04
+   t=13: n=20 new2025+=20 首条=[无码] 极品百合双姬互舔骚穴 舌吻缠绵高潮迭起(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=5(卡通动漫) n=20 首条=泳装女友海边湿身，巨乳爆操内射狂干(2026)
+   m3u8: https://2609.fhv2026.com/20261110/t9Y8SNPx/index.m3u8
+   分类: 1:制服丝袜 2:群交淫乱 3:无码专区 4:偷拍自拍 5:卡通动漫 6:中文字幕 7:欧美性爱 8:巨乳美乳 9:国产裸聊 10:国产自拍 11:国产盗摄 12:伦理三级 13:女同性恋 14:少女萝莉 15:人妖系列 16:虚拟VR 17:亚州图片 18:欧美图片 19:美腿丝袜 20:网友自拍 21:清纯唯美 22:另类图片 23:卡通贴图 24:熟女乱伦 25:现代激情 26:古典武侠 27:暴力强奸 28:校园春色 29:家庭乱伦 30:长篇连载 31:情色幽默 32:淫妻交换
+
+https://155api.com/api.php/provide/vod/
+   http=200 ms=605 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 我会用我的奶子大量射精！乳头#史宾塞乳腺#乳线感性精油五右衛門MIDV-849優木とあMOODYZ | year=2026 | vod_time=2026-11-12 10:05:54
+   t=13: n=20 new2025+=20 首条=重磅推荐百合女同轮流舔逼舌吻(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=7(卡通动漫) n=20 首条=勇者姬米莉亚第一话史上最恶的勇者爆诞让现今勇者理解ACJDP-0055(2026)
+   m3u8: https://2609.v155p.com/20261111/9gwfbwDB/index.m3u8
+   分类: 1:无码专区 2:麻豆传媒 3:制服诱惑 4:三级伦理 5:AI换脸 6:中文字幕 7:卡通动漫 8:欧美系列 9:美女主播 10:国产自拍 11:熟女人妻 12:萝莉少女 13:女同性爱 14:多人群交 15:美乳巨乳 16:强奸乱伦 33:抖音视频 34:韩国主播 35:网红头条 36:网爆黑料 37:欧美无码 38:女优明星 39:SM调教 40:AV解说
+
+https://api.xgbbk8.com/api.php/provide/vod/
+   http=200 ms=778 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 【剛毛】超敏感ボディが大量おもらし びっしり生えそろった陰毛がいやらしく愛液・潮噴射で輝く ぬるぬる快楽オイルエステ 一色沙羅 | year=2026 | vod_time=2026-11-12 01:14:37
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=59(成人动漫) n=20 首条=【绿帽淫妻】中文配音，勾引青春期弟弟乱伦(2026)
+   m3u8: https://2608.xbv2608.com/20261110/IQsSkcEH/index.m3u8
+   分类: 1:视频一区 54:日韩无码 55:国产主播 56:视频三区 57:日韩精品 58:欧美劲爆 59:成人动漫 60:自拍偷拍 61:伦理影片 62:中文字幕 63:人妻系列 64:制服诱惑 65:强奸乱伦 66:AV明星 68:SM重味 69:视频二区 70:巨乳尤物 71:颜射系列 72:口交视频 73:自慰系列 74:教师学生 75:群P换妻 76:AI换脸 78:AV解说 79:视频四区 80:吃瓜黑料 81:酒店探花 82:直播裸聊 83:反差母狗 84:颜值正义 85:熟女少妇 86:人兽乱交 89:国产传媒 90:视频五区 91:野战车震 92:SM调教 93:家庭乱伦 94:百合
+
+https://apilj.com/api.php/provide/vod/
+   http=200 ms=938 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: OKG-002 纱纱原百合 健身服爆乳被干到失禁 网红骚穴狂插内射 | year=- | vod_time=2026-11-11 12:53:13
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=21(动漫精品) n=20 首条=泳装女友穿越时空！爆操女忍者内射颜射中文字幕(2026)
+   m3u8: https://2609.lajiao2026.com/20261110/eSW0CFsA/index.m3u8
+   分类: 1:国产自拍 2:欧美极品 3:日韩无码 4:AV明星 20:中文字幕 21:动漫精品 22:极骚萝莉 23:人妖视频 24:重咸口味 25:三级自慰 26:强奸乱伦 27:独家擂台格斗 28:辣椒GIGA 31:HEYZO 32:独家DMM 33:HEY诱惑 34:童颜巨乳 35:高潮喷吹 36:激情口交 37:绝美少女 38:首次亮相 39:柚木TINA 40:原纱央莉 41:大桥未久 42:AV明星1 43:仁科百华 44:天海翼 45:小川阿佐美 46:三上悠亚 47:长泽梓
+
+https://beiyong.slapibf.com/api.php/provide/vod/
+   http=200 ms=913 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: JURA-166初次拍摄人妻纪录片第二章セン.タービレッジマツニセコ宮下まどか | year=2026 | vod_time=2026-11-12 11:35:28
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=33(成人动漫) n=20 首条=YyukoLD黑色天堂-多个位置-性爱舞蹈(2026)
+   m3u8: https://2609.senlin2026.com/20261111/YudRDMPm/index.m3u8
+   分类: 20:精品推荐 22:国产色情 23:主播直播 24:亚洲无码 25:亚洲有码 26:中文字幕 27:巨乳美乳 28:人妻熟女 29:强奸乱伦 30:欧美精品 31:萝莉少女 32:伦理三级 33:成人动漫 34:自拍偷拍 35:制服丝袜 36:口交颜射 37:日本精品 38:Cosplay 39:素人自拍 40:台湾辣妹 41:韩国御姐 42:唯美港姐 43:东南亚AV 44:欺辱凌辱 45:剧情介绍 46:多人多P 47:91探花 48:网红流出 49:野外露出 50:古装扮演 51:女优系列 52:可爱学生 53:风情旗袍 54:兽耳系列 55:瑜伽裤 56:闷骚护士 57:过膝袜 58
+
+https://apidanaizi.com/api.php/provide/vod/
+   http=200 ms=1114 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 少女失踪案的原由 | year=2026 | vod_time=2026-11-11 15:14:02
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=48(动漫卡通) n=20 首条=思考的奖励 中巻 思考の褒美-1-思考的奖励 中巻 思考の褒美(2026)
+   m3u8: https://voddadaizi5.com:52866/videos/202611/10/6af32d8dea8d80d40cb41173/737c38/index.m3u8
+   分类: 1:视频一区 2:视频二区 3:视频三区 4:视频四区 20:精品推荐 21:国产主播 22:国产乱伦 23:自拍偷拍 24:制服丝袜 25:网曝事件 26:传媒探花 27:清纯学生 28:A V 解说 29:淫妻作乐 30:港台辣妹 31:足浴撩妹 32:反差母狗 33:A I 换脸 34:V R 视角 35:重口性癖 36:制服诱惑 37:丝袜美腿 38:中文字幕 39:无码流出 40:多人群交 41:凌辱快感 42:角色剧情 43:强奸乱伦 44:韩国三级 45:欧美激情 46:人妻熟女 47:主奴调教 48:动漫卡通 49:变性伪娘 50:女同性恋 51:野外露出
+
+https://dadiapi.com/api.php/provide/vod/
+   http=200 ms=901 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: [重磅] 勾搭气质良家少妇 车震口爆内射 | year=- | vod_time=2026-11-11 14:35:46
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=20(动漫精品) n=20 首条=[泳装女友] 时空穿越女忍者爆操内射 巨乳沦陷(2026)
+   m3u8: https://2609.dadi2026.com/20261110/XifkICmj/index.m3u8
+   分类: 1:日韩无码 2:强奸乱伦 3:欧美精品 4:国产精品 16:人妻系列 18:中文字幕 20:动漫精品 22:伦理影片 23:日韩精品 25:制服诱惑 27:自拍偷拍 28:AV明星 32:3P合辑 36:巨乳系列 37:颜射系列 38:口交视频 39:自慰系列 40:SM重味 41:教师学生 42:大秀视频 50:柚木TINA 51:原纱央莉 52:大桥未久 53:AV明星1 54:仁科百华 55:天海翼 56:小川阿佐美 57:三上悠亚 58:长泽梓
+
+https://jkunzyapi.com/api.php/provide/vod/
+   http=200 ms=633 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: YeYeBirdieBBCEp11YeYeBirdie | year=2026 | vod_time=2026-11-12 00:55:57
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=30(激情动漫) n=20 首条=YeYeBirdieBBCEp11YeYeBirdie(2026)
+   m3u8: https://sryndbsfvd.com/20261025/90JFUqfO/index.m3u8
+   分类: 1:中文字幕 2:日本有码 3:日本无码 4:AV解说 5:cosplay 20:都市激情 21:校园情事 22:人妻纵情 23:风俗伦理 24:另类小说 25:武侠古典 26:长篇连载 27:黑丝诱惑 28:SWAG 29:自拍偷拍 30:激情动漫 31:网红主播 32:探花系列 33:三级伦理 34:VR视角 35:国产传媒 36:素人搭讪 37:门事件 38:抖阴视频 39:成人笑话
+
+https://json.xingba222.com/api.php/provide/vod/
+   http=200 ms=632 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 【剛毛】超敏感ボディが大量おもらし びっしり生えそろった陰毛がいやらしく愛液・潮噴射で輝く ぬるぬる快楽オイルエステ 一色沙羅 | year=2026 | vod_time=2026-11-12 01:14:37
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=59(成人动漫) n=20 首条=【绿帽淫妻】中文配音，勾引青春期弟弟乱伦(2026)
+   m3u8: https://2608.xbv2608.com/20261110/IQsSkcEH/index.m3u8
+   分类: 1:视频一区 54:日韩无码 55:国产主播 56:视频三区 57:日韩精品 58:欧美劲爆 59:成人动漫 60:自拍偷拍 61:伦理影片 62:中文字幕 63:人妻系列 64:制服诱惑 65:强奸乱伦 66:AV明星 68:SM重味 69:视频二区 70:巨乳尤物 71:颜射系列 72:口交视频 73:自慰系列 74:教师学生 75:群P换妻 76:AI换脸 78:AV解说 79:视频四区 80:吃瓜黑料 81:酒店探花 82:直播裸聊 83:反差母狗 84:颜值正义 85:熟女少妇 86:人兽乱交 89:国产传媒 90:视频五区 91:野战车震 92:SM调教 93:家庭乱伦 94:百合
+
+https://jipinvip1.com/api.php/provide/vod/
+   http=200 ms=1401 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: IZHN-525 福利大神 男扮女装女厕偷拍50位美女 公司白领网红大学生护士等 | year=2026 | vod_time=2026-11-12 08:12:11
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=59(动漫精品) n=20 首条=CGYK-239 小马拉大车母子乱伦(2026)
+   m3u8: https://m2.jipinvipplay.com/20261112/bdlckETs/index.m3u8
+   分类: 1:视频一区 54:日韩无码 55:国产精品 56:视频三区 57:日韩精品 58:欧美精品 59:动漫精品 60:自拍偷拍 61:伦理影片 62:中文字幕 63:人妻系列 64:制服诱惑 65:强奸乱伦 66:AV明星 68:SM重味 69:视频二区 70:巨乳系列 71:颜射系列 72:口交视频 73:自慰系列 74:教师学生 75:大秀视频 76:明星换脸 78:AV解说 79:视频四区 80:黑料网曝 81:精品探花 82:精品网红 83:反差母狗 84:颜值正义 85:熟女少妇 86:人兽乱交 89:国产传媒 90:野战车震 91:SM调教 92:家庭乱伦 93:百合女同 94:学生
+
+https://fqzy.me//api.php/provide/vod/
+   http=200 ms=2454 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: SNOS-209_终极女英雄将百分之百掌控你的小弟弟我会一天24小时不停地干你濑户康娜_-_瀬户环奈 | year=2026 | vod_time=2026-11-12 01:25:02
+   t=13: n=20 new2025+=20 首条=MIDV-154 不管怎樣，你們是在學校旅行，對吧？我們是留下最美好的回憶的人！在東京一整天都在摸索的成人學校旅行 石原希伊吹 - 石原希望(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(动漫精选) n=20 首条=3d同人小合集#3D(2025)
+   m3u8: https://fqm3u8.cc/20261030/5f1a9ab2c97c90fe/index.m3u8
+   分类: 1:视频一区 2:视频二区 3:欧美精品 6:偷拍自拍 7:国产大制作 8:乱伦毁三观 9:主播女网红 10:黑料网曝 13:高清无码 14:中文字幕 20:欧美精品 21:淫乱学生妹 22:动漫精选 23:动漫精选 24:高清有码 25:日本素人 26:视频三区 27:无码流出 28:FC2 29:会所技师 30:国产推荐 31:探花约炮 32:韩国直播 33:国产直播 34:淫妻绿帽 35:制服诱惑 36:重口猎奇 37:东京热 38:一本道
+
+https://fqzy.me/api.php/provide/vod/
+   http=200 ms=2267 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: SNOS-209_终极女英雄将百分之百掌控你的小弟弟我会一天24小时不停地干你濑户康娜_-_瀬户环奈 | year=2026 | vod_time=2026-11-12 01:25:02
+   t=13: n=20 new2025+=20 首条=MIDV-154 不管怎樣，你們是在學校旅行，對吧？我們是留下最美好的回憶的人！在東京一整天都在摸索的成人學校旅行 石原希伊吹 - 石原希望(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(动漫精选) n=20 首条=3d同人小合集#3D(2025)
+   m3u8: https://fqm3u8.cc/20261030/5f1a9ab2c97c90fe/index.m3u8
+   分类: 1:视频一区 2:视频二区 3:欧美精品 6:偷拍自拍 7:国产大制作 8:乱伦毁三观 9:主播女网红 10:黑料网曝 13:高清无码 14:中文字幕 20:欧美精品 21:淫乱学生妹 22:动漫精选 23:动漫精选 24:高清有码 25:日本素人 26:视频三区 27:无码流出 28:FC2 29:会所技师 30:国产推荐 31:探花约炮 32:韩国直播 33:国产直播 34:淫妻绿帽 35:制服诱惑 36:重口猎奇 37:东京热 38:一本道
+
+https://lbapi9.com/api.php/provide/vod/
+   http=200 ms=901 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: WAAA-204-C 合宿淫窟：田径部双叶胡桃被教练下药爆操到失禁 | year=- | vod_time=2026-11-11 13:09:27
+   t=13: n=20 new2025+=20 首条=[无码] 会长专属肉便器 极品骚穴任插任操(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=12(卡通动画) n=20 首条=YuzukiRin 7thAV 圣诞骚货女友的淫荡调教(2026)
+   m3u8: https://2609.lbsl2026.com/20261110/hrbGiDmg/index.m3u8
+   分类: 1:亚洲情色 2:国产主播 3:国产自拍 4:无码专区 5:欧美性爱 6:熟女人妻 7:强奸乱伦 8:巨乳美乳 9:中文字幕 10:制服诱惑 11:女同性恋 12:卡通动画 13:视频伦理 14:少女萝莉 15:重口色情 16:人兽性交 33:福利姬
+
+https://shayuapi.com/api.php/provide/vod/
+   http=200 ms=974 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 022626001 极品女课长被部下狂干到沦陷 今田美玲骚穴内射 | year=- | vod_time=2026-11-12 12:09:23
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(成人动漫) n=20 首条=ZamuzuLABO 母亲的奉献 人妻沦陷爆操内射(2026)
+   m3u8: https://2609.sysl2026.com/20261111/QigNquYi/index.m3u8
+   分类: 1:国产情色 2:日本无码 3:AV明星 20:中文字幕 21:网红主播 22:成人动漫 23:欧美情色 24:国模私拍 25:长腿丝袜 26:邻家人妻 27:韩国伦理 28:香港伦理 31:精品推荐 32:原纱央莉 33:柚木TINA 34:大桥未久 35:AV明星1 36:仁科百华 37:天海翼 38:小川阿佐美 39:三上悠亚 40:长泽梓
+
+https://shayuzy1.com/api.php/provide/vod/
+   http=200 ms=1037 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 022626001 极品女课长被部下狂干到沦陷 今田美玲骚穴内射 | year=- | vod_time=2026-11-12 12:09:23
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(成人动漫) n=20 首条=ZamuzuLABO 母亲的奉献 人妻沦陷爆操内射(2026)
+   m3u8: https://2609.sysl2026.com/20261111/QigNquYi/index.m3u8
+   分类: 1:国产情色 2:日本无码 3:AV明星 20:中文字幕 21:网红主播 22:成人动漫 23:欧美情色 24:国模私拍 25:长腿丝袜 26:邻家人妻 27:韩国伦理 28:香港伦理 31:精品推荐 32:原纱央莉 33:柚木TINA 34:大桥未久 35:AV明星1 36:仁科百华 37:天海翼 38:小川阿佐美 39:三上悠亚 40:长泽梓
+
+https://slapibf.com/api.php/provide/vod/
+   http=200 ms=967 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: JURA-166初次拍摄人妻纪录片第二章セン.タービレッジマツニセコ宮下まどか | year=2026 | vod_time=2026-11-12 11:35:28
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=33(成人动漫) n=20 首条=YyukoLD黑色天堂-多个位置-性爱舞蹈(2026)
+   m3u8: https://2609.senlin2026.com/20261111/YudRDMPm/index.m3u8
+   分类: 20:精品推荐 22:国产色情 23:主播直播 24:亚洲无码 25:亚洲有码 26:中文字幕 27:巨乳美乳 28:人妻熟女 29:强奸乱伦 30:欧美精品 31:萝莉少女 32:伦理三级 33:成人动漫 34:自拍偷拍 35:制服丝袜 36:口交颜射 37:日本精品 38:Cosplay 39:素人自拍 40:台湾辣妹 41:韩国御姐 42:唯美港姐 43:东南亚AV 44:欺辱凌辱 45:剧情介绍 46:多人多P 47:91探花 48:网红流出 49:野外露出 50:古装扮演 51:女优系列 52:可爱学生 53:风情旗袍 54:兽耳系列 55:瑜伽裤 56:闷骚护士 57:过膝袜 58
+
+https://shayuzy.com/api.php/provide/vod/
+   http=200 ms=1107 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 022626001 极品女课长被部下狂干到沦陷 今田美玲骚穴内射 | year=- | vod_time=2026-11-12 12:09:23
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(成人动漫) n=20 首条=ZamuzuLABO 母亲的奉献 人妻沦陷爆操内射(2026)
+   m3u8: https://2609.sysl2026.com/20261111/QigNquYi/index.m3u8
+   分类: 1:国产情色 2:日本无码 3:AV明星 20:中文字幕 21:网红主播 22:成人动漫 23:欧美情色 24:国模私拍 25:长腿丝袜 26:邻家人妻 27:韩国伦理 28:香港伦理 31:精品推荐 32:原纱央莉 33:柚木TINA 34:大桥未久 35:AV明星1 36:仁科百华 37:天海翼 38:小川阿佐美 39:三上悠亚 40:长泽梓
+
+https://seep.eu.org/https://fqzy.me/api.php/provide/vod/
+   http=200 ms=1941 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: SNOS-209_终极女英雄将百分之百掌控你的小弟弟我会一天24小时不停地干你濑户康娜_-_瀬户环奈 | year=2026 | vod_time=2026-11-12 01:25:02
+   t=13: n=20 new2025+=20 首条=MIDV-154 不管怎樣，你們是在學校旅行，對吧？我們是留下最美好的回憶的人！在東京一整天都在摸索的成人學校旅行 石原希伊吹 - 石原希望(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=22(动漫精选) n=20 首条=3d同人小合集#3D(2025)
+   m3u8: https://fqm3u8.cc/20261030/5f1a9ab2c97c90fe/index.m3u8
+   分类: 1:视频一区 2:视频二区 3:欧美精品 6:偷拍自拍 7:国产大制作 8:乱伦毁三观 9:主播女网红 10:黑料网曝 13:高清无码 14:中文字幕 20:欧美精品 21:淫乱学生妹 22:动漫精选 23:动漫精选 24:高清有码 25:日本素人 26:视频三区 27:无码流出 28:FC2 29:会所技师 30:国产推荐 31:探花约炮 32:韩国直播 33:国产直播 34:淫妻绿帽 35:制服诱惑 36:重口猎奇 37:东京热 38:一本道
+
+https://xingba111.com/api.php/provide/vod/
+   http=200 ms=737 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 【剛毛】超敏感ボディが大量おもらし びっしり生えそろった陰毛がいやらしく愛液・潮噴射で輝く ぬるぬる快楽オイルエステ 一色沙羅 | year=2026 | vod_time=2026-11-12 01:14:37
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=59(成人动漫) n=20 首条=【绿帽淫妻】中文配音，勾引青春期弟弟乱伦(2026)
+   m3u8: https://2608.xbv2608.com/20261110/IQsSkcEH/index.m3u8
+   分类: 1:视频一区 54:日韩无码 55:国产主播 56:视频三区 57:日韩精品 58:欧美劲爆 59:成人动漫 60:自拍偷拍 61:伦理影片 62:中文字幕 63:人妻系列 64:制服诱惑 65:强奸乱伦 66:AV明星 68:SM重味 69:视频二区 70:巨乳尤物 71:颜射系列 72:口交视频 73:自慰系列 74:教师学生 75:群P换妻 76:AI换脸 78:AV解说 79:视频四区 80:吃瓜黑料 81:酒店探花 82:直播裸聊 83:反差母狗 84:颜值正义 85:熟女少妇 86:人兽乱交 89:国产传媒 90:视频五区 91:野战车震 92:SM调教 93:家庭乱伦 94:百合
+
+https://xingba222.com/api.php/provide/vod/
+   http=200 ms=603 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 【剛毛】超敏感ボディが大量おもらし びっしり生えそろった陰毛がいやらしく愛液・潮噴射で輝く ぬるぬる快楽オイルエステ 一色沙羅 | year=2026 | vod_time=2026-11-12 01:14:37
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=59(成人动漫) n=20 首条=【绿帽淫妻】中文配音，勾引青春期弟弟乱伦(2026)
+   m3u8: https://2608.xbv2608.com/20261110/IQsSkcEH/index.m3u8
+   分类: 1:视频一区 54:日韩无码 55:国产主播 56:视频三区 57:日韩精品 58:欧美劲爆 59:成人动漫 60:自拍偷拍 61:伦理影片 62:中文字幕 63:人妻系列 64:制服诱惑 65:强奸乱伦 66:AV明星 68:SM重味 69:视频二区 70:巨乳尤物 71:颜射系列 72:口交视频 73:自慰系列 74:教师学生 75:群P换妻 76:AI换脸 78:AV解说 79:视频四区 80:吃瓜黑料 81:酒店探花 82:直播裸聊 83:反差母狗 84:颜值正义 85:熟女少妇 86:人兽乱交 89:国产传媒 90:视频五区 91:野战车震 92:SM调教 93:家庭乱伦 94:百合
+
+https://www.jingpinx.com/api.php/provide/vod/
+   http=200 ms=2328 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: 好色上班族_4 | year=2026 | vod_time=2026-11-12 02:36:35
+   t=13: n=20 new2025+=20 首条=【偷情翻车】小三才是真爱？被抓奸在床却以身相互！(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=31(3D动漫) n=20 首条=[HoyoCinema]_Hsin_(Feet_warning)_–_Wuthering_Waves___60fps_1(2026)
+   m3u8: https://jpxm3u8.com/20261110/4667f8825e8c9dc0/index.m3u8
+   分类: 1:国产 2:日本 3:欧美 4:动漫 8:偷拍自拍 9:国产大制作 10:乱伦毁三观 11:嫖妓全过程 12:淫乱学生妹 13:黑料不打烊 14:监控摄像头 15:主播网红 20:高清无码 21:中文字幕 22:成人综艺 23:媚黑母狗 24:为国争光 25:少女破处 26:人兽典藏 27:中文剧情 28:燃烧荷尔蒙 29:女同口交 30:重口味 31:3D动漫 32:剧情故事 33:同人动漫 35:激情中字 41:东南亚 42:AI短剧
+
+https://apiyutu.com/api.php/provide/vod/
+   http=200 ms=767 count=10 pic_ok=True m3u8_live=True adult=True
+   首条: MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停歇SEX2本番熘池五郎澪真央 | year=2026 | vod_time=2026-11-12 11:37:31
+   t=13: n=0 new2025+=10 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=32(卡通动漫) n=10 首条=祖先萨内第3集爱黑暗中文字幕(2026)
+   m3u8: https://lsbbf11.com/20261111/9a4lAdhF/index.m3u8
+   分类: 20:精品推荐 21:国产精品 22:主播秀色 23:日本有码 24:日本无码 25:中文字幕 26:童颜巨乳 27:性感人妻 28:强奸乱伦 29:欧美情色 31:三级伦理 32:卡通动漫 33:丝袜OL 35:自拍偷拍 36:日本片商 44:剧情介绍 56:网曝系列 57:麻豆传媒 60:明星换脸 61:国产乱伦 62:国产丝袜 63:国产SM 64:国产人妻 65:探花嫖娼 66:同性恋
+
+https://apilsbzy1.com/api.php/provide/vod/
+   http=200 ms=868 count=10 pic_ok=True m3u8_live=True adult=True
+   首条: MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停歇SEX2本番熘池五郎澪真央 | year=2026 | vod_time=2026-11-12 11:37:31
+   t=13: n=0 new2025+=10 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=32(卡通动漫) n=10 首条=祖先萨内第3集爱黑暗中文字幕(2026)
+   m3u8: https://lsbbf11.com/20261111/9a4lAdhF/index.m3u8
+   分类: 20:精品推荐 21:国产精品 22:主播秀色 23:日本有码 24:日本无码 25:中文字幕 26:童颜巨乳 27:性感人妻 28:强奸乱伦 29:欧美情色 31:三级伦理 32:卡通动漫 33:丝袜OL 35:自拍偷拍 36:日本片商 44:剧情介绍 56:网曝系列 57:麻豆传媒 60:明星换脸 61:国产乱伦 62:国产丝袜 63:国产SM 64:国产人妻 65:探花嫖娼 66:同性恋
+
+https://yutuzy10.com/api.php/provide/vod/
+   http=200 ms=821 count=10 pic_ok=True m3u8_live=True adult=True
+   首条: MFYD-039大量潮吹＆大绝顶澪真央真枪.实弹不停歇SEX2本番熘池五郎澪真央 | year=2026 | vod_time=2026-11-12 11:37:31
+   t=13: n=0 new2025+=10 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=32(卡通动漫) n=10 首条=祖先萨内第3集爱黑暗中文字幕(2026)
+   m3u8: https://lsbbf11.com/20261111/9a4lAdhF/index.m3u8
+   分类: 20:精品推荐 21:国产精品 22:主播秀色 23:日本有码 24:日本无码 25:中文字幕 26:童颜巨乳 27:性感人妻 28:强奸乱伦 29:欧美情色 31:三级伦理 32:卡通动漫 33:丝袜OL 35:自拍偷拍 36:日本片商 44:剧情介绍 56:网曝系列 57:麻豆传媒 60:明星换脸 61:国产乱伦 62:国产丝袜 63:国产SM 64:国产人妻 65:探花嫖娼 66:同性恋
+
+http://bt4.cc/api.php/provide/vod/
+   http=200 ms=987 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 杏吧/今天约了个18岁小妹-吴天 | year=- | vod_time=2026-11-12 07:20:59
+   t=13: n=30 new2025+=30 首条=杏吧/今天约了个18岁小妹-吴天(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/11/12/d0ffc77d/index.m3u8
+   分类: 1:麻豆视频 2:91制片厂 3:天美传媒 4:蜜桃传媒 5:皇家华人 6:星空传媒 7:精东影业 8:海角社区 9:成人头条 10:乌鸦传媒 20:兔子先生 21:杏吧原创 22:玩偶姐姐 23:mini传媒 24:大象传媒 25:91视频 26:PsychoPorn 27:糖心Vlog 29:萝莉社 30:性视界
+
+http://www.madouse.la/api.php/provide/vod/
+   http=200 ms=1394 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 与童帝的初次经会与性爱上集-辛尤里 | year=- | vod_time=2026-10-23 22:53:10
+   t=13: n=30 new2025+=30 首条=与童帝的初次经会与性爱上集-辛尤里(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/10/23/3764b15d/index.m3u8
+   分类: 1:麻豆视频 2:中文字幕 3:日本无码 4:日本有码 5:童颜巨乳 6:校园萝莉 7:女优明星 9:制服诱惑
+
+http://www.tianmei.pw/api.php/provide/vod/
+   http=200 ms=1248 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 与童帝的初次经会与性爱上集-辛尤里 | year=- | vod_time=2026-10-23 22:53:10
+   t=13: n=30 new2025+=30 首条=与童帝的初次经会与性爱上集-辛尤里(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/10/23/3764b15d/index.m3u8
+   分类: 1:麻豆视频 2:中文字幕 3:日本无码 4:日本有码 5:童颜巨乳 6:校园萝莉 7:女优明星 9:制服诱惑
+
+https://91md.me/api.php/provide/vod/
+   http=200 ms=1094 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 杏吧/今天约了个18岁小妹-吴天 | year=- | vod_time=2026-11-12 07:20:59
+   t=13: n=30 new2025+=30 首条=杏吧/今天约了个18岁小妹-吴天(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/11/12/d0ffc77d/index.m3u8
+   分类: 1:麻豆视频 2:91制片厂 3:天美传媒 4:蜜桃传媒 5:皇家华人 6:星空传媒 7:精东影业 8:海角社区 9:成人头条 10:乌鸦传媒 20:兔子先生 21:杏吧原创 22:玩偶姐姐 23:mini传媒 24:大象传媒 25:91视频 26:PsychoPorn 27:糖心Vlog 29:萝莉社 30:性视界
+
+https://seep.eu.org/https://91md.me/api.php/provide/vod/
+   http=200 ms=851 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 杏吧/今天约了个18岁小妹-吴天 | year=- | vod_time=2026-11-12 07:20:59
+   t=13: n=30 new2025+=30 首条=杏吧/今天约了个18岁小妹-吴天(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/11/12/d0ffc77d/index.m3u8
+   分类: 1:麻豆视频 2:91制片厂 3:天美传媒 4:蜜桃传媒 5:皇家华人 6:星空传媒 7:精东影业 8:海角社区 9:成人头条 10:乌鸦传媒 20:兔子先生 21:杏吧原创 22:玩偶姐姐 23:mini传媒 24:大象传媒 25:91视频 26:PsychoPorn 27:糖心Vlog 29:萝莉社 30:性视界
+
+https://seep.eu.org/https://www.bt4.cc/api.php/provide/vod/
+   http=200 ms=849 count=30 pic_ok=True m3u8_live=True adult=True
+   首条: 杏吧/今天约了个18岁小妹-吴天 | year=- | vod_time=2026-11-12 07:20:59
+   t=13: n=30 new2025+=30 首条=杏吧/今天约了个18岁小妹-吴天(2026)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://t27.cdn2020.com/video/m3u8/2026/11/12/d0ffc77d/index.m3u8
+   分类: 1:麻豆视频 2:91制片厂 3:天美传媒 4:蜜桃传媒 5:皇家华人 6:星空传媒 7:精东影业 8:海角社区 9:成人头条 10:乌鸦传媒 20:兔子先生 21:杏吧原创 22:玩偶姐姐 23:mini传媒 24:大象传媒 25:91视频 26:PsychoPorn 27:糖心Vlog 29:萝莉社 30:性视界
+
+https://javbus.sbs/api.php/provide/vod/
+   http=200 ms=1354 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: VENX-152 巨乳义母入浴爆操，推川悠里骚穴被狂干到内射 | year=- | vod_time=2026-11-11 19:37:24
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://2609.lbsl2026.com/20261110/q6biwYk9/index.m3u8
+   分类: 1:中字一区 2:中字二区 3:中字三区 4:中字四区 5:日本无码 6:传媒映画 7:日本AV
+
+https://thzy1.me/api.php/provide/vod/
+   http=200 ms=2304 count=20 pic_ok=True m3u8_live=True adult=True
+   首条: [FioraMMD]_バニーイ〇ニスでダーリンダンス___Darling_Dance_by_Bunny_I’n_nis | year=2026 | vod_time=2026-11-12 02:36:53
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: 无对应分类
+   m3u8: https://thm3u8.co/20261111/31ff9ed3505500fb/index.m3u8
+   分类: 1:视频1区 6:国产精品 7:华语AV 8:黑料吃瓜 9:欧美 10:禁漫 21:视频2区 22:学生 23:乱伦 24:探花 25:日本无码 26:日本有码 27:主播网红 28:日本素人 29:AI短剧
+
+https://api.heiapi.cc/api.php/provide/vod/
+   http=200 ms=1106 count=20 pic_ok=True m3u8_live=False adult=True
+   首条: (18禁アニメ) [Queen Bee] たゆたゆ #3 | year=2026 | vod_time=2026-11-11 22:08:12
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=103(成人动漫) n=20 首条=(18禁アニメ) [Queen Bee] たゆたゆ #3(2026)
+   m3u8: https://v.heicdn.com/20261110/16BiuXq2/index.m3u8
+   分类: 48:国产视频 49:国产自拍 50:国产偷拍 51:国产探花 52:国产主播 53:国产户外 54:黑料吃瓜 55:传媒厂商 56:麻豆传媒 57:精东影业 58:蜜桃传媒 59:果冻传媒 60:天美传媒 61:星空传媒 62:皇家华人 63:起点传媒 64:渡边传媒 65:葫芦影业 66:红斯灯影像 67:水果派解说 68:SA传媒 69:糖心Vlog 70:性视界 71:水果派解说 72:日本AV 73:日本无码 74:日本有码 75:中字无码 76:中字有码 77:特殊嗜好 78:绿帽换妻 79:SM调教 80:男同系列 81:女同系列 82:乱伦系列 83:网黄自制 84:台北娜娜 
+
+https://vnzyz.com/api.php/provide/vod/
+   http=200 ms=1013 count=20 pic_ok=True m3u8_live=False adult=True
+   首条: h_189lxma00004 カップルOKマッサージ店彼氏の隣で彼女寝取り猥褻マッサージ | year=2025 | vod_time=2026-11-12 00:00:00
+   t=13: n=20 new2025+=20 首条=mifd00089 巨乳がコンプレックスな現役女子大生AVデビュー 高岡美鈴(2025)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=17(卡通动漫) n=20 首条=シスコン兄の「妹」部屋覗き映像 完全覗き撮り 女子校生 はじめてのレズ(2025)
+   m3u8: https://qzpwa-hw.point-memory.com/20190317/huanya/s11/XQW/h_189lxma00004/h_189lxma00004/index.m3u8
+   分类: 1:视频一区 2:视频二区 3:视频三区 4:亚洲情色 5:热门女优 6:中文字幕 7:国产自拍 8:无码专区 9:伦理三级 10:制服师生 11:强奸乱伦 12:丝袜美腿 13:人妻熟女 14:欧美性爱 15:4K岛国 16:韩国资源 17:卡通动漫 18:人妖人兽 19:男同女同 20:VR资源 21:JAV高清
+
+https://api.douapi.cc/api.php/provide/vod/
+   http=200 ms=985 count=20 pic_ok=True m3u8_live=False adult=True
+   首条: 喜欢二次元 18岁反差婊~童颜巨乳 武汉06少女 深水炸弹~在宿舍多道具狂插自慰爆浆4 (3) | year=2026 | vod_time=2026-11-12 02:31:48
+   t=13: n=0 new2025+=20 首条=-(-)
+   电视剧: 无对应分类
+   综艺: 无对应分类
+   动漫: t=70(成人动漫) n=6 首条=希德尼娅的骑士(2014)
+   m3u8: https://v.didibo2.com/20261111/HT0ATjE7/index.m3u8
+   分类: 40:采集教程 47:国产视频 48:国产传媒 49:国产探花 50:极品学生 51:野战户外 52:网曝黑料 53:日本有码 54:主播大秀 56:校园春色 57:SM虐待 59:巨乳系列 61:偷拍自拍 62:强奸乱伦 63:制服诱惑 64:欧美精品 68:三级伦理 69:AV解说 70:成人动漫 71:日本无码 72:重口猎奇 74:少妇人妻 75:角色扮演 76:女同性恋 77:黑人专区 78:中文字幕 80:男同性恋 81:反差系列
+

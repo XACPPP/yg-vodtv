@@ -56,6 +56,8 @@ mkdir -p "$OUT"
     "$SRC/com/yg/vodtv/Proxy.java" \
     "$SRC/com/yg/vodtv/Ver.java" \
     "$SRC/com/yg/vodtv/Update.java" \
+    "$SRC/com/yg/vodtv/Src.java" \
+    "$SRC/com/yg/vodtv/Multi.java" \
     Harness.java \
     Wire.java \
     Tabs.java \

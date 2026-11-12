@@ -9,6 +9,8 @@ import java.util.List;
 public final class Vod {
 
     public int id;
+    /** 来自哪个采集源（Src.key）：不同源 vod_id 会撞，存取播放位置、取详情都靠它区分。 */
+    public String src = "";
     public String name = "";
     public String pic = "";
     public String remarks = "";
@@ -31,10 +33,15 @@ public final class Vod {
     public String[] epUrls = new String[0];
 
     public static Vod from(JSONObject o) {
+        return from(o, "");
+    }
+
+    public static Vod from(JSONObject o, String src) {
         if (o == null) {
             return null;
         }
         Vod v = new Vod();
+        v.src = src == null ? "" : src;
         v.id = o.optInt("vod_id", o.optInt("id", 0));
         v.name = o.optString("vod_name", o.optString("name", ""));
         v.pic = o.optString("vod_pic", o.optString("pic", ""));

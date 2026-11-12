@@ -1,0 +1,22 @@
+suggest endpoint check  2026-11-12 12:17:32
+
+host                       http   code   total  verdict note
+------------------------------------------------------------------------------------------------
+api.maoyanapi.top          200    1      1      OK      hit: 今天是太阳雨
+api.guangsuapi.com         200    1      4      OK      hit: 谷雨
+caiji.moduapi.cc           200    1      1      OK      hit: 尬先生
+api.ffzyapi.com            200    1      1      OK      hit: 十三种爱情
+www.ysxq.cc                200    1      1      OK      hit: 走马上任
+   -> redirect to ysxq.cc
+yhzy.cc                    200    1      1      OK      hit: 以神之名，对话万物
+360zy.com                  200    1      1      OK      hit: 天命·成凰
+api.ukuapi.com             200    -      -      NO      not json: <!DOCTYPE html> <html lang="en"> 	<hea
+   -> redirect to api.ukuapi88.com
+bfzyapi.com                200    1      20     OK      hit: 今天是太阳雨
+api.wujinapi.me            403    -      -      NO      not json: <!DOCTYPE html><html lang="en-US"><head>
+ikunzyapi.com              200    1      4      OK      hit: 谷雨
+360zyzz.com                200    1      1      OK      hit: 天命·成凰
+maoyanzy.com               200    1      1      OK      hit: 今天是太阳雨
+www.cmov.cn                200    1      1      OK      hit: 炽夏
+cdn.dzzyapi.com            200    1      1      OK      hit: 卿色无双
+wsyzy.cc                   200    1      1      OK      hit: 尚公主

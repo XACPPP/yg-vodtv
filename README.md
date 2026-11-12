@@ -1,43 +1,122 @@
 # YG影视TV
 
 自用的电视端影视 App，纯原生 Android（无 Gradle、无第三方库），专为海信 VIDAA 电视
-（Android 5.1.1 / API 22，已 root）定制。片源来自 `wsyzy` 系列接口，属于 `88lin/video_vip`
-用户脚本所依赖的同一套「无损云解析」链路，但本 App 是原生重写，不依赖浏览器和油猴脚本。
+（Android 5.1.1 / API 22，已 root）定制。片源来自 **10 个苹果CMS采集源聚合**，App 内部只认
+统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
 
-当前版本：**v1.6（versionCode 7）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v1.7（versionCode 8）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
 
 一句话：**遥控器点开就能搜片、选集、播放的电视 App。**
 
-- 首页：27 个分类（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、短剧……）海报墙，遥控器方向键浏览，点「加载更多」翻页
-- 搜索：自绘拼音/英文键盘，输入片名全拼或中文即可（走 suggest 联想接口）
-- 详情：海报 + **导演/主演/地区/语言 + 简介（点一下展开全文）** + 选集列表，每行 6 个选集按钮
+- 首页：**24 个统一频道**（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、悬疑剧……）海报墙，
+  每页最多 84 条、10 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页
+- 搜索：自绘拼音/英文键盘；**中文关键词并发问 10 个源的 `wd=`，纯拼音再补一路 wsyzy 联想**，
+  两路结果合并后按贴合度重排
+- 详情：海报 + **导演/主演/地区/语言 + 简介（点一下展开全文，缺失时自动跨源回填）** + 选集列表，每行 10 个选集按钮
 - 播放：全屏 HLS 播放，上下键选集、左右键快进快退 15 秒、OK 暂停、自动连播下一集
 - **续看**：每 5 秒记一次播放位置，退出/切集时再存一次；下次进详情页会自动把焦点落在上次看到的那一集上（该集按钮显示为金色），点进去从断开处接着播
-- **自检**：标题栏「自检」按钮，7 步串行验证片源链路，全绿就说明能看；下半屏直接显示环形错误日志
+- **自检**：标题栏「自检」按钮，7 步串行验证片源链路（代理端口 → 多源分类 → **海报下载** →
+  多源搜索 → 详情集数 → m3u8 首跳 → 分片首包），全绿就说明能看；下半屏直接显示环形错误日志
 - **检查更新**：标题栏「检查更新」按钮（开机也会静默查一次），有新版直接在 App 里下载并拉起系统安装器，不用再插 U 盘
 
 ## 二、技术方案
 
-### 片源链路
+### 片源链路（v1.7 起是多源）
+
+所有源都是**苹果CMS 标准协议**，请求形状完全一样，只有 `type_id` 各不相同：
 
 ```
-搜索联想  GET https://wsyzy.cc/index.php/ajax/suggest?mid=1&wd=<关键词>
-          → [{id, name, pic}]
-详情      GET https://wsyzy.cc/api.php/provide/vod/?ac=detail&ids=<id>
-          → vod_play_url = "第01集$https://.../video/index.m3u8#第02集$..."
-分类列表  GET https://wsyzy.cc/api.php/provide/vod/?ac=detail&t=<type_id>&pg=<页码>
-          → 20 条/页
+分类列表  GET <源base>?ac=detail&pg=<页码>[&t=<type_id>]
+          → 20~30 条/页，带 vod_pic / vod_content / vod_play_url
+详情      GET <源base>?ac=detail&ids=<id>
+          → vod_play_url = "第01集$https://.../index.m3u8#第02集$..."
+中文搜索  GET <源base>?ac=detail&wd=<关键词>        ← 除 wsyzy 外九个源都支持
+拼音联想  GET https://wsyzy.cc/index.php/ajax/suggest?mid=1&wd=<拼音>
+          → [{id, name, pic}]，唯一支持拼音的一路
 ```
 
-两点必须记住：
+四点必须记住：
 
-- `wd=` 全量搜索**不被该 API 支持**（返回"暂不支持搜索"），所以搜索必须先走 suggest 拿 id 再查详情。
-- 接口域名统一用主站 `wsyzy.cc`，不用 `api.wsyzy.net`。两者返回**完全一致**，但少一个域名就少一次
-  TLS 握手与一套证书链，Android 5.1 上这一步最容易出问题（实测 `api.wsyzy.net` 偶发 522）。
-- `ac=list` 比 `ac=detail` 小十倍，但**不返回 `vod_pic`/`vod_year`/`vod_area`**，海报墙会全空，所以只能用 `ac=detail`。
+- **`type_id` 不能跨源混用**。国产剧在 `wsyzy.cc` 是 `t=13`、`caiji.moduapi.cc` 是 `t=26`、
+  `bfzyapi.com` 是 `t=31`、`ikunzyapi.com` 是 `t=23`。所以 App 内部只认 `Src.CH_xxx` 频道号，
+  取数时用 `Src.type(频道)` 查表翻译，查不到（返回 0）就跳过这个源，整条链路不写死任何 type_id。
+- **`wd=` 不是所有源都支持**：`wsyzy.cc` 直接返回 18 字节纯文本「暂不支持搜索」（不是 JSON），
+  其余九个源都能正常返回 `list`。所以中文搜索走多源 `wd=`，拼音只能走 wsyzy 的 suggest。
+- **`ac=list` 不能用**：比 `ac=detail` 小十倍，但**不返回 `vod_pic`/`vod_year`/`vod_area`**，
+  海报墙会全空，所以只能一律用 `ac=detail`。
+- **`limit=` 参数各源都不认**（实测传 `limit=7` 仍旧返回默认条数），所以每页条数只能本地截断。
+
+### 多源聚合（v1.7 新增，`Src.java` + `Multi.java`）
+
+```
+Src.java    10 个源的 key / base / Referer + 「频道 → 各源 type_id」映射表
+Multi.java  按频道并行取各源第 N 页 → 轮转交织 → 按「片名+年份」去重 → 截断到 84 条
+```
+
+关键设计：
+
+| 点 | 做法 | 为什么 |
+| --- | --- | --- |
+| 并行 | 8 线程池 + `CountDownLatch`，整体预算 **7 秒**，到点就用已经回来的结果 | 一个慢源不能拖死整页；实测 24 个频道里最慢 7.0s、最快 0.95s |
+| 交织 | 第 n 轮取「每个源的第 n 条」 | 首屏混着各站的片，不会出现「前 20 条全是同一个站」 |
+| 去重 | 键 = 片名（空格归一）+ `|` + 年份 | 同一部剧在多个源都有，不能重复占卡位 |
+| 去重后上限 | 84 条/页（7 列 × 12 行） | 遥控器翻太久反而难用 |
+| 单源超时 | 8 秒连接 / 10 秒读取 | 够取 87KB 的整页，又不至于卡在握手 |
+| 简介回填 | 详情页简介 <20 字时，拿片名跨源搜同名，取前 6 条里年份不冲突且有长简介的回填 | 单源最新页的 `vod_content` 覆盖率只有 3/20，其余源在 12~30/20 |
+
+源优先级按「简介覆盖率 + 响应速度」排：`maoyan`（30 条/页、简介 30/30、0.8s）→ `ffzy` →
+`bfzy` → `ysxq`（片库最大 429174 部）→ `modu` → `ikun` → `360zy` → `yhzy` → `wsyzy`（简介差、
+但拼音联想独苗，必须留）→ `cmov`（4.9s 最慢，兜底）。
+
+实测（`bash run.sh tabs`）：24 个频道**共聚合 1924 条，每个频道都有数据且有海报**；
+每个频道 2~10 个源有返回。`maoyan` 的「欧美综艺」是空列表，属源侧情况，不影响聚合结果。
+
+### 采集源实测（2026-11-12）
+
+老板反馈「片源太少、大多是电影、没有最新电视剧」。为此从 GitHub 上的采集站合集
+（`mylazily/ziyuanzhan`、`greatyingzi/cms-source-health`、`evenbsies/tvbox-harvest`、
+`lubin776/tvbox-api-backup`、`dimogu/tvbox-merged`、`gaotianliuyun/gao` 等）拉了 **241 个候选 base**，
+用 `test/probe_sources.py` 全量实测（UA 固定 Android 5.1.1 VIDAA TV、超时 12s），
+再用 `test/verify_final.py` 对 19 个入围站二次复核（列表 / 详情 `ids=` / 分类页 / `suggest` 搜索 / m3u8 直连）。
+
+- 结果：152 个接口返回合法 JSON 且有数据，**按内容指纹去重后只有 27 组**（大量镜像站同源）。
+- 判定要点：**Mihomo TUN 下「连得上」完全不算数**，必须看返回体是不是合法 JSON、`list` 非空，
+  且 `vod_play_url` 里的 m3u8 真能 200 返回 `#EXTM3U`。
+- 完整表格见 `test/sources_recommended.md`，全量明细见 `test/sources_report.txt`。
+
+**实际接入 App 的 10 个源**（v1.7，`Src.SPEC` 里就这十行，按优先级排）：
+
+| key | 接口 base | 条/页 | 首条海报 | 简介覆盖 | 页首耗时 |
+|---|---|---|---|---|---|
+| `maoyan` | `https://api.maoyanapi.top/api.php/provide/vod/` | 30 | ✔ | 30/30 | 0.8s |
+| `ffzy` | `https://api.ffzyapi.com/api.php/provide/vod/` | 20 | ✔ | 20/20 | 1.2s |
+| `bfzy` | `https://bfzyapi.com/api.php/provide/vod/` | 20 | ✔ | 20/20 | 1.4s |
+| `ysxq` | `https://www.ysxq.cc/api.php/provide/vod/` | 20 | ✔ | 20/20 | 2.8s |
+| `modu` | `https://caiji.moduapi.cc/api.php/provide/vod/` | 20 | ✔ | 15/20 | 1.3s |
+| `ikun` | `https://ikunzyapi.com/api.php/provide/vod/` | 20 | ✔ | 17/20 | 1.0s |
+| `360zy` | `https://360zy.com/api.php/provide/vod/` | 20 | ✔ | 18/20 | 1.8s |
+| `yhzy` | `https://yhzy.cc/api.php/provide/vod/` | 20 | ✔ | 12/20 | 1.4s |
+| `wsyzy` | `https://wsyzy.cc/api.php/provide/vod/` | 20 | ✔ | **3/20** | 0.9s |
+| `cmov` | `https://www.cmov.cn/api.php/provide/vod/` | 20 | ✔ | 20/20 | 4.9s |
+
+片库规模（`total`）：`ysxq` 429174 > `bfzy` 171653 > `wsyzy` 127940 > `yhzy` 105335 >
+`ffzy` 99083 > `modu` 91655 > `cmov` 89832 > `360zy` 74931 > `ikun` 67663 > `maoyan` 34484。
+
+`wsyzy` 排在倒数第二不是因为它差，而是**它最新页的 `vod_content` 覆盖率只有 3/20**，
+这正是老板看到「全是电影、没简介」的根因；但它的 `suggest` 是十站里**唯一支持拼音**的，
+所以留着当搜索那一路。`cmov` 最慢（4.9s）且不支持 `h=` 参数，放最后兜底。
+
+注意：**分类 `type_id` 不是全网统一的**。`wsyzy.cc` 的国产剧是 `t=13`，但 `caiji.moduapi.cc` 是 `t=26`、
+`bfzyapi.com` 是 `t=31`、`ikunzyapi.com` 是 `t=23`，`bfzyapi.com` 连电影大类都是 `t=20` 而不是 1。
+所以代码里必须是「统一频道号 → 查表翻译」，不能把任何 `t=` 硬编码到业务逻辑里。
+十站的完整 `id=名称` 对照表见 `test/class_view.txt`（UTF-8，30 行）。
+
+已排除：`api.juliang.live`（复核时全路径 404）、`api.1080zyku.com`（返回 RSS XML 不是 JSON）、
+`ys.cxkjg.cn`（308 后落 404 HTML）、`api.ukuapi.com` / `api.wujinapi.me`（列表可用但 `suggest`
+分别是 HTML / Cloudflare 403，搜索链路断）、`lzizy*` 一族与 `tyyszy*`（m3u8 全部 DEAD）。
 
 ### 为什么要自己写本地代理（`Proxy.java`）
 
@@ -67,17 +146,32 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
-### 海报（v1.4 修「全是黑框」）
+### 海报（v1.7 重做三跳兜底）
 
-早期版本只把海报地址的 `https://` 强降成 `http://` 再拉图，一旦电视所在网络拦 http 就整屏黑块，
-而且失败是**静默**的（看一眼就以为「片源没海报」）。现在（`Ui.java`）：
+老板反馈「还是没有封面，首页/详情页都说暂无封面灰块」。逐层实测后确认**服务端完全正常**
+（`img1.wsyzy.org` 带 App UA 直连 200、`image/jpeg`、28755 字节、魔数 `ffd8`；十个源的首条海报
+都能下载），问题全在客户端。v1.7 改成三跳 + 失败可见：
 
-- **先试 https，失败再试 http**（`fetchAny()`）；两条都失败才写 `Trace`：「海报取不到 <地址>」
-- 占位图是**画出来的「暂无封面」**（`Ui.placeholder()`），不是纯黑块 —— 一眼能分清「没加载完」和「加载失败」
-- `fetch()` 每个失败分支都有日志：数据太短 / 不是图片 / 解码失败 / 网络异常
+| 跳 | 地址 | 说明 |
+| --- | --- | --- |
+| 1 | 原始地址（多为 https） | 正常情况 |
+| 2 | `http://` 版本 | 老版本只有这一跳反向；保留给不支持 TLS 的图床 |
+| 3 | `https://wsrv.nl/?url=<encodeURIComponent(原地址)>` | 图片代理，实测 200 / 50783B / `ffd8` |
 
-实测（`bash run.sh meta`）：国产剧第 1 页海报 https 通道 6/6 全 JPEG（20593–33146 字节），
-http 兜底通道同样 200 且字节数一致 —— 说明服务端两种协议都正常，之前的黑框是客户端单通道 + 静默失败。
+关键改动（`Ui.java`）：
+
+- **失败不再静默**：三跳全失败才 `DEAD.add(url)`，并把图换成**片名首字色块**（`Ui.letter()`，
+  8 组深色按首字 hashCode 取模），不是灰底「暂无封面」——一眼能分清「没加载完」和「这个地址废了」
+- `Trace` 分别记三跳结果，最后一行写「海报三次都失败（https/http/代理）」，自检页可直接看到
+- **`fetch()` 不再传 `Api.REFERER`**：实测图床不校验 Referer，反而多带一个跨站头更容易被 CDN 拦
+- `PLACEHOLDERS` 加**上限 24**（超了 `clear()`）：原来是无界 `HashMap`，播一晚上会因尺寸组合无限增长
+- 线程池 4 → 6：一屏 28 张海报，4 线程排不完
+
+另有一条环境事实：家里旁路由把 `img1.wsyzy.org` 解析到 `198.19.1.1`（Tailscale CGNAT 段），
+公共 DNS 解析是 Cloudflare 的 `172.67.185.222`。电视走的是自己那套 DNS，若解析不到就会三跳全失败——
+这也是必须让「失败可见 + 自检页能测海报」的原因。
+
+实测（`bash run.sh meta`）：https 通道 6/6 全 JPEG（17603–28755 字节），http 兜底通道同样 200。
 
 ### 刮削信息（v1.4 补）
 
@@ -91,7 +185,7 @@ http 兜底通道同样 200 且字节数一致 —— 说明服务端两种协�
 实测（`bash run.sh meta`）：国产剧第 1 页 20 条，有简介 20/20、有主演 20/20、有导演 15/20，
 清洗后无残留标签与实体。
 
-### 应用内更新（v1.4 新增，`Update.java`）
+### 应用内更新（v1.4 新增，v1.7 换镜像顺序）
 
 `Update.checkSync()` 调 GitHub `releases/latest`，把 `tag_name` 清洗成版本号后与 `Ver.NAME` 分段比较
 （`1.10 > 1.9`，不是字符串比）。有新版本就把标题栏的「检查更新」按钮变成金底「有新版 X」，
@@ -100,8 +194,8 @@ http 兜底通道同样 200 且字节数一致 —— 说明服务端两种协�
 | 步骤 | 做法 | 注意 |
 | --- | --- | --- |
 | 选 asset | 优先 `browser_download_url` 以 `/YGTV.apk` 结尾的那个 | GitHub 会把中文名 `YG影视TV.apk` 转码成 `YG.TV.apk`，认名字不可靠 |
-| **查元信息** | 直连 `api.github.com` → 失败退 `https://gh-proxy.com/` | 6 秒连接 / 8 秒读取，直连被墙时快速跳镜像，不让用户干等 |
-| **下载** | 直连 → `gh-proxy.com` → `ghfast.top` | 下载地址兜底用 `releases/latest/download/YGTV.apk`，不依赖具体 tag |
+| **查元信息** | **`https://gh-proxy.com/` 优先** → 直连兜底 | v1.7 换序：实测本机直连是 `SSL: CERTIFICATE_VERIFY_FAILED`（DNS 劫持到 198.19.x 后证书对不上），先试直连等于白等一个超时。超时同时收到 4 秒连接 / 7 秒读取 |
+| **下载** | `gh-proxy.com` → `ghfast.top` → 直连 | 下载地址兜底用 `releases/latest/download/YGTV.apk`，不依赖具体 tag |
 | 下载目录 | `Environment.getExternalStorageDirectory()/Download/YG影视TV/` | **不能用 `getCacheDir()`**：系统安装器是另一个 uid，读不到 `/data/data/...` |
 | 安装 | `Intent.ACTION_VIEW` + `Uri.fromFile` + `application/vnd.android.package-archive` | targetSdk 22 可以直接 `file://`，不用 FileProvider |
 | 权限 | `REQUEST_INSTALL_PACKAGES` + `WRITE_EXTERNAL_STORAGE` | Android 8+ 才要「允许安装未知应用」，5.1 只弹一次系统确认 |
@@ -177,14 +271,16 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 | `app/src/com/yg/vodtv/MainActivity.java` | 首页：分类条 + 海报墙 + 拼音键盘搜索 |
 | `app/src/com/yg/vodtv/DetailActivity.java` | 详情页：海报 + meta + 选集网格 |
 | `app/src/com/yg/vodtv/PlayerActivity.java` | 播放页：VideoView + 自绘进度条 + 选集浮层 |
-| `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：7 步链路检测 + 错误日志面板 |
+| `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：7 步链路检测（含海报下载）+ 错误日志面板 |
 | `app/src/com/yg/vodtv/Proxy.java` | 本地 HLS 代理（见上） |
-| `app/src/com/yg/vodtv/Api.java` | 片源接口封装（list / detail / suggest）+ 搜索结果贴合度重排 |
+| `app/src/com/yg/vodtv/Src.java` | **采集源定义**：10 个源的 base/Referer + 统一频道 → 各源 `type_id` 映射 |
+| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填 |
+| `app/src/com/yg/vodtv/Api.java` | 单源接口封装（list / detail / wd / suggest）+ 搜索结果贴合度重排 |
 | `app/src/com/yg/vodtv/Vod.java` | 影片模型 + `vod_play_url` 选集解析 |
 | `app/src/com/yg/vodtv/Http.java` | HTTP 封装 + 信任全部证书的 SSLContext + 5xx 一次重试 |
 | `app/src/com/yg/vodtv/Trace.java` | 环形错误日志（120 条） |
-| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/焦点背景、海报异步加载 LRU 缓存 |
-| `app/src/com/yg/vodtv/Cards.java` | 海报卡片组件 |
+| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + LRU 缓存 + 首字色块兜底 |
+| `app/src/com/yg/vodtv/Cards.java` | 海报卡片：底部渐变压暗 + 片名压在图上 + 角标 + 焦点放大 |
 | `app/src/com/yg/vodtv/Ver.java` | 版本号与构建时间（首页右上角显示） |
 | `app/src/com/yg/vodtv/Store.java` | SharedPreferences 播放记忆：每剧每集看到哪儿、上次看到哪一集 |
 | `app/src/com/yg/vodtv/Update.java` | 应用内升级：查 GitHub Release、下载 APK、拉起系统安装器 |
@@ -279,35 +375,42 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 `#EXT-X-MEDIA-SEQUENCE` / `#EXT-X-PLAYLIST-TYPE` / `#EXT-X-ENDLIST` / `#EXT-X-DISCONTINUITY`
 全部保留 —— 这些是 NuPlayer 判定 VOD 列表必需的标签。
 
-**Meta（9/9 PASS，v1.4 新增）**：国产剧第 1 页 20 条 → 有简介 20/20、有主演 20/20、有导演 15/20；
-样本「尚公主」导演秦榛、地区中国大陆、语言汉语普通话、年份 2026、简介两段且无 HTML 标签与残留实体；
-海报 https 通道 6/6 全 JPEG（20593–33146 字节），http 兜底通道同样 200。
+**Meta（9/9 PASS，v1.7 复测）**：国产剧第 1 页 20 条 → 有简介 20/20、有主演 20/20、有导演 15/20；
+样本「今天是太阳雨」导演猫的树、地区中国大陆、语言汉语普通话、年份 2026、简介两段且无 HTML 标签与残留实体；
+海报 https 通道 6/6 全 JPEG（17603–28755 字节），http 兜底通道同样 200。
 
-**Upd（19/19 PASS，v1.4 新增，v1.6 扩镜像）**：`v1.4`/`V1.4`/`1.4`/`release-1.4`/`v1.4-beta` 清洗全对；
+**Upd（19/19 PASS，v1.7 换序后复测）**：`v1.4`/`V1.4`/`1.4`/`release-1.4`/`v1.4-beta` 清洗全对；
 `1.10 > 1.9`、`1.4.1 > 1.4` 分段比较正确；真实请求 GitHub Release API 拿到 `/YGTV.apk`；
-元信息两条通道（直连 + `gh-proxy.com`）、下载三条通道（直连 + `gh-proxy` + `ghfast.top`）逐个校验，
-并**真的经 `gh-proxy.com` 拉了一次 release API**（拿到 `tag_name`）；
+**镜像顺序断言**（元信息 `gh-proxy` → 直连；下载 `gh-proxy` → `ghfast` → 直连）通过，
+并**真的经 `gh-proxy.com` 拉了一次 release API**（6061 字节，含 `tag_name`）；
 **真的下载了一次**（53713 字节，落在外部存储 `Download/YG影视TV/YGTV-new.apk`，是合法 zip）。
+直连一路在本机是 `SSL: CERTIFICATE_VERIFY_FAILED`，所以测试里显式跳过、App 里只当兜底。
 
-**Tabs（27/27 PASS）**：首页 27 个分类标签逐个拉第一页，要求「有数据 + 有海报」。
-空分类是最容易被忽略的坑 —— App 能开，点进去一片空白。实测每个分类都是 20 条、20 张海报：
+**Tabs（24/24 PASS，v1.7 改为多源聚合校验）**：首页 24 个统一频道逐个拉第一页，
+要求「有数据 + 有海报」。空分类是最容易被忽略的坑 —— App 能开，点进去一片空白。
+实测**共聚合 1924 条，每个频道都有数据且全部带海报**，每个频道 2~10 个源返回：
 
-| 分类 | type | 部数 | 分类 | type | 部数 |
-| --- | --- | --- | --- | --- | --- |
-| 推荐 | 0 | 127908 | 大陆综艺 | 25 | 2681 |
-| 4K电影 | 62 | 848 | 日韩综艺 | 26 | 410 |
-| 动作 | 6 | 5763 | 港台综艺 | 27 | 174 |
-| 喜剧 | 7 | 9406 | 欧美综艺 | 28 | 504 |
-| 爱情 | 8 | 1443 | 国产动漫 | 29 | 1732 |
-| 科幻 | 9 | 1264 | 日韩动漫 | 30 | 4594 |
-| 恐怖 | 10 | 4865 | 欧美动漫 | 31 | 1070 |
-| 战争 | 12 | 425 | 动画片 | 39 | 1436 |
-| 国产剧 | 13 | 8869 | 反转爽剧 | 65 | 4690 |
-| 欧美剧 | 14 | 3674 | 现代都市 | 69 | 11837 |
-| 韩剧 | 15 | 947 | 短剧 | 76 | 341 |
-| 日剧 | 16 | 1842 | 港剧 | 17 | 1797 |
-| 台剧 | 18 | 355 | 泰剧 | 19 | 971 |
-| 纪录片 | 20 | 2481 | | | |
+| 频道 | ch | 聚合条 | 源数 | 耗时 | 频道 | ch | 聚合条 | 源数 | 耗时 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 推荐 | 0 | 84 | 10 | 5.8s | 纪录片 | 19 | 84 | 10 | 1.6s |
+| 4K电影 | 28 | 40 | 2 | 0.6s | 大陆综艺 | 20 | 84 | 10 | 2.6s |
+| 动作 | 12 | 84 | 10 | 2.4s | 日韩综艺 | 21 | 84 | 10 | 1.3s |
+| 喜剧 | 13 | 84 | 10 | 0.9s | 港台综艺 | 22 | 66 | 9 | 7.0s |
+| 爱情 | 14 | 84 | 10 | 1.6s | 欧美综艺 | 23 | 84 | 9 | 1.8s |
+| 科幻 | 15 | 84 | 10 | 1.3s | 国产动漫 | 24 | 80 | 9 | 7.0s |
+| 恐怖 | 16 | 84 | 10 | 1.2s | 日韩动漫 | 25 | 84 | 10 | 4.0s |
+| 战争 | 18 | 84 | 10 | 2.7s | 欧美动漫 | 26 | 84 | 10 | 1.0s |
+| 国产剧 | 5 | 76 | 10 | 1.9s | 悬疑剧 | 29 | 84 | 6 | 0.7s |
+| 欧美剧 | 6 | 84 | 10 | 2.0s | 韩剧 | 7 | 84 | 10 | 1.7s |
+| 日剧 | 8 | 84 | 10 | 1.5s | 港剧 | 9 | 84 | 10 | 5.2s |
+| 台剧 | 10 | 84 | 10 | 4.6s | 泰剧 | 11 | 66 | 8 | 0.8s |
+
+（4K电影只有 2 个源，是因为只有 `ysxq` 和 `wsyzy` 有独立的「4K/蓝光电影」分类；其余源的 4K 片
+混在普通电影里。港台综艺/国产动漫只有 66~80 条且耗时打到 7000ms 预算上限，是个别源当页超时，
+下次翻页会正常。）
+
+（国产剧/台剧/港台综艺只有 25~78 条，是因为这几个频道部分源当页返回空或超时；
+`maoyan` 的欧美综艺是空列表，属源侧数据情况。）
 
 ### 编码兼容性（`test/parse_codec.py` + `test/codec_survey.py`）
 
@@ -328,12 +431,11 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿。最近一次（v1.6）：APK 53713 字节，本地 md5 `676a162e188db6960d92e7a2a65c4064`、
-CI 产物 md5 `4e40fe0f84d46476222004e2ee371ca2`（两个 APK 同一份；本地与 CI 的 md5 不同属 zip 时间戳差异，
-dex 都是 89044 字节）；dex 内确认含 `Ver`、`Update`、`checkSync`、`fetchAny`、`intro`、`vod_actor`、
-`vod_content`、`Download`、`getQuick`、`downloadOnce`、`API_PROXIES`、`DL_PROXIES`、`gh-proxy.com`、
-`ghfast.top`、`v1.6`。
-`aapt2 dump badging` → `versionCode='7' versionName='1.6'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`build.sh` 六步全绿。最近一次（v1.7）：APK **61905 字节**（v1.6 是 53713），
+本地 md5 `a03de3ac86970b18f51b49b960485a8a`，dex **104124 字节**（v1.6 是 89044）；
+dex 内确认含 `Src`、`Multi`、`fillIntro`、`CH_REC`、`hasH`、`letter`、`proxied`、`wsrv.nl`
+（新增的多源与三跳海报代码确实打进去了，不是只改了源码没进包）。
+`aapt2 dump badging` → `versionCode='8' versionName='1.7'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名 `apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）。
 
@@ -346,6 +448,7 @@ SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`。
 **电视上还没跑过。** 老板在**手机**上装过（v1.3），反馈了两条问题：①没有更新检测 ②海报全是黑框、没有刮削 ——
 两条都已按上面的方案改掉，但改动本身仍是「桌面逻辑验证通过」，未经电视实机确认。仍未实测的有：
 VideoView 在本机代理上的 HLS 起播、遥控器焦点在 7 列海报墙上的移动手感、选集浮层弹出时的焦点抢占、
+新增的 10 列选集网格在 1920 宽下会不会挤、
 自检页实际读数、**应用内下载安装这条链路**（`Upd` 里已用真实 Release 跑通下载与落盘，但「拉起系统安装器」
 只能在真机上验证）。
 
@@ -369,8 +472,8 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 2. 点进任意剧集能看到选集，**且标题下面有导演/主演/地区/语言与简介**
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
-5. 自检页 7 项全绿（片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v1.6」
+5. 自检页 7 项全绿（**含「海报下载」这一步**，片源链路整体通）
+6. 标题栏「检查更新」显示「已是最新版本 v1.7」
 
 ## 六、目录
 
@@ -386,7 +489,7 @@ YG影视TV/
 │   ├── yg.keystore              # 签名（yg123456）—— 不进仓库，CI 用 Secret 还原
 │   ├── res/values/strings.xml
 │   ├── res/drawable/ic_launcher.png
-│   ├── src/com/yg/vodtv/*.java  # 14 个源文件
+│   ├── src/com/yg/vodtv/*.java  # 16 个源文件（v1.7 新增 Src.java / Multi.java）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
@@ -395,10 +498,10 @@ YG影视TV/
     │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd]
     │   ├── Harness.java         # 16 项链路断言
     │   ├── Wire.java            # 21 项线上字节格式断言（模拟 NuPlayer）
-    │   ├── Tabs.java            # 27 个分类逐项验证（有数据 + 有海报）
+    │   ├── Tabs.java            # 24 个统一频道逐项验证（多源聚合，有数据 + 有海报）
     │   ├── Rank.java            # 搜索结果贴合度排序验证
-    │   ├── Meta.java            # 刮削字段 + 海报双通道验证（9 项）
-    │   ├── Upd.java             # 版本号解析/比较 + 镜像兜底 + 真实 Release 下载（19 项）
+    │   ├── Meta.java            # 刮削字段 + 海报通道验证（9 项）
+    │   ├── Upd.java             # 版本号解析/比较 + 镜像顺序 + 真实 Release 下载（19 项）
     │   ├── Dump.java            # 打印改写后的播放列表
     │   ├── android/*.java       # android.util/net/os/content 替身
     │   └── org/json/*.java            # org.json 替身
@@ -406,23 +509,47 @@ YG影视TV/
     ├── parse_codec.py           # 离线解析 TS 编码
     ├── codec_survey.py          # 跨分类抽样探测编码
     ├── fetch_sample.py          # 抓样本分片落盘
+    ├── probe_sources.py         # 采集源全量实测（241 候选 → 可用性/内容/分类/m3u8）
+    ├── candidate_pool.txt       # 候选 base 池（从 GitHub 各采集合集抽取去重）
+    ├── verify_final.py          # 入围站二次复核（列表/详情/分类/搜索/m3u8）
+    ├── check_suggest.py         # 各站 suggest 搜索链路验证
+    ├── make_final_table.py      # 汇总成 sources_recommended.md
+    ├── sources_report.txt       # 全量实测报告（UTF-8）
+    ├── sources_report.json      # 同上，结构化
+    ├── sources_final.txt        # 19 站二次复核明细
+    ├── sources_recommended.md   # 最终推荐表
+    ├── class_all.json           # 十源完整 class 表（JSON）
+    ├── class_wsyzy.json         # 仅 wsyzy 的 60 个分类
+    ├── class_view.txt           # 十源 `id=名称` 对照表（UTF-8，Src.SPEC 就是照它填的）
     └── samples/                 # 已抓的 *.ts / *.m3u8
 ```
 
 ## 七、已知限制
 
-- 片源是第三方接口，上游改了域名或加了防盗链就得跟着改 `Api.java` 的常量
-- 分类里有一部分 `type_id` 返回空或非 JSON（如 1/2/3/4/67），`Api.parsePage()` 已做全 catch 容错
+- 片源是第三方接口，上游改了域名或加了防盗链就得跟着改 `Src.java` 的 `SPEC` 数组
+  （每个源一行：`key|base|Referer|频道映射`），改完不用动界面代码
+- 各源仍可能单个分类返回空或非 JSON，`Api.parsePage()` 全 catch 容错，聚合时跳过该源
+- **`limit=` 各源都不认**，所以每页条数只能本地截断（当前 84 条）
 - 翻页上限写了 400 页（`curPage < 400`），再往后意义不大
 - 没有收藏、没有字幕切换（片源自带硬字幕）
 - 首页每次冷启动都重新拉第一页，没有本地缓存
+- 个别源偶尔超时，会把整页拖到 7 秒预算上限（结果仍是完整的，只是慢）；
+  真机上若觉得「推荐」开页慢，可以调小 `Multi.LIST_BUDGET`
 - 代理挑变体时上限 5 Mbps，片源若有更高码率也不会选；老芯片解不动比看不清更糟
 - **手机上只能用返回键**：没有触摸点击支持，全程是电视遥控器（DPAD）交互
 - **应用内更新依赖 GitHub 可达**：国内网络下 `api.github.com` 可能连不上，此时「检查更新」会提示失败并让你手动去 GitHub 下（下载走 `github.com` 的 Release CDN，通常比 API 好连）
 
-### 搜索能力限制（实测）
+### 搜索能力限制（v1.7 变化）
 
-`suggest` 接口支持中文和**完整拼音**，但**不支持拼音首字母缩写**：
+v1.7 起搜索结果来自两路，覆盖面比单源大得多：
+
+| 输入 | 走哪条路 | 实测结果 |
+| --- | --- | --- |
+| 中文（如「凡人修仙传」） | 10 个源并发 `?ac=detail&wd=`，再按贴合度重排 | maoyan 2 条、ffzy 3、ysxq 20、bfzy 20、ikun 4、360zy 11、yhzy 3、cmov 7、modu 10（`wsyzy` 不支持 `wd=`，返回纯文本） |
+| 全拼（如 `fanhua`） | 额外一路 `wsyzy` 的 `suggest` | 20 条，首条「繁花错」 |
+| 首字母缩写（如 `qyn`） | 无 | 各源 `wd=` 与 `suggest` 都返回 0 条，这是片源侧限制 |
+
+`suggest` 单源那一路支持中文和**完整拼音**，但**不支持拼音首字母缩写**：
 
 | 输入 | 结果 |
 | --- | --- |

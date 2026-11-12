@@ -1,0 +1,213 @@
+MacCMS V10 final verification  2026-11-12 12:15:42
+UA=Mozilla/5.0 (Linux; Android 5.1.1; VIDAA TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+shortlist=19  ok=16
+
+================================================================================================
+api.maoyanapi.top  (OK)
+  base        : https://api.maoyanapi.top/api.php/provide/vod/
+  list        : http=200 count=30 pic_ok=30
+  first item  : 聊斋问心 | year=2026 | vod_time=2026-11-12 11:19:49
+  tv cat      : tid=13 name=国产剧 count=30 first=今天是太阳雨 year=2026 2026=30 2025+=30
+  detail ids  : ok=True (vod_id=158395)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2030000,RES
+  m3u8 url    : https://play.maoyanplay.top/20261030/PMfjQHIn/index.m3u8
+
+================================================================================================
+api.guangsuapi.com  (OK)
+  base        : https://api.guangsuapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 末世后的酒店 | year=2026 | vod_time=2026-11-12 10:38:02
+  tv cat      : tid=13 name=大陆剧 count=20 first=谷雨 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=223336)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-VERSION:3|#EXT-X-TARGETDURATION:9|#EXT-X-MEDI
+  m3u8 url    : https://v.gsuus.com/play/e0R2wlyb/index.m3u8
+
+================================================================================================
+caiji.moduapi.cc  (OK)
+  base        : https://caiji.moduapi.cc/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 金牌调解2026 | year=2026 | vod_time=2026-11-12 12:12:41
+  tv cat      : tid=26 name=国产剧 count=20 first=尬先生 year=2026 2026=18 2025+=18
+  detail ids  : ok=True (vod_id=92606)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=748000,RESO
+  m3u8 url    : https://play.modujx11.com/20260513/FtsDJS7y/index.m3u8
+
+================================================================================================
+api.juliang.live  (FAIL: bad list (http=404))
+  base        : https://api.juliang.live/api.php/provide/vod/
+  list        : http=404 count=None pic_ok=None
+  first item  : None | year=None | vod_time=None
+  tv cat      : tid=None name=None count=None first=None year=None 2026=None 2025+=None
+  detail ids  : ok=None (vod_id=None)
+  search      : http=None ok=None total=None
+  m3u8        : http=None live=None head=None
+  m3u8 url    : -
+
+================================================================================================
+www.cmov.cn  (OK)
+  base        : https://www.cmov.cn/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 诡秘之主特别篇猎物 | year=2026 | vod_time=2026-06-21 09:45:44
+  tv cat      : tid=13 name=大陆剧 count=20 first=炽夏 year=2026 2026=19 2025+=20
+  detail ids  : ok=True (vod_id=96098)
+  search      : http=200 ok=True total=0
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESO
+  m3u8 url    : https://vip.ffzy-plays.com/20260620/54978_7207dfcc/index.m3u8
+
+================================================================================================
+api.ffzyapi.com  (OK)
+  base        : https://api.ffzyapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 今天是太阳雨 | year=2026 | vod_time=2026-11-12 12:09:31
+  tv cat      : tid=13 name=国产剧 count=20 first=今天是太阳雨 year=2026 2026=18 2025+=18
+  detail ids  : ok=True (vod_id=100258)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESO
+  m3u8 url    : https://super.ffzy-online6.com/20261106/45022_ddb7775a/index.m3u8
+
+================================================================================================
+api.ukuapi.com  (OK)
+  base        : https://api.ukuapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 雪王来了！ | year=2026 | vod_time=2026-11-12 11:49:36
+  tv cat      : tid=13 name=国产剧 count=20 first=尚公主 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=74605)
+  search      : http=200 ok=False total=None
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2000000,RES
+  m3u8 url    : https://ukzy.ukubf3.com/20260821/uQiFxuPm/index.m3u8
+
+================================================================================================
+www.ysxq.cc  (OK)
+  base        : https://www.ysxq.cc/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 难得读叔 | year=2026 | vod_time=2026-11-12 12:01:06
+  tv cat      : tid=13 name=国产剧 count=20 first=走马上任 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=547584)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESO
+  m3u8 url    : https://svip.yzzy33-play.vip/20261111/22559_246ba26b/index.m3u8
+
+================================================================================================
+yhzy.cc  (OK)
+  base        : https://yhzy.cc/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 救命病栋24小时第6季 | year=2026 | vod_time=2026-11-12 12:00:22
+  tv cat      : tid=13 name=国产剧 count=20 first=以神之名，对话万物 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=105309)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-VERSION:3|#EXT-X-TARGETDURATION:2|#EXT-X-M
+  m3u8 url    : https://vod12.wgslsw.com/20261014/hPEMAhc1cT87/index.m3u8
+
+================================================================================================
+bfzyapi.com  (OK)
+  base        : https://bfzyapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 音乐缘计划3 | year=2026 | vod_time=2026-11-12 12:14:24
+  tv cat      : tid=31 name=国产剧 count=20 first=鉴定 year=2026 2026=18 2025+=18
+  detail ids  : ok=True (vod_id=170758)
+  search      : http=200 ok=True total=20
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-VERSION:3|#EXT-X-TARGETDURATION:6|#EXT-X-PLAY
+  m3u8 url    : https://v.fengbao14.com/video/yinleyuanjihua3/6f735a823138/index.m3u8
+
+================================================================================================
+api.wujinapi.me  (OK)
+  base        : https://api.wujinapi.me/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 晚秋寄情 | year=2026 | vod_time=2026-11-12 12:03:00
+  tv cat      : tid=13 name=国产剧 count=20 first=晚秋寄情 year=2026 2026=18 2025+=18
+  detail ids  : ok=True (vod_id=175282)
+  search      : http=403 ok=False total=None
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=129,RESOLUT
+  m3u8 url    : https://v11.ppqrrs.com/wjv11/202611/10/JK2JCKvDy390/video/index.m3u8
+
+================================================================================================
+cdn.dzzyapi.com  (OK)
+  base        : https://cdn.dzzyapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 卿色无双 | year=2025 | vod_time=2026-09-07 21:02:29
+  tv cat      : tid=13 name=国产剧 count=20 first=我的医妃不好惹 第二季 year=2023 2026=0 2025+=2
+  detail ids  : ok=True (vod_id=51363)
+  search      : http=200 ok=True total=0
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1143000,RES
+  m3u8 url    : https://cdn.dzzybf3.com/20260629/MjW9SQNg/index.m3u8
+
+================================================================================================
+360zy.com  (OK)
+  base        : https://360zy.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 欢乐集结号2026 | year=2026 | vod_time=2026-11-12 11:36:02
+  tv cat      : tid=13 name=国产剧 count=20 first=天命·成凰 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=109170)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2201000,RES
+  m3u8 url    : https://vod1.maowushi.com/20260514/ZgPdr9n8/index.m3u8
+
+================================================================================================
+api.1080zyku.com  (FAIL: bad list (http=200))
+  base        : https://api.1080zyku.com/api.php/provide/vod/
+  list        : http=200 count=None pic_ok=None
+  first item  : None | year=None | vod_time=None
+  tv cat      : tid=None name=None count=None first=None year=None 2026=None 2025+=None
+  detail ids  : ok=None (vod_id=None)
+  search      : http=None ok=None total=None
+  m3u8        : http=None live=None head=None
+  m3u8 url    : -
+
+================================================================================================
+ikunzyapi.com  (OK)
+  base        : https://ikunzyapi.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 转生成为魔剑了第二季 | year=2026 | vod_time=2026-11-12 00:09:41
+  tv cat      : tid=23 name=国产剧 count=20 first=谷雨 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=70879)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3572000,RES
+  m3u8 url    : https://bfikuncdn.com/20261001/KhgbNd0r/index.m3u8
+
+================================================================================================
+360zyzz.com  (OK)
+  base        : https://360zyzz.com/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 天命·成凰 | year=2026 | vod_time=2026-11-12 12:15:13
+  tv cat      : tid=13 name=国产剧 count=20 first=天命·成凰 year=2026 2026=20 2025+=20
+  detail ids  : ok=True (vod_id=109074)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2189000,RES
+  m3u8 url    : https://vod1.maowushi.com/20261104/ZxLrY5Fx/index.m3u8
+
+================================================================================================
+maoyanzy.com  (OK)
+  base        : https://maoyanzy.com/api.php/provide/vod/
+  list        : http=200 count=30 pic_ok=30
+  first item  : 聊斋问心 | year=2026 | vod_time=2026-11-12 11:19:49
+  tv cat      : tid=13 name=国产剧 count=30 first=今天是太阳雨 year=2026 2026=30 2025+=30
+  detail ids  : ok=True (vod_id=158395)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2030000,RES
+  m3u8 url    : https://play.maoyanplay.top/20261030/PMfjQHIn/index.m3u8
+
+================================================================================================
+ys.cxkjg.cn  (FAIL: bad list (http=404))
+  base        : https://ys.cxkjg.cn/api.php/provide/vod/
+  list        : http=404 count=None pic_ok=None
+  first item  : None | year=None | vod_time=None
+  tv cat      : tid=None name=None count=None first=None year=None 2026=None 2025+=None
+  detail ids  : ok=None (vod_id=None)
+  search      : http=None ok=None total=None
+  m3u8        : http=None live=None head=None
+  m3u8 url    : -
+
+================================================================================================
+wsyzy.cc  (OK)
+  base        : https://wsyzy.cc/api.php/provide/vod/
+  list        : http=200 count=20 pic_ok=20
+  first item  : 完美样本 | year=2026 | vod_time=2026-11-12 11:50:13
+  tv cat      : tid=13 name=国产剧 count=20 first=尚公主 year=2026 2026=18 2025+=18
+  detail ids  : ok=True (vod_id=149204)
+  search      : http=200 ok=True total=1
+  m3u8        : http=200 live=True head=#EXTM3U|#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=128,RESOLUT
+  m3u8 url    : https://v15.wsyzym3u8.com/202611/12/x3Esevgvdu27/video/index.m3u8
+

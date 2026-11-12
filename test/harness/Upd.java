@@ -73,15 +73,22 @@ public final class Upd {
         java.lang.reflect.Field df = Update.class.getDeclaredField("DL_PROXIES");
         df.setAccessible(true);
         String[] dl = (String[]) df.get(null);
-        System.out.println("  元信息：直连 → " + api[1]);
-        System.out.println("  下载  ：直连 → " + dl[1] + " → " + dl[2]);
-        ok("元信息两条通道（直连 + gh-proxy）", api.length == 2 && api[0].length() == 0
-                && api[1].contains("gh-proxy.com"));
-        ok("下载三条通道（直连 + gh-proxy + ghfast）", dl.length == 3 && dl[0].length() == 0
-                && dl[1].contains("gh-proxy.com") && dl[2].contains("ghfast.top"));
+        System.out.println("  元信息：" + api[0] + " → 直连");
+        System.out.println("  下载  ：" + dl[0] + " → " + dl[1] + " → 直连");
+        // 镜像必须排在直连前面：国内电视上 api.github.com 直连是 SSL 握手就失败，
+        // 先试直连等于白等一个超时。
+        ok("元信息镜像优先、直连垫底", api.length == 2 && api[0].contains("gh-proxy.com")
+                && api[1].length() == 0);
+        ok("下载三条通道（gh-proxy → ghfast → 直连）", dl.length == 3
+                && dl[0].contains("gh-proxy.com") && dl[1].contains("ghfast.top")
+                && dl[2].length() == 0);
         String latest = "https://api.github.com/repos/" + Update.OWNER + "/" + Update.REPO
                 + "/releases/latest";
-        for (int i = 1; i < api.length; i++) {
+        for (int i = 0; i < api.length; i++) {
+            if (api[i].length() == 0) {
+                System.out.println("  直连 取 Release 元信息 → 跳过（国内基本不通，App 里也只当兜底）");
+                continue;
+            }
             String via = Http.getQuick(api[i] + latest, null, 8000, 10000);
             boolean has = via != null && via.indexOf("\"tag_name\"") >= 0;
             System.out.println("  " + api[i] + " 取 Release 元信息 → "

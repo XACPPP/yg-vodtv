@@ -9,18 +9,15 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 片源接口封装。
- * 搜索：suggest 只支持关键词联想（不支持 wd 全量搜索），必须先取 id 再查详情。
- * 分类：t=<type_id> 过滤；不带 t 返回全站最新。
+ * 采集源接口封装（苹果CMS 标准协议）。
+ *
+ * 多源之后这里的方法都多了一个 Src 参数：type_id 是每个源自己的一套编号，
+ * 不能跨源混用，所以「取哪一类」由 Src.type(频道) 翻译后再发请求。
  */
 public final class Api {
 
+    /** 取消掉的那一条：单源时代的站点常量，保留给自检和拼音联想用。 */
     public static final String SITE = "https://wsyzy.cc";
-    /**
-     * 用主站域名走接口，而不是 api.wsyzy.net：
-     * 两者返回一致，但少一个域名就少一次 TLS 握手与一套证书链，
-     * Android 5.1 上这一步最容易出问题（实测 api.wsyzy.net 偶发 522）。
-     */
     public static final String API = SITE + "/api.php/provide/vod/";
     public static final String REFERER = SITE + "/";
 
@@ -34,24 +31,66 @@ public final class Api {
         public int total = 0;
     }
 
-    public static Page list(int type, int pg) {
-        StringBuilder sb = new StringBuilder(API);
-        sb.append("?ac=detail&pg=").append(pg);
-        if (type > 0) {
-            sb.append("&t=").append(type);
+    /** ==================== 单源取数 ==================== */
+
+    public static Page list(Src s, int ch, int pg) {
+        if (s == null) {
+            return new Page();
         }
-        return parsePage(Http.get(sb.toString(), REFERER), "list t=" + type + " pg=" + pg);
+        StringBuilder sb = new StringBuilder(s.api);
+        sb.append("?ac=detail&pg=").append(pg);
+        int t = s.type(ch);
+        if (t > 0) {
+            sb.append("&t=").append(t);
+        }
+        // 8 秒连接 / 10 秒读取：够取 87KB 的整页，又不至于让单个慢源拖死整次聚合
+        return parsePage(Http.get(sb.toString(), s.referer, 8000, 10000),
+                "list " + s.key + " ch=" + ch + " pg=" + pg, s.key);
     }
 
-    public static Vod detail(int id) {
-        Page p = parsePage(Http.get(API + "?ac=detail&ids=" + id, REFERER), "detail id=" + id);
+    public static Vod detail(Src s, int id) {
+        if (s == null) {
+            return null;
+        }
+        Page p = parsePage(Http.get(s.api + "?ac=detail&ids=" + id, s.referer),
+                "detail " + s.key + " id=" + id, s.key);
         if (p.items.isEmpty()) {
-            Trace.add("api", "详情为空 id=" + id);
+            Trace.add("api", "详情为空 " + s.key + " id=" + id);
             return null;
         }
         return p.items.get(0);
     }
 
+    /** 中文关键词全文搜索（wsyzy 不支持，会返回非 JSON，这里当成空结果）。 */
+    public static List<Vod> wd(Src s, String kw) {
+        List<Vod> out = new ArrayList<Vod>();
+        if (s == null || kw == null || kw.trim().length() == 0) {
+            return out;
+        }
+        try {
+            String url = s.api + "?ac=detail&wd=" + URLEncoder.encode(kw.trim(), "UTF-8");
+            String body = Http.get(url, s.referer, 6000, 9000);
+            if (body == null) {
+                return out;
+            }
+            JSONObject o = new JSONObject(body);
+            JSONArray arr = o.optJSONArray("list");
+            if (arr != null) {
+                for (int i = 0; i < arr.length(); i++) {
+                    Vod v = Vod.from(arr.optJSONObject(i), s.key);
+                    if (v != null) {
+                        out.add(v);
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // wsyzy 这类不支持 wd 的源会返回纯文本，属于预期情况，不打日志噪音
+            Trace.add("api", "wd 不支持 " + s.key);
+        }
+        return out;
+    }
+
+    /** 拼音联想：只有 wsyzy 的 index.php/ajax/suggest 支持（返回精简条目，需再查详情）。 */
     public static List<Vod> suggest(String kw) {
         List<Vod> out = new ArrayList<Vod>();
         try {
@@ -64,26 +103,49 @@ public final class Api {
             JSONArray arr = o.optJSONArray("list");
             if (arr != null) {
                 for (int i = 0; i < arr.length(); i++) {
-                    Vod v = Vod.from(arr.optJSONObject(i));
+                    Vod v = Vod.from(arr.optJSONObject(i), "wsyzy");
                     if (v != null) {
                         out.add(v);
                     }
                 }
             }
             rank(out, kw);
-            Trace.add("api", "搜索 " + kw + " → " + out.size() + " 条"
+            Trace.add("api", "联想 " + kw + " → " + out.size() + " 条"
                     + (out.isEmpty() ? "" : "，首条「" + out.get(0).name + "」"));
         } catch (Throwable t) {
-            Trace.err("api", "搜索解析失败 " + kw, t);
+            Trace.err("api", "联想解析失败 " + kw, t);
         }
         return out;
     }
 
+    /** ==================== 兼容单源老接口（自检页 / harness 用） ==================== */
+
+    public static Page list(int type, int pg) {
+        StringBuilder sb = new StringBuilder(API);
+        sb.append("?ac=detail&pg=").append(pg);
+        if (type > 0) {
+            sb.append("&t=").append(type);
+        }
+        return parsePage(Http.get(sb.toString(), REFERER), "list t=" + type + " pg=" + pg, "wsyzy");
+    }
+
+    public static Vod detail(int id) {
+        Page p = parsePage(Http.get(API + "?ac=detail&ids=" + id, REFERER),
+                "detail id=" + id, "wsyzy");
+        if (p.items.isEmpty()) {
+            Trace.add("api", "详情为空 id=" + id);
+            return null;
+        }
+        return p.items.get(0);
+    }
+
+    /** ==================== 排序 ==================== */
+
     /**
-     * suggest 是「子串模糊匹配」：搜 fanhua 会先吐出一堆「万倍返还」（fanhuan 里含 fanhua）。
-     * 这里按「名称/拼音 slug 与关键词的贴合度」重排，把真正的《繁花》顶到前面。
+     * 搜索结果是「子串模糊匹配」：搜 fanhua 会先吐出一堆「万倍返还」。
+     * 按「名称/拼音 slug 与关键词的贴合度」重排，把真正的《繁花》顶到前面。
      */
-    static void rank(List<Vod> list, String kw) {
+    public static void rank(List<Vod> list, String kw) {
         final String k = kw == null ? "" : kw.trim().toLowerCase(Locale.US);
         if (k.length() == 0 || list.size() < 2) {
             return;
@@ -131,11 +193,17 @@ public final class Api {
         return s;
     }
 
+    /** ==================== 解析 ==================== */
+
     public static Page parsePage(String body) {
-        return parsePage(body, "page");
+        return parsePage(body, "page", "");
     }
 
     public static Page parsePage(String body, String what) {
+        return parsePage(body, what, "");
+    }
+
+    public static Page parsePage(String body, String what, String src) {
         Page p = new Page();
         if (body == null) {
             Trace.add("api", "无响应 " + what);
@@ -149,7 +217,7 @@ public final class Api {
             JSONArray arr = o.optJSONArray("list");
             if (arr != null) {
                 for (int i = 0; i < arr.length(); i++) {
-                    Vod v = Vod.from(arr.optJSONObject(i));
+                    Vod v = Vod.from(arr.optJSONObject(i), src);
                     if (v != null) {
                         p.items.add(v);
                     }

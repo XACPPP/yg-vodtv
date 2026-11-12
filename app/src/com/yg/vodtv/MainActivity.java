@@ -25,12 +25,19 @@ public final class MainActivity extends Activity {
 
     private static final int COLS = 7;
 
-    private static final int[] TAB_TYPE = { 0, 62, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19,
-            20, 25, 26, 27, 28, 29, 30, 31, 39, 65, 69, 76 };
+    /**
+     * 频道改为「统一频道号」（Src.CH_xxx）：各源自己的 type_id 由 Src 内部的映射表翻译，
+     * 这里只表达用户想看的类别，不再硬编码某一家的编号。
+     */
+    private static final int[] TAB_TYPE = { Src.CH_REC, Src.CH_4K, Src.CH_ACTION, Src.CH_COMEDY,
+            Src.CH_ROMANCE, Src.CH_SCIFI, Src.CH_HORROR, Src.CH_WAR, Src.CH_CNTV, Src.CH_WESTTV,
+            Src.CH_KOREA, Src.CH_JAPAN, Src.CH_HK, Src.CH_TW, Src.CH_THAI, Src.CH_DOC,
+            Src.CH_CNVAR, Src.CH_JPVAR, Src.CH_HKVAR, Src.CH_WESTVAR, Src.CH_CNANIME,
+            Src.CH_JPANIME, Src.CH_WESTANIME, Src.CH_SUSPENSE };
     private static final String[] TAB_NAME = { "推荐", "4K电影", "动作片", "喜剧片", "爱情片", "科幻片",
             "恐怖片", "战争片", "国产剧", "欧美剧", "韩剧", "日剧", "港剧", "台剧", "泰剧", "纪录片",
-            "大陆综艺", "日韩综艺", "港台综艺", "欧美综艺", "国产动漫", "日韩动漫", "欧美动漫", "动画片",
-            "反转爽剧", "现代都市", "短剧" };
+            "大陆综艺", "日韩综艺", "港台综艺", "欧美综艺", "国产动漫", "日韩动漫", "欧美动漫",
+            "悬疑剧" };
 
     private static final String[] KEYS = { "A", "B", "C", "D", "E", "F",
             "G", "H", "I", "J", "K", "L",
@@ -103,18 +110,18 @@ public final class MainActivity extends Activity {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(Ui.px(44), Ui.px(22), Ui.px(44), Ui.px(4));
+        bar.setPadding(Ui.px(56), Ui.px(24), Ui.px(56), Ui.px(6));
 
-        TextView logo = Ui.text(this, "YG影视", 46, Ui.ACCENT);
+        TextView logo = Ui.text(this, "YG影视", 34, Ui.ACCENT);
         logo.setTypeface(Typeface.DEFAULT_BOLD);
         bar.addView(logo);
 
-        bar.addView(Ui.text(this, "   海量片库 · 点开即播", 22, Ui.FG_DIM));
+        bar.addView(Ui.text(this, "  多源聚合 · 点开即播", 18, Ui.FG_DIM));
 
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
 
-        TextView tips = Ui.text(this, "遥控器：方向键移动   OK 确认", 22, Ui.FG_DIM);
+        TextView tips = Ui.text(this, "方向键移动   OK 确认", 18, Ui.FG_DIM);
         tips.setPadding(0, 0, Ui.px(20), 0);
         bar.addView(tips);
 
@@ -137,7 +144,7 @@ public final class MainActivity extends Activity {
         tlp.leftMargin = Ui.px(12);
         bar.addView(testBtn, tlp);
 
-        TextView ver = Ui.text(this, Ver.FULL, 20, Ui.FG_DIM);
+        TextView ver = Ui.text(this, Ver.FULL, 18, Ui.FG_DIM);
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         vlp.leftMargin = Ui.px(16);
@@ -159,10 +166,10 @@ public final class MainActivity extends Activity {
         // 分类条
         HorizontalScrollView chipScroll = new HorizontalScrollView(this);
         chipScroll.setHorizontalScrollBarEnabled(false);
-        chipScroll.setPadding(Ui.px(40), 0, Ui.px(40), 0);
+        chipScroll.setPadding(Ui.px(52), 0, Ui.px(52), 0);
         LinearLayout chipRow = new LinearLayout(this);
         chipRow.setOrientation(LinearLayout.HORIZONTAL);
-        chipRow.setPadding(0, Ui.px(8), 0, Ui.px(8));
+        chipRow.setPadding(0, Ui.px(10), 0, Ui.px(10));
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
             TextView t = chip(TAB_NAME[i], i == 0);
@@ -195,7 +202,7 @@ public final class MainActivity extends Activity {
         scroll.setVerticalScrollBarEnabled(false);
         rows = new LinearLayout(this);
         rows.setOrientation(LinearLayout.VERTICAL);
-        rows.setPadding(Ui.px(40), Ui.px(6), Ui.px(40), Ui.px(30));
+        rows.setPadding(Ui.px(52), Ui.px(8), Ui.px(52), Ui.px(36));
         scroll.addView(rows);
 
         status = Ui.text(this, "", 24, Ui.FG_DIM);
@@ -207,9 +214,9 @@ public final class MainActivity extends Activity {
         root.addView(col, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
-        int avail = Ui.w() - Ui.px(80) - (COLS - 1) * Ui.px(16);
+        int avail = Ui.w() - Ui.px(112) - (COLS - 1) * Ui.px(20);
         cardW = avail / COLS;
-        posterH = Math.round(cardW * 1.4f);
+        posterH = Math.round(cardW * Cards.RATIO);
 
         setContentView(root);
         buildSearch();
@@ -219,12 +226,12 @@ public final class MainActivity extends Activity {
     }
 
     private TextView chip(String label, boolean active) {
-        TextView t = Ui.text(this, label, 24, active ? 0xFF12161C : Ui.FG);
+        TextView t = Ui.text(this, label, 20, active ? 0xFF12161C : Ui.FG);
         t.setGravity(Gravity.CENTER);
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(20), Ui.px(11), Ui.px(20), Ui.px(11));
+        t.setPadding(Ui.px(20), Ui.px(9), Ui.px(20), Ui.px(9));
         t.setBackground(Ui.focusBg(active ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
         return t;
     }
@@ -259,12 +266,12 @@ public final class MainActivity extends Activity {
         }
         io.execute(new Runnable() {
             public void run() {
-                final Api.Page p = Api.list(type, pg);
+                final Multi.Result p = Multi.list(type, pg);
                 ui.post(new Runnable() {
                     public void run() {
                         loading = false;
                         if (p.items.isEmpty()) {
-                            Trace.add("list", "第 " + pg + " 页没数据 t=" + type);
+                            Trace.add("list", "第 " + pg + " 页没数据 ch=" + type);
                             status.setText(pg == 1
                                     ? "没取到数据，检查网络后按 OK 重试（点分类任意一项）"
                                     : "没有更多了");
@@ -292,7 +299,7 @@ public final class MainActivity extends Activity {
         t.requestFocus();
     }
 
-    private void renderPage(final Api.Page p, boolean append) {
+    private void renderPage(final Multi.Result p, boolean append) {
         if (!append) {
             rows.removeAllViews();
             rows.addView(status);
@@ -319,7 +326,7 @@ public final class MainActivity extends Activity {
                 });
                 LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(cardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-                clp.rightMargin = Ui.px(16);
+                clp.rightMargin = Ui.px(20);
                 row.addView(card, clp);
                 if (first && !append) {
                     first = false;
@@ -361,6 +368,7 @@ public final class MainActivity extends Activity {
         it.putExtra("name", v.name);
         it.putExtra("pic", v.pic);
         it.putExtra("remarks", v.remarks);
+        it.putExtra("src", v.src);
         startActivity(it);
     }
 
@@ -513,7 +521,7 @@ public final class MainActivity extends Activity {
         resultRows.removeAllViews();
         io.execute(new Runnable() {
             public void run() {
-                final java.util.List<Vod> list = Api.suggest(kw);
+                final java.util.List<Vod> list = Multi.search(kw);
                 ui.post(new Runnable() {
                     public void run() {
                         showResult(list, kw);
@@ -566,7 +574,7 @@ public final class MainActivity extends Activity {
                 });
                 LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(cardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-                clp.rightMargin = Ui.px(16);
+                clp.rightMargin = Ui.px(20);
                 row.addView(card, clp);
                 if (first) {
                     first = false;

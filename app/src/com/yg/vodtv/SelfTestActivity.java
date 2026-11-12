@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 
 /**
  * 自检页：不接电脑也能看清每一步通不通。
- * 依次跑：代理端口 → 分类列表 → 搜索联想 → 详情集数 → m3u8 首跳 → 分片首包。
+ * 依次跑：代理端口 → 多源分类 → 海报下载 → 多源搜索 → 详情集数 → m3u8 首跳 → 分片首包。
  */
 public final class SelfTestActivity extends Activity {
 
@@ -167,34 +167,46 @@ public final class SelfTestActivity extends Activity {
                     add(false, "本地代理", "18765-18800 全被占用，播放一定失败");
                 }
 
-                // 2. 分类列表
+                // 2. 分类列表（多源聚合）
                 total++;
-                Api.Page p = Api.list(6, 1);
-                if (p != null && p.items.size() > 0) {
+                Multi.Result mp = Multi.list(Src.CH_ACTION, 1);
+                if (mp != null && mp.items.size() > 0) {
                     pass++;
-                    add(true, "分类列表", "动作片 第1页 " + p.items.size() + " 条，共 "
-                            + p.pagecount + " 页 / " + p.total + " 部");
+                    add(true, "分类列表", "动作片 第1页聚合 " + mp.items.size() + " 条，"
+                            + mp.okSources + " 个源有数据");
                 } else {
-                    add(false, "分类列表", "接口没返回数据，检查电视网络或 wsyzy.cc 是否可达");
+                    add(false, "分类列表", "所有源都没返回数据，检查电视网络");
                     finishRun(pass, total, t0);
                     return;
                 }
 
-                // 3. 搜索联想
+                // 3. 海报下载（首页第一张图能不能真的取到）
                 total++;
-                List<Vod> sg = Api.suggest("fanhua");
-                if (sg != null && sg.size() > 0) {
+                String posterUrl = mp.items.get(0).pic;
+                String posterMsg = checkPoster(posterUrl);
+                if (posterMsg == null) {
                     pass++;
-                    add(true, "搜索联想", "fanhua → " + sg.size() + " 条，首条「" + sg.get(0).name + "」");
+                    add(true, "海报下载", "取到图片，"
+                            + (posterUrl.length() > 60 ? posterUrl.substring(0, 60) + "…" : posterUrl));
                 } else {
-                    add(false, "搜索联想", "suggest 无结果，搜索功能会不可用");
+                    add(false, "海报下载", posterMsg);
                 }
 
-                // 4. 详情 + 选集
+                // 4. 搜索（多源 + 拼音）
                 total++;
-                int pid = p.items.get(0).id;
-                String pname = p.items.get(0).name;
-                Vod d = Api.detail(pid);
+                List<Vod> sg = Multi.search("fanhua");
+                if (sg != null && sg.size() > 0) {
+                    pass++;
+                    add(true, "搜索", "fanhua → " + sg.size() + " 条，首条「" + sg.get(0).name + "」");
+                } else {
+                    add(false, "搜索", "多源搜索无结果，搜索功能会不可用");
+                }
+
+                // 5. 详情 + 选集
+                total++;
+                int pid = mp.items.get(0).id;
+                String pname = mp.items.get(0).name;
+                Vod d = Api.detail(Src.byKey(mp.items.get(0).src), pid);
                 if (d != null && d.epUrls.length > 0) {
                     pass++;
                     add(true, "详情与选集", "「" + pname + "」解析出 " + d.epUrls.length
@@ -205,7 +217,7 @@ public final class SelfTestActivity extends Activity {
                     return;
                 }
 
-                // 5. master playlist 经代理
+                // 6. master playlist 经代理
                 total++;
                 String raw = d.epUrls[0];
                 String local = Proxy.wrapPlaylist(raw);
@@ -248,8 +260,7 @@ public final class SelfTestActivity extends Activity {
     }
 
     /** 拉一个分片的首包，确认真是 TS。返回 1 表示通过。 */
-    private int checkSegment(String url) {
-        byte[] head = Http.getBytes(url, Api.REFERER);
+    private int checkSegment(String url) {        byte[] head = Http.getBytes(url, Api.REFERER);
         if (head == null || head.length == 0) {
             add(false, "分片数据", "取分片失败，播放会黑屏");
             return 0;
@@ -264,8 +275,18 @@ public final class SelfTestActivity extends Activity {
         return 0;
     }
 
-    private void finishRun(final int pass, final int total, final long t0) {
-        final long ms = System.currentTimeMillis() - t0;
+    /** 海报能不能真取到：走和列表页完全相同的三跳加载链。null 表示通过。 */
+    private String checkPoster(String url) {
+        long t = System.currentTimeMillis();
+        String err = Ui.probe(url);
+        long ms = System.currentTimeMillis() - t;
+        if (err == null) {
+            Trace.add("selftest", "海报 OK " + ms + "ms");
+        }
+        return err;
+    }
+
+    private void finishRun(final int pass, final int total, final long t0) {        final long ms = System.currentTimeMillis() - t0;
         ui.post(new Runnable() {
             public void run() {
                 running = false;
