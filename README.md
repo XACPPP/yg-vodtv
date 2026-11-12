@@ -147,6 +147,15 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
+### v1.8 实发记录
+
+- CI run `43172267408` 一次通过（约 40 秒）。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v1.8>，发布于 2026-11-12 15:02（北京时间）。
+- 资产 `YGTV.apk` / `YG.TV.apk` 均 **66001 字节**。
+- 三条下载通道（`gh-proxy` 3.6s / `ghfast` 6.0s / 直连 4.5s）拿到**同一个 md5
+  `652c86b0863b881942349f2e09c1a5c5`**。
+- CI 产物 dex **107348 字节**，确认含 `preferIPv4Stack`、`attempts`、`downCount`、`MIN_SRC`、`failed`。
+
 ### 网络层健壮性（v1.8 新增）
 
 电视实机跑自检时抓到的日志暴露了三个此前在桌面测不出来的问题，v1.8 逐条修掉：
