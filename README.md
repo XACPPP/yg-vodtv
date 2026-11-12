@@ -150,7 +150,10 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 
 ### v1.9 实发记录
 
-- 待发布后回填（CI run、Release 链接、APK 字节数、dex 校验）。
+- CI run `43175910776` 一次通过。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v1.9>，发布于 2026-11-12 15:32（北京时间）。
+- 资产 `YGTV.apk` / `YG.TV.apk` 均 **66001 字节**，md5 `a57a00fdf9533f37b05246291ce1788a`。
+- CI 产物 dex **111944 字节**，确认含 `loadPosterDeferred`、`pump`、`AUTO_SEARCH`、`addHistory`。
 
 ### v1.8 实发记录
 
