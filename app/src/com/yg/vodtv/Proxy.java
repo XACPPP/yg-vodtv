@@ -173,16 +173,29 @@ public final class Proxy {
 
     private static void fetch(Socket s, String target, Map<String, String> hd, boolean expectPlaylist,
             boolean head) throws Exception {
-        HttpURLConnection c = Http.open(target, Api.REFERER);
+        boolean guessPlaylist = expectPlaylist || target.toLowerCase(Locale.US).contains(".m3u8");
+        // v2.10：播放列表只有一两百字节，建连超过 5 秒基本可以判定这路源不通。
+        // 以前列表和分片共用 12s/20s，一次失败就要干等 12 秒 —— 用户看到的就是
+        // 「点了半天还在转圈」。分片是几百 KB 的实体流，读超时保留 20 秒，
+        // 否则正常码率也会被误杀。
+        if (guessPlaylist) {
+            String cached = plCacheGet(target);
+            if (cached != null) {
+                sendPlaylist(s, cached, head);
+                return;
+            }
+        }
+        HttpURLConnection c = guessPlaylist
+                ? Http.open(target, Api.REFERER, 5000, 8000)
+                : Http.open(target, Api.REFERER, 6000, 20000);
         String range = hd.get("range");
         if (range != null) {
             c.setRequestProperty("Range", range);
         }
         int code = c.getResponseCode();
         String ct = c.getContentType();
-        boolean playlist = expectPlaylist
-                || (ct != null && (ct.contains("mpegurl") || ct.contains("m3u")))
-                || target.toLowerCase(Locale.US).contains(".m3u8");
+        boolean playlist = guessPlaylist
+                || (ct != null && (ct.contains("mpegurl") || ct.contains("m3u")));
 
         InputStream src = code >= 400 ? c.getErrorStream() : c.getInputStream();
         if (src == null) {
@@ -210,32 +223,33 @@ public final class Proxy {
             String base = target;
             int depth = 0;
             while (text.contains("#EXT-X-STREAM-INF") && depth < 3) {
-                String sub = bestVariant(text);
-                if (sub == null) {
-                    break;
+                // v2.10：以前只取一档，这一档拉不到就 break —— 整条线路直接作废。
+                // 现在按码率接近度排出候选，逐个试。用 getQuick（单次、5s/8s）
+                // 而不是 get（3 次重试、12s/20s）：直播场景等 36 秒等于卡死。
+                ArrayList<String> cands = bestVariants(text);
+                String next = null;
+                String absOk = null;
+                for (int i = 0; i < cands.size(); i++) {
+                    String abs = resolve(base, cands.get(i));
+                    String got = Http.getQuick(abs, Api.REFERER, 5000, 8000);
+                    if (got != null && got.indexOf("#EXTM3U") >= 0) {
+                        next = got;
+                        absOk = abs;
+                        break;
+                    }
+                    Trace.add("proxy", "档位拉取失败 " + Http.shortUrl(abs));
                 }
-                String abs = resolve(base, sub);
-                String next = Http.get(abs, Api.REFERER);
-                if (next == null || next.indexOf("#EXTM3U") < 0) {
-                    Trace.add("proxy", "子列表拉取失败 " + Http.shortUrl(abs));
+                if (next == null) {
                     break;
                 }
                 text = next;
-                base = abs;
+                base = absOk;
                 depth++;
             }
             boolean master = text.contains("#EXT-X-STREAM-INF");
-            byte[] body = rewrite(text, base, master).getBytes("UTF-8");
-            OutputStream out = new BufferedOutputStream(s.getOutputStream(), 32768);
-            String hdr = "HTTP/1.1 200 OK\r\n"
-                    + "Content-Type: application/vnd.apple.mpegurl\r\n"
-                    + "Content-Length: " + body.length + "\r\n"
-                    + "Connection: close\r\n\r\n";
-            out.write(hdr.getBytes("UTF-8"));
-            if (!head) {
-                out.write(body);
-            }
-            out.flush();
+            String body = rewrite(text, base, master);
+            plCachePut(target, body);
+            sendPlaylist(s, body, head);
             return;
         }
 
@@ -270,6 +284,66 @@ public final class Proxy {
         } catch (Throwable t) {
         }
         // 不调用 disconnect()，让 HttpURLConnection 的底层连接回到连接池复用
+    }
+
+    /* ==================== 播放列表缓存（v2.10） ==================== */
+
+    /**
+     * 播放列表极短缓存。
+     *
+     * 为什么要有：直播列表 2~6 秒才滚动一次，但播放器在起播、切台、重新准备时
+     * 会短时间内重复请求同一个 m3u8。每次都实打实走一趟上游（境外源尤其慢），
+     * 叠加起来就是「按键之后一直转圈」。
+     *
+     * TTL 只给 1.5 秒：够挡掉同一秒内的重复请求，又不会让播放器拿到过期的分片列表
+     * （拿过期列表会表现为分片 404 / 画面倒退）。
+     */
+    private static final long PL_CACHE_MS = 1500L;
+    private static final int PL_CACHE_MAX = 48;
+    private static final Map<String, String[]> PL_CACHE = new HashMap<String, String[]>();
+
+    private static String plCacheGet(String key) {
+        synchronized (PL_CACHE) {
+            String[] v = PL_CACHE.get(key);
+            if (v == null) {
+                return null;
+            }
+            long ts;
+            try {
+                ts = Long.parseLong(v[1]);
+            } catch (Throwable t) {
+                ts = 0L;
+            }
+            if (System.currentTimeMillis() - ts > PL_CACHE_MS) {
+                PL_CACHE.remove(key);
+                return null;
+            }
+            return v[0];
+        }
+    }
+
+    private static void plCachePut(String key, String body) {
+        synchronized (PL_CACHE) {
+            if (PL_CACHE.size() >= PL_CACHE_MAX) {
+                PL_CACHE.clear();
+            }
+            PL_CACHE.put(key, new String[]{body, String.valueOf(System.currentTimeMillis())});
+        }
+    }
+
+    /** 把改写后的播放列表写给播放器（字节长度必须写对，否则 MediaPlayer 会截断）。 */
+    private static void sendPlaylist(Socket s, String text, boolean head) throws Exception {
+        byte[] body = text.getBytes("UTF-8");
+        OutputStream out = new BufferedOutputStream(s.getOutputStream(), 32768);
+        String hdr = "HTTP/1.1 200 OK\r\n"
+                + "Content-Type: application/vnd.apple.mpegurl\r\n"
+                + "Content-Length: " + body.length + "\r\n"
+                + "Connection: close\r\n\r\n";
+        out.write(hdr.getBytes("UTF-8"));
+        if (!head) {
+            out.write(body);
+        }
+        out.flush();
     }
 
     /**
@@ -311,21 +385,26 @@ public final class Proxy {
     }
 
     /**
-     * 从 master 里挑一个变体。
+     * v2.10：master 列表按「码率接近度」排出候选，最多 4 档。
      *
-     * v2.8 改：以前取的是「不超过 5Mbps 里最大的那一档」，只要有 4Mbps 就一定挑 4Mbps。
-     * 这个策略在电脑上没问题，在电视上是灾难：盒子多半是 802.11n 的 wifi、解码器也是
-     * 老一代，4Mbps 的档位能建连、能起播，然后每隔几秒就 buffering 一次 ——
-     * 用户看到的就是「明明有源却一直在转圈」。现在改成取离 2.6Mbps 最近的一档：
-     * 1080p 直播在 10 尺视距下这个码率完全够清楚，同时给 wifi 和解码器都留了余量。
-     * 低于 0.8Mbps 的档不选（那是马赛克）；全都没有 BANDWIDTH 标注时退回带宽最大的。
+     * v2.8 定下的目标是「离 2.6Mbps 最近」：以前的策略是取「不超过 5Mbps 里最大的那一档」，
+     * 只要有 4Mbps 就一定挑 4Mbps。这在电脑上没问题，在电视上是灾难 —— 盒子多半是
+     * 802.11n 的 wifi、解码器也是老一代，4Mbps 能建连、能起播，然后每隔几秒 buffering 一次。
+     * 现在 2.6Mbps 这个目标不变，变的是「不止挑一档」。
+     *
+     * 排序规则（数值越小越优先）：
+     *  - 有 BANDWIDTH 且 ≥ 0.8Mbps：|bw - 2.6Mbps|，越接近目标越靠前
+     *  - 有 BANDWIDTH 但 < 0.8Mbps：垫底（那是马赛克档），按 bw 越大越靠前
+     *  - 没标 BANDWIDTH：最后考虑
+     *
+     * 以前只返回一档，那一档拉不到整条线路就废了。现在交给调用方逐个试。
      */
-    private static String bestVariant(String text) {
+    private static ArrayList<String> bestVariants(String text) {
+        ArrayList<String> out = new ArrayList<String>();
         if (text == null) {
-            return null;
+            return out;
         }
         String[] ls = text.replace("\r", "").split("\n");
-        String first = null;
         ArrayList<String> urls = new ArrayList<String>();
         ArrayList<Integer> bws = new ArrayList<Integer>();
         int lastBw = -1;
@@ -354,47 +433,51 @@ public final class Proxy {
             if (s.charAt(0) == '#') {
                 continue;
             }
-            if (first == null) {
-                first = s;
-            }
             urls.add(s);
             bws.add(Integer.valueOf(lastBw));
             lastBw = -1;
         }
-        if (urls.isEmpty()) {
-            return null;
+        int n = urls.size();
+        if (n == 0) {
+            return out;
         }
         // 目标码率 2.6Mbps：1080p 直播在 10 尺视距下够清楚，老盒子也扛得住
         final int target = 2600000;
-        int bestIdx = -1;
-        int bestScore = Integer.MAX_VALUE;
-        int maxIdx = -1;
-        int maxBw = -1;
-        for (int i = 0; i < urls.size(); i++) {
+        long[] sc = new long[n];
+        for (int i = 0; i < n; i++) {
             int bw = bws.get(i).intValue();
             if (bw <= 0) {
-                continue;
-            }
-            if (bw <= 5000000 && bw > maxBw) {
-                maxBw = bw;
-                maxIdx = i;
-            }
-            if (bw < 800000) {
-                continue;
-            }
-            int score = Math.abs(bw - target);
-            if (score < bestScore) {
-                bestScore = score;
-                bestIdx = i;
+                sc[i] = 1L << 40;
+            } else if (bw < 800000) {
+                sc[i] = 100000000L + bw;
+            } else {
+                sc[i] = Math.abs(bw - target);
             }
         }
-        if (bestIdx >= 0) {
-            return urls.get(bestIdx);
+        boolean[] used = new boolean[n];
+        int want = Math.min(4, n);
+        for (int round = 0; round < want; round++) {
+            int best = -1;
+            for (int i = 0; i < n; i++) {
+                if (used[i]) {
+                    continue;
+                }
+                if (best < 0 || sc[i] < sc[best]) {
+                    best = i;
+                }
+            }
+            if (best < 0) {
+                break;
+            }
+            used[best] = true;
+            out.add(urls.get(best));
         }
-        if (maxIdx >= 0) {
-            return urls.get(maxIdx);
-        }
-        return first;
+        return out;
+    }
+
+    private static String bestVariant(String text) {
+        ArrayList<String> v = bestVariants(text);
+        return v.isEmpty() ? null : v.get(0);
     }
 
     /** 相对地址转绝对地址。 */

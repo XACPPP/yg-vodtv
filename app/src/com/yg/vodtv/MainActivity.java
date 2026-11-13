@@ -109,6 +109,13 @@ public final class MainActivity extends Activity {
     private TextView dockPlayBtn;
     /** dock 当前展示的片子（焦点落在哪张卡就换成哪一部）。 */
     private Vod dockVod;
+    /**
+     * v2.10：dock 是否已经被用户「武装」。
+     * 首页刚渲染完会自动 requestFocus 到第一张卡，Cards 的焦点回调会把第一部片
+     * 直接灌进 dock —— 用户根本没选片就看到简介，以为界面卡住了。
+     * 现在只有用户真的按了方向键/OK，才置 true；切分类会重置回 false。
+     */
+    private boolean dockArmed = false;
 
     /** 顶栏右侧时钟（设计稿 headline-sm 26px）。 */
     private TextView clockView;
@@ -601,7 +608,57 @@ public final class MainActivity extends Activity {
         // 双份都是噪音，删掉。
         row.addView(Chrome.statusDot(this, "遥控器就绪", Ui.OK_GREEN));
 
+        // v2.10：dock 初始是「还没选片」的占位态，不预填第一部片。
+        setDockIdle(true);
         return dock;
+    }
+
+    /**
+     * v2.10：dock 占位态 / 正常态。
+     * idle 时把标题换成提示语、两个按钮置灰且不可聚焦——遥控器焦点不会落到
+     * 「点了没反应」的按钮上，这是老板抱怨"以为界面卡了"的第二层原因。
+     */
+    private void setDockIdle(boolean idle) {
+        if (dockTitle == null) {
+            return;
+        }
+        if (idle) {
+            dockVod = null;
+            dockTitle.setText("还没选片");
+            dockMeta.setText("方向键选片 · OK 看详情 · 菜单搜索");
+            dockIntro.setText(" ");
+            setDockBtnEnabled(dockDetailBtn, false);
+            setDockBtnEnabled(dockPlayBtn, false);
+        } else {
+            setDockBtnEnabled(dockDetailBtn, true);
+            setDockBtnEnabled(dockPlayBtn, true);
+        }
+    }
+
+    private void setDockBtnEnabled(TextView b, boolean on) {
+        if (b == null) {
+            return;
+        }
+        b.setAlpha(on ? 1f : 0.35f);
+        b.setEnabled(on);
+        b.setClickable(on);
+        b.setFocusable(on);
+    }
+
+    /**
+     * v2.10：用户第一次按方向键/OK 才把 dock 打开，并且顺手把当前焦点卡的内容
+     * 填进去（Cards 里给每张卡 setTag(v)，这里用 tag 反查，不用另外记焦点索引）。
+     */
+    private void armDock() {
+        if (dockArmed) {
+            return;
+        }
+        dockArmed = true;
+        View f = getCurrentFocus();
+        Object tag = f == null ? null : f.getTag();
+        if (tag instanceof Vod) {
+            updateDock((Vod) tag);
+        }
     }
 
     /**
@@ -637,6 +694,10 @@ public final class MainActivity extends Activity {
         if (v == null || dock == null) {
             return;
         }
+        // v2.10：用户还没动过遥控器时不填内容（首屏 autoFocus 会把第一部片灌进来）。
+        if (!dockArmed) {
+            return;
+        }
         dockVod = v;
         dockTitle.setText(v.name);
         StringBuilder sb = new StringBuilder();
@@ -658,6 +719,9 @@ public final class MainActivity extends Activity {
         dockMeta.setText(sb.length() > 0 ? sb.toString() : " ");
         String intro = v.intro();
         dockIntro.setText(intro.length() > 0 ? intro : " ");
+        // 有片可看了才把两个按钮点亮/允许聚焦。
+        setDockBtnEnabled(dockDetailBtn, true);
+        setDockBtnEnabled(dockPlayBtn, true);
     }
 
     /**
@@ -732,6 +796,10 @@ public final class MainActivity extends Activity {
         }
         syncChips(idx);
         Store.saveTab(idx);
+        // v2.10：换频道等于换一批海报，之前的「已武装」作废，dock 回到占位态。
+        // 用户在新分类里再按方向键才会重新武装，不会新分类一出场就显示第一部。
+        dockArmed = false;
+        setDockIdle(true);
         // 先滚到顶，再加载。真正让人看到「闪一下」的不是这两行的顺序，
         // 是渲染本身异步 —— 现在 load() 里缓存命中会同步铺满画面，
         // 清空和重建落在同一帧里，中间那个空白状态根本不会被画出来。
@@ -907,8 +975,10 @@ public final class MainActivity extends Activity {
                     final View fv = card;
                     card.post(new Runnable() {
                         public void run() {
+                            // v2.10：只给焦点，不再顺手把第一部片的简介填进 dock。
+                            // 老板反馈「还没选影片，下面就显示第一部简介，以为界面卡了」。
+                            // dock 的文案由卡片真正的焦点回调（onCardFocus）来填。
                             fv.requestFocus();
-                            updateDock(v);
                         }
                     });
                 }
@@ -1426,6 +1496,19 @@ public final class MainActivity extends Activity {
                 closeSearch();
                 return true;
             }
+        }
+        // v2.10：方向键/OK 一按，就算用户开始选片了，dock 从占位态切成真实内容。
+        switch (code) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                armDock();
+                break;
+            default:
+                break;
         }
         return super.onKeyDown(code, e);
     }

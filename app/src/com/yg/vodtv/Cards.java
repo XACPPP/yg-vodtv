@@ -187,6 +187,9 @@ public final class Cards {
         });
         // 初始态：还没焦点时也要是暗的，否则一起播就整屏 84 张全亮，看不出层次
         f.setAlpha(0.76f);
+        // v2.10：把 Vod 挂到外层 box 上，MainActivity 用 getCurrentFocus().getTag()
+        // 就能反查「当前焦点是哪一部」，不用再另外维护一份焦点索引。
+        box.setTag(v);
         box.setOnClickListener(click);
         return box;
     }

@@ -1382,15 +1382,42 @@ def dir_stat(path):
 
 # ---------------------------------------------------------------- 组装 / 输出
 
-def _rank_key(item):
-    """同一台内排序：先看是不是 >=720p，再看 TTFB，最后按地址稳定 tie-break。
+def _kbps_band(kbps):
+    """码率分档：0 = 最顺，4 = 最差。
 
-    probed 里带分辨率就是为了这一步 —— 1080p 但 TTFB 800ms 的源，电视上观感
-    远好过 480p 但 TTFB 200ms 的源；只按 TTFB 排会把清晰度更高的一条挤到后面。
+    v2.10 新增。原来看吞吐完全不参与排序，只要 TTFB 快就排前面 —— 结果排第一的
+    经常是「响应很快但码率只有 400kbps」的源，电视上一放大就是糊+卡；
+    而 2Mbps 但 TTFB 1.2s 的源反而被挤到后面（TTFB 只影响起播那一下，
+    之后是否卡顿看的是持续吞吐）。
     """
-    ttfb, url, res = item
+    try:
+        kbps = float(kbps)
+    except (TypeError, ValueError):
+        return 4
+    if kbps >= 3000:
+        return 0
+    if kbps >= 1500:
+        return 1
+    if kbps >= 800:
+        return 2
+    if kbps > 0:
+        return 3
+    return 4
+
+
+def _rank_key(item):
+    """同一台内排序：跨境镜像沉底 → >=720p 优先 → 码率分档优先 → 再比 TTFB。
+
+    probed 里带分辨率和 kbps 就是为了这一步：
+      - 1080p 但 TTFB 800ms 的源，电视上观感远好过 480p 但 TTFB 200ms 的源；
+      - 2Mbps 但 TTFB 1.2s 的源，比 400kbps 但 TTFB 100ms 的源抗卡顿得多。
+    MIRROR_HOSTS 那几个是绕境外的中转，本来只做统计；实测它们 TTFB 很小但
+    吞吐抖得厉害，一直霸占每台的第一位，所以 v2.10 起直接沉到同档末尾。
+    """
+    ttfb, url, res, kbps = item
+    mir = 1 if host_of(url) in MIRROR_HOSTS else 0
     hd = 0 if (res[0] >= HD_MIN_W and res[1] >= HD_MIN_H) else 1
-    return (hd, ttfb, url)
+    return (mir, hd, _kbps_band(kbps), ttfb, url)
 
 
 def build(pairs, probed, logos=None, keep=(), keep_gids=()):
@@ -1427,15 +1454,17 @@ def build(pairs, probed, logos=None, keep=(), keep_gids=()):
             if not p or not p[0]:
                 continue
             res = p[5] if len(p) > 5 else (0, 0)
-            buckets.setdefault(name, []).append((p[1], url, res))
+            kbps = p[3] if len(p) > 3 else 0
+            buckets.setdefault(name, []).append((p[1], url, res, kbps))
         # 上一版有、这次全灭（或源里彻底没出现）的台：先占位，urls 留空
         for name in keep_by_gid.get(gid, ()):
             buckets.setdefault(name, [])
         chs = []
         for name, lst in buckets.items():
-            lst.sort(key=_rank_key)   # 分辨率优先，其次两轮 TTFB 均值
+            lst.sort(key=_rank_key)   # 镜像沉底 → 分辨率 → 码率档 → 两轮 TTFB 均值
             urls = []
-            for _ttfb, u, _res in lst:
+            for item in lst:
+                u = item[1]
                 if u in urls:
                     continue
                 urls.append(u)

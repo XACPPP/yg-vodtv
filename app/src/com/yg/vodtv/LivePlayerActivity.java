@@ -81,7 +81,12 @@ public final class LivePlayerActivity extends Activity {
     private static final int KEY_RED = 183;
 
     /* 看门狗阈值 */
-    private static final long START_TIMEOUT_MS = 15000;
+    /**
+     * v2.10：15s → 12s。
+     * Proxy 拉播放列表的超时已经从 12s/20s 收到 5s/8s，一路源 5 秒建不上连
+     * 基本就是死了；再给 15 秒只是让用户多盯着转圈 3 秒。
+     */
+    private static final long START_TIMEOUT_MS = 12000;
     private static final long BUFFER_TIMEOUT_MS = 9000;
     private static final long STALL_TIMEOUT_MS = 12000;
 
@@ -261,7 +266,7 @@ public final class LivePlayerActivity extends Activity {
         }
         ui.post(new Runnable() {
             public void run() {
-                play(0);
+                playPreferred();
             }
         });
         ui.postDelayed(watchdog, 2000);
@@ -1066,7 +1071,7 @@ public final class LivePlayerActivity extends Activity {
         if (drawerVisible) {
             toggleDrawer();
         }
-        play(0);
+        playPreferred();
     }
 
     /* ==================== 播放 ==================== */
@@ -1157,6 +1162,24 @@ public final class LivePlayerActivity extends Activity {
     }
 
     /**
+     * v2.10：从这个台「上次真的播通过的那一路」起播。
+     *
+     * 以前所有换台入口都写死 play(0)，等于每次都从巡检排序第一的源开始。
+     * 但排序第一的源未必在这台电视/这条宽带上通 —— 用户看到的就是「每个台都在转圈」。
+     * 记住成功过的下标，第二次进同一个台直接命中。
+     */
+    private void playPreferred() {
+        int idx = 0;
+        if (ch != null) {
+            idx = Store.liveUrlIdx(ch.name);
+        }
+        if (idx < 0 || idx >= urls.size()) {
+            idx = 0;
+        }
+        play(idx);
+    }
+
+    /**
      * @param idx 走第几个源。越界就夹回 0。
      */
     private void play(int idx) {
@@ -1214,6 +1237,11 @@ public final class LivePlayerActivity extends Activity {
                 restInfo();
                 posAt = System.currentTimeMillis();
                 lastPos = -1;
+                // v2.10：这一路真的起来了，记下台名 → 线路下标，下次进这个台直接从这里起播。
+                // 只在 onPrepared 记，不在 play() 里记 —— 记的是「能播」，不是「试过」。
+                if (ch != null) {
+                    Store.saveLiveUrlIdx(ch.name, urlIdx);
+                }
                 Trace.add("live", "直播起播 " + ch.name + " 线路" + (urlIdx + 1)
                         + "/" + urls.size() + " " + describeVideo(mp));
             }
@@ -1412,7 +1440,7 @@ public final class LivePlayerActivity extends Activity {
             chIdx = ((chIdx + step) % n + n) % n;
             if (pickChannel()) {
                 Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
-                play(0);
+                playPreferred();
                 return;
             }
         }
@@ -1441,7 +1469,7 @@ public final class LivePlayerActivity extends Activity {
             return;
         }
         Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
-        play(0);
+        playPreferred();
     }
 
     private void showDead(String msg) {

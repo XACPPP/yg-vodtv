@@ -5,7 +5,7 @@ VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 *
 App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
 直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7 / v2.7.1 修好打包）。
 
-当前版本：**v2.8（versionCode 20）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.10（versionCode 22）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -213,6 +213,81 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.10：直播卡顿与「没选片就显示简介」
+
+v2.9 把首页修出来之后，老板提了两件事：
+
+> 1、不显示影片的问题解决了，接下来把直播源慢的问题解决一下；
+> 2、首页点开怎么下方直接显示第一部影片的简介了，我都还没选影片，还以为界面卡了,
+
+#### 一、dock 没选片就把第一部片的简介灌进来
+
+根因不是「渲染时多调了一次 `updateDock()`」这么简单。`renderPage()` 会自动把焦点
+`requestFocus()` 到第一张海报，而 `Cards.poster()` 的 `OnFocusChangeListener` 里
+
+```java
+if (has && cb != null) { cb.onCardFocus(v); }
+```
+
+会把「焦点落在第 1 张卡」当成「用户选中了这部片」回调出去。所以哪怕把
+`renderPage` 里那行 `updateDock(v)` 删掉，焦点一落上去，dock 照样被填满 ——
+程序眼里「有焦点」和「用户选的」是同一个事件，这是根子。
+
+改法：加一个 `dockArmed` 开关，只在用户真的按键之后置真。
+
+- `MainActivity.onKeyDown()` 拦 `DPAD_UP/DOWN/LEFT/RIGHT/CENTER/ENTER` → `armDock()`
+- `updateDock()` 开头 `if (!dockArmed) return;`，右臂没开就不填内容
+- `selectTab()` 里 `dockArmed = false; setDockIdle(true);` —— 换频道等于换一批海报，之前的选中作废
+- 初始态 `setDockIdle(true)`：标题「还没选片」、副行「方向键选片 · OK 看详情 · 菜单搜索」，
+  「影片详情 / 立即播放」两个按钮 alpha 降到 0.35 且 `setFocusable(false)`。
+  **能聚焦但点了没反应的按钮也是「以为界面卡了」的来源**，所以顺手把焦点也从上面挪走。
+- `Cards.poster()` 给外层 box 加 `box.setTag(v)`，`armDock()` 用
+  `getCurrentFocus().getTag()` 反查当前焦点是哪一部，不用另外维护焦点索引。
+
+#### 二、直播卡：三个真实的机制性原因
+
+1. **播放列表超时和分片一样长。** `Proxy.fetch()` 里 `Http.open(target, Api.REFERER)`
+   用的是默认 12s 建连 / 20s 读，而 m3u8 只有一两百字节 —— 5 秒建不上连基本可以判定这路源死了。
+   现在按 `guessPlaylist`（路由是 `/hls/` 或地址带 `.m3u8`）分开设：
+   列表 5s/8s，分片 6s/20s。分片读超时保留 20s，否则正常码率也会被误杀。
+2. **master 拍平只取一档，失败就整条线路作废。** `while (#EXT-X-STREAM-INF)` 里
+   `String sub = bestVariant(text)` 只返回一个地址，`Http.get` 又是 3 次重试 + 12s/20s，
+   最坏情况下单层等 36 秒，然后 `break` —— 用户看到的就是一直转圈直到换台。
+   现在 `bestVariants()` 按码率接近度（目标 2.6Mbps）排出最多 4 档候选，逐个
+   `Http.getQuick()`（单次、5s/8s）试，拉不到就换下一档。
+3. **每个台都从排第一的源开始。** `pickChannel()` 里 `urlIdx = 0` 是硬编码的，
+   而巡检排序第一的源未必在这台电视/这条宽带上通。新增
+   `Store.saveLiveUrlIdx(台名, 线路下标)`，在 `onPrepared`（真起来了才记）写入，
+   换台入口统一走 `playPreferred()` 从这个台上次成功的线路起播。
+
+顺带：播放列表加了 1.5 秒的极短缓存（`PL_CACHE_MS`，最多 48 条）。直播列表 2~6 秒
+才滚动一次，但播放器在起播/切台/重新准备时会短时间内重复请求同一个 m3u8，
+每次都实打实走一趟上游，叠加起来就是「按键之后一直转圈」。TTL 只给 1.5 秒，
+够挡掉同一秒内的重复请求，又不会拿到过期列表（过期列表会表现为分片 404 / 画面倒退）。
+
+`START_TIMEOUT_MS` 15s → 12s：Proxy 都 5 秒放弃建连了，再让用户多盯 3 秒转圈没意义。
+
+#### 三、巡检排序换了权重（`live_scan.py`）
+
+原来 `_rank_key` 是 `(hd, ttfb, url)` —— 只要 TTFB 快就往前排，结果排第一的
+经常是「响应很快但码率只有 400kbps」的源，电视上一放大就是糊 + 卡；
+而 2Mbps 但 TTFB 1.2s 的源反而被挤到后面。**TTFB 只影响起播那一下，之后卡不卡看的是持续吞吐。**
+
+现在：
+
+```python
+def _rank_key(item):
+    ttfb, url, res, kbps = item
+    mir = 1 if host_of(url) in MIRROR_HOSTS else 0
+    hd = 0 if (res[0] >= HD_MIN_W and res[1] >= HD_MIN_H) else 1
+    return (mir, hd, _kbps_band(kbps), ttfb, url)
+```
+
+- `mir`：`MIRROR_HOSTS` 那几个绕境外的中转以前只做统计，实测 TTFB 很小但吞吐抖得厉害、
+  长期霸占每台第一位，现在直接沉到同档末尾
+- `_kbps_band()`：≥3000→0、≥1500→1、≥800→2、>0→3、无数据→4
+- `buckets` 里存的四元组随之变成 `(ttfb, url, res, kbps)`
 
 ### v2.9：首页一片空白 —— 是我自己加的渐隐层把海报墙挤成了 0 高
 

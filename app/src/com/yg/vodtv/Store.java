@@ -219,6 +219,104 @@ public final class Store {
         }
     }
 
+    /* ==================== 每个台上次能播的线路 ==================== */
+
+    private static final String K_LIVE_URL = "live_u";
+    /** 最多记 60 个台，超了丢最早的 —— 一条字符串不能无限长。 */
+    private static final int LIVE_URL_MAX = 60;
+
+    /**
+     * v2.10：每个台记住「上次真的起播成功的那一路」。
+     *
+     * 之前 pickChannel 硬编码 urlIdx = 0，等于每次进台都从排序第一的源开始，
+     * 而排序第一的源未必在这台电视/这条宽带上通 —— 用户看到的就是「每个台都在转圈」。
+     * 记住成功过的下标，下次直接从那一路起播。
+     *
+     * 存储格式：`台名=下标;台名=下标;`（台名里的 `=`/`;` 会被换成 `_`）。
+     */
+    public static int liveUrlIdx(String name) {
+        if (sp == null || name == null) {
+            return 0;
+        }
+        String key = urlKey(name);
+        if (key.length() == 0) {
+            return 0;
+        }
+        try {
+            String all = sp.getString(K_LIVE_URL, "");
+            if (all == null || all.length() == 0) {
+                return 0;
+            }
+            String hit = key + "=";
+            // 按 ; 切开再逐条比对：直接 indexOf 会把 "HDTV=3" 里的 "TV=3" 误判成命中。
+            String[] parts = all.split(";");
+            for (int i = 0; i < parts.length; i++) {
+                String one = parts[i].trim();
+                if (!one.startsWith(hit)) {
+                    continue;
+                }
+                try {
+                    int v = Integer.parseInt(one.substring(hit.length()).trim());
+                    return v < 0 ? 0 : v;
+                } catch (Throwable ignored) {
+                    return 0;
+                }
+            }
+            return 0;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    public static void saveLiveUrlIdx(String name, int idx) {
+        if (sp == null || name == null || idx < 0) {
+            return;
+        }
+        String key = urlKey(name);
+        if (key.length() == 0) {
+            return;
+        }
+        try {
+            String all = sp.getString(K_LIVE_URL, "");
+            if (all == null) {
+                all = "";
+            }
+            StringBuilder sb = new StringBuilder();
+            String hit = key + "=";
+            // 先收集除自己以外的条目，再只留最近 LIVE_URL_MAX-1 条
+            //（新记录写在末尾，所以超限时从头部丢最旧的）。
+            String[] parts = all.split(";");
+            java.util.ArrayList<String> keep = new java.util.ArrayList<String>();
+            for (int i = 0; i < parts.length; i++) {
+                String one = parts[i].trim();
+                if (one.length() == 0 || one.startsWith(hit)) {
+                    continue;
+                }
+                keep.add(one);
+            }
+            int from = Math.max(0, keep.size() - (LIVE_URL_MAX - 1));
+            for (int i = from; i < keep.size(); i++) {
+                sb.append(keep.get(i)).append(';');
+            }
+            sb.append(key).append('=').append(idx).append(';');
+            sp.edit().putString(K_LIVE_URL, sb.toString()).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "保存直播线路失败", t);
+        }
+    }
+
+    /** 台名当 key 要收敛：去空白、截短、把会破坏 `名=值;` 格式的字符换掉。 */
+    private static String urlKey(String name) {
+        if (name == null) {
+            return "";
+        }
+        String s = name.trim();
+        if (s.length() > 40) {
+            s = s.substring(0, 40);
+        }
+        return s.replace('=', '_').replace(';', '_').replace('\n', '_');
+    }
+
     /* ==================== 搜索历史 ==================== */
     /* ==================== 收藏 ==================== */
 
