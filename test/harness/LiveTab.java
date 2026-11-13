@@ -132,7 +132,10 @@ public final class LiveTab {
         Live.load(json);
         List<Live.Group> gs = Live.groups();
         ok("一组", gs.size() == 1);
-        ok("IPv6 那台被整条丢掉", gs.get(0).chs.size() == 1);
+        // v2.8 改：线路全废的台不再整台丢掉，而是保留台名 + 空 urls。
+        // 丢台会让「湖南卫视」这种老台从抽屉里消失，用户以为软件坏了。
+        ok("空源台也保留", gs.get(0).chs.size() == 2);
+        ok("空源台 urls 为空", gs.get(0).chs.get(1).urls.isEmpty());
         List<String> u = gs.get(0).chs.get(0).urls;
         ok("剩两条线路", u.size() == 2);
         ok("http 保留", u.get(0).indexOf("http://") == 0);

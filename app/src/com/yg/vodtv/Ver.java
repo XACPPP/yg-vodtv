@@ -6,7 +6,7 @@ public final class Ver {
     public static final String NAME = "2.8";
 
     /** 每次出包手动改这一行。 */
-    public static final String BUILD = "2026-11-13 16:15";
+    public static final String BUILD = "2026-11-13 17:05";
 
     public static final String FULL = "v" + NAME + " (" + BUILD + ")";
 

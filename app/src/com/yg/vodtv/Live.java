@@ -185,7 +185,8 @@ public final class Live {
      *   3. 没有 groups 数组或数组为空 → 返回空结果 → 保留原表；
      *   4. 逐组校验：id 为空跳过整组；chs 缺失或为空跳过整组；
      *   5. 逐台校验：name 为空跳过；urls 只留 http:// / https:// 开头且不含 '['（IPv6）
-     *      的项，清洗后为空跳过该台；
+     *      的项 —— 清洗后为空也**保留该台**（v2.8 起：空 urls 壳台留着，播放页会跳过
+     *      并提示「这个台暂时没有可用的线路」，比整台消失友好）；
      *   6. 组内 chs 全被跳掉 → 跳过该组；最终组数为 0 → 整体放弃，保留原表。
      *
      * 只有真拿到 >= 1 组，才在 synchronized 里 clear + addAll，中途没人能看见
@@ -274,10 +275,10 @@ public final class Live {
                     continue;
                 }
                 List<String> urls = urlsOf(co);
-                if (urls.isEmpty()) {
-                    // 第 5 层：一条能用的线路都没有的台，留着只会点进去就失败
-                    continue;
-                }
+                // 第 5 层（v2.8 改）：线路全废的台**保留**，urls 写成空列表。
+                // 以前这里直接丢掉整台，后果是「湖南卫视」这种老台从抽屉里消失，
+                // 老用户按台名找不到还以为软件坏了。留着台名，播放页会跳过它并提示
+                // 「这个台暂时没有可用的线路」，比无声无息地少一台好。
                 chs.add(new Ch(cname, logoOf(co), urls));
             }
             if (chs.isEmpty()) {

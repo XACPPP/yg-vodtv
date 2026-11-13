@@ -311,16 +311,23 @@ public final class Proxy {
     }
 
     /**
-     * 从 master 里挑一个变体：优先 BANDWIDTH 最大的（电视要清晰度），
-     * 但不超过 5Mbps，避免老芯片解不动；解析不出来就退回第一条。
+     * 从 master 里挑一个变体。
+     *
+     * v2.8 改：以前取的是「不超过 5Mbps 里最大的那一档」，只要有 4Mbps 就一定挑 4Mbps。
+     * 这个策略在电脑上没问题，在电视上是灾难：盒子多半是 802.11n 的 wifi、解码器也是
+     * 老一代，4Mbps 的档位能建连、能起播，然后每隔几秒就 buffering 一次 ——
+     * 用户看到的就是「明明有源却一直在转圈」。现在改成取离 2.6Mbps 最近的一档：
+     * 1080p 直播在 10 尺视距下这个码率完全够清楚，同时给 wifi 和解码器都留了余量。
+     * 低于 0.8Mbps 的档不选（那是马赛克）；全都没有 BANDWIDTH 标注时退回带宽最大的。
      */
     private static String bestVariant(String text) {
         if (text == null) {
             return null;
         }
         String[] ls = text.replace("\r", "").split("\n");
-        String best = null;
-        int bestBw = -1;
+        String first = null;
+        ArrayList<String> urls = new ArrayList<String>();
+        ArrayList<Integer> bws = new ArrayList<Integer>();
         int lastBw = -1;
         for (int i = 0; i < ls.length; i++) {
             String s = ls[i].trim();
@@ -347,17 +354,47 @@ public final class Proxy {
             if (s.charAt(0) == '#') {
                 continue;
             }
-            if (best == null) {
-                best = s;
-                bestBw = lastBw;
+            if (first == null) {
+                first = s;
             }
-            if (lastBw > 0 && lastBw <= 5000000 && lastBw > bestBw) {
-                best = s;
-                bestBw = lastBw;
-            }
+            urls.add(s);
+            bws.add(Integer.valueOf(lastBw));
             lastBw = -1;
         }
-        return best;
+        if (urls.isEmpty()) {
+            return null;
+        }
+        // 目标码率 2.6Mbps：1080p 直播在 10 尺视距下够清楚，老盒子也扛得住
+        final int target = 2600000;
+        int bestIdx = -1;
+        int bestScore = Integer.MAX_VALUE;
+        int maxIdx = -1;
+        int maxBw = -1;
+        for (int i = 0; i < urls.size(); i++) {
+            int bw = bws.get(i).intValue();
+            if (bw <= 0) {
+                continue;
+            }
+            if (bw <= 5000000 && bw > maxBw) {
+                maxBw = bw;
+                maxIdx = i;
+            }
+            if (bw < 800000) {
+                continue;
+            }
+            int score = Math.abs(bw - target);
+            if (score < bestScore) {
+                bestScore = score;
+                bestIdx = i;
+            }
+        }
+        if (bestIdx >= 0) {
+            return urls.get(bestIdx);
+        }
+        if (maxIdx >= 0) {
+            return urls.get(maxIdx);
+        }
+        return first;
     }
 
     /** 相对地址转绝对地址。 */

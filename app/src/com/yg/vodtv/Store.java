@@ -81,6 +81,39 @@ public final class Store {
         }
     }
 
+    /* ==================== 每集总时长 ==================== */
+
+    private static final String K_DUR = "d_";
+
+    /**
+     * 记住某集的总时长（毫秒），没有记录返回 0。
+     *
+     * 为什么要单独存：详情页选集格子上的「已看进度条」要按真实比例画，
+     * 而进度条只知道「看到第几毫秒」是没用的 —— 得知道整集多长才知道画多长。
+     * 起播成功后由播放器回填，播过一集的剧下次进详情页就有准确比例了。
+     */
+    public static int dur(String vid, int ep) {
+        if (sp == null || vid == null || vid.length() == 0) {
+            return 0;
+        }
+        try {
+            return sp.getInt(K_DUR + vid + "_" + ep, 0);
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    public static void saveDur(String vid, int ep, int ms) {
+        if (sp == null || vid == null || vid.length() == 0 || ms <= 0) {
+            return;
+        }
+        try {
+            sp.edit().putInt(K_DUR + vid + "_" + ep, ms).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "保存总时长失败", t);
+        }
+    }
+
     /* ==================== 上次停留的频道 ==================== */
 
     private static final String K_TAB = "tab";
@@ -152,7 +185,109 @@ public final class Store {
         }
     }
 
+    private static final String K_LIVE_NAME = "live_n";
+
+    /**
+     * 上次看的台名。
+     *
+     * 为什么要存名字：源表每天巡检一次，台的位置天天在变 —— 湖南卫视今天在
+     * sat 组第 3 个，明天可能在第 1 个，或者整台被筛空。只存下标的话，
+     * 「开机直接播上次那个台」大概率播成别的台。存名字 + 名字找不到才回落到下标，
+     * 才是可靠的做法。
+     */
+    public static String liveName() {
+        if (sp == null) {
+            return "";
+        }
+        try {
+            String s = sp.getString(K_LIVE_NAME, "");
+            return s == null ? "" : s;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    public static void saveLive(int groupIdx, int chIdx, String name) {
+        saveLive(groupIdx, chIdx);
+        if (sp == null || name == null || name.length() == 0) {
+            return;
+        }
+        try {
+            sp.edit().putString(K_LIVE_NAME, name).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "保存直播台名失败", t);
+        }
+    }
+
     /* ==================== 搜索历史 ==================== */
+    /* ==================== 收藏 ==================== */
+
+    private static final String K_LIKE = "like";
+
+    /**
+     * 是否已收藏。key 用 {@link #vid(String, int)} 拼的「源_id」。
+     *
+     * 存成一整条逗号串而不是每个 key 一个布尔：收藏量撑死几十条，
+     * 一次读一次写比 SharedPreferences 里散落几十个 key 好维护。
+     */
+    public static boolean liked(String key) {
+        if (sp == null || key == null || key.length() == 0) {
+            return false;
+        }
+        try {
+            String s = sp.getString(K_LIKE, "");
+            if (s == null || s.length() == 0) {
+                return false;
+            }
+            for (String p : s.split(",")) {
+                if (key.equals(p)) {
+                    return true;
+                }
+            }
+        } catch (Throwable t) {
+            Trace.err("store", "读收藏失败", t);
+        }
+        return false;
+    }
+
+    /** 切换收藏状态，返回切换后是否已收藏。 */
+    public static boolean toggleLike(String key) {
+        if (sp == null || key == null || key.length() == 0) {
+            return false;
+        }
+        try {
+            String s = sp.getString(K_LIKE, "");
+            StringBuilder sb = new StringBuilder();
+            boolean had = false;
+            if (s != null && s.length() > 0) {
+                for (String p : s.split(",")) {
+                    if (p == null || p.length() == 0) {
+                        continue;
+                    }
+                    if (key.equals(p)) {
+                        had = true;
+                        continue;
+                    }
+                    if (sb.length() > 0) {
+                        sb.append(',');
+                    }
+                    sb.append(p);
+                }
+            }
+            if (!had) {
+                if (sb.length() > 0) {
+                    sb.append(',');
+                }
+                sb.append(key);
+            }
+            sp.edit().putString(K_LIKE, sb.toString()).apply();
+            return !had;
+        } catch (Throwable t) {
+            Trace.err("store", "写收藏失败", t);
+        }
+        return false;
+    }
+
     private static final String K_HIST = "hist";
     private static final int HIST_MAX = 6;
 

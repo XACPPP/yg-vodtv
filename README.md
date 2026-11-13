@@ -366,12 +366,55 @@ dock 自身是 `WRAP_CONTENT`，LinearLayout 在 `WRAP_CONTENT` 下没有「剩�
 （`正在播` 琥珀胶囊 + 清晰度绿标）、副行从「别名 · 高清」变「别名 · 第 2/3 路源」。
 普通行底色 `rgba(255,255,255,.03)`（原 `.04`），焦点行 `rgba(255,179,0,.16)` + 2px 琥珀描边不变。
 
-#### 六、验收
+#### 六、详情页：先把假数据删干净，再谈好不好看
+
+详情页原来的问题是「像那么回事，但一半是编的」：评分胶囊写着 `★ 9.4 豆瓣高分榜`，
+接口的 `vod_score` 其实恒为 `"0.0"`；`继续观看 第12集 (已看至35:20)` 里的秒数我们根本没存；
+`TV-MA` 分级、`杜比视界 · 杜比全景声 认证内容源`、`预告片与花絮 (8)` 全都是设计稿里的占位。
+
+所以这一版对 Stitch 提的改稿要求第一条就是**删**：把上面五类假数据 + `YG影音系统 v4.8.2 · 遥控器信号 优秀`
+一起从稿子里拿掉，再让它在 1920×1080 的锁死画布上重排。产出 screen `133e364a8ee540b4886086375e8145d2`。
+
+代码侧（`DetailActivity.java` 整页重写，412 → 约 700 行）：
+
+| 位置 | 改前 | 改后 |
+|---|---|---|
+| 骨架 | 横排 = 左栏海报 + 右栏，无顶栏无底条 | 竖排 = 72px 顶栏 / 主体（左 380 栏 + 右自适应）/ 40px 键帽条 |
+| 顶栏 | 只有「← 返回列表」贴在海报下面 | 顶栏内「← 返回」胶囊 + 来源名 + 右侧 26px 时钟（进页面就对时，onResume 也刷） |
+| 名次 | 无 | `← 返回` 默认 `requestFocus()`，按返回键才退，符合 10 尺遥控习惯 |
+| 海报 | 380 宽 × `Cards.RATIO`(1.5) = 570 高 | 380×540（设计稿值，比 2:3 略瘦） |
+| 海报角标 | 无 | 只按 `remarks` 里真实出现的字样贴：含 `4K/蓝光/1080` → 左上紫标，含 `VIP/会员` → 右上金标；**没有就不贴** |
+| 海报下方 | 一个「← 返回列表」按钮 | 三个等宽 44px 按钮：收藏 / 分享 / 缓存；收藏直接读 `Store.liked()` 显示「已收藏」并变琥珀 |
+| 元信息 | `备注·年份·地区·类型·源名` 五段拼一行 20px 琥珀 | 严格四项 `年份 · 地区 · 类型 · 备注`，20px `FG_DIM`（设计稿要求只这四项） |
+| 导演/主演/语言 | 一整行 `导演：xxx    主演：xxx` 纯文本 | 三个胶囊（`bg-white/5 + 1px 白描边 + 999 圆角`），**空字段的胶囊不出现** |
+| 简介 | 18px `FG_BODY`，3 行可展开 | 17px `FG_DIM`，3 行可展开（设计稿 `text-[17px]`） |
+| 主操作 | 无（只能点选集格子） | 「▶ 立即播放」琥珀大按钮（内嵌 `OK` 深色键帽，焦点时转为外发光）+ 描边「从头播放」 |
+| 选集标题 | `选集加载中… / 共 30 集 · 上次看到 第12集 · 选一集开始播放` 一坨 22px 灰字 | 左「选集」24px bold + 右「共 30 集」15px 灰，两段分开 |
+| 选集格尺寸 | `px(118) × px(56)` 定宽，10 列固定溢出风险 | 按右栏实际宽度算 `(rightW - 9*gap) / 10`，10 列永远刚好铺满不横向溢出 |
+| 选集格文字 | 直接印 `epNames[i]`（常常是「第01集」甚至整条 URL） | `epLabel()` 归一化：`第01集 → 01`、URL → 集号、其他截 6 字 |
+| 已看进度条 | 固定 `w*0.36` 宽，纯粹装饰 | 按 `Store.pos() / Store.dur()` 真实比例画；为此新增 `Store.dur/saveDur`，播放器每 5 秒落盘位置时顺手把总时长记下 |
+| 焦点格 | 只有 `focusBgGlow` 换背景 | `scale 1.08` + 发光描边 + 数字 18→20px 变白（设计稿 `scale-[1.08] outline 3px`） |
+| 底部 | 无 | 40px 条：左绿点「YG 影音系统 · 遥控器操控」，右五组键帽 `OK/◀▶/▲▼/菜单/返回` |
+
+`Store` 新增两组持久化：
+
+```java
+public static boolean liked(String key)        // 收藏状态，逗号串存
+public static boolean toggleLike(String key)   // 切换并返回新状态
+public static int dur(String vid, int ep)      // 某集总时长（毫秒）
+public static void saveDur(String vid, int ep, int ms)
+```
+
+`PlayerActivity.updateProgress()` 里每 5 秒落盘位置时多记一项 `Store.saveDur(key, index, d)` ——
+不记总时长的话，选集格子上的「已看进度条」只能画个固定长度，看着像装饰。
+
+#### 七、验收
 
 | 项 | 结果 |
 |---|---|
-| `app/build.sh` | `[build] OK`，APK 564153 字节 |
+| `app/build.sh` | `[build] OK`，APK 568249 字节（96 条目 / assets 84 / testzip None / md5 `f7821ae3979ff9f950e1b725242e0887`） |
 | `Ver.java` / Manifest | `2.8` / `versionCode 20` |
+| `live.json` | 382 台、空源台 0、台标引用 84 个且文件齐全 |
 | harness `wire` | PASS（代理字节格式符合 MediaPlayer 预期） |
 | harness `tabs` | PASS（全部分类都有数据且有海报） |
 | harness `rank` | PASS（搜索排序符合预期） |
@@ -380,7 +423,7 @@ dock 自身是 `WRAP_CONTENT`，LinearLayout 在 `WRAP_CONTENT` 下没有「剩�
 | harness `srctab` | PASS 23 项 |
 | harness `cachetab` | PASS 34 项 |
 | harness `pytab` | PASS 24 项 |
-| harness `livetab` | PASS 40 项 |
+| harness `livetab` | PASS 41 项（含「空源台也保留」） |
 
 **真机未验证**（本机没法跑 Android TV，下面几条只有电视上才能确认）：
 
@@ -388,6 +431,72 @@ dock 自身是 `WRAP_CONTENT`，LinearLayout 在 `WRAP_CONTENT` 下没有「剩�
 2. 黑屏判据的 6 秒窗口是否够（网络慢的源可能 6 秒还没解出第一帧，会被误判切台）。
 3. 抽屉里的焦点在「分组胶囊 ↔ 频道行」之间能否顺畅上下移动。
 4. 音量键自己拦之后，电视遥控器上那对音量键在直播页是否真的生效。
+
+#### 八、「1920×1080 是谁定的」
+
+老板问的这句得正面回答，分三件事，别混成一件：
+
+**1）代码里的 1920×1080 是设计基准坐标系，不是输出分辨率。**
+
+```java
+// Ui.java:79-91
+private static int screenW = 1920;      // 默认值，仅作为兜底
+private static int screenH = 1080;
+...
+screenW = c.getResources().getDisplayMetrics().widthPixels;   // 真机读数覆盖
+screenH = c.getResources().getDisplayMetrics().heightPixels;
+scale   = screenW / 1920f;                                    // 等比缩放系数
+```
+
+所有 `Ui.dp()` 的尺寸都写成「1920 宽画布下的像素值」，运行时按真机 `widthPixels/1920`
+放缩。电视是 1366×768 就缩 0.71 倍，是 4K 就放 2 倍 —— **画布是尺子，不是画幅**。
+这个做法从 v1.0 就在，不是这轮新定的。
+
+**2）画布定成 1920×1080 是为了对上 Stitch，属于我定的。**
+
+Stitch 第一版稿子画布是 2560×2048（1.25:1），不是 16:9，所有绝对定位搬到电视上必然整体跑偏
+—— 这才是「抄都抄不像」的真正原因。改稿时要求它锁成 `width:1920px; height:1080px`，
+原因是：电视端设计稿必须有一个确定的像素坐标系，否则它给你的 `left: 380px`
+在不同画布上代表不同的物理位置；选 1080P 是因为它是电视端最通用的基准档，
+且我们 `Ui` 里本来就以 1920 为基准。**这个决定是我做的，老板没下过这个指示。**
+
+**3）底条那句 `YG TV OS · 1080P 60Hz` 是装饰文案，容易误导。**
+
+`LivePlayerActivity.java:599-601` 照设计稿原样抄了一行状态字。设计稿写它是因为画布是 1080P，
+搬到代码里就成了「宣称这台机器是 1080P60 直出」—— 若电视是 1366×768 或 4K，这句话就是假的。
+它不影响任何功能（纯 `TextView`），但会让人以为我们在硬编分辨率。要不要改成读真机分辨率的
+实时文案，等老板定。
+
+### 直播表：`KEEP_SOURCE_ONLY_CHS` 打开一天就回滚
+
+v2.8 中途为了让「湖南卫视这类台消失」有兜底，把 `live_scan.py` 的
+`KEEP_SOURCE_ONLY_CHS` 打开（源站出现过的台名全部保名，`urls` 留空数组），
+`Live.java` 也相应改成不再丢弃空 urls 的台。
+
+一天后实测代价：
+
+| 项 | 关闭（HEAD） | 打开（做坏的那版） |
+|---|---|---|
+| `total` | 382 台 | **708 台** |
+| 真有线路的台 | 382（100%） | **176（25%）** |
+| 空壳台 | 0 | **532** |
+| `live.json` 行数 | — | +4006 行 |
+
+抽屉里 3/4 的台点进去都是「这个台没有可用的线路」，比少几台更难受。处置：
+
+- `app/src/main/assets/live.json` + `logo/` 回滚到 HEAD 健康版（382 台 / 空源 0 / 台标 84 张齐全）；
+- `KEEP_SOURCE_ONLY_CHS` 改回 `False`，注释写清这次实测代价。**保留** 的是 `keep` 列表那条逻辑：
+  「上一版 live.json 里已有」的台名即使这次全灭也保名 —— 湖南卫视不会消失，但源站里新冒出来
+  又全灭的台不再进表（空壳从 532 降到 183，且全是用户昨天真看过的台）；
+- 播放页对空 urls 台的兜底（`LivePlayerActivity.java:698`、`:1163`、`:1455`）保留，不冲突。
+
+**补源实验结论（别再走这条路）**：拿 `live_scan.py --limit 120` 抽查 120 条源，
+round1 活 12 条（10%），round2 复测活 4 条（3%）；淘汰分布 `http=78 / seg=4 / kbps=33 / 其余 0`
+—— 主要杀手是 **220KB/s 码率门槛**，不是连通性。四个境外镜像 IP 模板在这台机器上只剩 1 条能过
+（`CCTV-3 http://74.91.26.218:82/live/cctv3hd.m3u8`）。不是模板选错，是这批镜像本身退化成
+「TTFB 正常、分片拉不动」。所以：**接受「台少但能看」**，不能把 `MIN_KBPS` 降回去 —— 那正是
+「10 个台 7 个卡」的成因。
+
 
 ### v2.7.1：修 CI 漏打包 assets（v2.7 的 Release 里台标一张都没有）
 
@@ -1683,8 +1792,10 @@ YG影视TV/
   都放不出来，先看 GitHub Actions 的 `scan` 是否还在正常跑，别急着改代码
 - **动画/少儿台目前是空的**（`kids` 组 0 个频道）：两个公共清单里动画那 54 条单探 40 条全挂，
   多为 migu token 中转站和已停服的 freetv.fun。等找到可用源再放开 `live_scan.py` 的筛选规则
-- **直播表不打包进 APK**：和 `sources.json`、`py/*.txt` 一样，`assets/` 没进包（`aapt2 link` 没有 `-A`），
-  运行期走 `raw.githubusercontent.com`，编译期兜底是 `Live.BUILTIN`（5 组 17 台占位台名）
+- **直播表不打包进 APK**：`aapt2 link -A build/assets` 只挂了 `logo/` 一个目录
+  （`build.sh` / `build-ci.sh` 里都是 `cp -r src/main/assets/logo build/assets/logo`），
+  `live.json` 不进包，运行期走 `raw.githubusercontent.com`，编译期兜底是 `Live.BUILTIN`
+  （5 组 17 台占位台名）。这样每天巡检改表不用重发 APK
 - **`limit=` 各源都不认**，所以每页条数只能本地截断（当前 84 条）
 - 翻页上限写了 400 页（`curPage < 400`），再往后意义不大
 - 没有收藏、没有字幕切换（片源自带硬字幕）

@@ -372,6 +372,8 @@ public final class PlayerActivity extends Activity {
             // 每 5 秒落一次盘就够了，写太勤对闪存不友好
             if (++tickCount % 5 == 0) {
                 Store.savePos(key, index, p);
+                // 顺手把总时长也记下：详情页选集格子的进度条要靠它算比例
+                Store.saveDur(key, index, d);
             }
         } catch (Throwable t) {
         }

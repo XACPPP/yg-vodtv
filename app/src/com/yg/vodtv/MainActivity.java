@@ -110,6 +110,23 @@ public final class MainActivity extends Activity {
     /** dock 当前展示的片子（焦点落在哪张卡就换成哪一部）。 */
     private Vod dockVod;
 
+    /** 顶栏右侧时钟（设计稿 headline-sm 26px）。 */
+    private TextView clockView;
+    private final Runnable clockTick = new Runnable() {
+        public void run() {
+            tickClock();
+            ui.postDelayed(this, 30000);
+        }
+    };
+
+    private void tickClock() {
+        if (clockView == null) {
+            return;
+        }
+        clockView.setText(new java.text.SimpleDateFormat("HH:mm", java.util.Locale.US)
+                .format(new java.util.Date()));
+    }
+
     private TextView banner;
     private final Runnable hideBanner = new Runnable() {
         public void run() {
@@ -215,8 +232,20 @@ public final class MainActivity extends Activity {
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
 
-        // 统计胶囊（设计稿右上角「24 频道 · 14 源」那个位置）
-        bar.addView(Chrome.statPill(this, Ver.NAME + " · 极清影院"));
+        // 统计胶囊（设计稿右上角「24 分类 · 14 源」那个位置）。
+        // 原来这里写的是版本号 + 「极清影院」，可左边品牌区已经写了「极清影院」，
+        // 同一行重复两遍纯属浪费版面；换成真实数据（分类数 / 源数）才有信息量。
+        int srcCount = Src.all() == null ? 0 : Src.all().size();
+        bar.addView(Chrome.statPill(this, TAB_NAME.length + " 分类 · " + srcCount + " 源"));
+
+        // 时钟：设计稿右上角是 headline-sm 26px，10 尺视距下这是唯一「活着」的时间信息
+        clockView = Ui.bold(this, "00:00", 26, 0xE6FFFFFF);
+        LinearLayout.LayoutParams cklp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        cklp.leftMargin = Ui.px(20);
+        bar.addView(clockView, cklp);
+        tickClock();
+        ui.postDelayed(clockTick, 30000);
 
         TextView searchBtn = chip("搜 索", false);
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -548,7 +577,11 @@ public final class MainActivity extends Activity {
 
         View sp = new View(this);
         row.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
-        row.addView(Chrome.statusDot(this, Ver.NAME + " · 极清影院 · 遥控器信号 良好", Ui.OK_GREEN));
+        // 设计稿这里只有「绿点 + 遥控器就绪」。
+        // v2.7 写的是「v2.8 · 极清影院 · 遥控器信号 良好」——
+        // 「信号 良好」是编的（我们读不到遥控器信号强度），版本号在顶栏已经有一份，
+        // 双份都是噪音，删掉。
+        row.addView(Chrome.statusDot(this, "遥控器就绪", Ui.OK_GREEN));
 
         return dock;
     }

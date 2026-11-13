@@ -159,6 +159,16 @@ public final class LivePlayerActivity extends Activity {
     private long preparedAt = 0;
     /** 播放器报上来的视频宽度。0 = 解码器还没解出画面。 */
     private int videoW = 0;
+    /**
+     * 本路源累计卡顿次数。前面的四条判据都只抓「一次性卡死」，
+     * 抓不到「每 10 秒卡 3 秒、卡完自己恢复」的烂源 —— 那种源在用户眼里就是
+     * 「10 个台 7 个都在转圈」。累计 4 次就直接判死换下一路。
+     */
+    private int stalls = 0;
+    /** 最近一次 BUFFERING_START 的时刻，用来给上面的累计做去抖（8 秒内不重复记）。 */
+    private long lastStallAt = 0;
+    private static final int MAX_STALLS = 4;
+    private static final long STALL_DEBOUNCE_MS = 8000;
 
     /**
      * 画面比例。v2.8 起默认「自动」，因为自动的判据换了：
@@ -225,11 +235,17 @@ public final class LivePlayerActivity extends Activity {
         Proxy.start();
 
         groups = Live.groups();
-        // 入口不再要求「先选组再选台」：没带参数就用上次看的台，没有就第 0 组第 0 台
+        // 入口不再要求「先选组再选台」：没带参数就恢复上次看的台
         groupIdx = getIntent().getIntExtra("groupIdx", Store.liveGroup());
         chIdx = getIntent().getIntExtra("chIdx", Store.liveChannel());
         if (groupIdx < 0 || groupIdx >= groups.size()) {
             groupIdx = 0;
+        }
+        // 先把「上次看的那个台」按台名找回来。源表每天巡检一次，台的顺序天天变，
+        // 只靠下标恢复一定会播成别的台 —— 存名字才靠得住。
+        // 带了 groupIdx/chIdx 参数（从别处点进来）时以参数为准，不去覆盖它。
+        if (!getIntent().hasExtra("groupIdx") && !getIntent().hasExtra("chIdx")) {
+            restoreByName(Store.liveName());
         }
         browseGroupIdx = groupIdx;
 
@@ -1046,7 +1062,7 @@ public final class LivePlayerActivity extends Activity {
             showDead("这个台暂时没有可用的线路，换个台试试");
             return;
         }
-        Store.saveLive(groupIdx, chIdx);
+        Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
         if (drawerVisible) {
             toggleDrawer();
         }
@@ -1054,6 +1070,34 @@ public final class LivePlayerActivity extends Activity {
     }
 
     /* ==================== 播放 ==================== */
+
+    /**
+     * 按台名把上次看的台找回来。找不到就什么都不做，让后面的 firstPlayable() 兜底。
+     *
+     * 之所以不靠下标：live.json 是每日巡检产出的，分组内顺序会随「当天哪条源快」
+     * 重排，昨天第 3 个是湖南卫视、今天第 3 个可能是广东卫视。只存下标的话
+     * 「开机直接播上次那个台」就变成了随机换台。
+     */
+    private void restoreByName(String name) {
+        if (name == null || name.length() == 0) {
+            return;
+        }
+        for (int g = 0; g < groups.size(); g++) {
+            Live.Group gr = groups.get(g);
+            if (gr == null || gr.chs == null) {
+                continue;
+            }
+            for (int i = 0; i < gr.chs.size(); i++) {
+                Live.Ch c = gr.chs.get(i);
+                if (c != null && name.equals(c.name)) {
+                    groupIdx = g;
+                    chIdx = i;
+                    return;
+                }
+            }
+        }
+        Trace.add("live", "上次看的台「" + name + "」不在新源表里，回落到下标");
+    }
 
     private boolean pickChannel() {
         if (groups.isEmpty()) {
@@ -1138,6 +1182,8 @@ public final class LivePlayerActivity extends Activity {
         posAt = 0;
         preparedAt = 0;
         videoW = 0;
+        stalls = 0;
+        lastStallAt = 0;
 
         final String raw = urls.get(idx);
         final String local = Proxy.wrapPlaylist(raw);
@@ -1178,6 +1224,11 @@ public final class LivePlayerActivity extends Activity {
                     busy.setVisibility(View.VISIBLE);
                     busyText.setVisibility(View.VISIBLE);
                     bufAt = System.currentTimeMillis();
+                    // 间歇卡顿累计：8 秒内反复 start/end 只算一次
+                    if (bufAt - lastStallAt > STALL_DEBOUNCE_MS) {
+                        lastStallAt = bufAt;
+                        stalls++;
+                    }
                 } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
                     busy.setVisibility(View.GONE);
                     busyText.setVisibility(View.GONE);
@@ -1270,7 +1321,8 @@ public final class LivePlayerActivity extends Activity {
 
     /**
      * 看门狗：巡检脚本只能证明「这一秒连得上」，证明不了「能一直播」。
-     * 这四种情况一律换源：起播超时、缓冲卡住、画面位置不再前进、解码器出不了画。
+     * 这五种情况一律换源：起播超时、缓冲卡住、画面位置不再前进、解码器出不了画、
+     * 以及间歇性反复卡顿（每 10 秒卡 3 秒、卡完自己恢复的那种）。
      */
     private final Runnable watchdog = new Runnable() {
         public void run() {
@@ -1325,6 +1377,15 @@ public final class LivePlayerActivity extends Activity {
         if (preparedAt > 0 && videoW <= 0 && now - preparedAt > BLANK_TIMEOUT_MS) {
             Trace.add("live", "线路" + (urlIdx + 1) + " 黑屏无画面");
             autoNext("这一路只有声音没有画面，换下一路");
+            return;
+        }
+
+        // 5. 间歇卡顿：每 10 秒卡 3 秒、卡完自己恢复的源。
+        //    上面四条都只抓「一次性卡死」，这种「细水长流地卡」全部漏网，
+        //    但它才是「10 个台 7 个都在转圈」的主要来源。
+        if (stalls >= MAX_STALLS) {
+            Trace.add("live", "线路" + (urlIdx + 1) + " 反复卡顿 " + stalls + " 次");
+            autoNext("这一路老是在转圈，换下一路");
         }
     }
 
@@ -1350,7 +1411,7 @@ public final class LivePlayerActivity extends Activity {
         for (int k = 0; k < n; k++) {
             chIdx = ((chIdx + step) % n + n) % n;
             if (pickChannel()) {
-                Store.saveLive(groupIdx, chIdx);
+                Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
                 play(0);
                 return;
             }
@@ -1379,7 +1440,7 @@ public final class LivePlayerActivity extends Activity {
             showToast("这个分组没有可用的台");
             return;
         }
-        Store.saveLive(groupIdx, chIdx);
+        Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
         play(0);
     }
 
