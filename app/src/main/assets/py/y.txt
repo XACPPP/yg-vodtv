@@ -1105,6 +1105,7 @@ ydhykqfh	药店会员卡欠费后
 ydj	医度讲
 ydjb	园丁剧版
 ydjcqx	诱得奸臣倾心
+ydjcqxdej	诱得奸臣倾心第二季
 ydjd	一等家丁
 ydjdj	一点就到家
 ydjdjdyjs	一点就到家[电影解说]
@@ -1270,8 +1271,10 @@ ydtjzdyj	有顶天家族第一季
 ydtm	与谍同谋
 ydtqdzxlxf	远东特遣队之狭路相逢
 ydtrdezhwxl	养大他人的儿子后我笑了
+ydttxsccmqbhylq	影帝偷听心声_穿成萌犬爆红娱乐圈
 ydttxsccmqbhylq	影帝偷听心声：穿成萌犬爆红娱乐圈
 ydttxsccmqbhylq	影帝偷听心声：穿成萌犬爆红娱乐圈2026
+ydttxsccmqbhylqdej	影帝偷听心声：穿成萌犬爆红娱乐圈第二季
 ydttxsccmqbhylqjb	影帝偷听心声：穿成萌犬爆红娱乐圈163集版
 ydtxgy	与敌同行国语
 ydtxyy	与敌同行粤语
@@ -2043,6 +2046,7 @@ ygmsnrdlxdyjs	一个陌生女人的来信[电影解说]
 ygmsrddh	一个陌生人的电话
 ygmt	一根木头
 ygmtdej	一根木头第二季
+ygmthldsffj	一个馒头换来的首辅夫君
 ygmxdds	一个明星的诞生
 ygmxdds	一个明星的诞生1937
 ygmxddsdyjs	一个明星的诞生[电影解说]
@@ -2368,6 +2372,7 @@ yh	妖魂
 yh	宴会
 yh	尤哈
 yh	影后
+yh	御狐
 yh	怨恨2021
 yh	愈合
 yh	掩护
@@ -2445,6 +2450,7 @@ yhcj	野火缠娇
 yhcjamcqfzll	丫鬟穿进高门,超强辅助来了
 yhcqabz	云海尘清爱不止
 yhcs	银狐传说
+yhcxsnezj	御狐2赤霄少年(更至161集)
 yhcxxdej	萤火虫小巷第二季
 yhcxxdyj	萤火虫小巷第一季
 yhcxylr	烟火朝夕遇良人
@@ -3299,6 +3305,7 @@ yjnjxdyj	一见你就笑第一季
 yjnl	又见奈良
 yjnldyjs	又见奈良[电影解说]
 yjnm	一箭逆命
+yjnpwsqhm	远嫁涅槃,我肃清豪门
 yjnq	一见·南侨
 yjnqsnzc	遇见你情深难知错
 yjnsfht	遇见你时风好甜
@@ -6460,6 +6467,7 @@ yssczqk	隐世神厨震乾坤
 yssd	又是圣诞
 yssddyjs	亚瑟·圣诞[电影解说]
 yssf	月升时分
+yssfwlcadj	易碎首辅我来宠AI短剧
 yssh	一生守护
 yssh	耀世神凰
 ysshj	玉守山河静
@@ -6808,6 +6816,7 @@ yt	樱桃2008
 yt	樱桃2012
 yt	雨婷
 ytadlg	一条安达鲁狗
+ytasdyj	予她安生第一季
 ytbbdhanrxwy	要听爸爸的话 男女8人夏物语
 ytbbdhanrxwy	要听爸爸的话男女8人夏物语
 ytbcyy	予她半城烟雨
@@ -6852,6 +6861,7 @@ ytfylsh	一棠风月两世欢
 ytfywznddwg	羽坛风云我在80年代当外挂
 ytfzs	遇棠方知涉
 ytfzsbpznljhl	遇棠方知涉_被偏执男揽进怀里
+ytfzsbpznzlrhzdyj	遇棠方知涉:被偏执男主揽入怀中第一季
 ytfzscshcltdxjc	遇棠方知涉:穿书后成了他的心尖宠
 ytfzsdej	遇棠方知涉第二季
 ytfzsdejwjp	遇棠方知涉!第二季完结篇
@@ -7205,6 +7215,7 @@ ywdt	愿望地图
 ywdtc	夜晚的他处
 ywdtndyjs	伊万的童年[电影解说]
 ywdwj	亿万第五季
+ywdxbyyegywd	因为担心不优雅而过于无敌
 ywdxh	意外读心后
 ywdxhhnda	以我的心呼唤你的爱
 ywdxj	欲望的陷阱
@@ -8751,6 +8762,7 @@ yyqwl	一夜情未了
 yyqx	原野奇侠
 yyqx	夜夜倾心
 yyqxdyj	夜夜倾心第一季
+yyqxsfdej	砚遇浅夏时分第二季
 yyqxsfxd	砚遇浅夏时分心动
 yyqxwrzchwlxldyj	夜夜倾心:误惹总裁后我沦陷了第一季
 yyqy	云月奇缘

@@ -585,6 +585,7 @@ dcgf	断肠孤凤
 dcgfjdttsk	斗茶贵妃驾到，通通闪开
 dcgl	貂蝉归来
 dcglfp	第10000次攻略反派
+dcglfpjb	第10000次攻略反派103集版
 dcglnpxfzgxxj	独宠高冷女配，掀翻整个修仙界
 dcglnzwdmgl	第100次攻略男主，我堕魔归来
 dcgy	貂蝉国语1987
@@ -921,6 +922,7 @@ ddjps	大盗吉普赛
 ddjqr	大帝机器人
 ddjstlmtx	垫底教师，桃李满天下
 ddjx	当代奸雄
+ddjzjxswjsl	当短剧照进现实,我家碎了
 ddk	断刀客
 ddkbfbbwzzcdl	垫底恐怖副本被我妆造成顶流
 ddkbmmqhj	爹地快把妈咪抢回家
@@ -1800,6 +1802,7 @@ dhbqszwslplqwrf	大婚被弃,摄政王十里聘礼抢我入府
 dhbyc	代号：白云苍
 dhbydcq	敌后便衣队传奇
 dhbydwkjqbss	囤货百亿的我，开局却变丧尸
+dhcdxy	大河村的星月
 dhcjwbzqycbjzz	大婚抄家，我把罪妻养成北境之主
 dhcs	地海传说
 dhcs	第40号城市
@@ -1902,6 +1905,7 @@ dhjmq	代号叫麻雀
 dhjncbmwgdlk	搭伙九年成保姆,我果断离开
 dhjnwbshl	搭伙九年，我不伺候了
 dhjssbycrjnmh	大婚假死私奔妖潮入境你莫悔
+dhjsyszxch	大婚假死夜,世子心成灰
 dhjtealm	帝后今天恩爱了吗
 dhjygzq	打火机与公主裙
 dhjyjmx	当花季遇见梦想
@@ -2980,6 +2984,7 @@ dlbs	呆佬拜寿
 dlbs	第六巴士
 dlbsdlbsdyjs	呆佬拜寿 呆佬拜壽[电影解说]
 dlbsjshtqhzbldhtyxyl	德里巴斯街上好天气，或者布莱顿海滩又下雨了
+dlbxk	地理补习课
 dlbycshyhddmm	打猎捕鱼采山货，养活弟弟妹妹
 dlcazyxg	跌落尘埃，终遇星光
 dlcblxxztgkydl	顶流穿八零玄学种田拐科研大佬
@@ -3196,6 +3201,7 @@ dlmxd	对立面心动
 dlndslmbzbjjldlmjdej	打了300年的史莱姆，不知不觉就练到了满级第二季
 dlngcsldej	大佬,你该出手了第二季
 dlngcsldsj	大佬,你该出手了第三季
+dlngcsldsjwzbsdla	大佬,你该出手了第四季:我真不是大佬啊
 dlngcsldyj	大佬，你该出手了第一季
 dlnh	地牢女孩
 dlnhdej	德里女孩第二季
@@ -3617,6 +3623,7 @@ dmm	大买卖
 dmmc	盗墓迷城
 dmmdyjs	大买卖[电影解说]
 dmmhmh	当妈妈昏迷后
+dmmksjzdsh	当妈妈开始较真的时候
 dmmn	大明末年
 dmmndqqlgysx	叮！妈咪你的亲亲老公已上线
 dmmt	大梦弥天
@@ -4267,6 +4274,8 @@ dqds	道歉大师
 dqdsbdk	嫡妻动手不动口
 dqdsj	大群第三季
 dqdsmdyj	地球大扫描第一季
+dqdsqgdsym	大乾毒士,千古第三阳谋!
+dqdsqgdsymdej	大乾毒士,千古第三阳谋!第二季
 dqdyd	大庆第一帝
 dqdyj	大群第一季
 dqdyjdyjs	大群 第一季[电影解说]
@@ -5920,6 +5929,7 @@ dwndqgjbydz	大王！您的强国脚本已到账
 dwnssy	当我凝视深渊
 dwntdglssdxs	当我能听到高冷上司的心声
 dwnxzscxzks	大魏逆婿：重生从掀桌开始
+dwnzfcxsblwy	第五年重逢,驰先生别来无恙
 dwnzfwpzjbal	第五年重逢,我骗自己不爱了
 dwnzfzxszdskadj	第五年重逢,周先生再度失控AI短剧
 dwpbswsmdbx	当我跑步时我什么都不想
@@ -6609,6 +6619,7 @@ dxyl	地心引力
 dxyld	黛西与乐队
 dxyldyjs	地心引力[电影解说]
 dxym	大仙衙门 (2016)
+dxym	大喜盈门
 dxyq	独行月球
 dxyqdhb	独行月球动画版
 dxyqdyjs	独行月球[电影解说]
@@ -7359,6 +7370,7 @@ dyxjyyy	导游小姐阴阳眼
 dyxl	第一序列
 dyxlchtx	等一下啦，春虎同学
 dyxldyjs	地狱醒龙[电影解说]
+dyxlf	毒医修罗妃
 dyxshsjc	道医下山，横扫江城
 dyxx	地狱学校
 dyxxnr	大英雄 小男人
@@ -7541,6 +7553,8 @@ dzdtqjs	短暂的偷情纪实
 dzdyjs	定罪[电影解说]
 dzdyjs	毒战[电影解说]
 dzdyjs	盗贼[电影解说]
+dzdywfzcrdzdlj	大周第一武夫之初入大周第六季
+dzdywfzcrdzdqj	大周第一武夫之初入大周第七季
 dzdywfzcrdzdwj	大周第一武夫之初入大周第五季
 dzdyx	大周第一婿
 dzdzmqss	碟中谍7：致命清算（上）

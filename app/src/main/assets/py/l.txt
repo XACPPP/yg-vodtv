@@ -27,6 +27,7 @@ labj	炼爱北京
 labjx	恋爱北极熊
 labkcszq	恋爱不可承受之轻
 labkkl	恋爱不可抗力
+labl	拉纳巴利
 labs	恋爱博士
 labsmjdej	恋爱吧，食梦君！第二季
 labsy	恋爱吧，少爷
@@ -1030,6 +1031,7 @@ ldjsln	捞的就是捞女
 ldjswan	来得及说我爱你
 ldjt	绿灯军团
 ldjt	路的尽头
+ldjtsj	路的尽头是家
 ldjtszf	路的尽头是重逢
 ldjx	陆地键仙
 ldjx	零度极限
@@ -1295,6 +1297,7 @@ lffw	龙飞凤舞
 lfghzhlh	流放刚好在和离后
 lfghzhlh	流放刚好在和离后2
 lfghzhlh	流放刚好在和离后3
+lfgjqjwwxcsadj	龙凤归京,请君为我续长生AI短剧
 lfgltfgmjh	流放归来,她风光满京华
 lfglzzhyytx	凌风归来：执掌红颜与天下
 lfgsmtf	鸾凤归时满庭芳
@@ -2197,6 +2200,7 @@ lhjxzsknmthxys	轮回剑仙重生，可女魔头好像也是
 lhjy	烈火救援
 lhjyy	兰花劫粤语
 lhjz	龙虎家族
+lhjzjngw	离婚,继子继女归我
 lhjzjzgl	龙虎劫之激战归来
 lhjztjqxq	离婚，姐转头就去相亲
 lhjzy	轮回镜之羽
@@ -4947,6 +4951,7 @@ lsxd	猎鲨行动1987
 lsxd	镭射小队
 lsxd	镭射小队2
 lsxdjzwxr	镭射兄弟激战外星人
+lsxdmwzhyjdc	乱世携弟妹,我自荒野建帝朝
 lsxdyy	猎鲨行动粤语
 lsxg	乱世香港
 lsxg	兰森峡谷
@@ -5154,6 +5159,7 @@ ltslx	六头鲨来袭
 ltslxdyjs	六头鲨来袭[电影解说]
 ltsmnxsmy	猎天使魔女：血色命运
 ltsmyxh	连天碎梦压星河
+ltsn	老坛少年
 ltsrx	雷霆三人行
 ltssdwqygadwqcjwh	龙腾盛世大湾区——2024粤港澳大湾区春节晚会
 ltswcdsp	炼体十万层：都市篇
@@ -6400,6 +6406,7 @@ lzccjrzr	龙珠超：超级人造人
 lzccjrzrdyjs	龙珠超：超级人造人[电影解说]
 lzcclaqdbh	洛总初尝恋爱请多包涵
 lzcfhwhbdc	领证错付后，我悔不当初
+lzcg	灵芝出宫
 lzcgyb	龙珠超 国语版
 lzcjbpnsjww	老祖赐聚宝盆能升级万物
 lzcjydgqhn	老宅藏机遇，低谷启华年
@@ -6655,6 +6662,7 @@ lzmw	狼在门外
 lzmy	狼族盟约
 lzmydyjs	狼族盟约[电影解说]
 lzmyx	良州明月兮
+lzmz	林中迷证
 lzn	狼之女
 lzn	龙之怒
 lzndbygslpmr	陆总你的白月光是落魄美人

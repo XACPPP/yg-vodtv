@@ -95,6 +95,7 @@ qadmm	亲爱的妈咪
 qadmm	亲爱的妈妈
 qadmm	亲爱的孟买
 qadmmfyg	亲爱的，喵喵翻译官
+qadmmrc	亲爱的,喵喵日常
 qadmsr	亲爱的陌生人
 qadmsr	亲爱的陌生人2025
 qadmsrdyjs	亲爱的陌生人[电影解说]
@@ -309,6 +310,7 @@ qbyawcxhcc	请不要爱我，程序会出错
 qbycarnsydjr	桥本有菜-Arina5闪耀的假日
 qbyfkwds	请不要放开我的手
 qbyjw	请不要救我
+qbykjwdygadj	请不要靠近我的月光AI短剧
 qbykwmedf	秋本翼 – 渴望马尔代夫
 qbylkw	请不要离开我
 qbyrs	情不由人散
@@ -437,6 +439,7 @@ qchgn	青春灰姑娘
 qchh	青春划痕
 qchjlq	青春皇家恋曲
 qchjlqmgltgz	青春皇家恋曲：玛格丽特公主
+qchmxdzcwr	青春回眸,幸得咫尺温柔
 qchq	权宠悍妻
 qchqd	青春后驱动
 qchql	青春嗨起来
@@ -2576,6 +2579,8 @@ qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第三季
 qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第四季
 qmqswdjeyyddddwj	全民求生:我的技能有亿点点多第五季
 qmqswkqdjbs	全民求生:我靠签到建别墅
+qmqszywnkjycts	全民求生:只有我能看见隐藏提示
+qmqszywnkjyctsdej	全民求生:只有我能看见隐藏提示第二季
 qmqw	千密千危
 qmqwx	齐妙请微笑
 qmr	敲门人
@@ -2604,6 +2609,7 @@ qmsdzdwdfsl	全末世都在等我的粉三轮2
 qmsdzdwdfsl	全末世都在等我的粉三轮3
 qmsdzdwdfsl	全末世都在等我的粉三轮4
 qmsfxzdym	亲妈是福星终得圆满
+qmsgzwnrhww	全民神国之我能融合万物
 qmsht	情迷上海滩
 qmsht	清明上河图
 qmshtmm	清明上河图密码
@@ -3371,6 +3377,7 @@ qqyasj	奇奇欲爱世界
 qqyb	清浅以北
 qqybwddzsxh	清浅以北，我的搭子是校花
 qqybwddzsxhdej	清浅以北，我的搭子是校花第二季
+qqybwddzsxhdlj	清浅以北,我的搭子是校花第六季
 qqybwddzsxhdsj	清浅以北,我的搭子是校花第四季
 qqybwddzsxhdsj	清浅以北，我的搭子是校花第三季
 qqybwddzsxhdwj	清浅以北,我的搭子是校花第五季
@@ -3880,6 +3887,7 @@ qsnrzxk	其实男人最辛苦
 qsnsd	轻熟女时代
 qsntzygydyx	切斯纳特：中央公园的英雄
 qsnxysm	请说你想要什么
+qsnybglhxtwzes	前世孽缘不管了,狐仙替我抓二叔
 qsnyflq	青山难越风掠去
 qsnyqssjq	枪手男友请束手就擒
 qsolclgjfh	穷山沟里藏了个金凤凰
@@ -5479,6 +5487,7 @@ qztcbzl	秦总他藏不住了
 qztdzhxwqd	情债太多,只好修无情道
 qztjnmzyl	全族托举农门状元郎
 qztjnmzyldej	全族托举农门状元郎第二季
+qztjnmzyldlj	全族托举农门状元郎第六季
 qztjnmzyldsj	全族托举农门状元郎第三季
 qztjnmzyldsj	全族托举农门状元郎第四季
 qztjnmzyldwj	全族托举农门状元郎第五季

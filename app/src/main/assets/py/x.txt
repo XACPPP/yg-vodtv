@@ -1174,6 +1174,7 @@ xdjmm	新东京猫猫
 xdjmqadzz	兄弟姐妹求爱大作战
 xdjmqlx	兄弟姐妹去旅行
 xdjmz	现代靓妹仔
+xdjqdsj	心动禁区第三季
 xdjrx	鲜道见人心
 xdjs	心动加速
 xdjsbdej	心动加速包第二季
@@ -1633,6 +1634,7 @@ xfdtlyzcljw	下凡当天，冷艳总裁来接我
 xfdwd	幸福岛味道
 xfdwj	幸福到万家
 xfdwm	幸福的完美
+xfdxjdxlcadj	相府大小姐的修罗场AI短剧
 xfdxx	幸福的馨香
 xfdxyt	幸福的小杨屯
 xfdyjs	刑房[电影解说]
@@ -2764,6 +2766,7 @@ xhyhltjyfcwfy	新婚夜和离,替嫁医妃超旺夫呀
 xhyhlxd	性、谎言和录像带
 xhyhzla	想好以后再恋爱
 xhyjtzgm	小花妖今天在干嘛
+xhyjtzgmdej	小花妖今天在干嘛第二季
 xhylbfsswr	星河引路，奔赴岁岁温柔
 xhylgtndsesxfdqll	新婚夜，老公体内的三个死刑犯打起来了
 xhylhs	新婚夜，离婚时
@@ -3664,6 +3667,7 @@ xldgs	心灵的故事
 xldgs	西里安的故事
 xldhn	下流的海女
 xldhtp	秀兰的馄饨铺
+xldj	秀兰当家
 xldjb	修罗短剧版
 xldjs	心灵的救赎
 xldlj	侠岚第六季
@@ -4040,6 +4044,7 @@ xlyap	雪落意难平
 xlybzfbdcfwye	血量亿倍增幅，被当成废物异能
 xlybzfbdcfwyedej	血量亿倍增幅，被当成废物异能第二季
 xlybzfbdcfwyedlj	血量亿倍增幅,被当成废物异能第六季
+xlybzfbdcfwyedqj	血量亿倍增幅,被当成废物异能第七季
 xlybzfbdcfwyedsj	血量亿倍增幅，被当成废物异能第三季
 xlybzfbdcfwyedsj	血量亿倍增幅，被当成废物异能第四季
 xlybzfbdcfwyedwj	血量亿倍增幅,被当成废物异能第五季
@@ -5739,6 +5744,7 @@ xsfyz	相识风雨中
 xsg	新三国（2010）
 xsg	相思蛊
 xsg	许三观
+xsgchrzzcyqlyjhk	携手共创好日子之穿越七零月季花开
 xsgdyjs	吓死鬼[电影解说]
 xsgdyjs	许三观 허삼관[电影解说]
 xsgdyjs	许三观[电影解说]
@@ -5944,7 +5950,9 @@ xslxqpxqdyjs	小森林 夏秋篇 リトル・フォレスト 夏・秋[电影解
 xslydyjs	心声泪影[电影解说]
 xslyg	仙师揽月归
 xslzygl	心声落在月光里
+xsmbatljysjdej	小师妹不按套路惊艳三界第二季
 xsmbatljysjdsj	小师妹不按套路惊艳三界第四季
+xsmbatljysjl	小师妹不按套路惊艳三界六
 xsmbatljysjzgxgz	小师妹不按套路惊艳三界之改写规则
 xsmbkdhlz	小师妹别哭,灯还亮着
 xsmblszdsnl	小师妹别浪,师尊盯上你了
@@ -6495,6 +6503,7 @@ xtjbz	侠探简不知
 xtjc	小田进城
 xtjccqfdzkzbdsh	系统加持：从弃夫到掌控资本的神话
 xtjcjqylc	系统加持，解气又来财
+xtjcjsdpry	系统加持解锁顶配容颜
 xtjcwzxxcfssq	系统加持：我在小县城风生水起2
 xtjcywg	星途烬处有微光
 xtjczscqzfl	系统加持：重生宠妻致富路
@@ -6605,6 +6614,7 @@ xtrwcqyfcflsfy	系统让我宠妻，引发财富连锁反应
 xtrwddmxcfpl	系统让我当大明星：乘风破浪
 xtrwdfpnwzhwdl	系统让我当反派，那我只好无敌了
 xtrwdfpwqclfat	系统让我当反派,我却成了凤傲天
+xtrwdfpwqclfatdej	系统让我当反派,我却成了凤傲天第二季
 xtrwdhr	系统让我当好人
 xtrwdphnzpbr	系统让我当炮灰男主偏不让2
 xtrwdphnzpbr	系统让我当炮灰男主偏不让3
@@ -6752,6 +6762,7 @@ xwbjsdej	新闻编辑室第二季
 xwbjsdsj	新闻编辑室 第三季
 xwbjsdsj	新闻编辑室第三季
 xwbjsdyj	新闻编辑室第一季
+xwbjwfsjnsdt	嫌我败家,我反手嫁你死对头
 xwbkgs	小尾巴，快跟上！
 xwbyydej	新闻播音员第二季
 xwbyydyj	新闻播音员第一季
@@ -7484,6 +7495,7 @@ xxmtxk	许下漫天星空
 xxmyxdddy	小虾米也想钓到鲷鱼
 xxmyysls	像兄妹一样手拉手
 xxmz	寻雪迷踪
+xxmz	心乡迷踪
 xxn	小修女
 xxnaw	谢谢你爱我2025
 xxnbj	吸血女伯爵
@@ -7790,6 +7802,7 @@ xxzmdcwyrdwj	邪修宗门独宠我一人第五季
 xxznc	新小子难缠
 xxzqdmm	小小追球的秘密
 xxzqj	玄学真千金
+xxzqjcql	玄学真千金穿七零
 xxzqjdeb	乡下真千金第二部
 xxzqjdej	玄学真千金第二季
 xxzqjjslzz	乡下真千金竟是老祖宗
@@ -8183,6 +8196,7 @@ xyjzxlng	西游记之西梁女国
 xyjzzsyw	西游记之再世妖王
 xyk	向右看
 xykf	小雨咖啡
+xykhbxklhzsctxadj	乡野开荒奔小康:理化之术闯天下AI短剧
 xykhxrq	心有葵花向日倾
 xykl	雪浴昆仑
 xyl	吸引力
@@ -8216,6 +8230,7 @@ xyly	幸运路易
 xyly	星引良缘
 xylyy	洗冤录2粤语
 xylyy	洗冤录粤语
+xylz	雪域领主
 xylz	雪鹰领主
 xylz	雪鹰领主2023
 xylzcfw	雪原狼主宠疯我
@@ -8365,6 +8380,7 @@ xysj	校园司机
 xysj	硝烟散尽
 xysjd	小野寺姐弟
 xysjztzf	夏有山居,种田致富
+xysjztzfdej	夏有山居,种田致富第二季
 xysl	许愿神龙
 xysldyjs	许愿神龙[电影解说]
 xysleskwhjesyk	小姨随礼二十块,我回敬二十一块
@@ -8504,6 +8520,7 @@ xyxegslx	小羊肖恩3：怪兽来袭
 xyxemrnc	小羊肖恩2：末日农场
 xyxfc	校园腥复仇
 xyxfdzzj	想要幸福的政宗君
+xyxfyxc	小源心扉遇星晨
 xyxgccny	心有曦光，处处暖阳
 xyxhykjslwhqyj	逍遥小侯爷，开局收留未婚妻一家
 xyxjd	逍遥小家丁

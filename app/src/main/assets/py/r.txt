@@ -278,6 +278,7 @@ rgadyjs	如果·爱[电影解说]
 rgajd	如果爱记得
 rgakyzl	如果爱可以重来
 rgakyzlyc	如果爱可以重来一次
+rgalyhx	如果暗恋有回响
 rgaqhbq	如果爱情回不去
 rgaslzjz	如果爱上了终结者
 rgawldj	如果爱忘了短剧
@@ -546,6 +547,7 @@ rjgxsws	人际关系事务所
 rjgz	人间规则
 rjgzdej	人间规则第二季
 rjhgfjc	人尽悔过方惊迟
+rjhtclwdrl	入局后她成了我的软肋
 rjjbbcb	人间久别不成悲
 rjjgcfyl	肉鸡加工厂风云录
 rjjhk	人间惊鸿客
@@ -923,8 +925,10 @@ rndxqsnlbjkdr	让你代写情书，你落笔惊哭大儒
 rndxqsnlbjkdrdej	让你代写情书，你落笔惊哭大儒第二季
 rndxqsnlbjkdrdejjb	让你代写情书，你落笔惊哭大儒第二季159集版
 rndxqsnlbjkdrdsj	让你代写情书,你落笔惊哭大儒第三季
+rndxqsnlbjkdrdsj	让你代写情书，你落笔惊哭大儒第三季
 rndxqsnlbjkdrdyj	让你代写情书，你落笔惊哭大儒第一季
 rndxqsxasnlbjkdrdlj	让你代写情书,小案首你落笔惊哭大儒第六季
+rndxqsxasnlbjkdrdqj	让你代写情书,小案首你落笔惊哭大儒第七季
 rndxqsxasnlbjkdrdsj	让你代写情书,小案首你落笔惊哭大儒第四季
 rndxqsxasnlbjkdrdwj	让你代写情书,小案首你落笔惊哭大儒第五季
 rndzxmrndzja	让你当赘婿，没让你当作精啊
@@ -2072,6 +2076,7 @@ rzxt	人在星途
 rzxx	染指枭雄
 rzxxjbygxzgfph	人在修仙界,白月光选择跟反派混
 rzxxjbygxzgzfph	人在修仙界白月光选择跟着反派混
+rzxxjsggj	人在修仙界,是个杠精
 rzxy	日在校园
 rzxymfzx	日在校园：魔法之心
 rzxyqrj	日在校园：情人节

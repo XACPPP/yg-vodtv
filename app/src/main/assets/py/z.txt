@@ -434,6 +434,7 @@ zbsdlr	追捕圣诞老人
 zbsedjsc	朕不死，尔等皆是臣
 zbsghwcltdy	直播事故后我成了他的药
 zbshtzfyzqzszxynm	争霸上海滩之风云再起  重生之鲜衣怒马
+zbsj	枕边杀局
 zbskzskcq	淄博烧烤之烧烤传奇
 zbsm	执笔索命
 zbsmdyjs	占卜师们[电影解说]
@@ -494,6 +495,7 @@ zbydb	制暴 印度版
 zbydp	子不语当铺
 zbygxssy	在白月光心上撒野
 zbyjzyrcwsbwc	直播阴间治愈日常，我是白无常
+zbylqhwcldldyj	制霸娱乐圈后我成了顶流!第一季
 zbym	执笔一梦
 zbymr	追捕野蛮人
 zbypt	足本玉蒲团
@@ -1126,6 +1128,7 @@ zdlmdyjs	直到黎明[电影解说]
 zdlmqzxsb	在大佬面前装瞎失败
 zdlnxqjwbybrc	整顿捞女相亲界，我辈义不容辞
 zdlrrs	直到烈日燃烧
+zdlwwkyyjwd	自动领悟:我看一眼就无敌
 zdm	战地恶魔
 zdmb	中毒(美版)
 zdmbdyjs	中毒(美版)[电影解说]
@@ -2286,6 +2289,7 @@ zgwkydq	这个纨绔有点强
 zgwlxd	糟糕！乌龙心动
 zgwmxgzsfcbzl	糟糕我喵星公主身份藏不住了
 zgwmybhr	这个外卖员不好惹
+zgwmyrjwd	这个外卖员人间无敌
 zgws	中国往事
 zgws	战国无双
 zgws	至高无上
@@ -3737,6 +3741,7 @@ zjnp	指间涅槃
 zjnpaefzj	最佳女配：阿尔法之境
 zjnpwz	再见 南屏晚钟
 zjnpwzdyjs	再见 南屏晚钟[电影解说]
+zjnql	张家女麒麟
 zjnrzjyy	镇金女人周记粤语
 zjns	再见年少
 zjnsgm	最佳女神闺蜜
@@ -4387,6 +4392,7 @@ zlgslzjzyzml	战龙哥斯拉之决战宇宙魔龙
 zlgslzjzyzmldyjs	战龙哥斯拉之决战宇宙魔龙[电影解说]
 zlgxsmqycq	杂灵根小师妹气运超强
 zlh	债连环
+zlh	纸老虎
 zlha	照亮黑暗
 zlhd	战栗黑洞
 zlhddyjs	战栗黑洞[电影解说]
@@ -5858,6 +5864,7 @@ zqmhrs	重启美好人生
 zqmhtl	最强魔幻陀螺
 zqmkdbb	猪圈门口的表白
 zqmr	重启明日
+zqmrsxadj	重启末日盛夏AI短剧
 zqmsr	真情陌生人
 zqmygrl	朱墙秘语故人来
 zqmz	真情母子
@@ -6165,6 +6172,7 @@ zrnddyjmjp	粘人女帝第一季冥界篇
 zrnddyjwjp	粘人女帝第一季完结篇
 zrndshqs	坠入你的似海情深
 zrndsj	坠入你的世界
+zrndwzhc	坠入你的万丈红尘
 zrndxj	坠入你的陷阱
 zrnh	昨日女孩
 zrnxs	坠入你心上
@@ -6316,6 +6324,7 @@ zsbecgdzmnks	重生八二，从搞定丈母娘开始
 zsbfjqq	重生不赴旧亲情
 zsbfqsjgcx	重生不负卿，神君共朝夕
 zsbfshbfj	重生70，不负韶华不负家
+zsbfwdalsn	重生奔赴我的暗恋少女
 zsbg	早熟报告
 zsbgwnfztf	镇守边关:我能复制天赋
 zsbgzdwzjgllmgg	重生不搞宅斗？我直接攻略冷面国公
@@ -6880,6 +6889,7 @@ zshpzcst	重生后裴总宠上天
 zshq	掌上红裙
 zshqcdxjyyj	重生后倾城大小姐野又娇
 zshqfjlbw	重生70：护妻发家两不误
+zshqfqzqsmqbzwcszfm	重生后前夫抢着娶庶妹,却不知我才是真凤命
 zshqfrsbl	重生后前夫人设崩了
 zshqftbclzj	重生后，前夫他变成了作精
 zshqhlgcwrg	重生换亲后，老公宠我入骨
@@ -7179,6 +7189,7 @@ zsjx	珠事吉祥
 zsjxjmchmdeesjjy	重生觉醒:将谋财害命的恶人送进监狱
 zsjxsbfxqqnksm	重生觉醒十倍返现，前妻你哭什么
 zsjxzcwbzlan	重生觉醒，这次我不做恋爱脑
+zsjxzcwbzlandbj	重生觉醒,这次我不做恋爱脑第八季
 zsjxzcwbzlandej	重生觉醒，这次我不做恋爱脑第二季
 zsjxzcwbzlandlj	重生觉醒,这次我不做恋爱脑第六季
 zsjxzcwbzlandsj	重生觉醒,这次我不做恋爱脑第三季
@@ -7284,6 +7295,7 @@ zsmjtsan	在生命尽头说爱你
 zsmjxflwmgdgnb	重伤魔君下凡,沦为面馆打工奶爸
 zsmlpzjytlxl	重生蜜恋,偏执九爷他沦陷了
 zsmm	战神妈妈
+zsmm	重生密码
 zsmmbhr	战神妈妈不好惹
 zsmmjzqjydt	重生妈妈，拒做全家冤大头
 zsmmxqmwjhmdtc	重生妹妹选亲妈，我嫁豪门当团宠
@@ -7697,6 +7709,7 @@ zswyykqzfsj	重生：我用一块钱征服世界
 zswyystsy	重生08：我有一双透视眼
 zswyzpf	宗师，我一掌拍飞
 zswyzxdwxdej	重生网游之寻道问仙第二季
+zswyzxdwxdsj	重生网游之寻道问仙第三季
 zswzbszaa	重生1999，我真不是渣男啊
 zswzgcdls	重生！我在工厂打螺丝
 zswzjhndgszpf	重生63，我在饥荒年代搞山珍批发
@@ -7889,6 +7902,7 @@ zszbrzkq	重生之别惹糟糠妻
 zszbwkjjzbwxb	重生镇北王，开局接掌百万雄兵
 zszbylxmwbshl	重生之白眼狼兄妹我不伺候了
 zszbzqy	重生之不坠青云
+zszbzwnmd	重生之不再为你买单
 zszc	诸神之锤
 zszccgt	重生之璀璨归途
 zszcfzs	重生之财阀再世
@@ -8165,6 +8179,7 @@ ztjrydj	这条鲛人有点娇
 ztjshwhcrjdp	挣脱枷锁后，我活成人间顶配
 ztjtmt	昨天今天明天
 ztjyxtbdlghldwjzy	诸天交易系统：被夺灵根后垄断万界资源
+ztjzwhll	再退就撞我怀里了
 ztkajcbryb	侦探柯南剧场版 日语版
 ztkcdyjs	007之太空城[电影解说]
 ztkd	侦探：开端
@@ -8477,12 +8492,14 @@ zwxcw	真味小厨王
 zwxdl	最危险的路
 zwxdwyzpdyj	72种危险动物——亚洲篇 第一季
 zwxdxtazyk	这位小殿下他脑子有坑
+zwxdxtazykdej	这位小殿下他脑子有坑第二季
 zwxhd	紫薇星恒动
 zwxhhxz	紫外线和黑蝎子
 zwxj	植物学家
 zwxjdzgnhdyjs	植物学家的中国女孩[电影解说]
 zwxsq	在我消失前
 zwxsqdyjs	在我消失前[电影解说]
+zwxswmrysta	这位修士,我们人妖殊途啊
 zwxx	咒物寻凶
 zwxxdyjs	咒物寻凶[电影解说]
 zwxy	正午显影
@@ -8818,6 +8835,7 @@ zxpmx	紫霄拍卖行
 zxqjcdzdndfnssk	这下全京城都知道，那对父女是双坑
 zxqjmsshwssbz	在相亲节目上闪婚五十岁霸总
 zxqjmswsszn	在相亲节目上我手撕渣女
+zxqm	掌心青梅
 zxqntbd	昭心囚囡逃不掉
 zxqsl	装瞎启示录
 zxqsq	再续前世情
@@ -9372,6 +9390,7 @@ zylxdb	咒怨 录像带版
 zylxdb	咒怨2 录像带版
 zylxdbdyjs	咒怨 录像带版[电影解说]
 zylxdbdyjs	咒怨2 录像带版[电影解说]
+zylxksgj	在月亮心口撒个娇
 zylxksgjbgy	在月亮心口撒个娇比个耶
 zylxksgjpaggsdt	在月亮心口撒个娇，偏爱哥哥死对头
 zylxksgjzrb	在月亮心口撒个娇真人版
@@ -9470,6 +9489,7 @@ zyrdej	造雨人 第二季
 zyrgbch	状元荣归报春晖
 zyrgtjxcwr	知意入宫廷,君心藏温柔
 zyrhytxyw	执渊入怀与他相依偎
+zyrhytxywdej	执渊入怀与他相依偎第二季
 zyrj	招引入局
 zyrj	追鹰日记
 zyrjb	造雨人(剧版)
@@ -9892,6 +9912,7 @@ zzdzhyt	战争的最后一天 (2016)
 zzdzz	执着的追踪
 zzeh	珍珠耳环
 zzettxjymys	重振歌坛，童小姐又美又飒
+zzfcfpjbwbr	真主反串：反派剧本我不认
 zzfh	昭昭芳华
 zzfh	重绽芳华
 zzfhblh	灼灼风华八零后
@@ -9912,6 +9933,7 @@ zzfzzqsbfjrg	栀栀复栀栀！情深不负旧人归
 zzfzzqsbfjrgdej	栀栀复栀栀!情深不负旧人归第二季
 zzfzztzyftbk	栀栀复栀栀！太子爷非她不可
 zzfzztzyftbkdej	栀栀复栀栀!太子爷非她不可第二季
+zzfzztzyftbkdlj	栀栀复栀栀!太子爷非她不可第六季
 zzfzztzyftbkdsj	栀栀复栀栀!太子爷非她不可第三季
 zzfzztzyftbkdsj	栀栀复栀栀!太子爷非她不可第四季
 zzfzztzyftbkdwj	栀栀复栀栀!太子爷非她不可第五季

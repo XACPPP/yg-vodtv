@@ -731,6 +731,8 @@ jcxs	焦橙邪说
 jcxslyqrf	机长先生,雷雨请绕飞
 jcxslyqrf	机长先生：雷雨请绕飞
 jcxslyqrfdej	机长先生,雷雨请绕飞第二季
+jcxslyqrfdsj	机长先生,雷雨请绕飞第三季
+jcxslyqrfdsj	机长先生,雷雨请绕飞第四季
 jcxsndxtyplhx	机长先生，你的心跳已偏离航线
 jcxssqjc	机长先生,申请进场
 jcxx	警察学校
@@ -1947,6 +1949,7 @@ jhbwhgan	结婚吧，我会更爱你
 jhbwx	君侯本无邪
 jhbxsdyjs	惊魂半小时[电影解说]
 jhby	结婚吧YOU
+jhbydzjzl	江湖不远:刀斩九州录
 jhbysdej	简化吧御兽第二季
 jhc	军火厂
 jhc	惊鸿错
@@ -2239,6 +2242,7 @@ jhrslxydrsl	交换人生:黎小鸭的人生路
 jhrswfxczhyml	交换人生，我反向操作后赢麻了
 jhrszssyn	交换人生之双世医女
 jhry	京婚如意
+jhryl	惊鸿入砚来
 jhs	惊魂手
 jhs	教诲师
 jhs	江河水
@@ -2508,6 +2512,7 @@ jjck	剑击长空
 jjcl	卷卷初恋
 jjcm	几近成名
 jjcmdyjs	几近成名[电影解说]
+jjcntqrzzsfs	见家长那天,前任坐在沙发上
 jjcpynlhscs	将军错聘医女立户守苍生
 jjct	即将出庭
 jjcy	绝境穿越
@@ -2929,6 +2934,7 @@ jjqjx	娇娇窃君心
 jjql	竭尽全力
 jjqq	将军娶亲
 jjqrjlmmsyjg	姐姐囚人间龙,妹妹锁阴间鬼
+jjqrjlmmsyjgy	姐姐囚人间龙,妹妹锁阴间鬼(一)
 jjqx	机甲前线
 jjqxs	劫机七小时
 jjqxsdyj	劫机七小时第一季
@@ -3049,6 +3055,7 @@ jjwdlwmzchfl	姐姐完蛋啦我们走错婚房了
 jjwdnbmqfl	拒绝996，我当男保姆起飞了
 jjwdtsdyjs	尖叫屋大屠杀[电影解说]
 jjwg	荆棘王冠
+jjwgthwyhdztzd	拒绝挖骨退婚,我以混沌重瞳证道
 jjwgxc	荆棘吻过星辰
 jjwhy	积金无咁易？
 jjwj	禁忌问卷
@@ -4832,10 +4839,12 @@ jqjh	家囚惊魂
 jqjhchbsgggtc	假千金回村后被四个哥哥团宠
 jqjhddfqc	假千金回到80带飞全村
 jqjhpmkdbgggnffp	假千金回贫民窟，带八个哥哥逆风翻盘
+jqjhxctc	假千金回乡成团宠
 jqjhzywyxaky	假千金还在演，我一心搞科研
 jqjhzywzsbxgj	假千金还在演，我转身报效国家
 jqjjjsshnddyrc	假千金嫁进深山，荒年顿顿有肉吃
 jqjkrmgfqc	假千金靠人脉干翻全场
+jqjlxsqjdzbyj	假千金漏心声，全家都在飙演技
 jqjm	绝情姐妹
 jqjmh	激情姐妹花
 jqjmjcbzl	假千金马甲藏不住了
@@ -6549,6 +6558,7 @@ jtqpghwsfl	家庭群曝光后我杀疯了
 jtqsa	惊天情杀案
 jtqsd	兼祧情丝断
 jtqsl	家庭启示录
+jtqyadj	锦庭弃玉AI短剧
 jtsc	讲台深处
 jtscdjdxty	江途双程,督军的心头月
 jtscdyjs	讲台深处[电影解说]
@@ -6888,6 +6898,7 @@ jwr	局外人2019
 jwr	局外人2020
 jwrdyjs	局外人[电影解说]
 jwrsx	江晚入时序
+jws	九尾书
 jws	假纹身
 jws	甲武神
 jwscfrfps	金网锁春风：入府篇（上）
@@ -7014,6 +7025,9 @@ jxb	交响班
 jxb	鲛绡碧
 jxbabxt	觉醒吧，奶爸系统
 jxbd	巨型病毒
+jxbdgs	江小白的故事
+jxbdgsdej	江小白的故事第二季
+jxbdgsdsj	江小白的故事第三季
 jxbdjsr	锦心不渡旧时人
 jxbfsq	觉醒不负深情
 jxbfsqdyj	觉醒不负深情第一季
@@ -7262,6 +7276,7 @@ jxnhdsj	接线女孩第三季
 jxnhdsj	接线女孩第四季
 jxnhdwj	接线女孩第五季
 jxnhdyj	接线女孩第一季
+jxnhwbgsbcmsn	觉醒娘化:我把怪兽变成美少女
 jxnjthsft	机械女军团横扫废土
 jxnmcndj	锦绣农门：厨娘当家
 jxnp	机械女仆
@@ -7500,6 +7515,7 @@ jxyhqcdhmzer	锦绣药后：权臣的换命真恩人
 jxyj	极限营救
 jxyjdjb	极限营救 短剧版
 jxyjq	金像有偈倾
+jxyntxjxxdp	极限17 羽你同行 极限兄弟篇
 jxynzdh	将星一怒震东海
 jxyqq	君心予卿卿
 jxyw	九宵云外
@@ -8040,6 +8056,7 @@ jytqdyjs	记忆提取[电影解说]
 jytqj	加油！同期酱
 jyts	降妖天师
 jytsjl	今夜天使降临
+jytswbckdwnrs	记忆替身:我被操控的五年人生
 jyttwdexx	九爷偷听我的内心戏
 jytxmyj	假孕，他蓄谋已久
 jyty	九阳天医
@@ -8124,6 +8141,8 @@ jyxld	记忆修理店
 jyxm	烬耀星芒
 jyxmnyszg	饥饿游戏：鸣鸟与蛇之歌
 jyxmtjzpa	烬耀星芒_他极致偏爱
+jyxmxzdzxc	烬耀星芒,谢总的掌心宠
+jyxmxzdzxcdej	烬耀星芒,谢总的掌心宠第二季
 jyxmysjn	烬耀星芒余生皆暖
 jyxn	京夜想你
 jyxncshwjjmny	京夜想你:穿书后我拒绝卖男友
@@ -8452,6 +8471,7 @@ jzhcyy	决战皇城粤语
 jzhdxjsspxjjzhdxjzdhm	江浙沪大小姐手撕偏心局 江浙沪大小姐整顿豪门
 jzhf	军中红粉
 jzhgtdyjs	镜之湖怪谈[电影解说]
+jzhjqhczzcg	郡主回京:全皇朝追着吃瓜
 jzhjqhczzcg	郡主回京全皇朝追着吃瓜
 jzhjqhczzcgdyj	郡主回京,全皇朝追着吃瓜第一季
 jzhl	橘子红了
@@ -8760,6 +8780,7 @@ jztcxsm	剑宗团宠小师妹
 jztcxsmdej	剑宗团宠小师妹第二季
 jztcxsmdej	剑宗团宠小师妹！第二季
 jztcxsmdsj	剑宗团宠小师妹第三季
+jztcxsmdxxrcadj	剑宗团宠小师妹的修仙日常AI短剧
 jztcxsmdyj	剑宗团宠小师妹第一季
 jztcxsmyjzxm	剑宗团宠小师妹,一剑镇仙魔
 jztcxsmzwsxjhw	剑宗团宠小师妹,诸位师兄皆护我
