@@ -257,6 +257,83 @@ public final class Ui {
         };
     }
 
+    /* ===== 任意多段渐变（v2.8 直播页按 Stitch 严格 1080P 稿对齐时新增） ===== */
+
+    /**
+     * 任意方向的多段线性渐变。
+     *
+     * 设计稿里顶条是 `rgba(14,17,22,0.92) → 0.5 → transparent` 三段，
+     * 播放页四边压暗是 `0.72 → 0.3 → 0.85` 这种「中间最亮」的形状，
+     * GradientDrawable 的 start/center/end 三色构造只支持对称且要 API 24，
+     * minSdk 21 只能自己用 LinearGradient 画。
+     *
+     * @param vertical true = 从上到下；false = 从左到右
+     */
+    public static Drawable fade(final boolean vertical, final int[] colors, final float[] stops) {
+        return new Drawable() {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private Shader shader;
+
+            @Override
+            protected void onBoundsChange(Rect b) {
+                if (b.width() <= 0 || b.height() <= 0) {
+                    return;
+                }
+                if (vertical) {
+                    shader = new LinearGradient(0, 0, 0, b.height(), colors, stops,
+                            Shader.TileMode.CLAMP);
+                } else {
+                    shader = new LinearGradient(0, 0, b.width(), 0, colors, stops,
+                            Shader.TileMode.CLAMP);
+                }
+                p.setShader(shader);
+            }
+
+            @Override
+            public void draw(Canvas c) {
+                Rect b = getBounds();
+                if (shader == null) {
+                    onBoundsChange(b);
+                }
+                c.drawRect(b, p);
+            }
+
+            @Override
+            public void setAlpha(int a) {
+                p.setAlpha(a);
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter cf) {
+                p.setColorFilter(cf);
+            }
+
+            @Override
+            public int getOpacity() {
+                return PixelFormat.TRANSLUCENT;
+            }
+        };
+    }
+
+    /**
+     * 播放页的四边压暗：左右一道、上下再叠一道。
+     *
+     * 设计稿的写法是 `linear-gradient(90deg, .72 → .3 → .85)` 叠
+     * `linear-gradient(180deg, .7 → .2 → .75)`——四边都压暗、中间偏上最亮，
+     * 这样顶条/底条/左右抽屉压上去都不会出现「贴纸感」的硬边。
+     * 底色统一用播放器的影院黑 #0E1116，不用纯黑，纯黑会把视频边缘咬掉一圈。
+     */
+    public static Drawable playerVeil() {
+        Drawable h = fade(false,
+                new int[] { 0xB80E1116, 0x4D0E1116, 0xD90E1116 },
+                new float[] { 0f, 0.45f, 1f });
+        Drawable v = fade(true,
+                new int[] { 0xB30E1116, 0x330E1116, 0xBF0E1116 },
+                new float[] { 0f, 0.3f, 1f });
+        LayerDrawable ld = new LayerDrawable(new Drawable[] { v, h });
+        return ld;
+    }
+
     /** 焦点态背景：聚焦时琥珀色描边 + 提亮。 */
     public static StateListDrawable focusBg(int fill, int radius, int strokeColor) {
         StateListDrawable d = new StateListDrawable();
