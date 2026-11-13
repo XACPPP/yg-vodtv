@@ -272,14 +272,18 @@ def probe_list(src):
     r["ms"] = ms
     if st != 200:
         # 第一发超时/断了很常见（源站冷启动、CDN 回源），但一发就判 DEAD 会把
-        # 好源永久踢出表 —— yhzy 实测首次 10.4s 超时、间隔 0.5s 再问就是 459ms 正常。
-        # 所以这里给一次更宽的重试，拿到的结果才算数。
-        st2, ms2, raw2, err2 = get(src["api"] + "?ac=detail&pg=1",
-                                   src["referer"], timeout=max(TIMEOUT * 2, 20))
-        if st2 == 200:
+        # 好源永久踢出表 —— yhzy 实测：首问 10.4s 超时、第二问 10.3s 又超时、
+        # 第三问 2.2s 才 200。只重试一次不够，所以给它三发，超时逐级放宽。
+        for i, tmo in enumerate((max(TIMEOUT * 2, 20), max(TIMEOUT * 3, 30))):
+            st2, ms2, raw2, err2 = get(src["api"] + "?ac=detail&pg=1",
+                                       src["referer"], timeout=tmo)
+            if st2 == 200:
+                st, ms, raw, err = st2, ms2, raw2, err2
+                r["ms"] = ms
+                r["retried"] = i + 1
+                break
             st, ms, raw, err = st2, ms2, raw2, err2
             r["ms"] = ms
-            r["retried"] = True
     if st != 200:
         r["err"] = "list http %s %s" % (st, err or "")
         return r
@@ -508,11 +512,18 @@ def clamp(v, lo=0.0, hi=1.0):
 def score(it):
     L, P, D, SE = it["list"], it["play"], it["detail"], it["search"]
     s = {}
+    play_known = bool(P.get("ok"))
 
     # 速度 45
     s["list_ms"] = 25 * clamp(1 - (L["ms"] - 250) / 2750.0) if L["ok"] else 0
-    s["ttfb"] = 12 * clamp(1 - (P["ttfb_ms"] - 200) / 2800.0) if P.get("ok") else 0
-    s["kbps"] = 8 * clamp(P.get("kbps", 0) / 6000.0) if P.get("ok") else 0
+    if play_known:
+        s["ttfb"] = 12 * clamp(1 - (P["ttfb_ms"] - 200) / 2800.0)
+        s["kbps"] = 8 * clamp(P.get("kbps", 0) / 6000.0)
+    else:
+        # 播放链路这条根本没测成（多数是 runner 出网被 CDN 地区限流），
+        # 给个中间值：既不奖励也不惩罚，免得「测不到」被误当成「很慢」而把好源沉底。
+        s["ttfb"] = 6.0
+        s["kbps"] = 4.0
 
     # 内容 35
     n = max(1, L["n"])
@@ -567,8 +578,19 @@ def scan_one(src):
     it["suggest"] = probe_suggest(src) if L["ok"] else {"ok": False, "n": 0}
     it["play"] = probe_play(src, first) if (L["ok"] and first) else {"ok": False, "err": "skip"}
 
-    hard_fail = (not L["ok"]) or (not it["play"].get("ok")) or (not it["detail"]["ok"])
-    it["status"] = "DEAD" if hard_fail else ("OK" if it["search"]["ok"] else "OK_NOSEARCH")
+    # 判 DEAD 只看「结构性」证据：列表拿不到、或连选集都解不出来。这两条跟在哪跑无关。
+    # 播放探测**不能**当硬失败：m3u8 的分片 CDN 普遍按地区限流。GitHub Actions 的
+    # runner 在境外，ffzy/cmov（共用 vip.ffzy-plays.com）、dytt（vip.dytt-luck.com）、
+    # uku、zuidazy 一律回 403；而电视和本机走同一条 Passwall，这些源全都能播。
+    # 2026-11-13 首次真跑巡检就因为这个把线上源表从 14 源削到 9 源。
+    it["play_ok"] = bool(it["play"].get("ok"))
+    hard_fail = (not L["ok"]) or (not it["detail"]["ok"])
+    if hard_fail:
+        it["status"] = "DEAD"
+    elif not it["play_ok"]:
+        it["status"] = "OK_NOPLAY"
+    else:
+        it["status"] = "OK" if it["search"]["ok"] else "OK_NOSEARCH"
     it["score"] = 0 if hard_fail else score(it)
     it["grade"] = "-" if hard_fail else grade(it["score"])
     it["cost_ms"] = now_ms() - t0
@@ -590,6 +612,10 @@ def write_sources_json(results, path=SOURCES_JSON):
     为什么只放非 DEAD 的源：这张表是**线上生效表**，不是巡检报告。DEAD 的源
     进去以后只会拖慢首屏（每个频道都先试一遍再失败），而且一旦全部 DEAD，
     Src.load() 会整体拒绝、退回内置表 —— 与其让它触发兜底，不如这里就别写。
+
+    OK_NOPLAY 必须保留：它代表「列表和选集都正常，只是这次没测到播放链路」，
+    在境外 runner 上绝大多数是 CDN 地区限流，不是源坏了（见 scan_one 里的注释）。
+    照旧保留，靠 score 里的折中分把它排在真实测通的源后面。
     """
     alive = [it for it in results if it.get("status") != "DEAD"]
     # 分数高的在前；分数相同保持巡检结果的原始顺序（Python 的 sort 是稳定的），

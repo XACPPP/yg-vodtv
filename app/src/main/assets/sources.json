@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-11-13T02:58:00Z",
+ "updated": "2026-11-13T03:08:32Z",
  "sources": [
   {
    "key": "jszyapi",
@@ -9,40 +9,34 @@
    "types": "2,20,30,24,20,3,5,6,4,28,7,9,11,10,12,13,14,15,16,30,31,32,33,24,25,26,38,0,35"
   },
   {
-   "key": "wsyzy",
-   "api": "https://wsyzy.cc/api.php/provide/vod/",
-   "referer": "https://wsyzy.cc/",
-   "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68"
-  },
-  {
-   "key": "yhzy",
-   "api": "https://yhzy.cc/api.php/provide/vod/",
-   "referer": "https://yhzy.cc/",
-   "types": "1,2,3,4,13,24,16,23,14,15,0,6,7,8,9,10,11,12,21,26,27,28,29,30,31,32,0,0,0"
-  },
-  {
-   "key": "modu",
-   "api": "https://caiji.moduapi.cc/api.php/provide/vod/",
-   "referer": "https://caiji.moduapi.cc/",
-   "types": "7,8,9,1,26,29,28,31,27,30,33,10,11,12,13,14,15,16,24,34,36,35,37,1,2,3,38,0,21"
-  },
-  {
-   "key": "ikun",
-   "api": "https://ikunzy.com/api.php/provide/vod/",
-   "referer": "https://ikunzy.com/",
-   "types": "1,2,3,4,23,26,25,28,24,27,30,6,7,8,9,10,11,12,20,31,33,32,34,35,37,36,45,0,17"
-  },
-  {
    "key": "bfzy",
    "api": "https://bfzyapi.com/api.php/provide/vod/",
    "referer": "https://bfzyapi.com/",
    "types": "20,30,45,39,31,32,34,36,33,35,38,21,22,25,24,23,26,27,28,46,48,47,49,40,41,42,58,0,0"
   },
   {
+   "key": "ffzy",
+   "api": "https://api.ffzyapi.com/api.php/provide/vod/",
+   "referer": "https://www.ffzyapi.com/",
+   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0"
+  },
+  {
+   "key": "dytt",
+   "api": "https://caiji.dyttzyapi.com/api.php/provide/vod/",
+   "referer": "https://www.dyttzyapi.com/",
+   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0"
+  },
+  {
    "key": "ysxq",
    "api": "https://www.ysxq.cc/api.php/provide/vod/",
    "referer": "https://www.ysxq.cc/",
    "types": "1,2,3,4,13,16,15,15,14,14,29,6,7,8,9,10,11,12,24,30,31,39,32,33,34,35,60,86,23"
+  },
+  {
+   "key": "cmov",
+   "api": "https://www.cmov.cn/api.php/provide/vod/",
+   "referer": "https://www.cmov.cn/",
+   "types": "1,2,3,4,13,16,15,15,14,14,0,6,7,8,9,10,11,12,29,20,22,21,23,24,25,26,0,0,0"
   },
   {
    "key": "360zy",
@@ -55,6 +49,42 @@
    "api": "https://api.maoyanapi.top/api.php/provide/vod/",
    "referer": "https://www.maoyan.com/",
    "types": "1,2,3,4,13,16,15,31,14,30,33,6,7,8,9,10,11,12,27,34,36,35,37,38,40,39,46,0,24"
+  },
+  {
+   "key": "zuidazy",
+   "api": "https://api.zuidapi.com/api.php/provide/vod/",
+   "referer": "https://www.zuidazy.com/",
+   "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68"
+  },
+  {
+   "key": "yhzy",
+   "api": "https://yhzy.cc/api.php/provide/vod/",
+   "referer": "https://yhzy.cc/",
+   "types": "1,2,3,4,13,24,16,23,14,15,0,6,7,8,9,10,11,12,21,26,27,28,29,30,31,32,0,0,0"
+  },
+  {
+   "key": "ikun",
+   "api": "https://ikunzy.com/api.php/provide/vod/",
+   "referer": "https://ikunzy.com/",
+   "types": "1,2,3,4,23,26,25,28,24,27,30,6,7,8,9,10,11,12,20,31,33,32,34,35,37,36,45,0,17"
+  },
+  {
+   "key": "wsyzy",
+   "api": "https://wsyzy.cc/api.php/provide/vod/",
+   "referer": "https://wsyzy.cc/",
+   "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68"
+  },
+  {
+   "key": "modu",
+   "api": "https://caiji.moduapi.cc/api.php/provide/vod/",
+   "referer": "https://caiji.moduapi.cc/",
+   "types": "7,8,9,1,26,29,28,31,27,30,33,10,11,12,13,14,15,16,24,34,36,35,37,1,2,3,38,0,21"
+  },
+  {
+   "key": "uku",
+   "api": "https://api.ukuapi.com/api.php/provide/vod/",
+   "referer": "https://www.ukuapi.com/",
+   "types": "1,2,3,4,13,16,22,15,14,21,23,6,7,8,9,10,11,12,24,3,0,0,0,4,0,0,32,0,34"
   }
  ]
 }

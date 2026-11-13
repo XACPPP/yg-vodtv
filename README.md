@@ -258,14 +258,41 @@ GitHub Actions 每天北京 02:00（`cron: '0 18 * * *'`，源站负载最低的
 14 个源 + 外部候选池
    → 七项探测：list 延迟/条数/海报/简介/分类、detail 选集、search、suggest、play（m3u8 TTFB + 首分片 kbps + Range）
    → 100 分制打分：速度 45 + 内容 35 + 能力 20
-   → 硬失败（列表非 JSON / 无数据 / m3u8 拿不到 / 无选集）直接判 DEAD，不参与排序
+   → 硬失败（列表非 JSON / 无数据 / 无选集）判 DEAD，不参与排序
+   → 播放链路没测成判 OK_NOPLAY：仍写入源表，只用折中分排在测通的源后面
    → 按分数降序写 app/src/main/assets/sources.json（顺序就是 App 的源优先级）
    → 有变化才 git commit && push
 ```
 
-两道保险：**全 DEAD 时不写文件**（避免把线上打成空表）；脚本里强制 IPv4
+三道保险：**全 DEAD 时不写文件**（避免把线上打成空表）；脚本里强制 IPv4
 （`socket.getaddrinfo` 打补丁传 `AF_INET`），因为电视端 `Http.java` 设了 `preferIPv4Stack=true`，
-巡检必须和电视同视角，否则 IPv6 侧的假 DEAD 会把好源踢掉。
+巡检必须和电视同视角，否则 IPv6 侧的假 DEAD 会把好源踢掉；**播放探测不做硬失败**
+（见下一节）。
+
+#### 播放链路为什么不参与判死（2026-11-13 线上事故）
+
+`scan.yml` 第一次真跑（run `43355683398`）就把源表从 14 源削到了 9 源，
+被砍掉的 5 个是 `uku` / `zuidazy` / `ffzy` / `dytt` / `cmov`，错误全是同一句：
+
+```
+m3u8 http 403
+```
+
+但这 5 个源的 `list` **完全正常**（20 条、海报 20/20、简介 15~19/20、片库 6~12 万），
+而且在本机（走同一条 Impwrt Passwall，和电视同路径）逐个复测 `m3u8` **全是 200**，
+换任何 Referer（源站参考 / 留空 / m3u8 自己域名）都 200 —— **不是防盗链**。
+
+`ffzy` 和 `cmov` 的 m3u8 落在同一个主机 `vip.ffzy-plays.com`，`dytt` 在 `vip.dytt-luck.com`。
+结论：**这几个播放 CDN 按地区整片 403，而 GitHub runner 在境外**。
+
+所以现在的判据是：`list` 拿不到 / 选集解不出来 → 结构性坏了 → DEAD；
+播放探测失败但前两项正常 → `OK_NOPLAY` → **照旧写进源表**，
+只是打分时 TTFB 给 6/12、kbps 给 4/8 的中间值，让它排在真测通的源后面（实测下来
+`ffzy` 68.3、`dytt` 68.6、`cmov` 67.0，都是 B 级，不会沉底，也不会挤掉 A 级）。
+
+顺带还修了 `probe_list` 的重试次数：`yhzy` 实测首问 10.4s 超时、第二问 10.3s
+又超时、第三问 2.2s 才 200 —— 原来只重试一次，仍会把它判 DEAD。现在给三发，
+超时逐级放宽到 20s / 30s。
 
 #### 四、消灭「加载中」：列表 JSON 落盘（`Cache.java` + `Multi.raw`）
 
