@@ -445,6 +445,34 @@ public final class Live {
         }
     }
 
+    /**
+     * 播放页专用的分组表（v2.16）。
+     *
+     * groups() 是把「内置江西电信 5 组 + 远端公共表 7 组」原样拼起来，分组条里
+     * 一次列出 12 个分组。可远端那张表在这条电信宽带上实测是成片连不上的
+     * （自检日志里刷屏的 SocketTimeoutException 全是它们），和内网源摆在同一行，
+     * 只会让人点进去看黑屏 —— 老板说的「直播卡」有一大半是这么来的。
+     * 所以播放页只把内置组排前面，远端那三百多台合并成一个「公共源」组挂在最后：
+     * 想找 CCTV-3/5/6/8 这类内置表没有的台还能翻得到，但不占主路径。
+     */
+    public static List<Group> playerGroups() {
+        synchronized (ALL) {
+            List<Group> out = new ArrayList<Group>(JX.size() + 1);
+            out.addAll(JX);
+            List<Ch> remote = new ArrayList<Ch>();
+            for (int i = 0; i < ALL.size(); i++) {
+                Group g = ALL.get(i);
+                if (g != null && g.chs != null) {
+                    remote.addAll(g.chs);
+                }
+            }
+            if (!remote.isEmpty()) {
+                out.add(new Group("remote", "公共源", remote));
+            }
+            return out;
+        }
+    }
+
     /** 「江西电信」内置分组的下标；没有内置组时返回 -1。 */
     public static int jiangxiGroup() {
         synchronized (ALL) {

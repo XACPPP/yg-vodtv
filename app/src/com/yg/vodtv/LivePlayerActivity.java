@@ -239,7 +239,10 @@ public final class LivePlayerActivity extends Activity {
         Http.trustAll();
         Proxy.start();
 
-        groups = Live.groups();
+        // v2.16：播放页用 playerGroups() —— 内置江西电信 5 组在前，远端公共表合并成
+        // 末尾一个「公共源」组。远端那批在电信家宽上实测成片连不上，摆在主路径上
+        // 只会让人点进去看黑屏。
+        groups = Live.playerGroups();
         // v2.12：老用户升级后第一次进直播，把默认分组挪到「江西电信」。
         // 不迁的话记忆里还是公共表的下标 —— 老板升级完点进直播，看到的仍是那个
         // 三路源全在转圈的 CCTV-8，等于这次换源白做。迁一次就够，之后按他自己的选择走。

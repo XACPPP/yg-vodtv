@@ -238,6 +238,15 @@ public final class LiveTab {
         ok("江西电信组排在最前", !all.isEmpty() && isJx(all.get(0)));
         ok("江西电信五个分组", builtinJxGroups() == 5);
         ok("第一组是江西本地", "jxitv".equals(all.get(0).id) && "江西本地".equals(all.get(0).name));
+        // v2.16：播放页只看 playerGroups()。内置表先摆，远端公共表合并成一个「公共源」组挂最后。
+        java.util.List<Live.Group> play = Live.playerGroups();
+        ok("播放页第一组仍是江西本地", !play.isEmpty() && "jxitv".equals(play.get(0).id));
+        ok("播放页不会把远端拆成多组", play.size() <= builtinJxGroups() + 1);
+        if (play.size() > builtinJxGroups()) {
+            ok("远端并成末尾一个公共源组", "remote".equals(play.get(play.size() - 1).id));
+        } else {
+            ok("远端并成末尾一个公共源组", true);
+        }
         int chs = 0;
         int urls = 0;
         boolean allFmt = true;
