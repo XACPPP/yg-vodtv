@@ -1,54 +1,73 @@
 package com.yg.vodtv;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * 直播播放页。
+ * 直播播放页 —— 进来就是画面，不是频道墙。
  *
- * 为什么不复用 PlayerActivity：那边一整套都是为点播写的——进度条、断点续播、
- * 播完自动下一集、选集浮层。直播没有「总时长」，`onCompletion` 一触发就会去播下一集，
- * 反而把正常播放打断。所以这里单独写一个薄的：只要 VideoView + 换源 + 换台 + 看门狗。
+ * ==================== v2.8：直播入口改成「直接播」 ====================
  *
- * ==================== v2.7 修「画面放大截断」 ====================
+ * v2.7 点「电视」先看到一页 6 列频道海报（照影视首页抄的网格），要再点一次才出画面。
+ * 那是点播 App 的骨架，不是电视的习惯：电视直播就是「开机即看、上下键换台」。
+ * v2.8 起 MainActivity 点「电视」直达本页并恢复上次看的台，
+ * 频道列表降级成右侧抽屉（菜单键 / OK 键呼出），换台不再离开画面。
  *
- * 三个原因叠在一起，缺一个都还会截：
+ * 遥控器约定（对齐电视直播的通用习惯）：
+ *   ↑↓        换台（抽屉收起时）/ 列表内移动焦点（抽屉展开时）
+ *   ← →       切分组（抽屉展开时）／切线路（抽屉收起时）
+ *   OK        呼出频道列表（抽屉展开时 = 播放焦点台）
+ *   菜单       线路列表（同一个台的几路源）
+ *   红键       循环画面比例：自动 / 适应 / 铺满
+ *   返回       收起浮层 → 再按退出
  *
- * 1. **默认模式是 AUTO**。v2.6 从头到尾没调过 setMode()，FitVideoView 停在
- *    `MODE_AUTO + maxCrop=0.34`：只要「铺满时被裁掉的部分 ≤ 34%」就铺满。
- *    16:9 频道本来裁 0%，看着没事；可源表里混着大量 4:3 / 544x576 的老 SD 频道，
- *    4:3 铺到 16:9 上要裁 25%，正好在 34% 容差里 → 一律被拉成铺满 → 台标和字幕被切。
- *    现在默认 {@code MODE_FIT}：完整显示、两侧留黑，绝不裁。
+ * ==================== v2.8：比例算法整体换掉 ====================
  *
- * 2. **视频尺寸拿不到**。原来只能反射读 VideoView 的私有 mVideoWidth，
- *    那是上一帧的值；直播起播快、尺寸晚到，onPrepared 时经常还是 0，
- *    第一次测量就退回「按容器铺满」，之后没人再触发 requestLayout。
- *    现在 onPrepared 里直接把 {@code mp.getVideoWidth()/getVideoHeight()}
- *    喂给 {@code FitVideoView.setVideoSize()}，尺寸一定是最新的。
+ * v2.7 是把默认模式改成 MODE_FIT 来躲「截断」，那只是绕着走：
+ * 16:9 的频道明明可以满屏，也被迫左右留两条黑边。
+ * 根因在 FitVideoView.wantFill()：它比的是「铺满后裁掉多少 ≤34%」，
+ * 这个语义本身就不对（详见 PlayerActivity.MAX_AR_DEV 的注释）。
  *
- * 3. **没有比例开关**。4:3 频道想看大一点只能忍着。现在红键循环
- *    适应 / 铺满 / 自动，跟影视播放页同一套语义。
+ * v2.8 换成比「视频比例 vs 屏幕比例的偏差」：
+ *   偏差 ≤4% → 铺满（16:9 频道在 16:9 电视上就是这一档，真满屏、不裁）
+ *   偏差 >4% → 适应（4:3 / 2.35:1 之类，宁可留黑也不切画面）
+ * 所以这里默认回到 MODE_AUTO —— 现在它才是「最省事又最对」的那一档。
  *
- * ==================== v2.7 修「源特别卡」 ====================
+ * ==================== v2.8：黑屏检测 ====================
  *
- * 巡检脚本只能证明「这一秒能连上」，不能证明「能一直播」。所以这一页自己判活：
- * 起播超时 15s、缓冲卡住 9s、画面位置 12s 不前进，任一命中就自动切下一路。
- * 手动操作（换台、按 OK 重连）会重置这个计数，避免它把用户的意图覆盖掉。
+ * 「能起播但黑屏」（湖南卫视那类源）骗过了所有旧的判活逻辑：
+ * prepared 成功、position 在走、isPlaying() 为 true，就是没画面。
+ * 现在起播 6 秒后检查一次 mp.getVideoWidth()，为 0 说明解码器根本没拿到画面，
+ * 直接判死切下一路。
  */
 public final class LivePlayerActivity extends Activity {
 
@@ -66,6 +85,22 @@ public final class LivePlayerActivity extends Activity {
     private static final long BUFFER_TIMEOUT_MS = 9000;
     private static final long STALL_TIMEOUT_MS = 12000;
 
+    /**
+     * 黑屏检测窗口。起播后这么久仍然 videoWidth==0，就认为这一路「有声无画」。
+     *
+     * 湖南卫视那类源就是典型：prepared 成功、position 在走、isPlaying() 也是 true，
+     * 但解码器一个像素都没解出来，屏幕上纯黑。旧的三种判活全都放它过去。
+     * 6 秒是折中：给的短了会把「起播慢但最终能出画」的好源误杀，给太长用户已经骂完了。
+     */
+    private static final long BLANK_TIMEOUT_MS = 6000;
+
+    /** 顶栏高度（设计稿 84px）。 */
+    private static final float TOP_H = 84f;
+    /** 底部键帽条高度（设计稿 56px）。 */
+    private static final float FOOT_H = 56f;
+    /** 右侧频道抽屉宽度（设计稿 560px）。 */
+    private static final float DRAWER_W = 560f;
+
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private FrameLayout root;
@@ -76,12 +111,26 @@ public final class LivePlayerActivity extends Activity {
     private TextView topName;
     private TextView topSub;
     private TextView topBadge;
-    private TextView bottomHint;
+    private TextView topClock;
+    private View liveDot;
     private TextView bigMsg;
     private TextView toast;
     private LinearLayout bottomWrap;
     private LinearLayout panel;
     private LinearLayout panelSources;
+
+    /* 音量 HUD */
+    private View hud;
+    private View hudBar;
+    private TextView hudValue;
+    private static final int HUD_BAR_W = 120;
+
+    /* 右侧频道抽屉 */
+    private LinearLayout drawer;
+    private TextView drawerCount;
+    private LinearLayout groupStrip;
+    private ScrollView drawerScroll;
+    private LinearLayout drawerList;
 
     private List<Live.Group> groups = new ArrayList<Live.Group>();
     private Live.Group group;
@@ -91,10 +140,13 @@ public final class LivePlayerActivity extends Activity {
     private int groupIdx = 0;
     private int chIdx = 0;
     private int urlIdx = 0;
+    /** 抽屉里正在浏览的分组。跟正在播的 groupIdx 分开，避免「翻列表把正在看的台换掉」。 */
+    private int browseGroupIdx = 0;
 
     /** 这一轮已经自动跳过的次数。到 urls.size()*2 就认为这个台整体不可用。 */
     private int autoSkips = 0;
     private boolean panelVisible = false;
+    private boolean drawerVisible = false;
     private boolean dead = false;
     private boolean paused = false;
 
@@ -103,13 +155,22 @@ public final class LivePlayerActivity extends Activity {
     private long bufAt = 0;
     private int lastPos = -1;
     private long posAt = 0;
+    /** onPrepared 的时刻，用来给「黑屏检测」计时。0 表示还没 prepared。 */
+    private long preparedAt = 0;
+    /** 播放器报上来的视频宽度。0 = 解码器还没解出画面。 */
+    private int videoW = 0;
 
     /**
-     * 画面比例。为什么默认适应：直播频道混着 4:3 和 16:9，
-     * 铺满会把 4:3 的台标、字幕直接切掉，观感就是「放大截断」。
+     * 画面比例。v2.8 起默认「自动」，因为自动的判据换了：
+     *
+     * v2.7 默认自适应是为了躲开旧的 AUTO —— 旧 AUTO 比的是「铺满后裁掉多少 ≤34%」，
+     * 4:3 频道裁 25% 就判铺满了，台标字幕直接被切。
+     * v2.8 的 AUTO 比的是「视频比例和屏幕比例差多少」，差得少才铺满：
+     *   16:9 频道 + 16:9 电视 → 偏差 0 → 铺满（真正满屏，一分不裁）
+     *   4:3 频道  + 16:9 电视 → 偏差 25% → 适应（两侧留黑，完整显示）
      */
-    private int scaleMode = PlayerActivity.MODE_FIT;
-    private static final double MAX_CROP = 0.12;
+    private int scaleMode = PlayerActivity.MODE_AUTO;
+    private static final double MAX_AR_DEV = 0.04;
 
     private final Runnable hideInfo = new Runnable() {
         public void run() {
@@ -127,6 +188,23 @@ public final class LivePlayerActivity extends Activity {
         }
     };
 
+    private final Runnable hideHud = new Runnable() {
+        public void run() {
+            if (hud != null) {
+                hud.animate().alpha(0f).setDuration(220).start();
+            }
+        }
+    };
+
+    private final Runnable clockTick = new Runnable() {
+        public void run() {
+            if (topClock != null) {
+                topClock.setText(new SimpleDateFormat("HH:mm", Locale.CHINA).format(new Date()));
+            }
+            ui.postDelayed(this, 30000);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -138,11 +216,13 @@ public final class LivePlayerActivity extends Activity {
         Proxy.start();
 
         groups = Live.groups();
-        groupIdx = getIntent().getIntExtra("groupIdx", 0);
-        chIdx = getIntent().getIntExtra("chIdx", 0);
+        // 入口不再要求「先选组再选台」：没带参数就用上次看的台，没有就第 0 组第 0 台
+        groupIdx = getIntent().getIntExtra("groupIdx", Store.liveGroup());
+        chIdx = getIntent().getIntExtra("chIdx", Store.liveChannel());
         if (groupIdx < 0 || groupIdx >= groups.size()) {
             groupIdx = 0;
         }
+        browseGroupIdx = groupIdx;
 
         buildUi();
 
@@ -156,6 +236,7 @@ public final class LivePlayerActivity extends Activity {
             }
         });
         ui.postDelayed(watchdog, 2000);
+        ui.post(clockTick);
     }
 
     @Override
@@ -179,6 +260,9 @@ public final class LivePlayerActivity extends Activity {
             } catch (Throwable t) {
             }
         }
+        if (liveDot != null && liveDot.getTag() instanceof android.animation.ObjectAnimator) {
+            ((android.animation.ObjectAnimator) liveDot.getTag()).cancel();
+        }
         ui.removeCallbacksAndMessages(null);
     }
 
@@ -191,8 +275,7 @@ public final class LivePlayerActivity extends Activity {
 
         vv = new PlayerActivity.FitVideoView(this);
         vv.setFocusable(false);
-        // 默认适应（完整显示不裁切）；红键可切铺满 / 自动
-        vv.setMode(scaleMode, MAX_CROP);
+        vv.setMode(scaleMode, MAX_AR_DEV);
         // 铺满时视图会比容器大，必须靠 CENTER 让它居中溢出，
         // 否则默认 START|TOP 会贴左上，看起来就是「只截掉右下角」
         root.addView(vv, new FrameLayout.LayoutParams(
@@ -219,7 +302,38 @@ public final class LivePlayerActivity extends Activity {
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER));
 
-        // 轻提示（切比例、自动换源都往这儿写一句，1.6 秒消失）
+        topBar = buildTopBar();
+        root.addView(topBar, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP));
+
+        hud = buildHud();
+        FrameLayout.LayoutParams hlp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.START);
+        hlp.leftMargin = Ui.px(48);
+        hlp.bottomMargin = Ui.px(72);
+        hud.setVisibility(View.GONE);
+        root.addView(hud, hlp);
+
+        // 底部：线路面板 + 键帽条
+        bottomWrap = new LinearLayout(this);
+        bottomWrap.setOrientation(LinearLayout.VERTICAL);
+        buildPanel();
+        bottomWrap.addView(panel);
+        bottomWrap.addView(buildBottomBar());
+        root.addView(bottomWrap, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM));
+
+        buildDrawer();
+        FrameLayout.LayoutParams dlp = new FrameLayout.LayoutParams(
+                Ui.px(DRAWER_W), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.END);
+        dlp.topMargin = Ui.px(TOP_H);
+        dlp.bottomMargin = Ui.px(FOOT_H);
+        root.addView(drawer, dlp);
+
+        // 轻提示放最后，压在所有浮层上
         toast = Ui.bold(this, "", 18, Ui.FG);
         toast.setGravity(Gravity.CENTER);
         toast.setPadding(Ui.px(20), Ui.px(9), Ui.px(20), Ui.px(9));
@@ -231,35 +345,21 @@ public final class LivePlayerActivity extends Activity {
         tlp.topMargin = Ui.px(200);
         root.addView(toast, tlp);
 
-        topBar = buildTopBar();
-        root.addView(topBar, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.TOP));
-
-        // 底部：面板 + 键帽提示，两者叠在一起放在底部
-        bottomWrap = new LinearLayout(this);
-        bottomWrap.setOrientation(LinearLayout.VERTICAL);
-        buildPanel();
-        bottomWrap.addView(panel);
-        bottomWrap.addView(buildBottomBar());
-        root.addView(bottomWrap, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM));
-
         setContentView(root);
     }
 
     /**
-     * 顶部信息条：品牌方块 + 台名 + 副名/线路 + 画质角标。
+     * 顶部信息条（设计稿 84px）：品牌块 + 台名 + 清晰度角标 + 副行；右侧「正在直播」胶囊 + 时钟。
      *
-     * 背景用「上深下透明」的渐变，贴在视频上不会像 v2.6 那样压出一条硬边。
+     * 背景用「上深下透明」的渐变，贴在视频上不会压出一条硬边。
      */
     private View buildTopBar() {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(Ui.px(48), Ui.px(18), Ui.px(48), Ui.px(26));
-        bar.setBackground(Ui.roundGrad(0xCC000000, 0x00000000, 0));
+        bar.setPadding(Ui.px(56), 0, Ui.px(56), 0);
+        bar.setMinimumHeight(Ui.px(TOP_H));
+        bar.setBackground(Ui.roundGrad(0xD9000000, 0x00000000, 0));
 
         bar.addView(Chrome.brandBlock(this));
 
@@ -269,12 +369,27 @@ public final class LivePlayerActivity extends Activity {
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         clp.leftMargin = Ui.px(16);
 
-        topName = Ui.bold(this, "", 30, Ui.FG);
-        topName.setSingleLine(true);
-        topName.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        col.addView(topName);
+        LinearLayout tagRow = new LinearLayout(this);
+        tagRow.setOrientation(LinearLayout.HORIZONTAL);
+        tagRow.setGravity(Gravity.CENTER_VERTICAL);
 
-        topSub = Ui.text(this, "", 15, Ui.FG_DIM);
+        topName = Ui.bold(this, "", 26, 0xFFFFFFFF);
+        topName.setSingleLine(true);
+        topName.setEllipsize(TextUtils.TruncateAt.END);
+        tagRow.addView(topName);
+
+        topBadge = Ui.bold(this, "HD", 11, 0xE6FFFFFF);
+        topBadge.setGravity(Gravity.CENTER);
+        topBadge.setPadding(Ui.px(7), Ui.px(2), Ui.px(7), Ui.px(2));
+        topBadge.setBackground(Ui.round(0x1AFFFFFF, 4, 1, 0x26FFFFFF));
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        blp.leftMargin = Ui.px(10);
+        tagRow.addView(topBadge, blp);
+
+        col.addView(tagRow);
+
+        topSub = Ui.text(this, "", 13, Ui.FG_DIM);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         slp.topMargin = Ui.px(2);
@@ -285,44 +400,165 @@ public final class LivePlayerActivity extends Activity {
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
 
-        topBadge = Ui.bold(this, "HD", 12, Ui.BG);
-        topBadge.setGravity(Gravity.CENTER);
-        topBadge.setPadding(Ui.px(8), Ui.px(3), Ui.px(8), Ui.px(3));
-        topBadge.setBackground(Ui.round(Ui.ACCENT, 4, 0, 0));
-        bar.addView(topBadge);
+        // 「正在直播」红色胶囊：白点呼吸 + 文字
+        LinearLayout live = new LinearLayout(this);
+        live.setOrientation(LinearLayout.HORIZONTAL);
+        live.setGravity(Gravity.CENTER_VERTICAL);
+        live.setPadding(Ui.px(14), Ui.px(6), Ui.px(14), Ui.px(6));
+        live.setBackground(Ui.round(0xE0E50914, 999, 1, 0x66FF6B6B));
+
+        liveDot = new View(this);
+        liveDot.setBackground(Ui.round(0xFFFFFFFF, 6, 0, 0));
+        live.addView(liveDot, new LinearLayout.LayoutParams(Ui.px(10), Ui.px(10)));
+
+        TextView liveTxt = Ui.bold(this, "正在直播", 13, 0xFFFFFFFF);
+        LinearLayout.LayoutParams ltl = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ltl.leftMargin = Ui.px(8);
+        live.addView(liveTxt, ltl);
+
+        bar.addView(live);
+
+        // 呼吸动画：白点透明度 1 ↔ 0.4
+        android.animation.ObjectAnimator breath = android.animation.ObjectAnimator
+                .ofFloat(liveDot, "alpha", 1f, 0.4f);
+        breath.setDuration(900);
+        breath.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        breath.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        breath.start();
+        liveDot.setTag(breath);
+
+        topClock = Ui.bold(this, "00:00", 26, 0xFFFFFFFF);
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        klp.leftMargin = Ui.px(24);
+        bar.addView(topClock, klp);
 
         return bar;
     }
 
-    /** 底部键帽提示条 + 右侧在线状态点。 */
+    /** 左下角音量 HUD：喇叭 + 轨道 + 数字，按音量键才出现，2 秒后淡出。 */
+    private View buildHud() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        box.setPadding(Ui.px(16), Ui.px(12), Ui.px(16), Ui.px(12));
+        box.setBackground(Ui.round(0xC0141920, 12, 1, 0x1AFFFFFF));
+        box.setMinimumWidth(Ui.px(230));
+
+        SpeakerIcon icon = new SpeakerIcon(this, Ui.ACCENT);
+        box.addView(icon, new LinearLayout.LayoutParams(Ui.px(20), Ui.px(20)));
+
+        FrameLayout track = new FrameLayout(this);
+        track.setBackground(Ui.round(0x33FFFFFF, 4, 0, 0));
+        hudBar = new View(this);
+        hudBar.setBackground(Ui.round(Ui.ACCENT, 4, 0, 0));
+        track.addView(hudBar, new FrameLayout.LayoutParams(Ui.px(HUD_BAR_W / 2), Ui.px(6)));
+        LinearLayout.LayoutParams tkl = new LinearLayout.LayoutParams(
+                Ui.px(HUD_BAR_W), Ui.px(6));
+        tkl.leftMargin = Ui.px(12);
+        tkl.rightMargin = Ui.px(12);
+        box.addView(track, tkl);
+
+        hudValue = Ui.bold(this, "50", 15, 0xFFFFFFFF);
+        box.addView(hudValue);
+
+        return box;
+    }
+
+    private void adjustVolume(int delta) {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) {
+            return;
+        }
+        try {
+            int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            int next = cur + delta;
+            if (next < 0) {
+                next = 0;
+            }
+            if (next > max) {
+                next = max;
+            }
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, next, 0);
+            showVolume(next, max);
+        } catch (Throwable t) {
+            Trace.err("live", "调音量失败", t);
+        }
+    }
+
+    private void showVolume(int cur, int max) {
+        if (hud == null || max <= 0) {
+            return;
+        }
+        int w = Math.round(Ui.px(HUD_BAR_W) * (cur / (float) max));
+        hudBar.getLayoutParams().width = Math.max(0, w);
+        hudBar.requestLayout();
+        hudValue.setText(String.valueOf(cur * 100 / max));
+        hud.setVisibility(View.VISIBLE);
+        hud.setAlpha(1f);
+        ui.removeCallbacks(hideHud);
+        ui.postDelayed(hideHud, 2000);
+    }
+
+    /** 底部键帽条（设计稿 56px）；红键用红底，其他用半透明白。 */
     private View buildBottomBar() {
         LinearLayout wrap = new LinearLayout(this);
         wrap.setOrientation(LinearLayout.VERTICAL);
-        wrap.setPadding(Ui.px(48), 0, Ui.px(48), Ui.px(18));
-        wrap.setBackground(Ui.roundGrad(0x00000000, 0xB3000000, 0));
+        wrap.setPadding(Ui.px(56), 0, Ui.px(56), 0);
+        wrap.setMinimumHeight(Ui.px(FOOT_H));
+        wrap.setGravity(Gravity.CENTER_VERTICAL);
+        wrap.setBackground(Ui.roundGrad(0x00000000, 0xEB000000, 0));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, Ui.px(14), 0, 0);
 
-        String[][] keys = new String[][] {
+        row.addView(keyCaps(new String[][]{
                 { "↑ ↓", "换台" },
-                { "← →", "换源" },
-                { "OK", "重连" },
-                { "菜单", "源列表" },
-                { "红键", "比例" },
+                { "← →", "切线路" },
+                { "OK", "频道列表" },
+                { "菜单", "线路" },
+                { "红键", "画面比例" },
                 { "返回", "退出" },
-        };
-        row.addView(Chrome.keyHintRow(this, keys, "OK"));
-
-        View sp = new View(this);
-        row.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
-        row.addView(Chrome.statusDot(this, "直播 · 卡了自动换下一路", Ui.OK_GREEN));
+        }));
 
         wrap.addView(row);
-        bottomHint = null;
         return wrap;
+    }
+
+    /** 键帽 + 说明。红键单独给红底，跟遥控器上的实体键对上。 */
+    private View keyCaps(String[][] items) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        for (int i = 0; i < items.length; i++) {
+            String key = items[i][0];
+            boolean red = key.contains("红");
+            boolean main = "OK".equals(key);
+
+            TextView cap = Ui.bold(this, key, 13, red ? 0xFFFFFFFF : 0xFFFFFFFF);
+            cap.setGravity(Gravity.CENTER);
+            cap.setPadding(Ui.px(8), Ui.px(3), Ui.px(8), Ui.px(3));
+            if (red) {
+                cap.setBackground(Ui.round(0xCCE50914, 5, 1, 0x88FF6B6B));
+            } else if (main) {
+                cap.setBackground(Ui.round(Ui.ACCENT, 5, 0, 0));
+                cap.setTextColor(Ui.BG);
+            } else {
+                cap.setBackground(Ui.round(0x1AFFFFFF, 5, 1, 0x26FFFFFF));
+            }
+            row.addView(cap);
+
+            TextView desc = Ui.text(this, items[i][1], 13, Ui.FG_DIM);
+            LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            dlp.leftMargin = Ui.px(7);
+            dlp.rightMargin = Ui.px(22);
+            row.addView(desc, dlp);
+        }
+        return row;
     }
 
     /** 换源面板：底部一排源，当前那个实心琥珀。 */
@@ -330,14 +566,14 @@ public final class LivePlayerActivity extends Activity {
         panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setBackgroundColor(0xF20B0E13);
-        panel.setPadding(Ui.px(48), Ui.px(20), Ui.px(48), Ui.px(22));
+        panel.setPadding(Ui.px(56), Ui.px(20), Ui.px(56), Ui.px(22));
         panel.setVisibility(View.GONE);
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.addView(Chrome.title(this, "切换线路"));
-        TextView tip = Chrome.subtitle(this, "　同一频道有多路源，挑能播的就行");
+        TextView tip = Chrome.subtitle(this, "　同一个台有多路源，挑能播的就行");
         head.addView(tip);
         panel.addView(head);
 
@@ -390,15 +626,9 @@ public final class LivePlayerActivity extends Activity {
     private void togglePanel() {
         panelVisible = !panelVisible;
         panel.setVisibility(panelVisible ? View.VISIBLE : View.GONE);
-        root.post(new Runnable() {
-            public void run() {
-                // 面板展开时把键帽条藏掉，避免两条信息叠在一起
-                View v = bottomWrap.getChildCount() > 1 ? bottomWrap.getChildAt(1) : null;
-                if (v != null) {
-                    v.setVisibility(panelVisible ? View.GONE : View.VISIBLE);
-                }
-            }
-        });
+        if (panelVisible && drawerVisible) {
+            toggleDrawer();
+        }
         ui.removeCallbacks(hidePanel);
         if (panelVisible) {
             renderPanel();
@@ -410,6 +640,283 @@ public final class LivePlayerActivity extends Activity {
         } else {
             vv.requestFocus();
         }
+    }
+
+    /* ==================== 右侧频道抽屉 ==================== */
+
+    private void buildDrawer() {
+        drawer = new LinearLayout(this);
+        drawer.setOrientation(LinearLayout.VERTICAL);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xF2171B22);
+        // 只圆左侧两个角：抽屉是贴右边缘的
+        bg.setCornerRadii(new float[] {
+                Ui.px(20), Ui.px(20), 0f, 0f, 0f, 0f, Ui.px(20), Ui.px(20)
+        });
+        bg.setStroke(Math.max(1, Ui.px(1)), 0x1AFFFFFF);
+        drawer.setBackground(bg);
+        drawer.setPadding(Ui.px(30), Ui.px(26), Ui.px(26), Ui.px(18));
+        drawer.setVisibility(View.GONE);
+
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        head.addView(Chrome.title(this, "频道列表"));
+
+        View sp = new View(this);
+        head.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
+
+        drawerCount = Ui.text(this, "", 13, Ui.FG_DIM);
+        head.addView(drawerCount);
+        drawer.addView(head);
+
+        TextView hint = Ui.text(this, "↑↓ 换台　·　← → 切分组　·　OK 直接播放", 13, 0xB39AA6B5);
+        hint.setPadding(0, Ui.px(4), 0, Ui.px(14));
+        drawer.addView(hint);
+
+        View line = Chrome.hairline(this, 0);
+        drawer.addView(line, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Math.max(1, Ui.px(1))));
+
+        HorizontalScrollView gs = new HorizontalScrollView(this);
+        gs.setHorizontalScrollBarEnabled(false);
+        gs.setClipChildren(false);
+        groupStrip = new LinearLayout(this);
+        groupStrip.setOrientation(LinearLayout.HORIZONTAL);
+        groupStrip.setClipChildren(false);
+        groupStrip.setPadding(0, Ui.px(10), 0, Ui.px(10));
+        gs.addView(groupStrip);
+        drawer.addView(gs, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        drawerScroll = new ScrollView(this);
+        drawerScroll.setVerticalScrollBarEnabled(false);
+        drawerScroll.setClipChildren(false);
+        drawerList = new LinearLayout(this);
+        drawerList.setOrientation(LinearLayout.VERTICAL);
+        drawerList.setClipChildren(false);
+        drawerScroll.addView(drawerList, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
+        dlp.topMargin = Ui.px(4);
+        drawer.addView(drawerScroll, dlp);
+    }
+
+    private void toggleDrawer() {
+        drawerVisible = !drawerVisible;
+        drawer.setVisibility(drawerVisible ? View.VISIBLE : View.GONE);
+        if (drawerVisible) {
+            if (panelVisible) {
+                togglePanel();
+            }
+            browseGroupIdx = groupIdx;
+            renderDrawer();
+            focusRow(chIdx);
+            drawer.animate().translationX(0f).setDuration(1).start();
+        } else {
+            vv.requestFocus();
+        }
+    }
+
+    private void renderDrawer() {
+        if (groupStrip == null) {
+            return;
+        }
+        groupStrip.removeAllViews();
+        for (int i = 0; i < groups.size(); i++) {
+            final int gi = i;
+            Live.Group g = groups.get(i);
+            boolean on = i == browseGroupIdx;
+            TextView chip = on
+                    ? Ui.bold(this, g.name + " " + g.chs.size(), 14, Ui.BG)
+                    : Ui.text(this, g.name + " " + g.chs.size(), 14, Ui.FG_DIM);
+            chip.setGravity(Gravity.CENTER);
+            chip.setSingleLine(true);
+            chip.setFocusable(true);
+            chip.setClickable(true);
+            chip.setPadding(Ui.px(14), Ui.px(6), Ui.px(14), Ui.px(6));
+            chip.setBackground(on ? Ui.glowBg(Ui.ACCENT, 999, Ui.ACCENT_HI)
+                    : Ui.focusBgGlow(0x14FFFFFF, 999, Ui.ACCENT));
+            chip.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    browseGroupIdx = gi;
+                    renderDrawer();
+                    focusRow(0);
+                }
+            });
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            clp.rightMargin = Ui.px(8);
+            groupStrip.addView(chip, clp);
+        }
+
+        Live.Group g = groups.get(browseGroupIdx);
+        drawerCount.setText("共 " + g.chs.size() + " 台");
+
+        drawerList.removeAllViews();
+        for (int i = 0; i < g.chs.size(); i++) {
+            drawerList.addView(drawerRow(g.chs.get(i), i));
+        }
+    }
+
+    /** 抽屉里的一行频道：指示条 + 台标 + 台名/别名 + 源数。 */
+    private View drawerRow(final Live.Ch c, final int idx) {
+        final LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(Ui.px(10), 0, Ui.px(14), 0);
+        row.setFocusable(true);
+        row.setClickable(true);
+
+        View bar = new View(this);
+        bar.setBackground(Ui.round(0x00000000, 2, 0, 0));
+        row.addView(bar, new LinearLayout.LayoutParams(Ui.px(4), Ui.px(30)));
+
+        FrameLayout logoBox = new FrameLayout(this);
+        logoBox.setBackground(Ui.round(0x1AFFFFFF, 6, 1, 0x1AFFFFFF));
+        ImageView logo = new ImageView(this);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int lw = Ui.px(44);
+        int lh = Ui.px(28);
+        logoBox.addView(logo, new FrameLayout.LayoutParams(lw, lh, Gravity.CENTER));
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(lw, lh);
+        llp.leftMargin = Ui.px(12);
+        row.addView(logoBox, llp);
+        Ui.loadPoster(logo, c.logo, Math.max(8, lw - Ui.px(6)), Math.max(8, lh - Ui.px(6)),
+                c.name, true);
+
+        LinearLayout col = new LinearLayout(this);
+        col.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        clp.leftMargin = Ui.px(12);
+
+        LinearLayout nameRow = new LinearLayout(this);
+        nameRow.setOrientation(LinearLayout.HORIZONTAL);
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        final TextView name = Ui.bold(this, c.name, 18, 0xE6FFFFFF);
+        name.setSingleLine(true);
+        name.setEllipsize(TextUtils.TruncateAt.END);
+        nameRow.addView(name);
+        col.addView(nameRow);
+
+        String alias = Live.aliasOf(c.name);
+        final TextView sub = Ui.text(this, (alias.length() > 0 ? alias + " · " : "")
+                + qualityOf(c.name), 13, Ui.FG_DIM);
+        sub.setSingleLine(true);
+        sub.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        slp.topMargin = Ui.px(2);
+        col.addView(sub, slp);
+
+        row.addView(col, clp);
+
+        final TextView count = Ui.text(this, c.urls.size() + " 源", 12, Ui.FG_DIM);
+        count.setPadding(Ui.px(8), Ui.px(2), Ui.px(8), Ui.px(2));
+        count.setBackground(Ui.round(0x0DFFFFFF, 4, 1, 0x1AFFFFFF));
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        nlp.leftMargin = Ui.px(10);
+        row.addView(count, nlp);
+
+        row.setBackground(rowBg(false));
+        row.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean has) {
+                row.setBackground(rowBg(has));
+                bar.setBackground(Ui.round(has ? Ui.ACCENT : 0x00000000, 2, 0, 0));
+                name.setTextColor(has ? 0xFFFFFFFF : 0xE6FFFFFF);
+                name.setTextSize(has ? 20 : 18);
+                sub.setTextColor(has ? 0xE6FFB300 : Ui.FG_DIM);
+                count.setTextColor(has ? Ui.ACCENT : Ui.FG_DIM);
+                count.setBackground(has
+                        ? Ui.round(0x33FFB300, 4, 1, 0x66FFB300)
+                        : Ui.round(0x0DFFFFFF, 4, 1, 0x1AFFFFFF));
+                if (has) {
+                    scrollRowIntoView(v);
+                }
+            }
+        });
+        row.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                browseGroupIdx = groupIdx;
+                selectChannel(idx);
+            }
+        });
+
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Ui.px(64));
+        rlp.bottomMargin = Ui.px(8);
+        row.setLayoutParams(rlp);
+        return row;
+    }
+
+    private GradientDrawable rowBg(boolean on) {
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(on ? 0x29FFB300 : 0x0AFFFFFF);
+        g.setCornerRadius(Ui.px(10));
+        g.setStroke(Math.max(1, Ui.px(on ? 2 : 1)), on ? Ui.ACCENT : 0x00000000);
+        return g;
+    }
+
+    private void scrollRowIntoView(View row) {
+        if (drawerScroll == null) {
+            return;
+        }
+        final int top = row.getTop();
+        final int h = row.getHeight();
+        final int vh = drawerScroll.getHeight();
+        drawerScroll.post(new Runnable() {
+            public void run() {
+                int y = drawerScroll.getScrollY();
+                if (top < y) {
+                    drawerScroll.smoothScrollTo(0, Math.max(0, top - Ui.px(8)));
+                } else if (top + h > y + vh - Ui.px(8)) {
+                    drawerScroll.smoothScrollTo(0, top + h - vh + Ui.px(8));
+                }
+            }
+        });
+    }
+
+    private void focusRow(int idx) {
+        if (drawerList == null || drawerList.getChildCount() == 0) {
+            return;
+        }
+        int i = idx;
+        if (i < 0) {
+            i = 0;
+        }
+        if (i >= drawerList.getChildCount()) {
+            i = drawerList.getChildCount() - 1;
+        }
+        final View v = drawerList.getChildAt(i);
+        v.post(new Runnable() {
+            public void run() {
+                v.requestFocus();
+            }
+        });
+    }
+
+    /** 在抽屉里点了某个台：切真正在播的台，然后收抽屉。 */
+    private void selectChannel(int idx) {
+        if (groups.isEmpty()) {
+            return;
+        }
+        manual();
+        groupIdx = browseGroupIdx;
+        chIdx = idx;
+        if (!pickChannel()) {
+            showDead("这个台没有可用的线路");
+            return;
+        }
+        Store.saveLive(groupIdx, chIdx);
+        if (drawerVisible) {
+            toggleDrawer();
+        }
+        play(0);
     }
 
     /* ==================== 播放 ==================== */
@@ -466,6 +973,8 @@ public final class LivePlayerActivity extends Activity {
         bufAt = System.currentTimeMillis();
         lastPos = -1;
         posAt = 0;
+        preparedAt = 0;
+        videoW = 0;
 
         final String raw = urls.get(idx);
         final String local = Proxy.wrapPlaylist(raw);
@@ -484,7 +993,9 @@ public final class LivePlayerActivity extends Activity {
                     vv.setVideoSize(mp.getVideoWidth(), mp.getVideoHeight());
                 } catch (Throwable t) {
                 }
-                vv.setMode(scaleMode, MAX_CROP);
+                preparedAt = System.currentTimeMillis();
+                videoW = safeWidth(mp);
+                vv.setMode(scaleMode, MAX_AR_DEV);
                 vv.start();
                 vv.post(new Runnable() {
                     public void run() {
@@ -521,6 +1032,9 @@ public final class LivePlayerActivity extends Activity {
                         vv.setVideoSize(mp.getVideoWidth(), mp.getVideoHeight());
                     } catch (Throwable t) {
                     }
+                    // 出画了就作废黑屏计时（videoW 刻意不改回 0）
+                    videoW = safeWidth(mp);
+                    preparedAt = 0;
                     busy.setVisibility(View.GONE);
                     busyText.setVisibility(View.GONE);
                     bufAt = 0;
@@ -593,7 +1107,7 @@ public final class LivePlayerActivity extends Activity {
 
     /**
      * 看门狗：巡检脚本只能证明「这一秒连得上」，证明不了「能一直播」。
-     * 这三种情况一律换源：起播超时、缓冲卡住、画面位置不再前进。
+     * 这四种情况一律换源：起播超时、缓冲卡住、画面位置不再前进、解码器出不了画。
      */
     private final Runnable watchdog = new Runnable() {
         public void run() {
@@ -603,7 +1117,7 @@ public final class LivePlayerActivity extends Activity {
     };
 
     private void checkAlive() {
-        if (dead || paused || urls.isEmpty() || panelVisible) {
+        if (dead || paused || urls.isEmpty() || panelVisible || drawerVisible) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -637,13 +1151,30 @@ public final class LivePlayerActivity extends Activity {
                 } else if (posAt > 0 && now - posAt > STALL_TIMEOUT_MS) {
                     Trace.add("live", "线路" + (urlIdx + 1) + " 画面停住 @" + pos);
                     autoNext("画面停住了，换下一路");
+                    return;
                 }
             }
         } catch (Throwable t) {
         }
+
+        // 4. 黑屏：prepared 之后 6 秒还一个像素都没解出来。
+        //    这一类源骗过上面三条（position 在走、isPlaying 为 true），但屏幕纯黑。
+        if (preparedAt > 0 && videoW <= 0 && now - preparedAt > BLANK_TIMEOUT_MS) {
+            Trace.add("live", "线路" + (urlIdx + 1) + " 黑屏无画面");
+            autoNext("这一路只有声音没有画面，换下一路");
+        }
     }
 
-    /** 上一台 / 下一台：只在同一个分组里循环，跨组用分组长按成本太高，先不做。 */
+    /** 拿视频宽度，取不到就当 0（意味着还没出画）。 */
+    private int safeWidth(MediaPlayer mp) {
+        try {
+            return mp == null ? 0 : mp.getVideoWidth();
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    /** 上一台 / 下一台：只在当前分组里循环。 */
     private void switchChannel(int delta) {
         if (group == null || group.chs.isEmpty()) {
             return;
@@ -653,6 +1184,29 @@ public final class LivePlayerActivity extends Activity {
         chIdx = ((chIdx + delta) % n + n) % n;
         if (!pickChannel()) {
             showDead("这个台没有可用的线路");
+            return;
+        }
+        Store.saveLive(groupIdx, chIdx);
+        play(0);
+    }
+
+    /** 切分组：抽屉没开就直接换台播，开着就只换列表（别把正在看的台弄没了）。 */
+    private void switchGroup(int delta) {
+        if (groups.isEmpty()) {
+            return;
+        }
+        int n = groups.size();
+        if (drawerVisible) {
+            browseGroupIdx = ((browseGroupIdx + delta) % n + n) % n;
+            renderDrawer();
+            focusRow(0);
+            return;
+        }
+        manual();
+        groupIdx = ((groupIdx + delta) % n + n) % n;
+        chIdx = 0;
+        if (!pickChannel()) {
+            showToast("这个分组没有可用的台");
             return;
         }
         Store.saveLive(groupIdx, chIdx);
@@ -679,14 +1233,19 @@ public final class LivePlayerActivity extends Activity {
         topName.setText(ch.name);
         String alias = Live.aliasOf(ch.name);
         StringBuilder sb = new StringBuilder();
+        sb.append("第 ").append(pad2(chIdx + 1)).append(" 台");
         if (alias.length() > 0) {
-            sb.append(alias).append("　·　");
+            sb.append("　·　").append(alias);
         }
-        sb.append("线路 ").append(urlIdx + 1).append("/").append(urls.size());
-        sb.append("　·　↑↓ 换台");
+        sb.append("　·　").append(qualityOf(ch.name));
+        sb.append("　·　第 ").append(urlIdx + 1).append("/").append(urls.size()).append(" 路源");
         topSub.setText(sb.toString());
-        topBadge.setText(qualityOf(ch.name));
+        topBadge.setText(qualityOf(ch.name).equals("HD") ? "FHD" : qualityOf(ch.name));
         setTopVisible();
+    }
+
+    private static String pad2(int v) {
+        return v < 10 ? "0" + v : String.valueOf(v);
     }
 
     private void setTopVisible() {
@@ -695,7 +1254,7 @@ public final class LivePlayerActivity extends Activity {
         topBar.setVisibility(View.VISIBLE);
     }
 
-    /** 起播成功后：信息条 5 秒淡出。 */
+    /** 起播成功后：信息条先显示，5 秒后淡出，别一直压在画面上。 */
     private void restInfo() {
         ui.removeCallbacks(hideInfo);
         topBar.setAlpha(1f);
@@ -724,14 +1283,14 @@ public final class LivePlayerActivity extends Activity {
     /* ==================== 画面比例 ==================== */
 
     /**
-     * 循环 适应 / 铺满 / 自动。
+     * 循环 自动 / 适应 / 铺满。
      *
-     * 直播场景里「适应」应当是默认，「铺满」只在用户明确想看大画面、
-     * 且频道本来就是 16:9 的时候才用得上。
+     * v2.8 起顺序改成以「自动」开头：新算法下自动已经是大多数人想要的那档
+     * （16:9 频道满屏、4:3 频道留黑），用户按红键多半是想手动覆盖它。
      */
     private void cycleScale() {
         scaleMode = (scaleMode + 1) % 3;
-        vv.setMode(scaleMode, MAX_CROP);
+        vv.setMode(scaleMode, MAX_AR_DEV);
         String name;
         if (scaleMode == PlayerActivity.MODE_FIT) {
             name = "画面：适应（完整显示，两侧留黑）";
@@ -763,10 +1322,17 @@ public final class LivePlayerActivity extends Activity {
                 togglePanel();
                 return true;
             }
+            if (drawerVisible) {
+                toggleDrawer();
+                return true;
+            }
             finish();
             return true;
         }
         if (code == KeyEvent.KEYCODE_MENU) {
+            if (drawerVisible) {
+                toggleDrawer();
+            }
             togglePanel();
             return true;
         }
@@ -774,7 +1340,35 @@ public final class LivePlayerActivity extends Activity {
             cycleScale();
             return true;
         }
-        // 遥控器「频道 +/-」按电视的常规习惯是换台，不是换源 —— 换源用 ←→ 和菜单键。
+        if (code == KeyEvent.KEYCODE_VOLUME_UP) {
+            adjustVolume(1);
+            return true;
+        }
+        if (code == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            adjustVolume(-1);
+            return true;
+        }
+        // 抽屉开着：↑↓ 交给列表自己走焦点，←→ 用来切分组
+        if (drawerVisible) {
+            if (code == KeyEvent.KEYCODE_DPAD_LEFT) {
+                switchGroup(-1);
+                return true;
+            }
+            if (code == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                switchGroup(1);
+                return true;
+            }
+            if (code == KEY_RED) {
+                cycleScale();
+                return true;
+            }
+            return super.onKeyDown(code, e);
+        }
+        if (panelVisible) {
+            // 面板开着的时候方向键交给面板自己走焦点，别在这一层截
+            return super.onKeyDown(code, e);
+        }
+        // 遥控器「频道 +/-」按电视的常规习惯是换台，不是换源 —— 换源用菜单键。
         if (code == KEY_CH_UP) {
             switchChannel(-1);
             return true;
@@ -782,10 +1376,6 @@ public final class LivePlayerActivity extends Activity {
         if (code == KEY_CH_DOWN) {
             switchChannel(1);
             return true;
-        }
-        if (panelVisible) {
-            // 面板开着的时候方向键交给面板自己走焦点，别在这一层截
-            return super.onKeyDown(code, e);
         }
         if (code == KeyEvent.KEYCODE_DPAD_UP) {
             switchChannel(-1);
@@ -815,9 +1405,9 @@ public final class LivePlayerActivity extends Activity {
             return true;
         }
         if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER) {
-            // OK 键：画面卡住时手动重连当前线路
+            // OK：呼出频道列表（电视直播里最常用的动作）
             manual();
-            play(urlIdx);
+            toggleDrawer();
             return true;
         }
         if (code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
@@ -833,5 +1423,40 @@ public final class LivePlayerActivity extends Activity {
             return true;
         }
         return super.onKeyDown(code, e);
+    }
+
+    /** 音量 HUD 里的小喇叭。系统没有现成 drawable，自己画三角 + 两道弧。 */
+    private static final class SpeakerIcon extends View {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        SpeakerIcon(Context c, int color) {
+            super(c);
+            p.setColor(color);
+            p.setStyle(Paint.Style.FILL);
+        }
+
+        @Override
+        protected void onDraw(Canvas cv) {
+            float w = getWidth();
+            float h = getHeight();
+            if (w <= 0 || h <= 0) {
+                return;
+            }
+            float u = w / 5f;
+            Path path = new Path();
+            path.moveTo(u * 0.4f, h * 0.36f);
+            path.lineTo(u * 1.4f, h * 0.36f);
+            path.lineTo(u * 2.5f, h * 0.16f);
+            path.lineTo(u * 2.5f, h * 0.84f);
+            path.lineTo(u * 1.4f, h * 0.64f);
+            path.lineTo(u * 0.4f, h * 0.64f);
+            path.close();
+            cv.drawPath(path, p);
+
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(Math.max(1f, w * 0.07f));
+            cv.drawArc(new RectF(u * 2.2f, h * 0.30f, u * 3.6f, h * 0.70f), -60, 120, false, p);
+            cv.drawArc(new RectF(u * 2.2f, h * 0.12f, u * 4.7f, h * 0.88f), -55, 110, false, p);
+        }
     }
 }

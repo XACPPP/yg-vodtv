@@ -5,7 +5,7 @@ VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 *
 App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
 直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7 / v2.7.1 修好打包）。
 
-当前版本：**v2.7.1（versionCode 19）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.8（versionCode 20）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -213,6 +213,152 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.8：比例算对、直播能看、直播不再像影视
+
+老板原话（三条一起骂的）：
+
+> 1、自适应做的很奇怪，有的视频明明可以完美做满屏，却被留出大黑边，比例算错了；有的视频全屏又铺满的又很奇怪！！
+> 2、电视直播10个频道有7个都是卡顿，而且有些源还是黑屏，比如湖南卫视；
+> 3、电视直播不要做成影视那样，点进去直接出电视直播才对啊，你可以去看看别人的电视直播软件是咋做的，
+> 怎么会弄成影视那样呢，很奇怪啊，找找别人的软件学习一下，然后找stitch重新设计过。
+
+#### 一、比例：旧判据比错了对象
+
+`FitVideoView.wantFill()` 在 v2.7 及之前算的是「**铺满之后要裁掉多少**」，
+`crop <= 0.34` 就判铺满。这个语义本身是错的 —— 它比的是「代价」，不是「形状是否相同」：
+
+| 片源 | 容器 16:9 时铺满要裁 | 旧逻辑判定 | 结果 |
+|---|---|---|---|
+| 16:9（1920×1080） | 0% | 铺满 | 正确 |
+| 4:3（1440×1080） | 25% | 铺满（≤34%） | **上下被切掉一块** |
+| 2.35:1 电影 | 8% | 铺满 | 上下各切一条 |
+| 9:16 竖屏 | 68% | 适应 | 正确 |
+
+改成比「**视频宽高比 vs 容器宽高比的偏差**」：
+
+```java
+double videoAr = effectiveAr(vw, vh);
+double boxAr   = (double) availW / (double) availH;
+double bigger  = Math.max(videoAr, boxAr);
+double dev     = Math.abs(videoAr - boxAr) / bigger;
+return dev <= maxDev;          // maxDev = MAX_AR_DEV = 0.04
+```
+
+δ≤4% 才铺满（同形状，铺满等于刚好铺满），超过就适应（形状不同，硬铺一定切画面）。
+常量 `MAX_CROP = 0.34` 整个删掉，换成 `MAX_AR_DEV = 0.04`。
+
+还有第二个坑：**非方形像素（anamorphic）**。`MediaPlayer.getVideoWidth()/getVideoHeight()`
+报的是**编码尺寸**，不含 SAR。国产老剧大量使用 1440×1080 / 960×720 这种
+「4:3 像素存 16:9 画面」的编码，按 1.333 算比例就会被判成 4:3 → 左右留两条大黑边。
+新增 `effectiveAr(vw, vh)` 只认几组确定无疑的：
+
+| 编码尺寸 | 真实显示比例 |
+|---|---|
+| 1440×1080 / 1456×1080 | 16:9（HDV / 早期高清剧） |
+| 1440×1088 / 1920×1088 | 16:9（1088 是 1080 的宏块对齐版） |
+| 960×720 / 1280×720 | 16:9 |
+| 720×576 | 4:3（PAL DVD，本来就是 4:3） |
+
+没做泛化推测 —— 猜错的代价是把真 4:3 内容拉变形，比留黑边更难看。
+
+第三处：`setVideoSize()` 在 v2.7 只有直播页调用，点播页一直在靠反射读
+`mVideoWidth`（**上一帧**的值，起播时是 0）。v2.8 在 `onPrepared` 和每次
+`MEDIA_INFO_VIDEO_TRACK_LAGGING` / `BUFFERING_*` 回调里都喂一次
+`setVideoSize(mp.getVideoWidth(), mp.getVideoHeight())` 再 `requestLayout()`，
+码率切换后分辨率变了也能立刻重算。
+
+#### 二、直播卡顿 / 黑屏
+
+看门狗原来只有三条判据（起播 15s、缓冲 9s、位置 12s 不动）。
+**「有声无画」这一类源能全部骗过去**：`isPlaying()` 是 true、`getCurrentPosition()` 在走、
+一次 buffering 都不报，屏幕就是纯黑。湖南卫视当时就是这种。
+
+新增第 4 条判据：
+
+```java
+// prepared 之后 6 秒还一个像素都没解出来 → 「这一路只有声音没有画面」
+if (preparedAt > 0 && videoW <= 0 && now - preparedAt > BLANK_TIMEOUT_MS) {
+    autoNext("这一路只有声音没有画面，换下一路");
+}
+```
+
+`videoW` 从 `mp.getVideoWidth()` 取，在 `onPrepared` 记一次、`MEDIA_INFO_VIDEO_RENDERING_START`
+（what==3，真正出画）再记一次并把 `preparedAt` 清零（出画就作废黑屏计时）。
+
+源表那边同时收紧了三道筛选（详见「巡检」段）：吞吐 <40KB/s 淘汰、TTFB >3s 淘汰、两轮复测。
+
+#### 三、直播不再是一页海报墙
+
+v2.7 的直播板块就是「把影视首页那套海报网格复制一份，只是把海报换成台标」——
+点进去先看一页频道卡，再点一次才播。老板说得对，这不是电视直播的样子。
+
+v2.8 按主流直播 App（电视家 / 火星直播 / TiviMate）的交互重做：
+
+- **`LiveActivity.java` 整页删除**（834 行）。`MainActivity` 点「电视」直接
+  `startActivity(LivePlayerActivity)`，开机即播。
+- `onCreate` 恢复上次看的台：`getIntent().getIntExtra("groupIdx", Store.liveGroup())`、
+  同理 `chIdx`。没带参数就接着上次那台看。
+- **全屏播放 + 右侧频道抽屉**：`OK` 键呼出/收起抽屉（宽 560px，
+  `topMargin = 84px`、`bottomMargin = 56px`，只圆左侧 20px）。
+  抽屉里 `↑↓` 选台、`← →` 切分组、`OK` 播放、`返回` 收起。分组胶囊只改
+  `browseGroupIdx`，**不会打断正在播的台**。
+- **顶部信息条**：品牌块 + 台名 26px + 清晰度角标（FHD/4K/8K）+ 副行
+  「第 NN 台 · 别名 · 清晰度 · 第 n/m 路源」；右侧「正在直播」红色胶囊（白点呼吸）
+  + 时钟。
+- **音量 HUD**：`KEYCODE_VOLUME_UP/DOWN` 自己拦（不再交给系统），左下角浮出
+  喇叭图标 + 琥珀轨道 + 数字，2 秒后淡出。
+- 底部键帽条改成设计稿样式（红键特殊红底），`MENU` 仍开「线路」面板、`红键` 循环画面比例。
+
+设计稿走 Stitch 重新出了一版：`projects/9584627652671101173` 下的
+「YG影视 - Android TV 电视直播『边看边换台』1080P体验」。第一次生成的是
+2560×2048（1.25:1）画布，绝对定位全歪，回炉改成 16:9 / 1920×1080 重出一版；
+同时让它删掉画面中央的巨型台标水印（真播起来挡节目）、去掉我们没有数据的
+EPG「节目名」行（数据源只有台名/别名/源数）。
+
+#### 四、影视首页补完设计稿剩下的四处
+
+v2.7 只抄了配色和圆角，骨架没抄。这轮补齐：
+
+| 位置 | v2.7 | v2.8 |
+|---|---|---|
+| 底部信息 dock | **没有** | 150px 高的 `#11141A` dock：片名 40px bold + meta 行（年份/地区/类型/备注/导演）+ 一行简介 + 「影片详情」「立即播放」两钮 + 底部键帽条 |
+| 海报卡副标题 | 没有 | 13px 灰字第二行（`年份 · 地区 · 类型`），焦点时变琥珀色 |
+| 焦点提示 | 只有描边 | 8px 琥珀圆点 + 「正在选中」12px（设计稿的 pulse dot） |
+| 海报蒙层 | 42% 高两色渐变 | `Ui.posterScrim()` 四段 to-top 渐变（0.96 → 0.6 → 透明 → 透明），覆盖底部 62% |
+| 分类胶囊 | 全圆角 999 | 8px 圆角（`rounded-lg`）、`px(32)/py(6)`、未选 `bg-white/[0.08]` |
+| 分类条两端 | 硬切 | `Ui.railFade()` 左右渐隐（左 32px / 右 96px） |
+| 顶栏品牌字 | 「极清影院」20px FG | 32px bold `#FFD79B`（`text-primary`） |
+
+焦点卡动画按设计稿改成 `scale 1.06` + `translationY -4px` + 180ms，
+未聚焦卡片统一 `alpha 0.76`（否则一屏 84 张全亮没层次），焦点时恢复 1.0。
+
+**踩到的坑**：dock 主行一开始写成 `height=0 + weight=1`，结果整行消失 ——
+dock 自身是 `WRAP_CONTENT`，LinearLayout 在 `WRAP_CONTENT` 下没有「剩余空间」
+可分给 weight 子 View，高度直接算成 0。改成 `WRAP_CONTENT` 并把原因写进注释。
+
+#### 五、验收
+
+| 项 | 结果 |
+|---|---|
+| `app/build.sh` | `[build] OK`，APK 564153 字节 |
+| `Ver.java` / Manifest | `2.8` / `versionCode 20` |
+| harness `wire` | PASS（代理字节格式符合 MediaPlayer 预期） |
+| harness `tabs` | PASS（全部分类都有数据且有海报） |
+| harness `rank` | PASS（搜索排序符合预期） |
+| harness `meta` | PASS 9 项 |
+| harness `upd` | PASS 19 项 |
+| harness `srctab` | PASS 23 项 |
+| harness `cachetab` | PASS 34 项 |
+| harness `pytab` | PASS 24 项 |
+| harness `livetab` | PASS 40 项 |
+
+**真机未验证**（本机没法跑 Android TV，下面几条只有电视上才能确认）：
+
+1. 「1440×1080 老剧现在铺满」—— 需要找一部确实是非方形像素编码的片子。
+2. 黑屏判据的 6 秒窗口是否够（网络慢的源可能 6 秒还没解出第一帧，会被误判切台）。
+3. 抽屉里的焦点在「分组胶囊 ↔ 频道行」之间能否顺畅上下移动。
+4. 音量键自己拦之后，电视遥控器上那对音量键在直播页是否真的生效。
 
 ### v2.7.1：修 CI 漏打包 assets（v2.7 的 Release 里台标一张都没有）
 
@@ -438,7 +584,7 @@ int tabW = Math.max(Ui.px(120), Math.round(tabUsable / TAB_VISIBLE));
 
 顶栏也从「YG影视 + 24 个频道」改成 **`YG` + 双板块胶囊**：
 
-- 「电视」透明底 → 点它进 `LiveActivity`
+- 「电视」透明底 → 点它进 `LivePlayerActivity`（v2.8 起直达播放，挑台用 OK 键呼出右侧抽屉）
 - 「影视」实心琥珀 → 当前所在
 - 两个板块平级、各占一屏。**没有把直播塞成第 25 个频道** —— 那样频道条只会更长，正是被吐槽的那个问题
 
@@ -1149,8 +1295,8 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 | 文件 | 作用 |
 | --- | --- |
 | `app/src/com/yg/vodtv/MainActivity.java` | **影视板块**首页：双板块胶囊 + 定宽频道条（一屏 6.5 个）+ 海报墙 + 左右分栏搜索 |
-| `app/src/com/yg/vodtv/LiveActivity.java` | **电视板块**首页：分组条（一屏 6.5 个）+ 频道墙（每排 6 张 260:150）+ 台名色条 |
-| `app/src/com/yg/vodtv/LivePlayerActivity.java` | 直播播放：VideoView + ←→/菜单两路换源 + ↑↓/CH± 换台 + 挂了一条自动静默切下一条；无进度条无续播 |
+| `app/src/com/yg/vodtv/LiveActivity.java` | **v2.8 已删除**（原来是电视板块的频道墙首页，点两下才播，改成直达播放后整页多余） |
+| `app/src/com/yg/vodtv/LivePlayerActivity.java` | 直播播放 + 右侧频道抽屉：全屏 VideoView、顶部信息条（台名/清晰度/第几路源/正在直播/时钟）、音量 HUD、OK 呼出抽屉（↑↓ 选台 / ←→ 切分组 / OK 播放）、底部键帽条；看门狗四条判据自动切源 |
 | `app/src/com/yg/vodtv/Live.java` | **直播表**：`BUILTIN` 兜底 + `load(json)` 六层容错（含 IPv6 清洗）+ `groups()` 返快照 |
 | `app/src/com/yg/vodtv/LiveSync.java` | **直播表热更**：启动同步读缓存 → 后台拉远端 `live.json` → `Live.load`；`status()` 报「内置/当前/缓存时间」 |
 | `app/src/com/yg/vodtv/DetailActivity.java` | 详情页：海报 + meta + 选集网格 |
@@ -1203,8 +1349,8 @@ APK 信息：`package=com.yg.vodtv`、`versionCode=17`、`versionName=2.6`、`mi
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 
 `build.sh` 里有防假成功的检查：javac 之后逐个确认 **25 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
-v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`，v2.6 补了 `Live`、`LiveSync`、`LiveActivity`、
-`LivePlayerActivity`），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
+v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`，v2.6 补了 `Live`、`LiveSync`、
+`LivePlayerActivity`，v2.7 补了 `Chrome`，v2.8 删了 `LiveActivity`），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
 
 ## 四、安装
 
@@ -1450,7 +1596,7 @@ YG影视TV/
 │   ├── src/main/assets/py/{a..z}.txt         # v2.5 拼音首字母表（23 桶 4.6MB，CI 每天重建；同样走 raw）
 │   ├── src/main/assets/live.json             # v2.6 直播表（428 台 669 条，CI 每天重建；同样走 raw）
 │   ├── src/main/assets/logo/*.png            # v2.7 台标（96×54，CI 巡检产出；v2.7 起随 APK 打包，不走 raw）
-│   ├── src/com/yg/vodtv/*.java  # 25 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LiveActivity/LivePlayerActivity，v2.7 加 Chrome）
+│   ├── src/com/yg/vodtv/*.java  # 25 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LivePlayerActivity，v2.7 加 Chrome，v2.8 删 LiveActivity）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）

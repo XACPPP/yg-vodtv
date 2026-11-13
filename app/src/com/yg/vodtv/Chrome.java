@@ -62,10 +62,16 @@ public final class Chrome {
         return box;
     }
 
-    /** 品牌字样「极清影院」，20px bold、tracking-wider、FG 色。 */
+    /**
+     * 品牌字样「极清影院」。
+     *
+     * 设计稿是 `text-headline-md 32px font-bold text-primary #FFD79B tracking-wide`。
+     * v2.7 做成了 20px 灰白字，和右边 17px 的板块胶囊差不多大 ——
+     * 结果整条顶栏没有一个视觉锚点，看着像工具栏而不是品牌头。
+     */
     public static TextView brandText(Context c) {
-        TextView t = Ui.bold(c, "极清影院", 20, Ui.FG);
-        t.setLetterSpacing(0.08f);
+        TextView t = Ui.bold(c, "极清影院", 32, Ui.PRIMARY_LIGHT);
+        t.setLetterSpacing(0.04f);
         return t;
     }
 

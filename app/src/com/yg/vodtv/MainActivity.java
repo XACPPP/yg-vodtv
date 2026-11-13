@@ -100,6 +100,16 @@ public final class MainActivity extends Activity {
     private int cardW = 240;
     private int posterH = 336;
 
+    /** 底部焦点信息 dock（设计稿 footer：150px 高、#11141A 底、上沿一条 hairline）。 */
+    private LinearLayout dock;
+    private TextView dockTitle;
+    private TextView dockMeta;
+    private TextView dockIntro;
+    private TextView dockDetailBtn;
+    private TextView dockPlayBtn;
+    /** dock 当前展示的片子（焦点落在哪张卡就换成哪一部）。 */
+    private Vod dockVod;
+
     private TextView banner;
     private final Runnable hideBanner = new Runnable() {
         public void run() {
@@ -187,7 +197,10 @@ public final class MainActivity extends Activity {
         TextView tvOff = Chrome.boardPill(this, "电视", false);
         tvOff.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, LiveActivity.class));
+                // v2.8：点「电视」直接进播放页，恢复上次看的台。
+                // 旧的频道网格页（LiveActivity）已删掉 —— 电视直播就该开机即看，
+                // 要挑台用播放页里的右侧抽屉（OK 键呼出）。
+                startActivity(new Intent(MainActivity.this, LivePlayerActivity.class));
             }
         });
         boards.addView(tvOff);
@@ -303,16 +316,13 @@ public final class MainActivity extends Activity {
         chipRow.setOrientation(LinearLayout.HORIZONTAL);
         chipRow.setClipChildren(false);
         chipRow.setPadding(0, Ui.px(10), 0, Ui.px(10));
-        // 一屏只完整露 6 个、第 7 个被右边缘裁一半。
-        // 之前 24 个 WRAP_CONTENT 全挤在一行，长度参差不齐，看着又满又碎；
-        // 定宽之后节奏一致，右边那半个就是「还能往右滑」的提示。
-        int tabGap = Ui.px(12);
-        int tabUsable = Ui.w() - Ui.px(104) - (int) (tabGap * (TAB_VISIBLE - 1));
-        int tabW = Math.max(Ui.px(120), Math.round(tabUsable / TAB_VISIBLE));
-
+        // v2.8 照设计稿改回「自适应宽 + 20px 间距 + 8px 圆角」。
+        // v2.7 用的是定宽 999 全胶囊，一屏 6.5 个：虽然整齐，但胶囊串在一起
+        // 像一排按钮条，设计稿那种「标签云」的轻量感全没了。
+        int tabGap = Ui.px(20);
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
-            TextView t = chip(TAB_NAME[i], false);
+            TextView t = tabChip(TAB_NAME[i]);
             t.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     selectTab(idx);
@@ -321,20 +331,44 @@ public final class MainActivity extends Activity {
             t.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 public void onFocusChange(View v, boolean has) {
                     if (has) {
-                        v.animate().scaleX(1.06f).scaleY(1.06f).setDuration(120).start();
+                        v.animate().scaleX(1.05f).scaleY(1.05f).setDuration(120).start();
                     } else {
                         v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
                     }
                 }
             });
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    tabW, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.rightMargin = tabGap;
             chipRow.addView(t, lp);
             tabChips.add(t);
         }
         chipScroll.addView(chipRow);
-        col.addView(chipScroll, new LinearLayout.LayoutParams(
+
+        // 分类条左右两端渐隐：横向滚动没有滚动条，右端被硬切一半时
+        // 看着像「内容坏了」，加一道 96px 的渐隐就变成「还有更多」。
+        // 设计稿用 mask-image，Android 没有对应 API，用两层渐变 View 盖上来等效。
+        final HorizontalScrollView cs = chipScroll;
+        FrameLayout chipWrap = new FrameLayout(this);
+        chipWrap.setClipChildren(false);
+        chipWrap.addView(chipScroll, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+        View fadeL = new View(this);
+        fadeL.setBackground(Ui.railFade(true, Ui.px(32), Ui.BG));
+        fadeL.setClickable(false);
+        fadeL.setFocusable(false);
+        FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(Ui.px(32),
+                FrameLayout.LayoutParams.MATCH_PARENT, Gravity.START);
+        chipWrap.addView(fadeL, flp);
+        View fadeR = new View(this);
+        fadeR.setBackground(Ui.railFade(false, Ui.px(96), Ui.BG));
+        fadeR.setClickable(false);
+        fadeR.setFocusable(false);
+        FrameLayout.LayoutParams frp = new FrameLayout.LayoutParams(Ui.px(96),
+                FrameLayout.LayoutParams.MATCH_PARENT, Gravity.END);
+        chipWrap.addView(fadeR, frp);
+        col.addView(chipWrap, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // 海报墙
@@ -365,10 +399,10 @@ public final class MainActivity extends Activity {
         col.addView(scroll, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        // 底部键帽条：设计稿每个页面都有这一行（键帽 chip + 说明），
-        // 它同时干两件事 —— 告诉用户遥控器怎么按，以及给页面收个边，
-        // 不至于海报直接贴到屏幕最下沿。
-        col.addView(buildFooter());
+        // 底部焦点信息 dock：设计稿 footer 的主体。v2.7 只做了它最下面那行键帽，
+        // 等于把设计稿里信息密度最高的一块整个丢了 —— 一屏 14 张海报，
+        // 遥控器移到哪张都只能看到片名，年份、地区、类型、简介全得进详情页才知道。
+        col.addView(buildDock());
 
         root.addView(col, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -397,17 +431,113 @@ public final class MainActivity extends Activity {
      * 这一行不只是版权声明 —— 它是「这是个体面的产品」和「这是堆控件的 demo」
      * 的区别之一，同时也是唯一告诉用户遥控器怎么按的地方（v2.6 完全没有）。
      */
-    private View buildFooter() {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(Ui.px(56), 0, Ui.px(56), Ui.px(14));
+    private View buildDock() {
+        dock = new LinearLayout(this);
+        dock.setOrientation(LinearLayout.VERTICAL);
+        dock.setBackgroundColor(0xFF11141A);
+        dock.setPadding(Ui.px(56), Ui.px(10), Ui.px(56), Ui.px(4));
+        dock.setMinimumHeight(Ui.px(150));
 
-        box.addView(Chrome.hairline(this, 0));
+        // 上沿 hairline：设计稿 border-t border-white/[0.08]
+        View line = new View(this);
+        line.setBackgroundColor(0x14252C38);
+        dock.addView(line, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Math.max(1, Ui.px(1))));
 
+        // 主行：左信息 / 右按钮
+        LinearLayout main = new LinearLayout(this);
+        main.setOrientation(LinearLayout.HORIZONTAL);
+        main.setGravity(Gravity.CENTER_VERTICAL);
+        // 注意：这里必须 WRAP_CONTENT，不能 height=0 + weight。
+        // dock 自身高度是 WRAP_CONTENT，LinearLayout 在 WRAP_CONTENT 下
+        // 没有「剩余空间」可分，weight 子 View 会被量成 0 高，整行直接消失。
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mlp.topMargin = Ui.px(8);
+        dock.addView(main, mlp);
+
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        llp.rightMargin = Ui.px(32);
+        main.addView(left, llp);
+
+        dockTitle = Ui.bold(this, " ", 40, 0xFFFFFFFF);
+        dockTitle.setSingleLine(true);
+        dockTitle.setEllipsize(TextUtils.TruncateAt.END);
+        dockTitle.setLetterSpacing(-0.01f);
+        left.addView(dockTitle);
+
+        dockMeta = Ui.text(this, " ", 15, Ui.FG_DIM);
+        dockMeta.setSingleLine(true);
+        dockMeta.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams metlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        metlp.topMargin = Ui.px(4);
+        left.addView(dockMeta, metlp);
+
+        dockIntro = Ui.text(this, " ", 17, Ui.FG_DIM);
+        dockIntro.setMaxLines(1);
+        dockIntro.setEllipsize(TextUtils.TruncateAt.END);
+        dockIntro.setLineSpacing(Ui.px(4), 1f);
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ilp.topMargin = Ui.px(6);
+        left.addView(dockIntro, ilp);
+
+        // 右栏两钮：影片详情（描边）/ 立即播放（琥珀实心 + [OK] 键帽）
+        LinearLayout btns = new LinearLayout(this);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+        btns.setGravity(Gravity.CENTER_VERTICAL);
+        main.addView(btns);
+
+        dockDetailBtn = dockButton("影片详情", false);
+        dockDetailBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (dockVod != null) {
+                    openDetail(dockVod);
+                }
+            }
+        });
+        btns.addView(dockDetailBtn);
+
+        dockPlayBtn = dockButton("立即播放", true);
+        dockPlayBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (dockVod == null) {
+                    return;
+                }
+                // 直接进播放器，不等详情页：dock 上的「立即播放」就是要一步到位。
+                // 剧集没有 epUrls 时（列表接口通常不带）退回详情页选集，别让用户点了没反应。
+                if (dockVod.hasEpisodes()) {
+                    Intent it = new Intent(MainActivity.this, PlayerActivity.class);
+                    it.putExtra("urls", dockVod.epUrls);
+                    it.putExtra("names", dockVod.epNames);
+                    it.putExtra("index", 0);
+                    it.putExtra("id", dockVod.id);
+                    it.putExtra("src", dockVod.src);
+                    it.putExtra("title", dockVod.name);
+                    startActivity(it);
+                } else {
+                    openDetail(dockVod);
+                }
+            }
+        });
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        plp.leftMargin = Ui.px(20);
+        btns.addView(dockPlayBtn, plp);
+
+        // 底行：键帽提示 + 版本状态（原来 buildFooter() 的全部内容）
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, Ui.px(11), 0, 0);
+        row.setPadding(0, Ui.px(4), 0, 0);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rlp.topMargin = Ui.px(6);
+        dock.addView(row, rlp);
 
         row.addView(Chrome.keyHintRow(this, new String[][]{
                 {"← →", "分类"},
@@ -418,11 +548,65 @@ public final class MainActivity extends Activity {
 
         View sp = new View(this);
         row.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
-
         row.addView(Chrome.statusDot(this, Ver.NAME + " · 极清影院 · 遥控器信号 良好", Ui.OK_GREEN));
 
-        box.addView(row);
-        return box;
+        return dock;
+    }
+
+    /**
+     * dock 上的按钮。
+     *
+     * 主按钮（立即播放）= 琥珀实心 + 深色字 + 外发光，键帽 `[OK]` 嵌在文字里；
+     * 次按钮（影片详情）= 半透明白底 + 20% 白描边。
+     * 设计稿里这两个按钮是 footer 唯一的可聚焦元素，所以都得带焦点态。
+     */
+    private TextView dockButton(String label, boolean primary) {
+        TextView t = primary
+                ? Ui.bold(this, label, 18, Ui.BG)
+                : Ui.text(this, label, 18, 0xFFFFFFFF);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setFocusable(true);
+        t.setClickable(true);
+        t.setPadding(Ui.px(primary ? 28 : 24), Ui.px(12), Ui.px(primary ? 28 : 24), Ui.px(12));
+        if (primary) {
+            t.setBackground(Ui.focusBgGlow(Ui.ACCENT, 8, Ui.ACCENT_HI));
+        } else {
+            t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 8, Ui.ACCENT));
+        }
+        return t;
+    }
+
+    /**
+     * 焦点换到另一张卡时刷新 dock。
+     *
+     * 只改文字不动背景 —— 一行 7 张卡，每次焦点移动都换一次背景会闪。
+     */
+    private void updateDock(Vod v) {
+        if (v == null || dock == null) {
+            return;
+        }
+        dockVod = v;
+        dockTitle.setText(v.name);
+        StringBuilder sb = new StringBuilder();
+        if (v.year != null && v.year.trim().length() > 0) {
+            sb.append(v.year.trim());
+        }
+        if (v.area != null && v.area.trim().length() > 0) {
+            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.area.trim());
+        }
+        if (v.typeName != null && v.typeName.trim().length() > 0) {
+            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.typeName.trim());
+        }
+        if (v.remarks != null && v.remarks.trim().length() > 0) {
+            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.remarks.trim());
+        }
+        if (v.director != null && v.director.trim().length() > 0) {
+            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.director.trim()).append(" 导演");
+        }
+        dockMeta.setText(sb.length() > 0 ? sb.toString() : " ");
+        String intro = v.intro();
+        dockIntro.setText(intro.length() > 0 ? intro : " ");
     }
 
     /**
@@ -440,6 +624,27 @@ public final class MainActivity extends Activity {
      * v2.7 改成设计稿的胶囊形（圆角 999）+ 焦点时外发光，
      * 跟顶栏、分组条、播放页的按钮统一成同一套语言。
      */
+    /**
+     * 分类胶囊（v2.8 照 Stitch 设计稿）。
+     *
+     * 设计稿是 `px-space-lg(32) py-space-xs(6) rounded-lg(8) font-label-lg(18)`，
+     * 未选 `bg-white/[0.08] text-[#EEF2F7]`，选中 `bg-primary-container +
+     * text-on-primary-container font-bold tv-tab-glow scale-105`。
+     *
+     * 和上面 {@link #chip} 的区别只有三点：圆角 8 而不是全胶囊、内边距更宽、
+     * 字号固定 18 —— 分类条是「成排的标签」，不是「一排按钮」。
+     */
+    private TextView tabChip(String label) {
+        TextView t = Ui.text(this, label, 18, Ui.FG);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setFocusable(true);
+        t.setClickable(true);
+        t.setPadding(Ui.px(32), Ui.px(6), Ui.px(32), Ui.px(6));
+        t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 8, Ui.ACCENT));
+        return t;
+    }
+
     private TextView chip(String label, boolean active) {
         TextView t = Ui.text(this, label, 18, active ? Ui.BG : Ui.FG);
         t.setGravity(Gravity.CENTER);
@@ -459,10 +664,10 @@ public final class MainActivity extends Activity {
         for (int i = 0; i < tabChips.size(); i++) {
             boolean on = i == idx;
             TextView t = tabChips.get(i);
-            t.setTextColor(on ? Ui.BG : Ui.FG_DIM);
+            t.setTextColor(on ? Ui.BG : Ui.FG);
             t.setBackground(on
-                    ? Ui.glowBg(Ui.ACCENT, 999, Ui.ACCENT_HI)
-                    : Ui.focusBgGlow(0x1F1B2029, 999, Ui.ACCENT));
+                    ? Ui.glowBg(Ui.ACCENT, 8, Ui.ACCENT_HI)
+                    : Ui.focusBgGlow(0x14FFFFFF, 8, Ui.ACCENT));
         }
     }
 
@@ -637,6 +842,10 @@ public final class MainActivity extends Activity {
                     public void onClick(View x) {
                         openDetail(v);
                     }
+                }, true, new Cards.OnCardFocus() {
+                    public void onCardFocus(Vod dv) {
+                        updateDock(dv);
+                    }
                 });
                 LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(cardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -648,6 +857,7 @@ public final class MainActivity extends Activity {
                     card.post(new Runnable() {
                         public void run() {
                             fv.requestFocus();
+                            updateDock(v);
                         }
                     });
                 }

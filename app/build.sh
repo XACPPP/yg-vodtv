@@ -55,7 +55,7 @@ find src build/gen -name '*.java' > build/sources.txt
   -d build/classes \
   @build/sources.txt 2>&1 | grep -v 'bootstrap class path' || true
 # javac 失败必须中止，否则 d8 会打包旧 class 造成假成功
-for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Chrome Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex Live LiveSync LiveActivity LivePlayerActivity; do
+for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Chrome Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex Live LiveSync LivePlayerActivity; do
   if [ ! -f "build/classes/com/yg/vodtv/$c.class" ]; then
     echo "[build] FAILED: javac 未产出 $c.class" >&2
     exit 1
@@ -65,8 +65,8 @@ if [ build/classes/com/yg/vodtv/MainActivity.class -ot src/com/yg/vodtv/MainActi
   echo "[build] FAILED: MainActivity.class 比源码旧，javac 未成功" >&2
   exit 1
 fi
-if [ build/classes/com/yg/vodtv/LiveActivity.class -ot src/com/yg/vodtv/LiveActivity.java ]; then
-  echo "[build] FAILED: LiveActivity.class 比源码旧，javac 未成功" >&2
+if [ build/classes/com/yg/vodtv/LivePlayerActivity.class -ot src/com/yg/vodtv/LivePlayerActivity.java ]; then
+  echo "[build] FAILED: LivePlayerActivity.class 比源码旧，javac 未成功" >&2
   exit 1
 fi
 

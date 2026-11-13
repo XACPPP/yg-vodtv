@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RadialGradient;
@@ -147,6 +148,113 @@ public final class Ui {
         g.setShape(GradientDrawable.RECTANGLE);
         g.setCornerRadius(px(radius));
         return g;
+    }
+
+    /**
+     * 海报底部压暗蒙层，严格照搬设计稿的
+     * `linear-gradient(to top, rgba(14,17,22,.96) 0%, rgba(14,17,22,.6) 35%, transparent 65%)`。
+     *
+     * v2.7 是「42% 高的两色渐变」，只有两种颜色、也没有 35% 那个拐点，
+     * 结果片名区域压得不够、海报上半张却被糊上一层灰 —— 这是卡片看起来「闷」的原因。
+     *
+     * 不用 GradientDrawable 的三色构造：`setColors(int[], float[])` 要 API 24，
+     * 本项目 minSdk 21，只能用 LinearGradient 自己画。
+     */
+    public static Drawable posterScrim(final int radius) {
+        return new Drawable() {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private Shader shader;
+
+            @Override
+            protected void onBoundsChange(Rect b) {
+                if (b.height() <= 0) {
+                    return;
+                }
+                // BOTTOM_TOP 的 y0 是底边：0% 处最黑，65% 往上完全透明
+                shader = new LinearGradient(0, b.height(), 0, 0,
+                        new int[] { 0xF50E1116, 0x990E1116, 0x000E1116, 0x000E1116 },
+                        new float[] { 0f, 0.35f, 0.65f, 1f }, Shader.TileMode.CLAMP);
+                p.setShader(shader);
+            }
+
+            @Override
+            public void draw(Canvas c) {
+                Rect b = getBounds();
+                if (shader == null) {
+                    onBoundsChange(b);
+                }
+                c.drawRect(b, p);
+            }
+
+            @Override
+            public void setAlpha(int a) {
+                p.setAlpha(a);
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter cf) {
+                p.setColorFilter(cf);
+            }
+
+            @Override
+            public int getOpacity() {
+                return PixelFormat.TRANSLUCENT;
+            }
+        };
+    }
+
+    /**
+     * 分类条左右的渐隐蒙层（设计稿 .scrim-channel-rail-left / -right）。
+     *
+     * 作用不是装饰：横向滚动条没有滚动条可看，右端突然切断会像「内容坏了」；
+     * 蒙一层渐变过去，读起来就是「后面还有，往右按」。左边那道同理。
+     */
+    public static Drawable railFade(final boolean left, final int width, final int solidColor) {
+        return new Drawable() {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private Shader shader;
+
+            @Override
+            protected void onBoundsChange(Rect b) {
+                if (b.width() <= 0) {
+                    return;
+                }
+                int solid = solidColor;
+                int clear = solidColor & 0x00FFFFFF;
+                if (left) {
+                    shader = new LinearGradient(0, 0, b.width(), 0,
+                            new int[] { solid, clear }, new float[] { 0f, 1f }, Shader.TileMode.CLAMP);
+                } else {
+                    shader = new LinearGradient(0, 0, b.width(), 0,
+                            new int[] { clear, solid }, new float[] { 0f, 1f }, Shader.TileMode.CLAMP);
+                }
+                p.setShader(shader);
+            }
+
+            @Override
+            public void draw(Canvas c) {
+                Rect b = getBounds();
+                if (shader == null) {
+                    onBoundsChange(b);
+                }
+                c.drawRect(b, p);
+            }
+
+            @Override
+            public void setAlpha(int a) {
+                p.setAlpha(a);
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter cf) {
+                p.setColorFilter(cf);
+            }
+
+            @Override
+            public int getOpacity() {
+                return PixelFormat.TRANSLUCENT;
+            }
+        };
     }
 
     /** 焦点态背景：聚焦时琥珀色描边 + 提亮。 */
