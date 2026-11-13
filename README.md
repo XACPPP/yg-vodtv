@@ -288,6 +288,14 @@ jiamianguilai     → jia/mian/gui/lai      → jmgl
 `.github/workflows/scan.yml` 加了「重建拼音索引」步骤（`timeout-minutes: 20` + `continue-on-error: true`，
 站点挂了不算错、索引保持上一版），提交步骤加 `git add -A app/src/main/assets/py`。
 
+#### 五、实发记录
+
+- CI run [`43365961024`](https://github.com/XACPPP/yg-vodtv/actions/runs/43365961024) 一次通过（38 秒）。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.5>。
+- 资产 `YGTV.apk` / `YG.TV.apk` 均 **111473 字节**，sha256 `70c74df0177fa739715a8924eef014fccd8ad23b3a6010a89978659918943f2a`。
+- 索引推上去后 `https://raw.githubusercontent.com/.../assets/py/w.txt` 实测 **200 / 345997 字节**，
+  用它跑一遍 `pick("wddcz")` → `['伟大的长征', '我的独裁者']`，正主在第一位。
+
 ### v2.4：源表热更 + 消灭「加载中」和「海报一张张跳」
 
 老板原话：「我觉得可以重构一下，GitHub 上的 TVBOX 很成熟啊」→ 讨论后否掉二开；
