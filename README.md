@@ -424,6 +424,7 @@ public static void saveDur(String vid, int ep, int ms)
 | harness `cachetab` | PASS 34 项 |
 | harness `pytab` | PASS 24 项 |
 | harness `livetab` | PASS 41 项（含「空源台也保留」） |
+| **Release v2.8** | CI `build` success，产物 568249 字节 / 96 条目 / assets 84 / `aapt2 dump badging` → `versionCode='20' versionName='2.8'` |
 
 **真机未验证**（本机没法跑 Android TV，下面几条只有电视上才能确认）：
 
