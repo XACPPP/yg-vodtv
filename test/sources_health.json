@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-13T10:23:52+0800",
+ "generated": "2026-11-13T02:58:00+0000",
  "ua": "Mozilla/5.0 (Linux; Android 5.1.1; VIDAA TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
  "channels": [
   {
@@ -93,6 +93,1450 @@
  ],
  "sources": [
   {
+   "key": "jszyapi",
+   "api": "https://jszyapi.com/api.php/provide/vod/",
+   "referer": "https://jszyapi.com/",
+   "from": "Src.java",
+   "types": "2,20,30,24,20,3,5,6,4,28,7,9,11,10,12,13,14,15,16,30,31,32,33,24,25,26,38,0,35",
+   "list": {
+    "ok": true,
+    "ms": 310,
+    "n": 20,
+    "pic": 20,
+    "intro": 19,
+    "total": 116491,
+    "err": null
+   },
+   "classes": [
+    {
+     "id": 1,
+     "name": "电视剧"
+    },
+    {
+     "id": 2,
+     "name": "电影"
+    },
+    {
+     "id": 3,
+     "name": "欧美剧"
+    },
+    {
+     "id": 4,
+     "name": "香港剧"
+    },
+    {
+     "id": 5,
+     "name": "韩剧"
+    },
+    {
+     "id": 6,
+     "name": "日剧"
+    },
+    {
+     "id": 7,
+     "name": "马泰剧"
+    },
+    {
+     "id": 8,
+     "name": "伦理片"
+    },
+    {
+     "id": 9,
+     "name": "动作片"
+    },
+    {
+     "id": 10,
+     "name": "爱情片"
+    },
+    {
+     "id": 11,
+     "name": "喜剧片"
+    },
+    {
+     "id": 12,
+     "name": "科幻片"
+    },
+    {
+     "id": 13,
+     "name": "恐怖片"
+    },
+    {
+     "id": 14,
+     "name": "剧情片"
+    },
+    {
+     "id": 15,
+     "name": "战争片"
+    },
+    {
+     "id": 16,
+     "name": "记录片"
+    },
+    {
+     "id": 17,
+     "name": "动漫"
+    },
+    {
+     "id": 20,
+     "name": "内地剧"
+    },
+    {
+     "id": 23,
+     "name": "动画片"
+    },
+    {
+     "id": 24,
+     "name": "中国动漫"
+    },
+    {
+     "id": 25,
+     "name": "日本动漫"
+    },
+    {
+     "id": 26,
+     "name": "欧美动漫"
+    },
+    {
+     "id": 27,
+     "name": "综艺"
+    },
+    {
+     "id": 28,
+     "name": "台湾剧"
+    },
+    {
+     "id": 29,
+     "name": "体育赛事"
+    },
+    {
+     "id": 30,
+     "name": "大陆综艺"
+    },
+    {
+     "id": 31,
+     "name": "日韩综艺"
+    },
+    {
+     "id": 32,
+     "name": "港台综艺"
+    },
+    {
+     "id": 33,
+     "name": "欧美综艺"
+    },
+    {
+     "id": 34,
+     "name": "灾难片"
+    },
+    {
+     "id": 35,
+     "name": "悬疑片"
+    },
+    {
+     "id": 36,
+     "name": "犯罪片"
+    },
+    {
+     "id": 37,
+     "name": "奇幻片"
+    },
+    {
+     "id": 38,
+     "name": "短剧"
+    },
+    {
+     "id": 39,
+     "name": "预告片"
+    },
+    {
+     "id": 40,
+     "name": "足球"
+    },
+    {
+     "id": 41,
+     "name": "篮球"
+    },
+    {
+     "id": 42,
+     "name": "台球"
+    },
+    {
+     "id": 43,
+     "name": "其他赛事"
+    },
+    {
+     "id": 45,
+     "name": "古装仙侠"
+    },
+    {
+     "id": 46,
+     "name": "现代都市"
+    },
+    {
+     "id": 47,
+     "name": "穿越年代"
+    },
+    {
+     "id": 48,
+     "name": "言情总裁"
+    },
+    {
+     "id": 49,
+     "name": "重生民国"
+    },
+    {
+     "id": 50,
+     "name": "反转爽剧"
+    },
+    {
+     "id": 52,
+     "name": "脑洞悬疑"
+    },
+    {
+     "id": 53,
+     "name": "擦边短剧"
+    },
+    {
+     "id": 54,
+     "name": "AI漫剧"
+    }
+   ],
+   "type_map": {
+    "rec": 0,
+    "movie": 2,
+    "tv": 1,
+    "variety": 27,
+    "anime": 17,
+    "cntv": 0,
+    "westtv": 3,
+    "korea": 5,
+    "japan": 6,
+    "hk": 4,
+    "tw": 28,
+    "thai": 7,
+    "action": 9,
+    "comedy": 11,
+    "romance": 10,
+    "scifi": 12,
+    "horror": 13,
+    "war": 15,
+    "doc": 0,
+    "short": 38,
+    "4k": 0,
+    "suspense": 35
+   },
+   "detail": {
+    "ok": true,
+    "eps": 31,
+    "err": null
+   },
+   "search": {
+    "ok": true,
+    "n": 8,
+    "ms": 272,
+    "err": null
+   },
+   "suggest": {
+    "ok": true,
+    "n": 20,
+    "ms": 435
+   },
+   "play": {
+    "ok": true,
+    "ttfb_ms": 323,
+    "kbps": 2755,
+    "range": true,
+    "burst": [
+     {
+      "ms": 236,
+      "bytes": 65536,
+      "kbps": 2221
+     },
+     {
+      "ms": 176,
+      "bytes": 65536,
+      "kbps": 2978
+     },
+     {
+      "ms": 171,
+      "bytes": 65536,
+      "kbps": 3066
+     }
+    ],
+    "err": null,
+    "vq": ""
+   },
+   "status": "OK",
+   "score_parts": {
+    "list_ms": 24.5,
+    "ttfb": 11.5,
+    "kbps": 3.7,
+    "intro": 13.8,
+    "pic": 10.0,
+    "total": 8.8,
+    "search": 8,
+    "eps": 6.0,
+    "range": 3,
+    "stability": 2.2
+   },
+   "score": 91.3,
+   "grade": "A",
+   "cost_ms": 2342,
+   "sample": "替嫁王妃宠王记"
+  },
+  {
+   "key": "wsyzy",
+   "api": "https://wsyzy.cc/api.php/provide/vod/",
+   "referer": "https://wsyzy.cc/",
+   "from": "Src.java",
+   "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68",
+   "list": {
+    "ok": true,
+    "ms": 357,
+    "n": 20,
+    "pic": 20,
+    "intro": 17,
+    "total": 127962,
+    "err": null
+   },
+   "classes": [
+    {
+     "id": 1,
+     "name": "电影"
+    },
+    {
+     "id": 2,
+     "name": "电视剧"
+    },
+    {
+     "id": 3,
+     "name": "综艺"
+    },
+    {
+     "id": 4,
+     "name": "动漫"
+    },
+    {
+     "id": 6,
+     "name": "动作片"
+    },
+    {
+     "id": 7,
+     "name": "喜剧片"
+    },
+    {
+     "id": 8,
+     "name": "爱情片"
+    },
+    {
+     "id": 9,
+     "name": "科幻片"
+    },
+    {
+     "id": 10,
+     "name": "恐怖片"
+    },
+    {
+     "id": 11,
+     "name": "剧情片"
+    },
+    {
+     "id": 12,
+     "name": "战争片"
+    },
+    {
+     "id": 13,
+     "name": "国产剧"
+    },
+    {
+     "id": 14,
+     "name": "欧美剧"
+    },
+    {
+     "id": 15,
+     "name": "韩剧"
+    },
+    {
+     "id": 16,
+     "name": "日剧"
+    },
+    {
+     "id": 17,
+     "name": "港剧"
+    },
+    {
+     "id": 18,
+     "name": "台剧"
+    },
+    {
+     "id": 19,
+     "name": "泰剧"
+    },
+    {
+     "id": 20,
+     "name": "纪录片"
+    },
+    {
+     "id": 23,
+     "name": "海外剧"
+    },
+    {
+     "id": 25,
+     "name": "大陆综艺"
+    },
+    {
+     "id": 26,
+     "name": "日韩综艺"
+    },
+    {
+     "id": 27,
+     "name": "港台综艺"
+    },
+    {
+     "id": 28,
+     "name": "欧美综艺"
+    },
+    {
+     "id": 29,
+     "name": "国产动漫"
+    },
+    {
+     "id": 30,
+     "name": "日韩动漫"
+    },
+    {
+     "id": 31,
+     "name": "欧美动漫"
+    },
+    {
+     "id": 39,
+     "name": "动画片"
+    },
+    {
+     "id": 44,
+     "name": "港台动漫"
+    },
+    {
+     "id": 45,
+     "name": "海外动漫"
+    },
+    {
+     "id": 47,
+     "name": "演唱会"
+    },
+    {
+     "id": 48,
+     "name": "体育赛事"
+    },
+    {
+     "id": 49,
+     "name": "篮球"
+    },
+    {
+     "id": 50,
+     "name": "足球"
+    },
+    {
+     "id": 51,
+     "name": "预告片"
+    },
+    {
+     "id": 52,
+     "name": "斯诺克"
+    },
+    {
+     "id": 53,
+     "name": "影视解说"
+    },
+    {
+     "id": 54,
+     "name": "爽文短剧"
+    },
+    {
+     "id": 55,
+     "name": "伦理"
+    },
+    {
+     "id": 56,
+     "name": "港台三级"
+    },
+    {
+     "id": 57,
+     "name": "韩国伦理"
+    },
+    {
+     "id": 58,
+     "name": "西方伦理"
+    },
+    {
+     "id": 59,
+     "name": "日本伦理"
+    },
+    {
+     "id": 60,
+     "name": "两性课堂"
+    },
+    {
+     "id": 61,
+     "name": "写真热舞"
+    },
+    {
+     "id": 62,
+     "name": "4K电影"
+    },
+    {
+     "id": 63,
+     "name": "有声动漫"
+    },
+    {
+     "id": 64,
+     "name": "女频恋爱"
+    },
+    {
+     "id": 65,
+     "name": "反转爽剧"
+    },
+    {
+     "id": 66,
+     "name": "古装仙侠"
+    },
+    {
+     "id": 67,
+     "name": "年代穿越"
+    },
+    {
+     "id": 68,
+     "name": "脑洞悬疑"
+    },
+    {
+     "id": 69,
+     "name": "现代都市"
+    },
+    {
+     "id": 70,
+     "name": "邵氏电影"
+    },
+    {
+     "id": 71,
+     "name": "Netflix电影"
+    },
+    {
+     "id": 72,
+     "name": "Netflix自制剧"
+    },
+    {
+     "id": 73,
+     "name": "擦边短剧"
+    },
+    {
+     "id": 74,
+     "name": "预告解说"
+    },
+    {
+     "id": 75,
+     "name": "科普学习"
+    },
+    {
+     "id": 76,
+     "name": "漫剧"
+    }
+   ],
+   "type_map": {
+    "rec": 0,
+    "movie": 1,
+    "tv": 2,
+    "variety": 3,
+    "anime": 4,
+    "cntv": 13,
+    "westtv": 14,
+    "korea": 15,
+    "japan": 16,
+    "hk": 17,
+    "tw": 18,
+    "thai": 19,
+    "action": 6,
+    "comedy": 7,
+    "romance": 8,
+    "scifi": 9,
+    "horror": 10,
+    "war": 12,
+    "doc": 20,
+    "short": 54,
+    "4k": 62,
+    "suspense": 68
+   },
+   "detail": {
+    "ok": true,
+    "eps": 1,
+    "err": null
+   },
+   "search": {
+    "ok": false,
+    "n": 0,
+    "ms": 202,
+    "err": "not json list"
+   },
+   "suggest": {
+    "ok": true,
+    "n": 20,
+    "ms": 915
+   },
+   "play": {
+    "ok": true,
+    "ttfb_ms": 245,
+    "kbps": 4358,
+    "range": true,
+    "burst": [
+     {
+      "ms": 227,
+      "bytes": 65536,
+      "kbps": 2309
+     },
+     {
+      "ms": 94,
+      "bytes": 65536,
+      "kbps": 5577
+     },
+     {
+      "ms": 101,
+      "bytes": 65536,
+      "kbps": 5190
+     }
+    ],
+    "err": null,
+    "vq": "master bw=128"
+   },
+   "status": "OK_NOSEARCH",
+   "score_parts": {
+    "list_ms": 24.0,
+    "ttfb": 11.8,
+    "kbps": 5.8,
+    "intro": 11.2,
+    "pic": 10.0,
+    "total": 9.2,
+    "search": 0,
+    "eps": 0.3,
+    "range": 3,
+    "stability": 1.2
+   },
+   "score": 76.7,
+   "grade": "B",
+   "cost_ms": 3162,
+   "sample": "我孩子的恋爱3"
+  },
+  {
+   "key": "yhzy",
+   "api": "https://yhzy.cc/api.php/provide/vod/",
+   "referer": "https://yhzy.cc/",
+   "from": "Src.java",
+   "types": "1,2,3,4,13,24,16,23,14,15,0,6,7,8,9,10,11,12,21,26,27,28,29,30,31,32,0,0,0",
+   "list": {
+    "ok": true,
+    "ms": 497,
+    "n": 20,
+    "pic": 20,
+    "intro": 11,
+    "total": 105335,
+    "err": null
+   },
+   "classes": [
+    {
+     "id": 1,
+     "name": "电影"
+    },
+    {
+     "id": 2,
+     "name": "连续剧"
+    },
+    {
+     "id": 3,
+     "name": "综艺"
+    },
+    {
+     "id": 4,
+     "name": "动漫"
+    },
+    {
+     "id": 5,
+     "name": "资讯"
+    },
+    {
+     "id": 6,
+     "name": "动作片"
+    },
+    {
+     "id": 7,
+     "name": "喜剧片"
+    },
+    {
+     "id": 8,
+     "name": "爱情片"
+    },
+    {
+     "id": 9,
+     "name": "科幻片"
+    },
+    {
+     "id": 10,
+     "name": "恐怖片"
+    },
+    {
+     "id": 11,
+     "name": "剧情片"
+    },
+    {
+     "id": 12,
+     "name": "战争片"
+    },
+    {
+     "id": 13,
+     "name": "国产剧"
+    },
+    {
+     "id": 14,
+     "name": "香港剧"
+    },
+    {
+     "id": 15,
+     "name": "台湾剧"
+    },
+    {
+     "id": 16,
+     "name": "韩国剧"
+    },
+    {
+     "id": 17,
+     "name": "公告"
+    },
+    {
+     "id": 18,
+     "name": "头条"
+    },
+    {
+     "id": 20,
+     "name": "犯罪片"
+    },
+    {
+     "id": 21,
+     "name": "纪录片"
+    },
+    {
+     "id": 22,
+     "name": "动画电影"
+    },
+    {
+     "id": 23,
+     "name": "日本剧"
+    },
+    {
+     "id": 24,
+     "name": "欧美剧"
+    },
+    {
+     "id": 25,
+     "name": "海外剧"
+    },
+    {
+     "id": 26,
+     "name": "大陆综艺"
+    },
+    {
+     "id": 27,
+     "name": "日韩综艺"
+    },
+    {
+     "id": 28,
+     "name": "港台综艺"
+    },
+    {
+     "id": 29,
+     "name": "欧美综艺"
+    },
+    {
+     "id": 30,
+     "name": "国产动漫"
+    },
+    {
+     "id": 31,
+     "name": "日本动漫"
+    },
+    {
+     "id": 32,
+     "name": "欧美动漫"
+    },
+    {
+     "id": 33,
+     "name": "海外动漫"
+    },
+    {
+     "id": 34,
+     "name": "伦理片"
+    }
+   ],
+   "type_map": {
+    "rec": 0,
+    "movie": 1,
+    "tv": 2,
+    "variety": 3,
+    "anime": 4,
+    "cntv": 13,
+    "westtv": 24,
+    "korea": 16,
+    "japan": 23,
+    "hk": 14,
+    "tw": 15,
+    "thai": 0,
+    "action": 6,
+    "comedy": 7,
+    "romance": 8,
+    "scifi": 9,
+    "horror": 10,
+    "war": 12,
+    "doc": 21,
+    "short": 0,
+    "4k": 0,
+    "suspense": 0
+   },
+   "detail": {
+    "ok": true,
+    "eps": 16,
+    "err": null
+   },
+   "search": {
+    "ok": true,
+    "n": 8,
+    "ms": 1218,
+    "err": null
+   },
+   "suggest": {
+    "ok": true,
+    "n": 20,
+    "ms": 810
+   },
+   "play": {
+    "ok": true,
+    "ttfb_ms": 280,
+    "kbps": 842,
+    "range": true,
+    "burst": [
+     {
+      "ms": 707,
+      "bytes": 65536,
+      "kbps": 741
+     },
+     {
+      "ms": 589,
+      "bytes": 65536,
+      "kbps": 890
+     },
+     {
+      "ms": 584,
+      "bytes": 65536,
+      "kbps": 897
+     }
+    ],
+    "err": null,
+    "vq": ""
+   },
+   "status": "OK",
+   "score_parts": {
+    "list_ms": 22.8,
+    "ttfb": 11.7,
+    "kbps": 1.1,
+    "intro": 3.8,
+    "pic": 10.0,
+    "total": 8.4,
+    "search": 8,
+    "eps": 4.8,
+    "range": 3,
+    "stability": 2.5
+   },
+   "score": 75.9,
+   "grade": "B",
+   "cost_ms": 5969,
+   "sample": "罗布泊神墓"
+  },
+  {
+   "key": "modu",
+   "api": "https://caiji.moduapi.cc/api.php/provide/vod/",
+   "referer": "https://caiji.moduapi.cc/",
+   "from": "Src.java",
+   "types": "7,8,9,1,26,29,28,31,27,30,33,10,11,12,13,14,15,16,24,34,36,35,37,1,2,3,38,0,21",
+   "list": {
+    "ok": true,
+    "ms": 382,
+    "n": 20,
+    "pic": 20,
+    "intro": 13,
+    "total": 91712,
+    "err": null
+   },
+   "classes": [
+    {
+     "id": 1,
+     "name": "国产动漫"
+    },
+    {
+     "id": 2,
+     "name": "日韩动漫"
+    },
+    {
+     "id": 3,
+     "name": "欧美动漫"
+    },
+    {
+     "id": 4,
+     "name": "港台动漫"
+    },
+    {
+     "id": 5,
+     "name": "动漫电影"
+    },
+    {
+     "id": 6,
+     "name": "里番动漫"
+    },
+    {
+     "id": 7,
+     "name": "电影"
+    },
+    {
+     "id": 8,
+     "name": "连续剧"
+    },
+    {
+     "id": 9,
+     "name": "综艺"
+    },
+    {
+     "id": 10,
+     "name": "动作片"
+    },
+    {
+     "id": 11,
+     "name": "喜剧片"
+    },
+    {
+     "id": 12,
+     "name": "爱情片"
+    },
+    {
+     "id": 13,
+     "name": "科幻片"
+    },
+    {
+     "id": 14,
+     "name": "恐怖片"
+    },
+    {
+     "id": 15,
+     "name": "剧情片"
+    },
+    {
+     "id": 16,
+     "name": "战争片"
+    },
+    {
+     "id": 17,
+     "name": "惊悚片"
+    },
+    {
+     "id": 18,
+     "name": "家庭片"
+    },
+    {
+     "id": 19,
+     "name": "古装片"
+    },
+    {
+     "id": 20,
+     "name": "历史片"
+    },
+    {
+     "id": 21,
+     "name": "悬疑片"
+    },
+    {
+     "id": 22,
+     "name": "犯罪片"
+    },
+    {
+     "id": 23,
+     "name": "灾难片"
+    },
+    {
+     "id": 24,
+     "name": "记录片"
+    },
+    {
+     "id": 25,
+     "name": "短片"
+    },
+    {
+     "id": 26,
+     "name": "国产剧"
+    },
+    {
+     "id": 27,
+     "name": "香港剧"
+    },
+    {
+     "id": 28,
+     "name": "韩国剧"
+    },
+    {
+     "id": 29,
+     "name": "欧美剧"
+    },
+    {
+     "id": 30,
+     "name": "台湾剧"
+    },
+    {
+     "id": 31,
+     "name": "日本剧"
+    },
+    {
+     "id": 32,
+     "name": "海外剧"
+    },
+    {
+     "id": 33,
+     "name": "泰国剧"
+    },
+    {
+     "id": 34,
+     "name": "大陆综艺"
+    },
+    {
+     "id": 35,
+     "name": "港台综艺"
+    },
+    {
+     "id": 36,
+     "name": "日韩综艺"
+    },
+    {
+     "id": 37,
+     "name": "欧美综艺"
+    },
+    {
+     "id": 38,
+     "name": "短剧"
+    },
+    {
+     "id": 39,
+     "name": "伦理片"
+    },
+    {
+     "id": 40,
+     "name": "体育"
+    },
+    {
+     "id": 41,
+     "name": "足球"
+    },
+    {
+     "id": 42,
+     "name": "AI漫剧"
+    }
+   ],
+   "type_map": {
+    "rec": 0,
+    "movie": 7,
+    "tv": 8,
+    "variety": 9,
+    "anime": 1,
+    "cntv": 26,
+    "westtv": 29,
+    "korea": 28,
+    "japan": 31,
+    "hk": 27,
+    "tw": 30,
+    "thai": 33,
+    "action": 10,
+    "comedy": 11,
+    "romance": 12,
+    "scifi": 13,
+    "horror": 14,
+    "war": 16,
+    "doc": 0,
+    "short": 38,
+    "4k": 0,
+    "suspense": 21
+   },
+   "detail": {
+    "ok": true,
+    "eps": 2,
+    "err": null
+   },
+   "search": {
+    "ok": true,
+    "n": 3,
+    "ms": 231,
+    "err": null
+   },
+   "suggest": {
+    "ok": true,
+    "n": 20,
+    "ms": 546
+   },
+   "play": {
+    "ok": true,
+    "ttfb_ms": 426,
+    "kbps": 2183,
+    "range": true,
+    "burst": [
+     {
+      "ms": 487,
+      "bytes": 65536,
+      "kbps": 1076
+     },
+     {
+      "ms": 191,
+      "bytes": 65536,
+      "kbps": 2744
+     },
+     {
+      "ms": 192,
+      "bytes": 65536,
+      "kbps": 2730
+     }
+    ],
+    "err": null,
+    "vq": "master bw=2041000"
+   },
+   "status": "OK",
+   "score_parts": {
+    "list_ms": 23.8,
+    "ttfb": 11.0,
+    "kbps": 2.9,
+    "intro": 6.2,
+    "pic": 10.0,
+    "total": 7.8,
+    "search": 8,
+    "eps": 0.6,
+    "range": 3,
+    "stability": 1.2
+   },
+   "score": 74.6,
+   "grade": "B",
+   "cost_ms": 3963,
+   "sample": "相遇骤雨中：温柔的细雨"
+  },
+  {
+   "key": "ikun",
+   "api": "https://ikunzy.com/api.php/provide/vod/",
+   "referer": "https://ikunzy.com/",
+   "from": "Src.java",
+   "types": "1,2,3,4,23,26,25,28,24,27,30,6,7,8,9,10,11,12,20,31,33,32,34,35,37,36,45,0,17",
+   "list": {
+    "ok": true,
+    "ms": 1001,
+    "n": 20,
+    "pic": 20,
+    "intro": 17,
+    "total": 67674,
+    "err": null
+   },
+   "classes": [
+    {
+     "id": 1,
+     "name": "电影"
+    },
+    {
+     "id": 2,
+     "name": "连续剧"
+    },
+    {
+     "id": 3,
+     "name": "综艺"
+    },
+    {
+     "id": 4,
+     "name": "动漫"
+    },
+    {
+     "id": 5,
+     "name": "伦理片"
+    },
+    {
+     "id": 6,
+     "name": "动作片"
+    },
+    {
+     "id": 7,
+     "name": "喜剧片"
+    },
+    {
+     "id": 8,
+     "name": "爱情片"
+    },
+    {
+     "id": 9,
+     "name": "科幻片"
+    },
+    {
+     "id": 10,
+     "name": "恐怖片"
+    },
+    {
+     "id": 11,
+     "name": "剧情片"
+    },
+    {
+     "id": 12,
+     "name": "战争片"
+    },
+    {
+     "id": 13,
+     "name": "惊悚片"
+    },
+    {
+     "id": 14,
+     "name": "家庭片"
+    },
+    {
+     "id": 15,
+     "name": "古装片"
+    },
+    {
+     "id": 16,
+     "name": "历史片"
+    },
+    {
+     "id": 17,
+     "name": "悬疑片"
+    },
+    {
+     "id": 18,
+     "name": "犯罪片"
+    },
+    {
+     "id": 19,
+     "name": "灾难片"
+    },
+    {
+     "id": 20,
+     "name": "记录片"
+    },
+    {
+     "id": 21,
+     "name": "短片"
+    },
+    {
+     "id": 22,
+     "name": "动画片"
+    },
+    {
+     "id": 23,
+     "name": "国产剧"
+    },
+    {
+     "id": 24,
+     "name": "香港剧"
+    },
+    {
+     "id": 25,
+     "name": "韩国剧"
+    },
+    {
+     "id": 26,
+     "name": "欧美剧"
+    },
+    {
+     "id": 27,
+     "name": "台湾剧"
+    },
+    {
+     "id": 28,
+     "name": "日本剧"
+    },
+    {
+     "id": 29,
+     "name": "海外剧"
+    },
+    {
+     "id": 30,
+     "name": "泰国剧"
+    },
+    {
+     "id": 31,
+     "name": "大陆综艺"
+    },
+    {
+     "id": 32,
+     "name": "港台综艺"
+    },
+    {
+     "id": 33,
+     "name": "日韩综艺"
+    },
+    {
+     "id": 34,
+     "name": "欧美综艺"
+    },
+    {
+     "id": 35,
+     "name": "国产动漫"
+    },
+    {
+     "id": 36,
+     "name": "欧美动漫"
+    },
+    {
+     "id": 37,
+     "name": "日本动漫"
+    },
+    {
+     "id": 40,
+     "name": "体育"
+    },
+    {
+     "id": 41,
+     "name": "足球"
+    },
+    {
+     "id": 43,
+     "name": "内地明星"
+    },
+    {
+     "id": 44,
+     "name": "港台明星"
+    },
+    {
+     "id": 45,
+     "name": "爽文短剧"
+    },
+    {
+     "id": 46,
+     "name": "德甲"
+    },
+    {
+     "id": 47,
+     "name": "意甲"
+    },
+    {
+     "id": 48,
+     "name": "英超"
+    },
+    {
+     "id": 49,
+     "name": "西甲"
+    },
+    {
+     "id": 50,
+     "name": "法甲"
+    },
+    {
+     "id": 51,
+     "name": "NBA"
+    },
+    {
+     "id": 52,
+     "name": "CBA"
+    },
+    {
+     "id": 53,
+     "name": "LPL"
+    },
+    {
+     "id": 54,
+     "name": "WCBA"
+    },
+    {
+     "id": 55,
+     "name": "篮球"
+    },
+    {
+     "id": 56,
+     "name": "里番动漫"
+    }
+   ],
+   "type_map": {
+    "rec": 0,
+    "movie": 1,
+    "tv": 2,
+    "variety": 3,
+    "anime": 4,
+    "cntv": 23,
+    "westtv": 26,
+    "korea": 25,
+    "japan": 28,
+    "hk": 24,
+    "tw": 27,
+    "thai": 30,
+    "action": 6,
+    "comedy": 7,
+    "romance": 8,
+    "scifi": 9,
+    "horror": 10,
+    "war": 12,
+    "doc": 0,
+    "short": 45,
+    "4k": 0,
+    "suspense": 17
+   },
+   "detail": {
+    "ok": true,
+    "eps": 4,
+    "err": null
+   },
+   "search": {
+    "ok": true,
+    "n": 3,
+    "ms": 786,
+    "err": null
+   },
+   "suggest": {
+    "ok": true,
+    "n": 20,
+    "ms": 952
+   },
+   "play": {
+    "ok": true,
+    "ttfb_ms": 419,
+    "kbps": 2271,
+    "range": true,
+    "burst": [
+     {
+      "ms": 286,
+      "bytes": 65536,
+      "kbps": 1833
+     },
+     {
+      "ms": 194,
+      "bytes": 65536,
+      "kbps": 2702
+     },
+     {
+      "ms": 230,
+      "bytes": 65536,
+      "kbps": 2279
+     }
+    ],
+    "err": null,
+    "vq": "master bw=2043000"
+   },
+   "status": "OK",
+   "score_parts": {
+    "list_ms": 18.2,
+    "ttfb": 11.1,
+    "kbps": 3.0,
+    "intro": 11.2,
+    "pic": 10.0,
+    "total": 6.7,
+    "search": 8,
+    "eps": 1.2,
+    "range": 3,
+    "stability": 2.0
+   },
+   "score": 74.5,
+   "grade": "B",
+   "cost_ms": 4774,
+   "sample": "步步惊心(泰国版)"
+  },
+  {
    "key": "bfzy",
    "api": "https://bfzyapi.com/api.php/provide/vod/",
    "referer": "https://bfzyapi.com/",
@@ -100,7 +1544,7 @@
    "types": "20,30,45,39,31,32,34,36,33,35,38,21,22,25,24,23,26,27,28,46,48,47,49,40,41,42,58,0,0",
    "list": {
     "ok": true,
-    "ms": 928,
+    "ms": 1033,
     "n": 20,
     "pic": 20,
     "intro": 17,
@@ -331,40 +1775,40 @@
    },
    "detail": {
     "ok": true,
-    "eps": 78,
+    "eps": 6,
     "err": null
    },
    "search": {
     "ok": true,
     "n": 20,
-    "ms": 705,
+    "ms": 737,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 706
+    "ms": 555
    },
    "play": {
     "ok": true,
-    "ttfb_ms": 676,
-    "kbps": 653,
+    "ttfb_ms": 1024,
+    "kbps": 587,
     "range": true,
     "burst": [
      {
-      "ms": 702,
+      "ms": 892,
       "bytes": 65536,
-      "kbps": 746
+      "kbps": 587
      },
      {
-      "ms": 873,
+      "ms": 895,
       "bytes": 65536,
-      "kbps": 600
+      "kbps": 585
      },
      {
-      "ms": 852,
+      "ms": 890,
       "bytes": 65536,
-      "kbps": 615
+      "kbps": 589
      }
     ],
     "err": null,
@@ -372,765 +1816,21 @@
    },
    "status": "OK",
    "score_parts": {
-    "list_ms": 18.8,
-    "ttfb": 10.0,
-    "kbps": 0.9,
+    "list_ms": 17.9,
+    "ttfb": 8.5,
+    "kbps": 0.8,
     "intro": 11.2,
     "pic": 10.0,
     "total": 10.0,
     "search": 8,
-    "eps": 6.0,
+    "eps": 1.8,
     "range": 3,
-    "stability": 2.4
+    "stability": 3.0
    },
-   "score": 80.3,
-   "grade": "A",
-   "cost_ms": 7417,
-   "sample": "家庭关系证明书"
-  },
-  {
-   "key": "jszyapi",
-   "api": "https://jszyapi.com/api.php/provide/vod/",
-   "referer": "https://jszyapi.com/",
-   "from": "Src.java",
-   "types": "2,20,30,24,20,3,5,6,4,28,7,9,11,10,12,13,14,15,16,30,31,32,33,24,25,26,38,0,35",
-   "list": {
-    "ok": true,
-    "ms": 988,
-    "n": 20,
-    "pic": 20,
-    "intro": 20,
-    "total": 116489,
-    "err": null
-   },
-   "classes": [
-    {
-     "id": 1,
-     "name": "电视剧"
-    },
-    {
-     "id": 2,
-     "name": "电影"
-    },
-    {
-     "id": 3,
-     "name": "欧美剧"
-    },
-    {
-     "id": 4,
-     "name": "香港剧"
-    },
-    {
-     "id": 5,
-     "name": "韩剧"
-    },
-    {
-     "id": 6,
-     "name": "日剧"
-    },
-    {
-     "id": 7,
-     "name": "马泰剧"
-    },
-    {
-     "id": 8,
-     "name": "伦理片"
-    },
-    {
-     "id": 9,
-     "name": "动作片"
-    },
-    {
-     "id": 10,
-     "name": "爱情片"
-    },
-    {
-     "id": 11,
-     "name": "喜剧片"
-    },
-    {
-     "id": 12,
-     "name": "科幻片"
-    },
-    {
-     "id": 13,
-     "name": "恐怖片"
-    },
-    {
-     "id": 14,
-     "name": "剧情片"
-    },
-    {
-     "id": 15,
-     "name": "战争片"
-    },
-    {
-     "id": 16,
-     "name": "记录片"
-    },
-    {
-     "id": 17,
-     "name": "动漫"
-    },
-    {
-     "id": 20,
-     "name": "内地剧"
-    },
-    {
-     "id": 23,
-     "name": "动画片"
-    },
-    {
-     "id": 24,
-     "name": "中国动漫"
-    },
-    {
-     "id": 25,
-     "name": "日本动漫"
-    },
-    {
-     "id": 26,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 27,
-     "name": "综艺"
-    },
-    {
-     "id": 28,
-     "name": "台湾剧"
-    },
-    {
-     "id": 29,
-     "name": "体育赛事"
-    },
-    {
-     "id": 30,
-     "name": "大陆综艺"
-    },
-    {
-     "id": 31,
-     "name": "日韩综艺"
-    },
-    {
-     "id": 32,
-     "name": "港台综艺"
-    },
-    {
-     "id": 33,
-     "name": "欧美综艺"
-    },
-    {
-     "id": 34,
-     "name": "灾难片"
-    },
-    {
-     "id": 35,
-     "name": "悬疑片"
-    },
-    {
-     "id": 36,
-     "name": "犯罪片"
-    },
-    {
-     "id": 37,
-     "name": "奇幻片"
-    },
-    {
-     "id": 38,
-     "name": "短剧"
-    },
-    {
-     "id": 39,
-     "name": "预告片"
-    },
-    {
-     "id": 40,
-     "name": "足球"
-    },
-    {
-     "id": 41,
-     "name": "篮球"
-    },
-    {
-     "id": 42,
-     "name": "台球"
-    },
-    {
-     "id": 43,
-     "name": "其他赛事"
-    },
-    {
-     "id": 45,
-     "name": "古装仙侠"
-    },
-    {
-     "id": 46,
-     "name": "现代都市"
-    },
-    {
-     "id": 47,
-     "name": "穿越年代"
-    },
-    {
-     "id": 48,
-     "name": "言情总裁"
-    },
-    {
-     "id": 49,
-     "name": "重生民国"
-    },
-    {
-     "id": 50,
-     "name": "反转爽剧"
-    },
-    {
-     "id": 52,
-     "name": "脑洞悬疑"
-    },
-    {
-     "id": 53,
-     "name": "擦边短剧"
-    },
-    {
-     "id": 54,
-     "name": "AI漫剧"
-    }
-   ],
-   "type_map": {
-    "rec": 0,
-    "movie": 2,
-    "tv": 1,
-    "variety": 27,
-    "anime": 17,
-    "cntv": 0,
-    "westtv": 3,
-    "korea": 5,
-    "japan": 6,
-    "hk": 4,
-    "tw": 28,
-    "thai": 7,
-    "action": 9,
-    "comedy": 11,
-    "romance": 10,
-    "scifi": 12,
-    "horror": 13,
-    "war": 15,
-    "doc": 0,
-    "short": 38,
-    "4k": 0,
-    "suspense": 35
-   },
-   "detail": {
-    "ok": true,
-    "eps": 47,
-    "err": null
-   },
-   "search": {
-    "ok": true,
-    "n": 8,
-    "ms": 625,
-    "err": null
-   },
-   "suggest": {
-    "ok": true,
-    "n": 20,
-    "ms": 1222
-   },
-   "play": {
-    "ok": true,
-    "ttfb_ms": 1233,
-    "kbps": 882,
-    "range": true,
-    "burst": [
-     {
-      "ms": 509,
-      "bytes": 65536,
-      "kbps": 1030
-     },
-     {
-      "ms": 705,
-      "bytes": 65536,
-      "kbps": 743
-     },
-     {
-      "ms": 599,
-      "bytes": 65536,
-      "kbps": 875
-     }
-    ],
-    "err": null,
-    "vq": ""
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 18.3,
-    "ttfb": 7.6,
-    "kbps": 1.2,
-    "intro": 15.0,
-    "pic": 10.0,
-    "total": 8.8,
-    "search": 8,
-    "eps": 6.0,
-    "range": 3,
-    "stability": 2.2
-   },
-   "score": 80.0,
-   "grade": "A",
-   "cost_ms": 7574,
-   "sample": "天命成凰"
-  },
-  {
-   "key": "dytt",
-   "api": "https://caiji.dyttzyapi.com/api.php/provide/vod/",
-   "referer": "https://www.dyttzyapi.com/",
-   "from": "Src.java",
-   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
-   "list": {
-    "ok": true,
-    "ms": 1248,
-    "n": 20,
-    "pic": 20,
-    "intro": 20,
-    "total": 85114,
-    "err": null
-   },
-   "classes": [
-    {
-     "id": 1,
-     "name": "电影片"
-    },
-    {
-     "id": 2,
-     "name": "连续剧"
-    },
-    {
-     "id": 3,
-     "name": "综艺片"
-    },
-    {
-     "id": 4,
-     "name": "动漫片"
-    },
-    {
-     "id": 6,
-     "name": "动作片"
-    },
-    {
-     "id": 7,
-     "name": "喜剧片"
-    },
-    {
-     "id": 8,
-     "name": "爱情片"
-    },
-    {
-     "id": 9,
-     "name": "科幻片"
-    },
-    {
-     "id": 10,
-     "name": "恐怖片"
-    },
-    {
-     "id": 11,
-     "name": "剧情片"
-    },
-    {
-     "id": 12,
-     "name": "战争片"
-    },
-    {
-     "id": 13,
-     "name": "国产剧"
-    },
-    {
-     "id": 14,
-     "name": "香港剧"
-    },
-    {
-     "id": 15,
-     "name": "韩国剧"
-    },
-    {
-     "id": 16,
-     "name": "欧美剧"
-    },
-    {
-     "id": 20,
-     "name": "记录片"
-    },
-    {
-     "id": 21,
-     "name": "台湾剧"
-    },
-    {
-     "id": 22,
-     "name": "日本剧"
-    },
-    {
-     "id": 23,
-     "name": "海外剧"
-    },
-    {
-     "id": 24,
-     "name": "泰国剧"
-    },
-    {
-     "id": 25,
-     "name": "大陆综艺"
-    },
-    {
-     "id": 26,
-     "name": "港台综艺"
-    },
-    {
-     "id": 27,
-     "name": "日韩综艺"
-    },
-    {
-     "id": 28,
-     "name": "欧美综艺"
-    },
-    {
-     "id": 29,
-     "name": "国产动漫"
-    },
-    {
-     "id": 30,
-     "name": "日韩动漫"
-    },
-    {
-     "id": 31,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 32,
-     "name": "港台动漫"
-    },
-    {
-     "id": 33,
-     "name": "海外动漫"
-    },
-    {
-     "id": 34,
-     "name": "伦理片"
-    },
-    {
-     "id": 36,
-     "name": "短剧"
-    },
-    {
-     "id": 37,
-     "name": "动画片"
-    }
-   ],
-   "type_map": {
-    "rec": 0,
-    "movie": 1,
-    "tv": 2,
-    "variety": 3,
-    "anime": 4,
-    "cntv": 13,
-    "westtv": 16,
-    "korea": 15,
-    "japan": 22,
-    "hk": 14,
-    "tw": 21,
-    "thai": 24,
-    "action": 6,
-    "comedy": 7,
-    "romance": 8,
-    "scifi": 9,
-    "horror": 10,
-    "war": 12,
-    "doc": 0,
-    "short": 36,
-    "4k": 0,
-    "suspense": 0
-   },
-   "detail": {
-    "ok": true,
-    "eps": 69,
-    "err": null
-   },
-   "search": {
-    "ok": true,
-    "n": 7,
-    "ms": 953,
-    "err": null
-   },
-   "suggest": {
-    "ok": true,
-    "n": 20,
-    "ms": 2101
-   },
-   "play": {
-    "ok": true,
-    "ttfb_ms": 1218,
-    "kbps": 319,
-    "range": true,
-    "burst": [
-     {
-      "ms": 1630,
-      "bytes": 65536,
-      "kbps": 321
-     },
-     {
-      "ms": 1614,
-      "bytes": 65536,
-      "kbps": 324
-     },
-     {
-      "ms": 1672,
-      "bytes": 65536,
-      "kbps": 313
-     }
-    ],
-    "err": null,
-    "vq": "master bw=800000"
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 15.9,
-    "ttfb": 7.6,
-    "kbps": 0.4,
-    "intro": 15.0,
-    "pic": 10.0,
-    "total": 7.5,
-    "search": 8,
-    "eps": 6.0,
-    "range": 3,
-    "stability": 2.9
-   },
-   "score": 76.4,
+   "score": 74.2,
    "grade": "B",
-   "cost_ms": 14656,
-   "sample": "死灵法师！我即是天灾动漫"
-  },
-  {
-   "key": "ffzy",
-   "api": "https://api.ffzyapi.com/api.php/provide/vod/",
-   "referer": "https://www.ffzyapi.com/",
-   "from": "Src.java",
-   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
-   "list": {
-    "ok": true,
-    "ms": 1496,
-    "n": 20,
-    "pic": 20,
-    "intro": 18,
-    "total": 99094,
-    "err": null
-   },
-   "classes": [
-    {
-     "id": 1,
-     "name": "电影片"
-    },
-    {
-     "id": 2,
-     "name": "连续剧"
-    },
-    {
-     "id": 3,
-     "name": "综艺片"
-    },
-    {
-     "id": 4,
-     "name": "动漫片"
-    },
-    {
-     "id": 6,
-     "name": "动作片"
-    },
-    {
-     "id": 7,
-     "name": "喜剧片"
-    },
-    {
-     "id": 8,
-     "name": "爱情片"
-    },
-    {
-     "id": 9,
-     "name": "科幻片"
-    },
-    {
-     "id": 10,
-     "name": "恐怖片"
-    },
-    {
-     "id": 11,
-     "name": "剧情片"
-    },
-    {
-     "id": 12,
-     "name": "战争片"
-    },
-    {
-     "id": 13,
-     "name": "国产剧"
-    },
-    {
-     "id": 14,
-     "name": "香港剧"
-    },
-    {
-     "id": 15,
-     "name": "韩国剧"
-    },
-    {
-     "id": 16,
-     "name": "欧美剧"
-    },
-    {
-     "id": 20,
-     "name": "记录片"
-    },
-    {
-     "id": 21,
-     "name": "台湾剧"
-    },
-    {
-     "id": 22,
-     "name": "日本剧"
-    },
-    {
-     "id": 23,
-     "name": "海外剧"
-    },
-    {
-     "id": 24,
-     "name": "泰国剧"
-    },
-    {
-     "id": 25,
-     "name": "大陆综艺"
-    },
-    {
-     "id": 26,
-     "name": "港台综艺"
-    },
-    {
-     "id": 27,
-     "name": "日韩综艺"
-    },
-    {
-     "id": 28,
-     "name": "欧美综艺"
-    },
-    {
-     "id": 29,
-     "name": "国产动漫"
-    },
-    {
-     "id": 30,
-     "name": "日韩动漫"
-    },
-    {
-     "id": 31,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 32,
-     "name": "港台动漫"
-    },
-    {
-     "id": 33,
-     "name": "海外动漫"
-    },
-    {
-     "id": 34,
-     "name": "伦理片"
-    },
-    {
-     "id": 36,
-     "name": "短剧"
-    }
-   ],
-   "type_map": {
-    "rec": 0,
-    "movie": 1,
-    "tv": 2,
-    "variety": 3,
-    "anime": 4,
-    "cntv": 13,
-    "westtv": 16,
-    "korea": 15,
-    "japan": 22,
-    "hk": 14,
-    "tw": 21,
-    "thai": 24,
-    "action": 6,
-    "comedy": 7,
-    "romance": 8,
-    "scifi": 9,
-    "horror": 10,
-    "war": 12,
-    "doc": 0,
-    "short": 36,
-    "4k": 0,
-    "suspense": 0
-   },
-   "detail": {
-    "ok": true,
-    "eps": 1313,
-    "err": null
-   },
-   "search": {
-    "ok": true,
-    "n": 8,
-    "ms": 1039,
-    "err": null
-   },
-   "suggest": {
-    "ok": true,
-    "n": 20,
-    "ms": 1791
-   },
-   "play": {
-    "ok": true,
-    "ttfb_ms": 877,
-    "kbps": 458,
-    "range": true,
-    "burst": [
-     {
-      "ms": 1133,
-      "bytes": 65536,
-      "kbps": 462
-     },
-     {
-      "ms": 1177,
-      "bytes": 65536,
-      "kbps": 445
-     },
-     {
-      "ms": 1121,
-      "bytes": 65536,
-      "kbps": 467
-     }
-    ],
-    "err": null,
-    "vq": "master bw=800000"
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 13.7,
-    "ttfb": 9.1,
-    "kbps": 0.6,
-    "intro": 12.5,
-    "pic": 10.0,
-    "total": 8.1,
-    "search": 8,
-    "eps": 6.0,
-    "range": 3,
-    "stability": 2.9
-   },
-   "score": 73.9,
-   "grade": "B",
-   "cost_ms": 12326,
-   "sample": "无上神帝"
+   "cost_ms": 7643,
+   "sample": "说谎的我们"
   },
   {
    "key": "ysxq",
@@ -1140,7 +1840,7 @@
    "types": "1,2,3,4,13,16,15,15,14,14,29,6,7,8,9,10,11,12,24,30,31,39,32,33,34,35,60,86,23",
    "list": {
     "ok": true,
-    "ms": 2075,
+    "ms": 2504,
     "n": 20,
     "pic": 20,
     "intro": 20,
@@ -1529,34 +2229,34 @@
    "search": {
     "ok": true,
     "n": 20,
-    "ms": 6353,
+    "ms": 6536,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 2659
+    "ms": 1552
    },
    "play": {
     "ok": true,
-    "ttfb_ms": 1113,
-    "kbps": 696,
+    "ttfb_ms": 783,
+    "kbps": 1896,
     "range": true,
     "burst": [
      {
-      "ms": 727,
+      "ms": 258,
       "bytes": 65536,
-      "kbps": 721
+      "kbps": 2032
      },
      {
-      "ms": 733,
+      "ms": 302,
       "bytes": 65536,
-      "kbps": 715
+      "kbps": 1736
      },
      {
-      "ms": 803,
+      "ms": 273,
       "bytes": 65536,
-      "kbps": 652
+      "kbps": 1920
      }
     ],
     "err": null,
@@ -1564,153 +2264,149 @@
    },
    "status": "OK",
    "score_parts": {
-    "list_ms": 8.4,
-    "ttfb": 8.1,
-    "kbps": 0.9,
+    "list_ms": 4.5,
+    "ttfb": 9.5,
+    "kbps": 2.5,
     "intro": 15.0,
     "pic": 10.0,
     "total": 10.0,
     "search": 8,
     "eps": 6.0,
     "range": 3,
-    "stability": 2.7
+    "stability": 2.6
    },
-   "score": 72.1,
+   "score": 71.1,
    "grade": "B",
-   "cost_ms": 19099,
+   "cost_ms": 16038,
    "sample": "天命·成凰"
   },
   {
-   "key": "modu",
-   "api": "https://caiji.moduapi.cc/api.php/provide/vod/",
-   "referer": "https://caiji.moduapi.cc/",
+   "key": "360zy",
+   "api": "https://360zy.com/api.php/provide/vod/",
+   "referer": "https://360zy.com/",
    "from": "Src.java",
-   "types": "7,8,9,1,26,29,28,31,27,30,33,10,11,12,13,14,15,16,24,34,36,35,37,1,2,3,38,0,21",
+   "types": "1,2,3,4,13,16,15,31,14,30,33,6,7,8,9,10,11,12,27,34,36,35,37,38,40,39,46,0,24",
    "list": {
     "ok": true,
-    "ms": 756,
+    "ms": 1077,
     "n": 20,
     "pic": 20,
-    "intro": 16,
-    "total": 91711,
+    "intro": 17,
+    "total": 74943,
     "err": null
    },
    "classes": [
     {
      "id": 1,
-     "name": "国产动漫"
-    },
-    {
-     "id": 2,
-     "name": "日韩动漫"
-    },
-    {
-     "id": 3,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 4,
-     "name": "港台动漫"
-    },
-    {
-     "id": 5,
-     "name": "动漫电影"
-    },
-    {
-     "id": 6,
-     "name": "里番动漫"
-    },
-    {
-     "id": 7,
      "name": "电影"
     },
     {
-     "id": 8,
+     "id": 2,
      "name": "连续剧"
     },
     {
-     "id": 9,
+     "id": 3,
      "name": "综艺"
     },
     {
-     "id": 10,
+     "id": 4,
+     "name": "动漫"
+    },
+    {
+     "id": 5,
+     "name": "伦理片"
+    },
+    {
+     "id": 6,
      "name": "动作片"
     },
     {
-     "id": 11,
+     "id": 7,
      "name": "喜剧片"
     },
     {
-     "id": 12,
+     "id": 8,
      "name": "爱情片"
     },
     {
-     "id": 13,
+     "id": 9,
      "name": "科幻片"
     },
     {
-     "id": 14,
+     "id": 10,
      "name": "恐怖片"
     },
     {
-     "id": 15,
+     "id": 11,
      "name": "剧情片"
     },
     {
-     "id": 16,
+     "id": 12,
      "name": "战争片"
     },
     {
-     "id": 17,
-     "name": "惊悚片"
-    },
-    {
-     "id": 18,
-     "name": "家庭片"
-    },
-    {
-     "id": 19,
-     "name": "古装片"
-    },
-    {
-     "id": 20,
-     "name": "历史片"
-    },
-    {
-     "id": 21,
-     "name": "悬疑片"
-    },
-    {
-     "id": 22,
-     "name": "犯罪片"
-    },
-    {
-     "id": 23,
-     "name": "灾难片"
-    },
-    {
-     "id": 24,
-     "name": "记录片"
-    },
-    {
-     "id": 25,
-     "name": "短片"
-    },
-    {
-     "id": 26,
+     "id": 13,
      "name": "国产剧"
     },
     {
-     "id": 27,
+     "id": 14,
      "name": "香港剧"
     },
     {
-     "id": 28,
+     "id": 15,
      "name": "韩国剧"
     },
     {
-     "id": 29,
+     "id": 16,
      "name": "欧美剧"
+    },
+    {
+     "id": 17,
+     "name": "体育"
+    },
+    {
+     "id": 18,
+     "name": "NBA"
+    },
+    {
+     "id": 20,
+     "name": "惊悚片"
+    },
+    {
+     "id": 21,
+     "name": "家庭篇"
+    },
+    {
+     "id": 22,
+     "name": "古装片"
+    },
+    {
+     "id": 23,
+     "name": "历史片"
+    },
+    {
+     "id": 24,
+     "name": "悬疑片"
+    },
+    {
+     "id": 25,
+     "name": "犯罪片"
+    },
+    {
+     "id": 26,
+     "name": "灾难片"
+    },
+    {
+     "id": 27,
+     "name": "纪录片"
+    },
+    {
+     "id": 28,
+     "name": "短片"
+    },
+    {
+     "id": 29,
+     "name": "动画片"
     },
     {
      "id": 30,
@@ -1746,15 +2442,15 @@
     },
     {
      "id": 38,
-     "name": "短剧"
+     "name": "国产动漫"
     },
     {
      "id": 39,
-     "name": "伦理片"
+     "name": "欧美动漫"
     },
     {
      "id": 40,
-     "name": "体育"
+     "name": "日韩动漫"
     },
     {
      "id": 41,
@@ -1762,32 +2458,72 @@
     },
     {
      "id": 42,
-     "name": "AI漫剧"
+     "name": "篮球"
+    },
+    {
+     "id": 43,
+     "name": "未分类"
+    },
+    {
+     "id": 45,
+     "name": "西部片"
+    },
+    {
+     "id": 46,
+     "name": "爽文短剧"
+    },
+    {
+     "id": 47,
+     "name": "现代都市"
+    },
+    {
+     "id": 48,
+     "name": "脑洞悬疑"
+    },
+    {
+     "id": 49,
+     "name": "年代穿越"
+    },
+    {
+     "id": 50,
+     "name": "古装仙侠"
+    },
+    {
+     "id": 51,
+     "name": "反转爽剧"
+    },
+    {
+     "id": 52,
+     "name": "女频恋爱"
+    },
+    {
+     "id": 53,
+     "name": "成长逆袭"
     }
    ],
    "type_map": {
     "rec": 0,
-    "movie": 7,
-    "tv": 8,
-    "variety": 9,
-    "anime": 1,
-    "cntv": 26,
-    "westtv": 29,
-    "korea": 28,
+    "movie": 1,
+    "tv": 2,
+    "variety": 3,
+    "anime": 4,
+    "cntv": 13,
+    "westtv": 16,
+    "korea": 15,
     "japan": 31,
-    "hk": 27,
+    "hk": 14,
     "tw": 30,
     "thai": 33,
-    "action": 10,
-    "comedy": 11,
-    "romance": 12,
-    "scifi": 13,
-    "horror": 14,
-    "war": 16,
-    "doc": 0,
-    "short": 38,
+    "action": 6,
+    "comedy": 7,
+    "romance": 8,
+    "scifi": 9,
+    "horror": 10,
+    "war": 12,
+    "doc": 27,
+    "short": 46,
     "4k": 0,
-    "suspense": 21
+    "suspense": 24
    },
    "detail": {
     "ok": true,
@@ -1797,34 +2533,34 @@
    "search": {
     "ok": true,
     "n": 3,
-    "ms": 934,
+    "ms": 1086,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 1348
+    "ms": 1237
    },
    "play": {
     "ok": true,
-    "ttfb_ms": 1203,
-    "kbps": 169,
+    "ttfb_ms": 837,
+    "kbps": 267,
     "range": true,
     "burst": [
      {
-      "ms": 1580,
-      "bytes": 23500,
-      "kbps": 118
+      "ms": 521,
+      "bytes": 17872,
+      "kbps": 274
      },
      {
-      "ms": 952,
-      "bytes": 23500,
-      "kbps": 197
+      "ms": 528,
+      "bytes": 17872,
+      "kbps": 270
      },
      {
-      "ms": 975,
-      "bytes": 23500,
-      "kbps": 192
+      "ms": 555,
+      "bytes": 17872,
+      "kbps": 257
      }
     ],
     "err": null,
@@ -1832,20 +2568,20 @@
    },
    "status": "OK",
    "score_parts": {
-    "list_ms": 20.4,
-    "ttfb": 7.7,
-    "kbps": 0.2,
-    "intro": 10.0,
+    "list_ms": 17.5,
+    "ttfb": 9.3,
+    "kbps": 0.4,
+    "intro": 11.2,
     "pic": 10.0,
-    "total": 7.8,
+    "total": 7.1,
     "search": 8,
     "eps": 1.8,
     "range": 3,
-    "stability": 1.8
+    "stability": 2.8
    },
-   "score": 70.7,
+   "score": 71.0,
    "grade": "B",
-   "cost_ms": 11678,
+   "cost_ms": 8195,
    "sample": "地雷格力高"
   },
   {
@@ -1856,7 +2592,7 @@
    "types": "1,2,3,4,13,16,15,31,14,30,33,6,7,8,9,10,11,12,27,34,36,35,37,38,40,39,46,0,24",
    "list": {
     "ok": true,
-    "ms": 816,
+    "ms": 768,
     "n": 30,
     "pic": 30,
     "intro": 9,
@@ -2109,34 +2845,34 @@
    "search": {
     "ok": true,
     "n": 1,
-    "ms": 741,
+    "ms": 564,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 14,
-    "ms": 763
+    "ms": 893
    },
    "play": {
     "ok": true,
-    "ttfb_ms": 229,
-    "kbps": 1460,
-    "range": true,
+    "ttfb_ms": 628,
+    "kbps": 2899,
+    "range": false,
     "burst": [
      {
-      "ms": 355,
+      "ms": 151,
       "bytes": 65536,
-      "kbps": 1476
+      "kbps": 3472
      },
      {
-      "ms": 361,
+      "ms": 342,
       "bytes": 65536,
-      "kbps": 1452
+      "kbps": 1533
      },
      {
-      "ms": 361,
+      "ms": 142,
       "bytes": 65536,
-      "kbps": 1452
+      "kbps": 3692
      }
     ],
     "err": null,
@@ -2144,35 +2880,35 @@
    },
    "status": "OK",
    "score_parts": {
-    "list_ms": 19.9,
-    "ttfb": 11.9,
-    "kbps": 1.9,
+    "list_ms": 20.3,
+    "ttfb": 10.2,
+    "kbps": 3.9,
     "intro": 0.0,
     "pic": 10.0,
     "total": 4.8,
     "search": 8,
     "eps": 6.0,
-    "range": 3,
-    "stability": 3.0
+    "range": 0,
+    "stability": 1.2
    },
-   "score": 68.4,
-   "grade": "B",
-   "cost_ms": 5486,
+   "score": 64.4,
+   "grade": "C",
+   "cost_ms": 15275,
    "sample": "石纪元第三季"
   },
   {
-   "key": "360zy",
-   "api": "https://360zy.com/api.php/provide/vod/",
-   "referer": "https://360zy.com/",
+   "key": "uku",
+   "api": "https://api.ukuapi.com/api.php/provide/vod/",
+   "referer": "https://www.ukuapi.com/",
    "from": "Src.java",
-   "types": "1,2,3,4,13,16,15,31,14,30,33,6,7,8,9,10,11,12,27,34,36,35,37,38,40,39,46,0,24",
+   "types": "1,2,3,4,13,16,22,15,14,21,23,6,7,8,9,10,11,12,24,3,0,0,0,4,0,0,32,0,34",
    "list": {
     "ok": true,
-    "ms": 1700,
+    "ms": 414,
     "n": 20,
     "pic": 20,
-    "intro": 17,
-    "total": 74943,
+    "intro": 4,
+    "total": 60533,
     "err": null
    },
    "classes": [
@@ -2182,7 +2918,7 @@
     },
     {
      "id": 2,
-     "name": "连续剧"
+     "name": "电视剧"
     },
     {
      "id": 3,
@@ -2191,10 +2927,6 @@
     {
      "id": 4,
      "name": "动漫"
-    },
-    {
-     "id": 5,
-     "name": "伦理片"
     },
     {
      "id": 6,
@@ -2230,155 +2962,71 @@
     },
     {
      "id": 14,
-     "name": "香港剧"
+     "name": "港澳剧"
     },
     {
      "id": 15,
-     "name": "韩国剧"
+     "name": "日剧"
     },
     {
      "id": 16,
      "name": "欧美剧"
     },
     {
-     "id": 17,
-     "name": "体育"
-    },
-    {
-     "id": 18,
-     "name": "NBA"
-    },
-    {
      "id": 20,
-     "name": "惊悚片"
+     "name": "动漫电影"
     },
     {
      "id": 21,
-     "name": "家庭篇"
-    },
-    {
-     "id": 22,
-     "name": "古装片"
-    },
-    {
-     "id": 23,
-     "name": "历史片"
-    },
-    {
-     "id": 24,
-     "name": "悬疑片"
-    },
-    {
-     "id": 25,
-     "name": "犯罪片"
-    },
-    {
-     "id": 26,
-     "name": "灾难片"
-    },
-    {
-     "id": 27,
-     "name": "纪录片"
-    },
-    {
-     "id": 28,
-     "name": "短片"
-    },
-    {
-     "id": 29,
-     "name": "动画片"
-    },
-    {
-     "id": 30,
      "name": "台湾剧"
     },
     {
+     "id": 22,
+     "name": "韩剧"
+    },
+    {
+     "id": 23,
+     "name": "泰剧"
+    },
+    {
+     "id": 24,
+     "name": "记录片"
+    },
+    {
+     "id": 25,
+     "name": "伦理片"
+    },
+    {
+     "id": 26,
+     "name": "资讯"
+    },
+    {
+     "id": 27,
+     "name": "新闻资讯"
+    },
+    {
+     "id": 28,
+     "name": "预告资讯"
+    },
+    {
+     "id": 30,
+     "name": "影视资讯"
+    },
+    {
      "id": 31,
-     "name": "日本剧"
+     "name": "明星资讯"
     },
     {
      "id": 32,
-     "name": "海外剧"
+     "name": "短剧"
     },
     {
      "id": 33,
-     "name": "泰国剧"
+     "name": "奇幻片"
     },
     {
      "id": 34,
-     "name": "大陆综艺"
-    },
-    {
-     "id": 35,
-     "name": "港台综艺"
-    },
-    {
-     "id": 36,
-     "name": "日韩综艺"
-    },
-    {
-     "id": 37,
-     "name": "欧美综艺"
-    },
-    {
-     "id": 38,
-     "name": "国产动漫"
-    },
-    {
-     "id": 39,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 40,
-     "name": "日韩动漫"
-    },
-    {
-     "id": 41,
-     "name": "足球"
-    },
-    {
-     "id": 42,
-     "name": "篮球"
-    },
-    {
-     "id": 43,
-     "name": "未分类"
-    },
-    {
-     "id": 45,
-     "name": "西部片"
-    },
-    {
-     "id": 46,
-     "name": "爽文短剧"
-    },
-    {
-     "id": 47,
-     "name": "现代都市"
-    },
-    {
-     "id": 48,
-     "name": "脑洞悬疑"
-    },
-    {
-     "id": 49,
-     "name": "年代穿越"
-    },
-    {
-     "id": 50,
-     "name": "古装仙侠"
-    },
-    {
-     "id": 51,
-     "name": "反转爽剧"
-    },
-    {
-     "id": 52,
-     "name": "女频恋爱"
-    },
-    {
-     "id": 53,
-     "name": "成长逆袭"
+     "name": "犯罪片"
     }
    ],
    "type_map": {
@@ -2389,312 +3037,52 @@
     "anime": 4,
     "cntv": 13,
     "westtv": 16,
-    "korea": 15,
-    "japan": 31,
-    "hk": 14,
-    "tw": 30,
-    "thai": 33,
+    "korea": 22,
+    "japan": 15,
+    "hk": 0,
+    "tw": 21,
+    "thai": 23,
     "action": 6,
     "comedy": 7,
     "romance": 8,
     "scifi": 9,
     "horror": 10,
     "war": 12,
-    "doc": 27,
-    "short": 46,
-    "4k": 0,
-    "suspense": 24
-   },
-   "detail": {
-    "ok": true,
-    "eps": 6,
-    "err": null
-   },
-   "search": {
-    "ok": true,
-    "n": 3,
-    "ms": 1539,
-    "err": null
-   },
-   "suggest": {
-    "ok": true,
-    "n": 20,
-    "ms": 1848
-   },
-   "play": {
-    "ok": true,
-    "ttfb_ms": 460,
-    "kbps": 891,
-    "range": true,
-    "burst": [
-     {
-      "ms": 150,
-      "bytes": 17872,
-      "kbps": 953
-     },
-     {
-      "ms": 166,
-      "bytes": 17872,
-      "kbps": 861
-     },
-     {
-      "ms": 166,
-      "bytes": 17872,
-      "kbps": 861
-     }
-    ],
-    "err": null,
-    "vq": "master bw=3697000"
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 11.8,
-    "ttfb": 10.9,
-    "kbps": 1.2,
-    "intro": 11.2,
-    "pic": 10.0,
-    "total": 7.1,
-    "search": 8,
-    "eps": 1.8,
-    "range": 3,
-    "stability": 2.7
-   },
-   "score": 67.7,
-   "grade": "B",
-   "cost_ms": 9845,
-   "sample": "地雷格力高"
-  },
-  {
-   "key": "yhzy",
-   "api": "https://yhzy.cc/api.php/provide/vod/",
-   "referer": "https://yhzy.cc/",
-   "from": "Src.java",
-   "types": "1,2,3,4,13,24,16,23,14,15,0,6,7,8,9,10,11,12,21,26,27,28,29,30,31,32,0,0,0",
-   "list": {
-    "ok": true,
-    "ms": 1044,
-    "n": 20,
-    "pic": 20,
-    "intro": 11,
-    "total": 105335,
-    "err": null
-   },
-   "classes": [
-    {
-     "id": 1,
-     "name": "电影"
-    },
-    {
-     "id": 2,
-     "name": "连续剧"
-    },
-    {
-     "id": 3,
-     "name": "综艺"
-    },
-    {
-     "id": 4,
-     "name": "动漫"
-    },
-    {
-     "id": 5,
-     "name": "资讯"
-    },
-    {
-     "id": 6,
-     "name": "动作片"
-    },
-    {
-     "id": 7,
-     "name": "喜剧片"
-    },
-    {
-     "id": 8,
-     "name": "爱情片"
-    },
-    {
-     "id": 9,
-     "name": "科幻片"
-    },
-    {
-     "id": 10,
-     "name": "恐怖片"
-    },
-    {
-     "id": 11,
-     "name": "剧情片"
-    },
-    {
-     "id": 12,
-     "name": "战争片"
-    },
-    {
-     "id": 13,
-     "name": "国产剧"
-    },
-    {
-     "id": 14,
-     "name": "香港剧"
-    },
-    {
-     "id": 15,
-     "name": "台湾剧"
-    },
-    {
-     "id": 16,
-     "name": "韩国剧"
-    },
-    {
-     "id": 17,
-     "name": "公告"
-    },
-    {
-     "id": 18,
-     "name": "头条"
-    },
-    {
-     "id": 20,
-     "name": "犯罪片"
-    },
-    {
-     "id": 21,
-     "name": "纪录片"
-    },
-    {
-     "id": 22,
-     "name": "动画电影"
-    },
-    {
-     "id": 23,
-     "name": "日本剧"
-    },
-    {
-     "id": 24,
-     "name": "欧美剧"
-    },
-    {
-     "id": 25,
-     "name": "海外剧"
-    },
-    {
-     "id": 26,
-     "name": "大陆综艺"
-    },
-    {
-     "id": 27,
-     "name": "日韩综艺"
-    },
-    {
-     "id": 28,
-     "name": "港台综艺"
-    },
-    {
-     "id": 29,
-     "name": "欧美综艺"
-    },
-    {
-     "id": 30,
-     "name": "国产动漫"
-    },
-    {
-     "id": 31,
-     "name": "日本动漫"
-    },
-    {
-     "id": 32,
-     "name": "欧美动漫"
-    },
-    {
-     "id": 33,
-     "name": "海外动漫"
-    },
-    {
-     "id": 34,
-     "name": "伦理片"
-    }
-   ],
-   "type_map": {
-    "rec": 0,
-    "movie": 1,
-    "tv": 2,
-    "variety": 3,
-    "anime": 4,
-    "cntv": 13,
-    "westtv": 24,
-    "korea": 16,
-    "japan": 23,
-    "hk": 14,
-    "tw": 15,
-    "thai": 0,
-    "action": 6,
-    "comedy": 7,
-    "romance": 8,
-    "scifi": 9,
-    "horror": 10,
-    "war": 12,
-    "doc": 21,
-    "short": 0,
+    "doc": 0,
+    "short": 32,
     "4k": 0,
     "suspense": 0
    },
    "detail": {
     "ok": true,
-    "eps": 16,
+    "eps": 1,
     "err": null
    },
    "search": {
     "ok": true,
-    "n": 8,
-    "ms": 1783,
+    "n": 3,
+    "ms": 278,
     "err": null
    },
    "suggest": {
-    "ok": true,
-    "n": 20,
-    "ms": 1596
+    "ok": false,
+    "n": 0,
+    "ms": 234
    },
    "play": {
-    "ok": true,
-    "ttfb_ms": 993,
-    "kbps": 207,
-    "range": true,
-    "burst": [
-     {
-      "ms": 2483,
-      "bytes": 65536,
-      "kbps": 211
-     },
-     {
-      "ms": 2529,
-      "bytes": 65536,
-      "kbps": 207
-     },
-     {
-      "ms": 2566,
-      "bytes": 65536,
-      "kbps": 204
-     }
-    ],
-    "err": null,
+    "ok": false,
+    "ttfb_ms": 0,
+    "kbps": 0,
+    "range": false,
+    "burst": [],
+    "err": "m3u8 http 403",
     "vq": ""
    },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 17.8,
-    "ttfb": 8.6,
-    "kbps": 0.3,
-    "intro": 3.8,
-    "pic": 10.0,
-    "total": 8.4,
-    "search": 8,
-    "eps": 4.8,
-    "range": 3,
-    "stability": 2.9
-   },
-   "score": 67.5,
-   "grade": "B",
-   "cost_ms": 17205,
-   "sample": "罗布泊神墓"
+   "status": "DEAD",
+   "score": 0,
+   "grade": "-",
+   "cost_ms": 2830,
+   "sample": "交换身份过圣诞"
   },
   {
    "key": "zuidazy",
@@ -2704,10 +3092,10 @@
    "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68",
    "list": {
     "ok": true,
-    "ms": 702,
+    "ms": 338,
     "n": 20,
     "pic": 20,
-    "intro": 10,
+    "intro": 15,
     "total": 125860,
     "err": null
    },
@@ -2975,94 +3363,66 @@
    },
    "detail": {
     "ok": true,
-    "eps": 1,
+    "eps": 34,
     "err": null
    },
    "search": {
     "ok": true,
     "n": 7,
-    "ms": 568,
+    "ms": 1324,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 630
+    "ms": 738
    },
    "play": {
-    "ok": true,
-    "ttfb_ms": 903,
-    "kbps": 474,
-    "range": true,
-    "burst": [
-     {
-      "ms": 1082,
-      "bytes": 65536,
-      "kbps": 484
-     },
-     {
-      "ms": 1089,
-      "bytes": 65536,
-      "kbps": 481
-     },
-     {
-      "ms": 1140,
-      "bytes": 65536,
-      "kbps": 459
-     }
-    ],
-    "err": null,
-    "vq": "master bw=404"
+    "ok": false,
+    "ttfb_ms": 0,
+    "kbps": 0,
+    "range": false,
+    "burst": [],
+    "err": "m3u8 http 403",
+    "vq": ""
    },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 20.9,
-    "ttfb": 9.0,
-    "kbps": 0.6,
-    "intro": 2.5,
-    "pic": 10.0,
-    "total": 9.2,
-    "search": 8,
-    "eps": 0.3,
-    "range": 3,
-    "stability": 2.8
-   },
-   "score": 66.3,
-   "grade": "B",
-   "cost_ms": 10287,
-   "sample": "11月12日 26-27赛季NBA常规赛 奇才VS步行者"
+   "status": "DEAD",
+   "score": 0,
+   "grade": "-",
+   "cost_ms": 3148,
+   "sample": "妈妈发疯了"
   },
   {
-   "key": "wsyzy",
-   "api": "https://wsyzy.cc/api.php/provide/vod/",
-   "referer": "https://wsyzy.cc/",
+   "key": "ffzy",
+   "api": "https://api.ffzyapi.com/api.php/provide/vod/",
+   "referer": "https://www.ffzyapi.com/",
    "from": "Src.java",
-   "types": "1,2,3,4,13,14,15,16,17,18,19,6,7,8,9,10,11,12,20,25,26,27,28,29,30,31,54,62,68",
+   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
    "list": {
     "ok": true,
-    "ms": 1306,
+    "ms": 800,
     "n": 20,
     "pic": 20,
     "intro": 18,
-    "total": 127961,
+    "total": 99094,
     "err": null
    },
    "classes": [
     {
      "id": 1,
-     "name": "电影"
+     "name": "电影片"
     },
     {
      "id": 2,
-     "name": "电视剧"
+     "name": "连续剧"
     },
     {
      "id": 3,
-     "name": "综艺"
+     "name": "综艺片"
     },
     {
      "id": 4,
-     "name": "动漫"
+     "name": "动漫片"
     },
     {
      "id": 6,
@@ -3098,35 +3458,35 @@
     },
     {
      "id": 14,
-     "name": "欧美剧"
+     "name": "香港剧"
     },
     {
      "id": 15,
-     "name": "韩剧"
+     "name": "韩国剧"
     },
     {
      "id": 16,
-     "name": "日剧"
-    },
-    {
-     "id": 17,
-     "name": "港剧"
-    },
-    {
-     "id": 18,
-     "name": "台剧"
-    },
-    {
-     "id": 19,
-     "name": "泰剧"
+     "name": "欧美剧"
     },
     {
      "id": 20,
-     "name": "纪录片"
+     "name": "记录片"
+    },
+    {
+     "id": 21,
+     "name": "台湾剧"
+    },
+    {
+     "id": 22,
+     "name": "日本剧"
     },
     {
      "id": 23,
      "name": "海外剧"
+    },
+    {
+     "id": 24,
+     "name": "泰国剧"
     },
     {
      "id": 25,
@@ -3134,11 +3494,11 @@
     },
     {
      "id": 26,
-     "name": "日韩综艺"
+     "name": "港台综艺"
     },
     {
      "id": 27,
-     "name": "港台综艺"
+     "name": "日韩综艺"
     },
     {
      "id": 28,
@@ -3157,136 +3517,20 @@
      "name": "欧美动漫"
     },
     {
-     "id": 39,
-     "name": "动画片"
-    },
-    {
-     "id": 44,
+     "id": 32,
      "name": "港台动漫"
     },
     {
-     "id": 45,
+     "id": 33,
      "name": "海外动漫"
     },
     {
-     "id": 47,
-     "name": "演唱会"
+     "id": 34,
+     "name": "伦理片"
     },
     {
-     "id": 48,
-     "name": "体育赛事"
-    },
-    {
-     "id": 49,
-     "name": "篮球"
-    },
-    {
-     "id": 50,
-     "name": "足球"
-    },
-    {
-     "id": 51,
-     "name": "预告片"
-    },
-    {
-     "id": 52,
-     "name": "斯诺克"
-    },
-    {
-     "id": 53,
-     "name": "影视解说"
-    },
-    {
-     "id": 54,
-     "name": "爽文短剧"
-    },
-    {
-     "id": 55,
-     "name": "伦理"
-    },
-    {
-     "id": 56,
-     "name": "港台三级"
-    },
-    {
-     "id": 57,
-     "name": "韩国伦理"
-    },
-    {
-     "id": 58,
-     "name": "西方伦理"
-    },
-    {
-     "id": 59,
-     "name": "日本伦理"
-    },
-    {
-     "id": 60,
-     "name": "两性课堂"
-    },
-    {
-     "id": 61,
-     "name": "写真热舞"
-    },
-    {
-     "id": 62,
-     "name": "4K电影"
-    },
-    {
-     "id": 63,
-     "name": "有声动漫"
-    },
-    {
-     "id": 64,
-     "name": "女频恋爱"
-    },
-    {
-     "id": 65,
-     "name": "反转爽剧"
-    },
-    {
-     "id": 66,
-     "name": "古装仙侠"
-    },
-    {
-     "id": 67,
-     "name": "年代穿越"
-    },
-    {
-     "id": 68,
-     "name": "脑洞悬疑"
-    },
-    {
-     "id": 69,
-     "name": "现代都市"
-    },
-    {
-     "id": 70,
-     "name": "邵氏电影"
-    },
-    {
-     "id": 71,
-     "name": "Netflix电影"
-    },
-    {
-     "id": 72,
-     "name": "Netflix自制剧"
-    },
-    {
-     "id": 73,
-     "name": "擦边短剧"
-    },
-    {
-     "id": 74,
-     "name": "预告解说"
-    },
-    {
-     "id": 75,
-     "name": "科普学习"
-    },
-    {
-     "id": 76,
-     "name": "漫剧"
+     "id": 36,
+     "name": "短剧"
     }
    ],
    "type_map": {
@@ -3296,101 +3540,73 @@
     "variety": 3,
     "anime": 4,
     "cntv": 13,
-    "westtv": 14,
+    "westtv": 16,
     "korea": 15,
-    "japan": 16,
-    "hk": 17,
-    "tw": 18,
-    "thai": 19,
+    "japan": 22,
+    "hk": 14,
+    "tw": 21,
+    "thai": 24,
     "action": 6,
     "comedy": 7,
     "romance": 8,
     "scifi": 9,
     "horror": 10,
     "war": 12,
-    "doc": 20,
-    "short": 54,
-    "4k": 62,
-    "suspense": 68
+    "doc": 0,
+    "short": 36,
+    "4k": 0,
+    "suspense": 0
    },
    "detail": {
     "ok": true,
-    "eps": 5,
+    "eps": 1313,
     "err": null
    },
    "search": {
-    "ok": false,
-    "n": 0,
-    "ms": 831,
-    "err": "not json list"
+    "ok": true,
+    "n": 8,
+    "ms": 252,
+    "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 1341
+    "ms": 1094
    },
    "play": {
-    "ok": true,
-    "ttfb_ms": 1093,
-    "kbps": 883,
-    "range": true,
-    "burst": [
-     {
-      "ms": 590,
-      "bytes": 65536,
-      "kbps": 888
-     },
-     {
-      "ms": 533,
-      "bytes": 65536,
-      "kbps": 983
-     },
-     {
-      "ms": 673,
-      "bytes": 65536,
-      "kbps": 779
-     }
-    ],
-    "err": null,
-    "vq": "master bw=128"
+    "ok": false,
+    "ttfb_ms": 0,
+    "kbps": 0,
+    "range": false,
+    "burst": [],
+    "err": "m3u8 http 403",
+    "vq": ""
    },
-   "status": "OK_NOSEARCH",
-   "score_parts": {
-    "list_ms": 15.4,
-    "ttfb": 8.2,
-    "kbps": 1.2,
-    "intro": 12.5,
-    "pic": 10.0,
-    "total": 9.2,
-    "search": 0,
-    "eps": 1.5,
-    "range": 3,
-    "stability": 2.4
-   },
-   "score": 63.4,
-   "grade": "C",
-   "cost_ms": 10152,
-   "sample": "分手代理"
+   "status": "DEAD",
+   "score": 0,
+   "grade": "-",
+   "cost_ms": 4069,
+   "sample": "无上神帝"
   },
   {
-   "key": "ikun",
-   "api": "https://ikunzy.com/api.php/provide/vod/",
-   "referer": "https://ikunzy.com/",
+   "key": "dytt",
+   "api": "https://caiji.dyttzyapi.com/api.php/provide/vod/",
+   "referer": "https://www.dyttzyapi.com/",
    "from": "Src.java",
-   "types": "1,2,3,4,23,26,25,28,24,27,30,6,7,8,9,10,11,12,20,31,33,32,34,35,37,36,45,0,17",
+   "types": "1,2,3,4,13,16,15,22,14,21,24,6,7,8,9,10,11,12,20,25,27,26,28,29,30,31,36,0,0",
    "list": {
     "ok": true,
-    "ms": 1705,
+    "ms": 446,
     "n": 20,
     "pic": 20,
     "intro": 17,
-    "total": 67674,
+    "total": 85116,
     "err": null
    },
    "classes": [
     {
      "id": 1,
-     "name": "电影"
+     "name": "电影片"
     },
     {
      "id": 2,
@@ -3398,15 +3614,11 @@
     },
     {
      "id": 3,
-     "name": "综艺"
+     "name": "综艺片"
     },
     {
      "id": 4,
-     "name": "动漫"
-    },
-    {
-     "id": 5,
-     "name": "伦理片"
+     "name": "动漫片"
     },
     {
      "id": 6,
@@ -3438,31 +3650,19 @@
     },
     {
      "id": 13,
-     "name": "惊悚片"
+     "name": "国产剧"
     },
     {
      "id": 14,
-     "name": "家庭片"
+     "name": "香港剧"
     },
     {
      "id": 15,
-     "name": "古装片"
+     "name": "韩国剧"
     },
     {
      "id": 16,
-     "name": "历史片"
-    },
-    {
-     "id": 17,
-     "name": "悬疑片"
-    },
-    {
-     "id": 18,
-     "name": "犯罪片"
-    },
-    {
-     "id": 19,
-     "name": "灾难片"
+     "name": "欧美剧"
     },
     {
      "id": 20,
@@ -3470,135 +3670,67 @@
     },
     {
      "id": 21,
-     "name": "短片"
-    },
-    {
-     "id": 22,
-     "name": "动画片"
-    },
-    {
-     "id": 23,
-     "name": "国产剧"
-    },
-    {
-     "id": 24,
-     "name": "香港剧"
-    },
-    {
-     "id": 25,
-     "name": "韩国剧"
-    },
-    {
-     "id": 26,
-     "name": "欧美剧"
-    },
-    {
-     "id": 27,
      "name": "台湾剧"
     },
     {
-     "id": 28,
+     "id": 22,
      "name": "日本剧"
     },
     {
-     "id": 29,
+     "id": 23,
      "name": "海外剧"
     },
     {
-     "id": 30,
+     "id": 24,
      "name": "泰国剧"
     },
     {
-     "id": 31,
+     "id": 25,
      "name": "大陆综艺"
     },
     {
-     "id": 32,
+     "id": 26,
      "name": "港台综艺"
     },
     {
-     "id": 33,
+     "id": 27,
      "name": "日韩综艺"
     },
     {
-     "id": 34,
+     "id": 28,
      "name": "欧美综艺"
     },
     {
-     "id": 35,
+     "id": 29,
      "name": "国产动漫"
     },
     {
-     "id": 36,
+     "id": 30,
+     "name": "日韩动漫"
+    },
+    {
+     "id": 31,
      "name": "欧美动漫"
     },
     {
+     "id": 32,
+     "name": "港台动漫"
+    },
+    {
+     "id": 33,
+     "name": "海外动漫"
+    },
+    {
+     "id": 34,
+     "name": "伦理片"
+    },
+    {
+     "id": 36,
+     "name": "短剧"
+    },
+    {
      "id": 37,
-     "name": "日本动漫"
-    },
-    {
-     "id": 40,
-     "name": "体育"
-    },
-    {
-     "id": 41,
-     "name": "足球"
-    },
-    {
-     "id": 43,
-     "name": "内地明星"
-    },
-    {
-     "id": 44,
-     "name": "港台明星"
-    },
-    {
-     "id": 45,
-     "name": "爽文短剧"
-    },
-    {
-     "id": 46,
-     "name": "德甲"
-    },
-    {
-     "id": 47,
-     "name": "意甲"
-    },
-    {
-     "id": 48,
-     "name": "英超"
-    },
-    {
-     "id": 49,
-     "name": "西甲"
-    },
-    {
-     "id": 50,
-     "name": "法甲"
-    },
-    {
-     "id": 51,
-     "name": "NBA"
-    },
-    {
-     "id": 52,
-     "name": "CBA"
-    },
-    {
-     "id": 53,
-     "name": "LPL"
-    },
-    {
-     "id": 54,
-     "name": "WCBA"
-    },
-    {
-     "id": 55,
-     "name": "篮球"
-    },
-    {
-     "id": 56,
-     "name": "里番动漫"
+     "name": "动画片"
     }
    ],
    "type_map": {
@@ -3607,13 +3739,13 @@
     "tv": 2,
     "variety": 3,
     "anime": 4,
-    "cntv": 23,
-    "westtv": 26,
-    "korea": 25,
-    "japan": 28,
-    "hk": 24,
-    "tw": 27,
-    "thai": 30,
+    "cntv": 13,
+    "westtv": 16,
+    "korea": 15,
+    "japan": 22,
+    "hk": 14,
+    "tw": 21,
+    "thai": 24,
     "action": 6,
     "comedy": 7,
     "romance": 8,
@@ -3621,68 +3753,40 @@
     "horror": 10,
     "war": 12,
     "doc": 0,
-    "short": 45,
+    "short": 36,
     "4k": 0,
-    "suspense": 17
+    "suspense": 0
    },
    "detail": {
     "ok": true,
-    "eps": 4,
+    "eps": 217,
     "err": null
    },
    "search": {
     "ok": true,
-    "n": 3,
-    "ms": 1578,
+    "n": 7,
+    "ms": 225,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 20,
-    "ms": 1928
+    "ms": 1415
    },
    "play": {
-    "ok": true,
-    "ttfb_ms": 705,
-    "kbps": 352,
+    "ok": false,
+    "ttfb_ms": 0,
+    "kbps": 0,
     "range": false,
-    "burst": [
-     {
-      "ms": 1627,
-      "bytes": 65536,
-      "kbps": 322
-     },
-     {
-      "ms": 1390,
-      "bytes": 65536,
-      "kbps": 377
-     },
-     {
-      "ms": 1459,
-      "bytes": 65536,
-      "kbps": 359
-     }
-    ],
-    "err": null,
-    "vq": "master bw=2043000"
+    "burst": [],
+    "err": "m3u8 http 403",
+    "vq": ""
    },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 11.8,
-    "ttfb": 9.8,
-    "kbps": 0.5,
-    "intro": 11.2,
-    "pic": 10.0,
-    "total": 6.7,
-    "search": 8,
-    "eps": 1.2,
-    "range": 0,
-    "stability": 2.6
-   },
-   "score": 61.8,
-   "grade": "C",
-   "cost_ms": 16538,
-   "sample": "步步惊心(泰国版)"
+   "status": "DEAD",
+   "score": 0,
+   "grade": "-",
+   "cost_ms": 4315,
+   "sample": "全民御兽：开局觉醒神话级天赋动态漫"
   },
   {
    "key": "cmov",
@@ -3692,7 +3796,7 @@
    "types": "1,2,3,4,13,16,15,15,14,14,0,6,7,8,9,10,11,12,29,20,22,21,23,24,25,26,0,0,0",
    "list": {
     "ok": true,
-    "ms": 3683,
+    "ms": 2139,
     "n": 20,
     "pic": 20,
     "intro": 19,
@@ -3845,272 +3949,28 @@
    "search": {
     "ok": true,
     "n": 4,
-    "ms": 6037,
+    "ms": 2293,
     "err": null
    },
    "suggest": {
     "ok": true,
     "n": 19,
-    "ms": 1839
+    "ms": 2121
    },
    "play": {
-    "ok": true,
-    "ttfb_ms": 823,
-    "kbps": 492,
-    "range": true,
-    "burst": [
-     {
-      "ms": 1109,
-      "bytes": 65536,
-      "kbps": 472
-     },
-     {
-      "ms": 1051,
-      "bytes": 65536,
-      "kbps": 498
-     },
-     {
-      "ms": 1033,
-      "bytes": 65536,
-      "kbps": 507
-     }
-    ],
-    "err": null,
-    "vq": "master bw=800000"
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 0.0,
-    "ttfb": 9.3,
-    "kbps": 0.7,
-    "intro": 13.8,
-    "pic": 10.0,
-    "total": 7.7,
-    "search": 8,
-    "eps": 0.3,
-    "range": 3,
-    "stability": 2.8
-   },
-   "score": 55.6,
-   "grade": "C",
-   "cost_ms": 21129,
-   "sample": "诡秘之主特别篇猎物"
-  },
-  {
-   "key": "uku",
-   "api": "https://api.ukuapi.com/api.php/provide/vod/",
-   "referer": "https://www.ukuapi.com/",
-   "from": "Src.java",
-   "types": "1,2,3,4,13,16,22,15,14,21,23,6,7,8,9,10,11,12,24,3,0,0,0,4,0,0,32,0,34",
-   "list": {
-    "ok": true,
-    "ms": 1752,
-    "n": 20,
-    "pic": 20,
-    "intro": 4,
-    "total": 60533,
-    "err": null
-   },
-   "classes": [
-    {
-     "id": 1,
-     "name": "电影"
-    },
-    {
-     "id": 2,
-     "name": "电视剧"
-    },
-    {
-     "id": 3,
-     "name": "综艺"
-    },
-    {
-     "id": 4,
-     "name": "动漫"
-    },
-    {
-     "id": 6,
-     "name": "动作片"
-    },
-    {
-     "id": 7,
-     "name": "喜剧片"
-    },
-    {
-     "id": 8,
-     "name": "爱情片"
-    },
-    {
-     "id": 9,
-     "name": "科幻片"
-    },
-    {
-     "id": 10,
-     "name": "恐怖片"
-    },
-    {
-     "id": 11,
-     "name": "剧情片"
-    },
-    {
-     "id": 12,
-     "name": "战争片"
-    },
-    {
-     "id": 13,
-     "name": "国产剧"
-    },
-    {
-     "id": 14,
-     "name": "港澳剧"
-    },
-    {
-     "id": 15,
-     "name": "日剧"
-    },
-    {
-     "id": 16,
-     "name": "欧美剧"
-    },
-    {
-     "id": 20,
-     "name": "动漫电影"
-    },
-    {
-     "id": 21,
-     "name": "台湾剧"
-    },
-    {
-     "id": 22,
-     "name": "韩剧"
-    },
-    {
-     "id": 23,
-     "name": "泰剧"
-    },
-    {
-     "id": 24,
-     "name": "记录片"
-    },
-    {
-     "id": 25,
-     "name": "伦理片"
-    },
-    {
-     "id": 26,
-     "name": "资讯"
-    },
-    {
-     "id": 27,
-     "name": "新闻资讯"
-    },
-    {
-     "id": 28,
-     "name": "预告资讯"
-    },
-    {
-     "id": 30,
-     "name": "影视资讯"
-    },
-    {
-     "id": 31,
-     "name": "明星资讯"
-    },
-    {
-     "id": 32,
-     "name": "短剧"
-    },
-    {
-     "id": 33,
-     "name": "奇幻片"
-    },
-    {
-     "id": 34,
-     "name": "犯罪片"
-    }
-   ],
-   "type_map": {
-    "rec": 0,
-    "movie": 1,
-    "tv": 2,
-    "variety": 3,
-    "anime": 4,
-    "cntv": 13,
-    "westtv": 16,
-    "korea": 22,
-    "japan": 15,
-    "hk": 0,
-    "tw": 21,
-    "thai": 23,
-    "action": 6,
-    "comedy": 7,
-    "romance": 8,
-    "scifi": 9,
-    "horror": 10,
-    "war": 12,
-    "doc": 0,
-    "short": 32,
-    "4k": 0,
-    "suspense": 0
-   },
-   "detail": {
-    "ok": true,
-    "eps": 1,
-    "err": null
-   },
-   "search": {
-    "ok": true,
-    "n": 3,
-    "ms": 1343,
-    "err": null
-   },
-   "suggest": {
     "ok": false,
-    "n": 0,
-    "ms": 1266
+    "ttfb_ms": 0,
+    "kbps": 0,
+    "range": false,
+    "burst": [],
+    "err": "m3u8 http 403",
+    "vq": ""
    },
-   "play": {
-    "ok": true,
-    "ttfb_ms": 816,
-    "kbps": 473,
-    "range": true,
-    "burst": [
-     {
-      "ms": 1025,
-      "bytes": 61100,
-      "kbps": 476
-     },
-     {
-      "ms": 1041,
-      "bytes": 61100,
-      "kbps": 469
-     },
-     {
-      "ms": 1029,
-      "bytes": 61100,
-      "kbps": 475
-     }
-    ],
-    "err": null,
-    "vq": "master bw=2000000"
-   },
-   "status": "OK",
-   "score_parts": {
-    "list_ms": 11.3,
-    "ttfb": 9.4,
-    "kbps": 0.6,
-    "intro": 0.0,
-    "pic": 10.0,
-    "total": 6.4,
-    "search": 8,
-    "eps": 0.3,
-    "range": 3,
-    "stability": 3.0
-   },
-   "score": 51.9,
-   "grade": "C",
-   "cost_ms": 13031,
-   "sample": "交换身份过圣诞"
+   "status": "DEAD",
+   "score": 0,
+   "grade": "-",
+   "cost_ms": 12154,
+   "sample": "诡秘之主特别篇猎物"
   }
  ]
 }
