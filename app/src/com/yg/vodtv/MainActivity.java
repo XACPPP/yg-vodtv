@@ -1665,19 +1665,34 @@ public final class MainActivity extends Activity {
             openSearch();
             return true;
         }
-        // v2.10：方向键/OK 一按，就算用户开始选片了，dock 从占位态切成真实内容。
-        switch (code) {
-            case KeyEvent.KEYCODE_DPAD_UP:
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                armDock();
-                break;
-            default:
-                break;
-        }
         return super.onKeyDown(code, e);
+    }
+
+    /**
+     * v2.17：dock 的枚举必须挂在 dispatchKeyEvent 上，不能挂 onKeyDown。
+     *
+     * onKeyDown 只有「没有任何控件消费这个键」时才会轮到 Activity ——
+     * 而方向键、OK 这些正是焦点系统（ScrollView / 卡片 / 胶囊）一定会吃掉的键，
+     * 所以 v2.10 写的 armDock() 一次都没被触发过：真机上前前后后上下左右按一圈，
+     * dock 永远停在「还没选片」。dispatchKeyEvent 是整棵视图树之前的第一道关口，
+     * 在这里拦一下既能把 dock 叫醒，又不用改任何子控件的按键逻辑。
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER:
+                    armDock();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return super.dispatchKeyEvent(e);
     }
 }
