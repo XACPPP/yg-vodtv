@@ -289,6 +289,15 @@ def _rank_key(item):
 - `_kbps_band()`：≥3000→0、≥1500→1、≥800→2、>0→3、无数据→4
 - `buckets` 里存的四元组随之变成 `(ttfb, url, res, kbps)`
 
+#### 四、实发记录
+
+- 提交 `7dd2f35`「v2.10：直播提速（列表短超时+多档回退+记线路）与 dock 未选片占位」已推 `origin/master`，tag `v2.10` 已推。
+- 本地只跑了 `javac` 全量语法/类型检查（0 error，**不产 APK**，按规矩不在本机打包）+ `test/harness/run.sh` 16 项全过。
+- CI run [`43431811845`](https://github.com/XACPPP/yg-vodtv/actions/runs/43431811845) success。
+- Release <https://github.com/XACPPP/yg-vodtv/releases/tag/v2.10>，资产 `YGTV.apk` / `YG.TV.apk` 均 **572345 字节**。
+- 待真机确认：①首页进影视板块，dock 应是「还没选片」而不是第一部片的简介；②同一个直播台第二次进，
+  抽屉里副标题的「第 N/5 路源」应停在上次成功的那一路。
+
 ### v2.9：首页一片空白 —— 是我自己加的渐隐层把海报墙挤成了 0 高
 
 v2.8 发出去之后，老板在手机上打开影视板块：
