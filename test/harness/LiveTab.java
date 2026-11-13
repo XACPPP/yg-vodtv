@@ -73,8 +73,8 @@ public final class LiveTab {
         for (int i = 0; i < gs.size(); i++) {
             rc += gs.get(i).chs.size();
         }
-        // 参与统计的还有内置江西电信的 12 台，所以总数是 3 + 12
-        ok("channelCount 三台", rc == 3 && Live.channelCount() == 15);
+        // 参与统计的还有内置江西电信的 165 台，所以总数是 3 + 内置台数
+        ok("channelCount 三台", rc == 3 && Live.channelCount() == 3 + builtinJxChannels());
         ok("groupCount 两组", Live.groupCount() == 2 + builtinJxGroups());
     }
 
@@ -214,18 +214,35 @@ public final class LiveTab {
         return n;
     }
 
+    private static int builtinJxChannels() {
+        int n = 0;
+        List<Live.Group> all = Live.groups();
+        for (int i = 0; i < all.size(); i++) {
+            if (isJx(all.get(i))) {
+                n += all.get(i).chs.size();
+            }
+        }
+        return n;
+    }
+
     /**
-     * 江西电信组：必须排在最前、两个组 12 台、每条线路都带 ?fmt=ts2hls。
+     * 江西电信内置表：必须排在最前、五个分组、165 台、每条线路都带 ?fmt=ts2hls。
      *
      * 这组是写死在源码里的内网单播源（CI 在公网，巡检必然判死，只能内置），
      * 所以这里断言的是「代码没被改坏」，不是「线路一定活着」。
+     * v2.14 起从 12 台扩到 165 台，「(备)」那几路已经并成同一台的第 2 条线路，
+     * 所以断言也要跟着改成「≥ 而不是 ==」，并单独验一次台内合并。
      */
     private static void testJiangxi() {
         List<Live.Group> all = Live.groups();
         ok("江西电信组排在最前", !all.isEmpty() && isJx(all.get(0)));
-        ok("江西电信两组", builtinJxGroups() == 2);
+        ok("江西电信五个分组", builtinJxGroups() == 5);
+        ok("第一组是江西本地", "jxitv".equals(all.get(0).id) && "江西本地".equals(all.get(0).name));
         int chs = 0;
+        int urls = 0;
         boolean allFmt = true;
+        boolean allHost = true;
+        boolean multi = false;
         for (int i = 0; i < all.size(); i++) {
             Live.Group g = all.get(i);
             if (!isJx(g)) {
@@ -234,14 +251,44 @@ public final class LiveTab {
             for (int j = 0; j < g.chs.size(); j++) {
                 Live.Ch c = g.chs.get(j);
                 chs++;
-                if (c.urls.size() != 1 || c.urls.get(0).indexOf("fmt=ts2hls") < 0) {
-                    allFmt = false;
+                if (c.urls.size() > 1) {
+                    multi = true;
+                }
+                for (int k = 0; k < c.urls.size(); k++) {
+                    urls++;
+                    String u = c.urls.get(k);
+                    if (u.indexOf("fmt=ts2hls") < 0) {
+                        allFmt = false;
+                    }
+                    if (u.indexOf("/PLTV/88888888/224/") < 0) {
+                        allHost = false;
+                    }
                 }
             }
         }
-        ok("江西电信 12 台", chs == 12);
+        ok("江西电信 165 台", chs == 165);
+        ok("江西电信 174 条线路", urls == 174);
         ok("每条线路都带 fmt=ts2hls", allFmt);
-        ok("台名带江西卫视", all.get(0).chs.get(0).name.indexOf("江西") >= 0);
+        ok("每条线路都走 PLTV 单播口", allHost);
+        ok("备用线路已并入同一个台", multi);
+        ok("台名没有残留(备)", noBeiyong(all));
+    }
+
+    /** 「(备)」「(备用)」这类后缀应该已经在数据里并掉，不能当成独立台。 */
+    private static boolean noBeiyong(List<Live.Group> all) {
+        for (int i = 0; i < all.size(); i++) {
+            Live.Group g = all.get(i);
+            if (!isJx(g)) {
+                continue;
+            }
+            for (int j = 0; j < g.chs.size(); j++) {
+                String n = g.chs.get(j).name;
+                if (n.indexOf("(备") >= 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /** ==================== 断言工具 ==================== */

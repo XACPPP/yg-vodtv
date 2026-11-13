@@ -114,48 +114,218 @@ public final class Live {
     private static final List<Group> ALL = new ArrayList<Group>();
 
     /**
-     * 江西电信 IPTV 内置组（v2.11 新增）。
+     * 江西电信 IPTV 内置分组（v2.11 起）。
      *
      * 为什么写死在源码里而不是交给 CI 巡检：
-     *   1. 115.153.245.70 是电信运营商内网的 IPTV 单播地址，只有电信宽带用户自己
-     *      的链路能到；GitHub Actions 的 runner 在公网，pingscan 必然判死并把它剪掉。
-     *   2. 这 12 路实测 TTFB 22~27ms、单档 8.4~9.4Mbps、10 秒分片 4.5~5.5 秒下完，
-     *      比公网那些转了好几手的境外镜像源（200~2000ms、常年掉帧）好一个数量级。
-     *      老板家的宽带正好是电信，这就是他能拿到的最快源。
-     *   3. 路径里的 `?fmt=ts2hls` 是华为 RTSP→HLS 转换口的必需参数，少了直接 404。
-     * 非电信线路打开这些台会连不上，播放页会自动跳过并换下一路，不会卡死在黑屏。
+     *   1. 115.153.245.70 这类地址是电信运营商内网的 IPTV 单播口，只有电信家宽
+     *      自己的链路能到；GitHub Actions 的 runner 在公网，probe 必然判死并剪掉。
+     *   2. 实测 TTFB 20~30ms、单档 8.4~9.4Mbps、10 秒分片 4.5~5.5 秒下完，
+     *      比公网转了几手的境外镜像（200~2000ms、常年掉帧）好一个数量级。
+     *   3. 路径里的 `?fmt=ts2hls` 是华为 RTSP→HLS 转换口的必需参数，少了直接 404；
+     *      master 里的变体行 `01.m3u8?fmt=ts2hls,7824,01.m3u8,0,8467,0,0` 里那串
+     *      逗号参数也必须原样带着，砍掉就又会跳回 master。
+     *
+     * v2.14：从 12 台扩到 165 台 / 174 条线路（判活脚本只拉 m3u8 列表、不碰 .ts，
+     * 6 线程 + 4/8 秒超时，全表复测过一遍；已知失效的 CCTV-3/5/5+/6/8、
+     * 江西影视旅游、天翼高清 1~10、直播室 201~211 等 262 条没有进来）。
+     *
+     * 台名重复的（CCTV-1、江西都市、西藏/新疆/兵团卫视、金鹰卡通、国学、爱体育）
+     * 已经把「(备)」那一路并成同一台的第 2 条线路，播放页换源时会在台内切换，
+     * 而不是在台列表里多出一行带括号的重复台。
+     *
+     * 非电信线路打开这些台会连不上，播放页会自动跳过并换下一路，不会卡在黑屏。
      */
-    private static final String JX_TELECOM =
-            "{\n"
-                    + "  \"version\": 1,\n"
-                    + "  \"groups\": [\n"
-                    + "    {\"id\": \"jxitv\", \"name\": \"江西电信\", \"chs\": [\n"
-                    + jx("江西卫视", "3221226656", "46275837") + ",\n"
-                    + jx("江西都市", "3221227069", "94448631") + ",\n"
-                    + jx("江西经济生活", "3221226946", "70055407") + ",\n"
-                    + jx("江西公共农业", "3221226708", "53213097") + ",\n"
-                    + jx("江西新闻", "3221226650", "53190437") + ",\n"
-                    + jx("江西少儿", "3221226938", "68733921") + ",\n"
-                    + jx("江西教育", "3221226942", "69552502") + "\n"
-                    + "    ]},\n"
-                    + "    {\"id\": \"jxitv2\", \"name\": \"电信央视卫视\", \"chs\": [\n"
-                    + jx("CCTV-1 综合", "3221225699", "iptv8040") + ",\n"
-                    + jx("CCTV-13 新闻", "3221227037", "87447722") + ",\n"
-                    + jx("湖南卫视", "3221225697", "iptv8039") + ",\n"
-                    + jx("浙江卫视", "3221225768",
-                    "10000100000000060000000000913518_0") + ",\n"
-                    + jx("东方卫视", "3221225770",
-                    "10000100000000060000000000913526_0") + "\n"
-                    + "    ]}\n"
-                    + "  ]\n"
-                    + "}";
+    private static final String[] JX_GROUP_DEFS = {
+            "jxitv|江西本地",
+            "jxcctv|央视",
+            "jxws|卫视",
+            "jxfilm|影视剧场",
+            "jxmore|付费专业",
+    };
 
-    /** 拼一路江西电信频道的 JSON（路径固定，只有频道 ID 和令牌变）。 */
-    private static String jx(String name, String id, String token) {
-        return "      {\"name\": \"" + name + "\", \"logo\": \"\", \"urls\": ["
-                + "\"http://115.153.245.70/PLTV/88888888/224/" + id + "/" + token
-                + ".smil/index.m3u8?fmt=ts2hls\"]}";
-    }
+    /**
+     * 江西电信内置源：一行一台，格式「组id|台名|完整线路」。
+     *
+     * 用「一行一条」的纯文本表而不是 JSON 字符串，是为了改源时只动一行、不碰转义，
+     * 也避免 170 多条 JSON 拼串里的一个引号写错就让整张表解析失败。组装在
+     * {@link #jxTable()} 里做，字段清洗规则和远端表一致（只要 http/https）。
+     */
+    private static final String[] JX_SOURCES = {
+            "jxitv|江西卫视|http://115.153.245.70/PLTV/88888888/224/3221226656/46275837.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西都市|http://115.153.245.70/PLTV/88888888/224/3221226728/53707442.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西都市|http://115.153.245.70/PLTV/88888888/224/3221227069/94448631.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西经济生活|http://115.153.245.70/PLTV/88888888/224/3221226946/70055407.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西经济生活|http://115.153.245.70/PLTV/88888888/224/3221226717/53707446.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西新闻|http://115.153.245.70/PLTV/88888888/224/3221226650/53190437.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西公共农业|http://115.153.245.70/PLTV/88888888/224/3221226708/53213097.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西少儿|http://115.153.245.70/PLTV/88888888/224/3221226938/68733921.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|江西教育|http://115.153.245.70/PLTV/88888888/224/3221226942/69552502.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|赣州新闻综合|http://115.153.230.145/PLTV/88888888/224/3221227254/121266741.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|赣州公共|http://115.153.230.145/PLTV/88888888/224/3221227262/121375235.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|南昌新闻综合|http://115.153.254.81/PLTV/88888888/224/3221227078/113409131.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|南昌都市频道|http://115.153.254.81/PLTV/88888888/224/3221227075/113409249.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|南昌资讯频道|http://115.153.254.81/PLTV/88888888/224/3221227080/113409255.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|九江新闻综合|http://115.153.245.70/PLTV/88888888/224/3221227268/122499157.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|九江公共|http://115.153.245.70/PLTV/88888888/224/3221227270/122499168.smil/index.m3u8?fmt=ts2hls",
+            "jxitv|九江教育|http://115.153.245.70/PLTV/88888888/224/3221225607/iptv7994.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-1 综合|http://115.153.245.70/PLTV/88888888/224/3221225699/iptv8040.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-1 综合|http://115.153.245.70/PLTV/88888888/224/3221225517/iptv7949.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-2 财经|http://115.153.245.70/PLTV/88888888/224/3221226825/59814584.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-4 国际|http://115.153.245.70/PLTV/88888888/224/3221226838/59814684.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-7 国防军事|http://115.153.245.70/PLTV/88888888/224/3221226827/59814693.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-9 纪录|http://115.153.245.70/PLTV/88888888/224/3221226840/59814699.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-10 科教|http://115.153.245.70/PLTV/88888888/224/3221226630/51813372.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-11 戏曲|http://115.153.245.70/PLTV/88888888/224/3221226986/85722616.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-12 社会与法|http://115.153.245.70/PLTV/88888888/224/3221226829/59814709.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-13 新闻|http://115.153.245.70/PLTV/88888888/224/3221227037/87447722.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-14 少儿|http://115.153.245.70/PLTV/88888888/224/3221226634/51813368.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-15 音乐|http://115.153.245.70/PLTV/88888888/224/3221226988/85722541.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-16 奥林匹克|http://115.153.245.70/PLTV/88888888/224/3221227051/92603106.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-17 农业农村|http://115.153.245.70/PLTV/88888888/224/3221226846/61397282.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-4K 超高清|http://115.153.245.70/PLTV/88888888/224/3221227073/106537394.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-4 欧洲|http://115.153.245.70/PLTV/88888888/224/3221226964/77799053.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV-4 美洲|http://115.153.245.70/PLTV/88888888/224/3221226962/77799052.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CCTV16-4K|http://115.153.233.154/PLTV/88888888/224/3221227051/92603106.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CETV-1|http://115.153.245.70/PLTV/88888888/224/3221226858/63768493.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CETV-2|http://115.153.245.70/PLTV/88888888/224/3221226978/85722625.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CETV-4|http://115.153.245.70/PLTV/88888888/224/3221226905/65242632.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CGTN|http://115.153.245.70/PLTV/88888888/224/3221226694/55738457.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CGTN 纪录|http://115.153.245.70/PLTV/88888888/224/3221226960/77798993.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|CGTN 英语纪录|http://115.153.245.70/PLTV/88888888/224/3221226947/77798966.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|中国环球法语|http://115.153.245.70/PLTV/88888888/224/3221226968/77799060.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|中国环球俄语|http://115.153.245.70/PLTV/88888888/224/3221226966/77798997.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|中国环球西班牙语|http://115.153.245.70/PLTV/88888888/224/3221226949/77798970.smil/index.m3u8?fmt=ts2hls",
+            "jxcctv|中国环球阿拉伯语|http://115.153.245.70/PLTV/88888888/224/3221226951/77799001.smil/index.m3u8?fmt=ts2hls",
+            "jxws|湖南卫视|http://115.153.245.70/PLTV/88888888/224/3221225697/iptv8039.smil/index.m3u8?fmt=ts2hls",
+            "jxws|浙江卫视|http://115.153.245.70/PLTV/88888888/224/3221225768/10000100000000060000000000913518_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|江苏卫视|http://115.153.245.70/PLTV/88888888/224/3221225766/10000100000000060000000000913517_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|东方卫视|http://115.153.245.70/PLTV/88888888/224/3221225770/10000100000000060000000000913526_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|北京卫视|http://115.153.245.70/PLTV/88888888/224/3221225546/iptv51912.smil/index.m3u8?fmt=ts2hls",
+            "jxws|广东卫视|http://115.153.245.70/PLTV/88888888/224/3221225957/10000100000000060000000000913519_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|深圳卫视|http://115.153.245.70/PLTV/88888888/224/3221225764/10000100000000060000000000913503_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|安徽卫视|http://115.153.245.70/PLTV/88888888/224/3221226622/51176344.smil/index.m3u8?fmt=ts2hls",
+            "jxws|山东卫视|http://115.153.245.70/PLTV/88888888/224/3221225919/10000100000000060000000000811554_0.smil/index.m3u8?fmt=ts2hls",
+            "jxws|湖北卫视|http://115.153.245.70/PLTV/88888888/224/3221225827/10000100000000060000000000470332_2.smil/index.m3u8?fmt=ts2hls",
+            "jxws|河南卫视|http://115.153.245.70/PLTV/88888888/224/3221226842/59814787.smil/index.m3u8?fmt=ts2hls",
+            "jxws|四川卫视|http://115.153.245.70/PLTV/88888888/224/3221226693/51813384.smil/index.m3u8?fmt=ts2hls",
+            "jxws|重庆卫视|http://115.153.245.70/PLTV/88888888/224/3221226638/51813388.smil/index.m3u8?fmt=ts2hls",
+            "jxws|天津卫视|http://115.153.245.70/PLTV/88888888/224/3221226652/46098366.smil/index.m3u8?fmt=ts2hls",
+            "jxws|北京卫视4K|http://115.153.245.70/PLTV/88888888/224/3221227248/119886813.smil/index.m3u8?fmt=ts2hls",
+            "jxws|三沙卫视|http://115.153.245.70/PLTV/88888888/224/3221226984/85722645.smil/index.m3u8?fmt=ts2hls",
+            "jxws|东南卫视|http://115.153.245.70/PLTV/88888888/224/3221226677/51176347.smil/index.m3u8?fmt=ts2hls",
+            "jxws|云南卫视|http://115.153.245.70/PLTV/88888888/224/3221226937/72640386.smil/index.m3u8?fmt=ts2hls",
+            "jxws|兵团卫视|http://115.153.245.70/PLTV/88888888/224/3221227278/123649594.smil/index.m3u8?fmt=ts2hls",
+            "jxws|兵团卫视|http://115.153.245.70/PLTV/88888888/224/3221225753/iptv101723.smil/index.m3u8?fmt=ts2hls",
+            "jxws|内蒙古卫视|http://115.153.245.70/PLTV/88888888/224/3221225591/iptv7986.smil/index.m3u8?fmt=ts2hls",
+            "jxws|厦门卫视|http://115.153.245.70/PLTV/88888888/224/3221226982/85722609.smil/index.m3u8?fmt=ts2hls",
+            "jxws|吉林卫视|http://115.153.245.70/PLTV/88888888/224/3221226831/59814731.smil/index.m3u8?fmt=ts2hls",
+            "jxws|宁夏卫视|http://115.153.245.70/PLTV/88888888/224/3221225747/iptv101619.smil/index.m3u8?fmt=ts2hls",
+            "jxws|山西卫视|http://115.153.245.70/PLTV/88888888/224/3221225551/iptv7966.smil/index.m3u8?fmt=ts2hls",
+            "jxws|广西卫视|http://115.153.245.70/PLTV/88888888/224/3221226954/71778425.smil/index.m3u8?fmt=ts2hls",
+            "jxws|新疆卫视|http://115.153.245.70/PLTV/88888888/224/3221227273/123649589.smil/index.m3u8?fmt=ts2hls",
+            "jxws|新疆卫视|http://115.153.245.70/PLTV/88888888/224/3221225550/iptv61197.smil/index.m3u8?fmt=ts2hls",
+            "jxws|河北卫视|http://115.153.245.70/PLTV/88888888/224/3221226821/59781859.smil/index.m3u8?fmt=ts2hls",
+            "jxws|海南卫视|http://115.153.245.70/PLTV/88888888/224/3221226933/70442779.smil/index.m3u8?fmt=ts2hls",
+            "jxws|西藏卫视|http://115.153.245.70/PLTV/88888888/224/3221227276/123649585.smil/index.m3u8?fmt=ts2hls",
+            "jxws|西藏卫视|http://115.153.245.70/PLTV/88888888/224/3221225570/iptv101725.smil/index.m3u8?fmt=ts2hls",
+            "jxws|贵州卫视|http://115.153.245.70/PLTV/88888888/224/3221226833/59814738.smil/index.m3u8?fmt=ts2hls",
+            "jxws|辽宁卫视|http://115.153.245.70/PLTV/88888888/224/3221226649/46098370.smil/index.m3u8?fmt=ts2hls",
+            "jxws|陕西卫视|http://115.153.245.70/PLTV/88888888/224/3221225755/iptv101726.smil/index.m3u8?fmt=ts2hls",
+            "jxws|青海卫视|http://115.153.245.70/PLTV/88888888/224/3221225589/iptv7985.smil/index.m3u8?fmt=ts2hls",
+            "jxws|黑龙江卫视|http://115.153.245.70/PLTV/88888888/224/3221225584/10000100000000060000000000031778_0.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|CHC动作电影|http://115.153.245.70/PLTV/88888888/224/3221226992/86128817.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|CHC家庭影院|http://115.153.245.70/PLTV/88888888/224/3221226959/86128800.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|CHC高清电影|http://115.153.245.70/PLTV/88888888/224/3221226990/86128784.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|IPTV谍战剧场|http://115.153.245.70/PLTV/88888888/224/3221227016/86441085.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|光影|http://115.153.245.70/PLTV/88888888/224/3221227013/86502094.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|军旅剧场|http://115.153.245.70/PLTV/88888888/224/3221226995/86441107.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|动作影院|http://115.153.245.70/PLTV/88888888/224/3221226999/86441130.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|古装剧场|http://115.153.245.70/PLTV/88888888/224/3221227020/86441115.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|喜剧影院|http://115.153.245.70/PLTV/88888888/224/3221226997/86441126.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|城市剧场|http://115.153.245.70/PLTV/88888888/224/3221227018/86441003.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|墨宝|http://115.153.245.70/PLTV/88888888/224/3221227032/86502054.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|家庭影院|http://115.153.245.70/PLTV/88888888/224/3221227022/86441136.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|怀旧剧场|http://115.153.245.70/PLTV/88888888/224/3221226996/86128881.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|星影|http://115.153.245.70/PLTV/88888888/224/3221227042/86502073.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|武侠剧场|http://115.153.245.70/PLTV/88888888/224/3221227003/86441017.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|热播剧场|http://115.153.245.70/PLTV/88888888/224/3221227008/86440955.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|爱大剧|http://115.153.245.70/PLTV/88888888/224/3221227014/86441032.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|爱电影|http://115.153.245.70/PLTV/88888888/224/3221226985/86441021.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|第一剧场|http://115.153.245.70/PLTV/88888888/224/3221226961/86128891.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|精选|http://115.153.245.70/PLTV/88888888/224/3221227005/86441212.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|经典电影|http://115.153.245.70/PLTV/88888888/224/3221227010/86440860.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|芒果跨年(特写)|http://115.153.245.70/PLTV/88888888/224/3221226956/72788191.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|芒果跨年云监工|http://115.153.245.70/PLTV/88888888/224/3221226958/72788248.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|鉴赏|http://115.153.245.70/PLTV/88888888/224/3221227011/86502050.smil/index.m3u8?fmt=ts2hls",
+            "jxfilm|风云剧场|http://115.153.245.70/PLTV/88888888/224/3221226963/86128874.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|IPTV法治|http://115.153.245.70/PLTV/88888888/224/3221226993/86440997.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|IPTV相声小品|http://115.153.245.70/PLTV/88888888/224/3221226989/86441091.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|IPTV野外|http://115.153.245.70/PLTV/88888888/224/3221226991/86441042.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|世界地理|http://115.153.245.70/PLTV/88888888/224/3221226965/86128966.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|东方财经|http://115.153.245.70/PLTV/88888888/224/3221225609/iptv7995.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|中国天气|http://115.153.245.70/PLTV/88888888/224/3221227056/89471929.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|书画|http://115.153.245.70/PLTV/88888888/224/3221226971/86128924.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|优优宝贝|http://115.153.245.70/PLTV/88888888/224/3221227050/86502131.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|军事|http://115.153.245.70/PLTV/88888888/224/3221227038/86502156.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|动漫秀场|http://115.153.245.70/PLTV/88888888/224/3221225613/iptv7997.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|动画|http://115.153.245.70/PLTV/88888888/224/3221227009/86502150.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|卡酷少儿|http://115.153.245.70/PLTV/88888888/224/3221225566/iptv101695.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|台球|http://115.153.245.70/PLTV/88888888/224/3221227034/86502060.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|嘉佳卡通|http://115.153.245.70/PLTV/88888888/224/3221225588/10000100000000060000000000140157_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|四海钓鱼|http://115.153.245.70/PLTV/88888888/224/3221227048/86502173.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|国学|http://115.153.245.70/PLTV/88888888/224/3221226797/59781463.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|国学|http://115.153.245.70/PLTV/88888888/224/3221227028/86441216.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|地理|http://115.153.245.70/PLTV/88888888/224/3221227040/86502111.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|央视台球|http://115.153.245.70/PLTV/88888888/224/3221226955/86106661.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|央视精品|http://115.153.245.70/PLTV/88888888/224/3221226957/86128679.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|女性时尚|http://115.153.245.70/PLTV/88888888/224/3221226998/86128978.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|好学生|http://115.153.245.70/PLTV/88888888/224/3221227026/86441141.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|少儿动画|http://115.153.245.70/PLTV/88888888/224/3221227006/86440922.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|山东教育|http://115.153.245.70/PLTV/88888888/224/3221226980/85722602.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|快乐垂钓|http://115.153.245.70/PLTV/88888888/224/3221226834/59781974.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|戏曲|http://115.153.245.70/PLTV/88888888/224/3221227030/86441159.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|收视指南|http://115.153.245.70/PLTV/88888888/224/3221226987/86440886.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|文物宝库|http://115.153.245.70/PLTV/88888888/224/3221226808/59781526.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|早教|http://115.153.245.70/PLTV/88888888/224/3221227007/86441065.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|梨园|http://115.153.245.70/PLTV/88888888/224/3221226822/59781815.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|武术|http://115.153.245.70/PLTV/88888888/224/3221227017/86502065.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|武术世界|http://115.153.245.70/PLTV/88888888/224/3221226824/59781846.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|汽摩|http://115.153.245.70/PLTV/88888888/224/3221226819/59781852.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|游戏风云|http://115.153.245.70/PLTV/88888888/224/3221225615/iptv7998.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|爱上4K|http://115.153.245.70/PLTV/88888888/224/3221227025/86502164.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|爱体育|http://115.153.245.70/PLTV/88888888/224/3221227012/86440946.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|爱体育|http://115.153.245.70/PLTV/88888888/224/3221227044/86502115.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|爱生活|http://115.153.245.70/PLTV/88888888/224/3221227024/86441150.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|爱综艺|http://115.153.245.70/PLTV/88888888/224/3221226983/86440966.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|环球奇观|http://115.153.245.70/PLTV/88888888/224/3221226977/86128939.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|环球旅游|http://115.153.245.70/PLTV/88888888/224/3221227033/86502177.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|电视指南|http://115.153.245.70/PLTV/88888888/224/3221226969/86129034.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|美人|http://115.153.245.70/PLTV/88888888/224/3221227015/86502099.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|美妆|http://115.153.245.70/PLTV/88888888/224/3221227021/86502160.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|解密|http://115.153.245.70/PLTV/88888888/224/3221227023/86502069.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|财富天下|http://115.153.245.70/PLTV/88888888/224/3221227068/95616594.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|足球|http://115.153.245.70/PLTV/88888888/224/3221227019/86502107.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|金鹰卡通|http://115.153.245.70/PLTV/88888888/224/3221226972/80382319.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|金鹰卡通|http://115.153.245.70/PLTV/88888888/224/3221225585/iptv7983.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|金鹰纪实|http://115.153.245.70/PLTV/88888888/224/3221226823/59781863.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|音乐现场|http://115.153.245.70/PLTV/88888888/224/3221227001/86441055.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|风云足球|http://115.153.245.70/PLTV/88888888/224/3221227000/86128919.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|风云音乐|http://115.153.245.70/PLTV/88888888/224/3221226994/86128897.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|高尔夫网球|http://115.153.245.70/PLTV/88888888/224/3221226967/86128985.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|高网|http://115.153.245.70/PLTV/88888888/224/3221227036/86502103.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|魅力时尚|http://115.153.245.70/PLTV/88888888/224/3221226981/86440822.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室101|http://115.153.245.70/PLTV/88888888/224/3221226231/10000100000000060000000001398612_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室102|http://115.153.245.70/PLTV/88888888/224/3221226208/10000100000000060000000001398613_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室103|http://115.153.245.70/PLTV/88888888/224/3221226234/10000100000000060000000001398614_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室104|http://115.153.245.70/PLTV/88888888/224/3221226228/10000100000000060000000001398576_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室105|http://115.153.245.70/PLTV/88888888/224/3221226211/10000100000000060000000001398615_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室106|http://115.153.245.70/PLTV/88888888/224/3221226237/10000100000000060000000001398616_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室107|http://115.153.245.70/PLTV/88888888/224/3221226214/10000100000000060000000001398617_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室108|http://115.153.245.70/PLTV/88888888/224/3221226252/10000100000000060000000001408355_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室109|http://115.153.245.70/PLTV/88888888/224/3221226226/10000100000000060000000001408356_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室110|http://115.153.245.70/PLTV/88888888/224/3221226255/10000100000000060000000001408357_0.smil/index.m3u8?fmt=ts2hls",
+            "jxmore|直播室111|http://115.153.245.70/PLTV/88888888/224/3221226229/10000100000000060000000001408358_0.smil/index.m3u8?fmt=ts2hls",
+    };
 
     /** 内置表的组数 / 台数，编译期就算好，自检页拿它和当前值对比。 */
     private static final int BUILTIN_GROUPS;
@@ -196,14 +366,65 @@ public final class Live {
         }
     }
 
-    /** 江西电信内置组：解析失败就当作没有这组，其它源照常可用。 */
+    /**
+     * 把 JX_SOURCES 按 JX_GROUP_DEFS 的顺序组装成分组。
+     *
+     * 同一个台名出现多行（主线路 + 备用线路）时并成同一个台的多条 urls，播放页
+     * autoNext 会在台内换线，而不是在台列表里多摆一行「XX(备)」让人误以为是另一个台。
+     * 任何一行写坏只丢那一行（Trace.err 留痕），不牵连整张表。
+     */
     private static List<Group> jxTable() {
-        try {
-            return parse(JX_TELECOM);
-        } catch (Throwable t) {
-            Trace.err("live", "江西电信表解析失败", t);
-            return new ArrayList<Group>();
+        List<Group> out = new ArrayList<Group>();
+        for (int i = 0; i < JX_GROUP_DEFS.length; i++) {
+            String def = JX_GROUP_DEFS[i];
+            int bar = def.indexOf('|');
+            if (bar <= 0 || bar >= def.length() - 1) {
+                Trace.err("live", "江西电信分组定义写坏：" + def, null);
+                continue;
+            }
+            String id = def.substring(0, bar).trim();
+            String gname = def.substring(bar + 1).trim();
+            // LinkedHashMap 保序：台序就是数据表里的书写顺序
+            java.util.LinkedHashMap<String, List<String>> byName =
+                    new java.util.LinkedHashMap<String, List<String>>();
+            for (int j = 0; j < JX_SOURCES.length; j++) {
+                String row = JX_SOURCES[j];
+                if (row == null) {
+                    continue;
+                }
+                int b1 = row.indexOf('|');
+                int b2 = b1 < 0 ? -1 : row.indexOf('|', b1 + 1);
+                if (b1 <= 0 || b2 <= b1 + 1) {
+                    Trace.err("live", "江西电信源格式写坏：" + row, null);
+                    continue;
+                }
+                if (!id.equals(row.substring(0, b1).trim())) {
+                    continue;
+                }
+                String cname = row.substring(b1 + 1, b2).trim();
+                String url = row.substring(b2 + 1).trim();
+                if (cname.length() == 0
+                        || !(url.startsWith("http://") || url.startsWith("https://"))) {
+                    continue;
+                }
+                List<String> bucket = byName.get(cname);
+                if (bucket == null) {
+                    bucket = new ArrayList<String>(2);
+                    byName.put(cname, bucket);
+                }
+                if (!bucket.contains(url)) {
+                    bucket.add(url);
+                }
+            }
+            List<Ch> chs = new ArrayList<Ch>(byName.size());
+            for (java.util.Map.Entry<String, List<String>> e : byName.entrySet()) {
+                chs.add(new Ch(e.getKey(), "", e.getValue()));
+            }
+            if (!chs.isEmpty()) {
+                out.add(new Group(id, gname, chs));
+            }
         }
+        return out;
     }
 
     /**
