@@ -166,6 +166,7 @@ public final class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        Trace.attach(this);
         Ui.init(this);
         Store.init(this);
         Cache.init(this);
@@ -737,31 +738,26 @@ public final class MainActivity extends Activity {
         if (v == null || dock == null) {
             return;
         }
-        // v2.10：用户还没动过遥控器时不填内容（首屏 autoFocus 会把第一部片灌进来）。
-        if (!dockArmed) {
-            return;
-        }
+        // v2.19：首屏 autoFocus 不再「什么都不填」。
+        // v2.10 是为了别一进 App 就灌第一部片的简介，但结果是更糟的自相矛盾：
+        // 第一张卡明明已经亮着描边、写着「● 正在选中」，dock 却写「还没选片」、
+        // 两个按钮还是禁用灰 —— 用户会以为界面卡住了（老板就是这么报的）。
+        // 现在：片名/年份/类型照填（事实如此），简介位置先放「下一步怎么按」，
+        // 等用户真的按了方向键（armDock）才换成剧情简介。
         dockVod = v;
         dockTitle.setText(v.name);
-        StringBuilder sb = new StringBuilder();
-        if (v.year != null && v.year.trim().length() > 0) {
-            sb.append(v.year.trim());
-        }
-        if (v.area != null && v.area.trim().length() > 0) {
-            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.area.trim());
-        }
-        if (v.typeName != null && v.typeName.trim().length() > 0) {
-            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.typeName.trim());
-        }
-        if (v.remarks != null && v.remarks.trim().length() > 0) {
-            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.remarks.trim());
-        }
+        String meta = Cards.meta("   ·   ", v.year, v.area, v.typeName, v.remarks);
         if (v.director != null && v.director.trim().length() > 0) {
-            sb.append(sb.length() > 0 ? "   ·   " : "").append(v.director.trim()).append(" 导演");
+            String dir = v.director.trim() + " 导演";
+            meta = meta.length() == 0 ? dir : meta + "   ·   " + dir;
         }
-        dockMeta.setText(sb.length() > 0 ? sb.toString() : " ");
-        String intro = v.intro();
-        dockIntro.setText(intro.length() > 0 ? intro : " ");
+        dockMeta.setText(meta.length() > 0 ? meta : " ");
+        if (dockArmed) {
+            String intro = v.intro();
+            dockIntro.setText(intro.length() > 0 ? intro : " ");
+        } else {
+            dockIntro.setText("按 OK 看详情 · 方向键换片 · 菜单搜索");
+        }
         // 有片可看了才把两个按钮点亮/允许聚焦。
         setDockBtnEnabled(dockDetailBtn, true);
         setDockBtnEnabled(dockPlayBtn, true);

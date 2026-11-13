@@ -57,6 +57,7 @@ mkdir -p "$OUT"
     android/os/Environment.java \
     android/os/Handler.java \
     android/os/Looper.java \
+    android/util/Log.java \
     org/json/JSONObject.java \
     org/json/JSONArray.java \
     org/json/JSONException.java \

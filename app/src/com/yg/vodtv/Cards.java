@@ -200,35 +200,64 @@ public final class Cards {
      * 拼成「更新至30集 · 王家卫」比硬凑「导演」二字更稳（有些片子没导演）。
      */
     private static String subtitle(Vod v) {
+        // 年份 + 地区 + 类型 是用户扫视时最需要的三样；remarks 已经在右上角当过角标了，
+        // 只有三样全空才退回去，总比空一行强。
+        String s = meta(" · ", v.year, v.area, v.typeName);
+        if (s.length() == 0) {
+            s = v.remarks == null ? "" : v.remarks.trim();
+        }
+        return s;
+    }
+
+    /** 一行标签最多留几段。10 尺外一行字多了等于没有。 */
+    private static final int MAX_META = 3;
+
+    /**
+     * v2.19：把「年份 / 地区 / 类型 / 备注」这些字段拍平成一行标签。
+     *
+     * CMS 给的数据脏得很：同一个地区既有「中国大陆」又有「中国」，type_name 还会
+     * 把年份、地区再抄一遍，甚至直接拿「·」当分隔符。v2.18 在真机上拍到的副名是：
+     *     2026 · 中国大陆 · 中国·2026·悬疑
+     * 旧实现是「每个字段整段拼上去」，于是「2026」「中国」各出现两次。
+     *
+     * 这里先按逗号/顿号/斜杠/竖线/中点把每个字段切成标签，再按「包含」去重
+     * （「中国大陆」和「中国」算同一个，留更长的那个——信息量更大），最多留 3 段。
+     * 分隔符由调用方给：卡片用 " · "，首页 dock 用 "   ·   "。
+     */
+    public static String meta(String sep, String... fields) {
+        java.util.ArrayList<String> out = new java.util.ArrayList<String>();
+        for (int i = 0; i < fields.length && out.size() < MAX_META; i++) {
+            String f = fields[i];
+            if (f == null) {
+                continue;
+            }
+            String[] parts = f.split("[,，/|、·]");
+            for (int k = 0; k < parts.length && out.size() < MAX_META; k++) {
+                String t = parts[k].trim();
+                if (t.length() == 0) {
+                    continue;
+                }
+                int hit = -1;
+                for (int j = 0; j < out.size(); j++) {
+                    String o = out.get(j);
+                    if (o.equalsIgnoreCase(t) || o.contains(t) || t.contains(o)) {
+                        hit = j;
+                        break;
+                    }
+                }
+                if (hit < 0) {
+                    out.add(t);
+                } else if (out.get(hit).length() < t.length()) {
+                    out.set(hit, t);
+                }
+            }
+        }
         StringBuilder sb = new StringBuilder();
-        String remark = v.remarks == null ? "" : v.remarks.trim();
-        // remarks 已经在右上角做过角标了，这里只用「集数/清晰度以外」的信息：
-        // 年份 + 地区 + 类型 是用户扫视时最需要的三样。
-        if (v.year != null && v.year.trim().length() > 0) {
-            sb.append(v.year.trim());
-        }
-        String area = v.area == null ? "" : v.area.trim();
-        if (area.length() > 0) {
-            if (sb.length() > 0) {
-                sb.append(" · ");
+        for (int i = 0; i < out.size(); i++) {
+            if (i > 0) {
+                sb.append(sep);
             }
-            sb.append(area);
-        }
-        String type = v.typeName == null ? "" : v.typeName.trim();
-        if (type.length() > 0) {
-            if (sb.length() > 0) {
-                sb.append(" · ");
-            }
-            // 平台给的 typeName 常是「动作片,科幻片」这种逗号串，取第一段就够
-            int cut = type.indexOf(',');
-            if (cut < 0) {
-                cut = type.indexOf('，');
-            }
-            sb.append(cut > 0 ? type.substring(0, cut) : type);
-        }
-        // 三样都没有才退回 remarks，总比空一行强
-        if (sb.length() == 0) {
-            sb.append(remark);
+            sb.append(out.get(i));
         }
         return sb.toString();
     }

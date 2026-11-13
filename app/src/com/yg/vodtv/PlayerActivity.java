@@ -29,6 +29,11 @@ public final class PlayerActivity extends Activity {
     private ProgressBar busy;
     private ProgressBar seekBar;
     private TextView toast;
+    /** 起播失败卡片：标题 / 原因 / 下一步。全黑屏对用户等于「电视坏了」。 */
+    private LinearLayout errCard;
+    private TextView errTitle;
+    private TextView errBody;
+    private TextView errHint;
     private TextView timeLabel;
     private LinearLayout bottomBar;
     /** 顶部标题条。以前是局部变量，导致它永远不会隐藏，一直压着画面顶部。 */
@@ -47,6 +52,8 @@ public final class PlayerActivity extends Activity {
     private int vid = 0;
     /** 多源唯一标识：源_id，播放位置按它存。 */
     private String key = "";
+    /** 当前这一路在本地代理上的地址，失败卡片按 OK 重试时还要用。 */
+    private String localUrl = "";
     private String title = "";
     private boolean prepared = false;
     private boolean retried = false;
@@ -220,6 +227,30 @@ public final class PlayerActivity extends Activity {
         root.addView(bottomBar, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM));
+
+        // v2.19：起播失败时这里不再是「一片黑 + 4 秒后就消失的小字」。
+        // 采集源时不时整段返回网页（HTML）而不是 m3u8，MediaPlayer 只会给你 -1004，
+        // 用户看到的就是黑屏，不知道该干嘛，还以为电视坏了。
+        errCard = new LinearLayout(this);
+        errCard.setOrientation(LinearLayout.VERTICAL);
+        errCard.setBackground(Ui.glowBg(Ui.SURFACE, 16, Ui.ACCENT));
+        errCard.setPadding(Ui.px(44), Ui.px(34), Ui.px(44), Ui.px(30));
+        errCard.setVisibility(View.GONE);
+        errTitle = Ui.bold(this, "这条线路没播起来", 30, Ui.FG);
+        errCard.addView(errTitle);
+        errBody = Ui.text(this, "", 20, Ui.FG_DIM);
+        LinearLayout.LayoutParams ebp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ebp.topMargin = Ui.px(14);
+        errBody.setLineSpacing(Ui.px(6), 1f);
+        errCard.addView(errBody, ebp);
+        errHint = Ui.text(this, "返回换一部 · OK 重试这条线", 18, Ui.ACCENT);
+        LinearLayout.LayoutParams ehp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ehp.topMargin = Ui.px(18);
+        errCard.addView(errHint, ehp);
+        root.addView(errCard, new FrameLayout.LayoutParams(
+                Ui.px(900), FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
         toast = Ui.bold(this, "", 24, 0xFFFFFFFF);
         // v2.7：提示条跟顶栏用同一套「浮层语言」—— 实底 surface + 琥珀细描边，
@@ -405,10 +436,12 @@ public final class PlayerActivity extends Activity {
 
         final String raw = urls[idx];
         final String local = Proxy.wrapPlaylist(raw);
+        localUrl = local;
 
         vv.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
                 prepared = true;
+                hideErr();
                 busy.setVisibility(View.GONE);
                 mp.setScreenOnWhilePlaying(true);
                 // v2.8：把播放器报的真实尺寸直接喂给 FitVideoView。
@@ -486,7 +519,12 @@ public final class PlayerActivity extends Activity {
                     }, 900);
                     return true;
                 }
-                showToast("这条线路播放失败（" + what + "/" + extra + "），按上键换一集试试");
+                // v2.19：重试也失败 → 立一张卡片，而不是留一片黑 + 4 秒小字。
+                // 常见真因是采集源这条线返回了网页（Proxy 日志里能看到 <!DOCTYPE html>）。
+                String why = extra == -1004 ? "源站这次给的不是视频文件（返回的是网页）"
+                        : "线路断流了（错误码 " + what + "/" + extra + "）";
+                showErr(why);
+                Trace.add("player", "起播彻底失败，已显示错误卡 " + Http.shortUrl(raw));
                 return true;
             }
         });
@@ -589,6 +627,25 @@ public final class PlayerActivity extends Activity {
         ui.postDelayed(hideToast, 4000);
     }
 
+    /** 起播失败卡片：标题固定，原因按错误码换一句人话。 */
+    private void showErr(String why) {
+        if (errCard == null) {
+            return;
+        }
+        errBody.setText(why + "\n换一部、换一集，或者按 OK 再试一次这条线。");
+        errCard.setVisibility(View.VISIBLE);
+        errCard.setAlpha(0f);
+        errCard.animate().alpha(1f).setDuration(180).start();
+        // 黑屏时会把控制条收起来，这里顺手亮一下，用户能看到顶栏片名还在
+        showControls();
+    }
+
+    private void hideErr() {
+        if (errCard != null && errCard.getVisibility() == View.VISIBLE) {
+            errCard.setVisibility(View.GONE);
+        }
+    }
+
     /** 把当前画面模式应用到 VideoView，并在 Trace 里留个记录。 */
     private void applyScaling() {
         if (vv instanceof FitVideoView) {
@@ -668,6 +725,23 @@ public final class PlayerActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int code, KeyEvent e) {
+        // v2.19：失败卡片是「模态」的 —— 这时候按 OK 是重试，不是播放/暂停，
+        // 上下左右调进度也没意义，全部收在卡片上处理，避免黑屏上乱按出一堆副作用。
+        if (errCard != null && errCard.getVisibility() == View.VISIBLE) {
+            if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER) {
+                hideErr();
+                retried = false;
+                showToast("重新接入这条线路…");
+                vv.setVideoURI(Uri.parse(localUrl));
+                vv.start();
+                return true;
+            }
+            if (code == KeyEvent.KEYCODE_BACK) {
+                finish();
+                return true;
+            }
+            return true;
+        }
         if (epVisible) {
             if (code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_DPAD_UP) {
                 toggleEpisodes(false);

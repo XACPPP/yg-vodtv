@@ -162,6 +162,8 @@ public final class LivePlayerActivity extends Activity {
     private long posAt = 0;
     /** onPrepared 的时刻，用来给「黑屏检测」计时。0 表示还没 prepared。 */
     private long preparedAt = 0;
+    /** 最近一次成功起播的耗时（ms），给顶栏「接入 1.2s」用；0 = 还没量过。 */
+    private long startMs = 0;
     /** 播放器报上来的视频宽度。0 = 解码器还没解出画面。 */
     private int videoW = 0;
     /**
@@ -232,6 +234,7 @@ public final class LivePlayerActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        Trace.attach(this);
         Ui.init(this);
         Store.init(this);
         LiveSync.init(this);
@@ -1232,12 +1235,19 @@ public final class LivePlayerActivity extends Activity {
         if (idx < 0 || idx >= urls.size()) {
             idx = 0;
         }
+        // 已经真的起播了，防抖队列里那一次就没必要再跑
+        cancelPendingSwitch();
         urlIdx = idx;
         dead = false;
         paused = false;
+        Trace.add("live", "起播请求 " + (ch == null ? "?" : ch.name)
+                + " 线路" + (idx + 1) + "/" + urls.size());
         bigMsg.setVisibility(View.GONE);
         busy.setVisibility(View.VISIBLE);
-        busyText.setText("正在缓冲…");
+        // v2.19：以前只有一句「正在缓冲…」，用户不知道在等哪个台、第几路线。
+        // 换成「台名 + 线路 i/n」，等的时候心里有数，也方便判断是不是这条源在赌运气。
+        busyText.setText("正在接入 " + (ch == null ? "直播" : ch.name)
+                + "　·　线路 " + (idx + 1) + "/" + urls.size());
         busyText.setVisibility(View.VISIBLE);
         updateInfo();
 
@@ -1246,6 +1256,7 @@ public final class LivePlayerActivity extends Activity {
         lastPos = -1;
         posAt = 0;
         preparedAt = 0;
+        startMs = 0;
         videoW = 0;
         stalls = 0;
         lastStallAt = 0;
@@ -1285,7 +1296,12 @@ public final class LivePlayerActivity extends Activity {
                     Store.saveLiveUrlIdx(ch.name, urlIdx);
                 }
                 Trace.add("live", "直播起播 " + ch.name + " 线路" + (urlIdx + 1)
-                        + "/" + urls.size() + " " + describeVideo(mp));
+                        + "/" + urls.size() + " 耗时" + (preparedAt - playAt) + "ms "
+                        + describeVideo(mp));
+                // v2.19：把起播耗时也写到顶栏。电视上没有 adb 看日志时，
+                // 老板自己「这台怎么比刚才那台慢」只能靠感觉 —— 给个数字就有据可依。
+                startMs = preparedAt - playAt;
+                updateInfo();
             }
         });
         vv.setOnInfoListener(new MediaPlayer.OnInfoListener() {
@@ -1381,6 +1397,7 @@ public final class LivePlayerActivity extends Activity {
             return;
         }
         autoSkips++;
+        Trace.add("live", "自动换源 #" + autoSkips + " " + why);
         if (autoSkips > urls.size() * 2) {
             showDead("该频道暂时看不了，试试别的台");
             return;
@@ -1468,6 +1485,54 @@ public final class LivePlayerActivity extends Activity {
         }
     }
 
+    /**
+     * v2.19：换台防抖窗口。
+     *
+     * 遥控器方向键是「按住连发」（每秒 8~10 次）。旧逻辑每收到一次就 play() 一轮：
+     * 重建 MediaPlayer、让 Proxy 重新拉一次 m3u8、再起一遍解码器。
+     * 按住两秒等于连开十几路流，最后停住的那台反而排在一堆废弃连接后面起播，
+     * 画面上就是连续黑闪 + 越来越慢的「正在缓冲…」——这是「换台很卡」的主要来源。
+     *
+     * 现在只把「目标台」和顶栏文案立刻推上去（手感上已经换台了），
+     * 停手 260ms 后才真正起播最后一台。260ms 在遥控器连发间隔之内、
+     * 又是人眼感觉不到等待的量级。
+     */
+    private static final long SWITCH_DEBOUNCE_MS = 260;
+    private boolean switchPending = false;
+
+    private final Runnable commitSwitch = new Runnable() {
+        public void run() {
+            if (!switchPending) {
+                return;
+            }
+            switchPending = false;
+            if (ch == null) {
+                return;
+            }
+            playPreferred();
+        }
+    };
+
+    private void queuePlay() {
+        switchPending = true;
+        // 先把这台的顶栏信息（台号/台名/线路）显示出来，
+        // 别让画面挂着上一个台的台标、顶栏却已经换了名字
+        int idx = ch == null ? 0 : Store.liveUrlIdx(ch.name);
+        if (idx < 0 || idx >= urls.size()) {
+            idx = 0;
+        }
+        urlIdx = idx;
+        updateInfo();
+        ui.removeCallbacks(commitSwitch);
+        ui.postDelayed(commitSwitch, SWITCH_DEBOUNCE_MS);
+    }
+
+    /** 用户又按了别的键（换源 / 进列表 / 退出）：把还没落地的换台取消掉。 */
+    private void cancelPendingSwitch() {
+        switchPending = false;
+        ui.removeCallbacks(commitSwitch);
+    }
+
     /** 上一台 / 下一台：只在当前分组里循环。 */
     private void switchChannel(int delta) {
         if (group == null || group.chs.isEmpty()) {
@@ -1482,7 +1547,8 @@ public final class LivePlayerActivity extends Activity {
             chIdx = ((chIdx + step) % n + n) % n;
             if (pickChannel()) {
                 Store.saveLive(groupIdx, chIdx, ch == null ? "" : ch.name);
-                playPreferred();
+                // v2.19：不在这里直接起播，交给防抖队列（见 commitSwitch 的注释）。
+                queuePlay();
                 return;
             }
         }
@@ -1540,6 +1606,9 @@ public final class LivePlayerActivity extends Activity {
         }
         sb.append("　·　").append(qualityOf(ch.name));
         sb.append("　·　第 ").append(urlIdx + 1).append("/").append(urls.size()).append(" 路源");
+        if (startMs > 0) {
+            sb.append("　·　接入 ").append(oneDecimal(startMs / 1000.0)).append("s");
+        }
         topSub.setText(sb.toString());
         topBadge.setText(qualityOf(ch.name).equals("HD") ? "FHD" : qualityOf(ch.name));
         setTopVisible();
@@ -1547,6 +1616,10 @@ public final class LivePlayerActivity extends Activity {
 
     private static String pad2(int v) {
         return v < 10 ? "0" + v : String.valueOf(v);
+    }
+
+    private static String oneDecimal(double v) {
+        return String.format(java.util.Locale.US, "%.1f", v);
     }
 
     private void setTopVisible() {

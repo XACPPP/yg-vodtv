@@ -16,6 +16,23 @@ public class Context {
         return this;
     }
 
+    /** Trace 会往外部存储镜一份日志；桌面替身落到 build/ 下，别写进源码树。 */
+    public File getExternalFilesDir(String type) {
+        File d = new File("build/ext");
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+        return d;
+    }
+
+    public File getFilesDir() {
+        File d = new File("build/files");
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+        return d;
+    }
+
     public void startActivity(Intent it) {
         System.out.println("[stub] startActivity " + it);
     }

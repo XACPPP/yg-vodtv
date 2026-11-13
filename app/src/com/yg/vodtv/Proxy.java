@@ -135,6 +135,13 @@ public final class Proxy {
                 path = slash > 0 ? path.substring(slash) : "/";
             }
             boolean head = "HEAD".equalsIgnoreCase(sp[0]);
+            // v2.19：把内存日志挂到本地代理上，adb forward 之后 curl 就能读。
+            // 这台电视的固件既不输出三方 App 的 logcat，shell 又进不去 /sdcard，
+            // 验收期想量「起播几秒、自动换了几次源」没有任何旁路 —— 这条路是自己开的。
+            if (path.startsWith("/trace")) {
+                sendPlain(s, 200, Trace.tail(400));
+                return;
+            }
             boolean isPlaylist;
             String b64;
             if (path.startsWith("/hls/")) {

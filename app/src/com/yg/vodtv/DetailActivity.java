@@ -497,6 +497,9 @@ public final class DetailActivity extends Activity {
         }
 
         // 元信息严格四项：年份 · 地区 · 类型 · 备注
+        // v2.19：类型走 Cards.meta —— 采集站的 typeName 常是「医疗,剧情,日剧」这种
+        // 逗号串，直接甩在详情页就是「2026 · 日剧 · 医疗,剧情,日剧」，
+        // 跟首页已经去重过的副名对不上，看着像两套数据。
         StringBuilder sb = new StringBuilder();
         if (d.year != null && d.year.trim().length() > 0) {
             sb.append(d.year.trim());
@@ -504,8 +507,9 @@ public final class DetailActivity extends Activity {
         if (d.area != null && d.area.trim().length() > 0) {
             sb.append(sb.length() > 0 ? "  ·  " : "").append(d.area.trim());
         }
-        if (d.typeName != null && d.typeName.trim().length() > 0) {
-            sb.append(sb.length() > 0 ? "  ·  " : "").append(d.typeName.trim());
+        String types = Cards.meta("，", d.typeName == null ? null : new String[]{d.typeName});
+        if (d.typeName != null && types.length() > 0) {
+            sb.append(sb.length() > 0 ? "  ·  " : "").append(types);
         }
         if (d.remarks != null && d.remarks.trim().length() > 0) {
             sb.append(sb.length() > 0 ? "  ·  " : "").append(d.remarks.trim());
