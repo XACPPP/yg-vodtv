@@ -107,6 +107,8 @@ public final class MainActivity extends Activity {
         Ui.init(this);
         Store.init(this);
         Cache.init(this);
+        // 拼音首字母索引（wddcz → 伟大的长征）：只建目录，桶等用户真搜了才按需下
+        PyIndex.init(this);
         // 源表现在可以从远端覆盖：先拿本地缓存的那份同步生效（几十 KB，几十毫秒），
         // 再后台默默拉最新。拉失败就一直是内置的 14 个源，不影响看电视。
         SrcSync.init(this);
@@ -446,6 +448,8 @@ public final class MainActivity extends Activity {
         // 列表 JSON 也一起清，否则「清了缓存」之后切频道还是秒出旧列表，
         // 用户会以为没清干净。
         Cache.clear();
+        // 首字母表也清掉：一个桶几百 KB，不清的话「已释放」的数字会明显偏小
+        PyIndex.clear();
         Trace.add("cache", "手动清缓存，释放 " + (before / 1024) + "KB");
         showBanner("缓存已清空（释放 " + (before / 1024) + "KB），海报会重新下载");
         if (rows != null && rows.getChildCount() > 0) {
@@ -802,7 +806,7 @@ public final class MainActivity extends Activity {
         resultTitle.setText("「" + kw + "」" + list.size() + " 个结果");
 
         if (list.isEmpty()) {
-            TextView t = Ui.text(this, "没找到，换个全拼或中文试试（首字母缩写搜不到）", 24, Ui.FG_DIM);
+            TextView t = Ui.text(this, "没找到，换个中文名或全拼试试", 24, Ui.FG_DIM);
             t.setPadding(0, Ui.px(20), 0, 0);
             resultRows.addView(t);
             return;

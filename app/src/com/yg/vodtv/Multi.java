@@ -31,11 +31,19 @@ public final class Multi {
      * 否则被 reset 的源还没轮到重试就被截断了。
      */
     private static final long LIST_BUDGET = 9000;
-    /** 搜索是用户主动操作，可以多等一点。 */
+    /**
+     * 搜索最多等多久。注意这只是「上限」，正常情况远早于此就返回：
+     * 收到 {@link #SEARCH_ENOUGH_N} 条结果、或者有结果后静默 {@link #SEARCH_QUIET_MS}
+     * 都会提前走。以前这里等满 10s 是常态 —— 因为旧判据是「几个源有结果 ≥5」，
+     * 而首字母搜索根本没有 5 个源有货，于是每次都把 10s 等满。
+     */
     private static final long SEARCH_BUDGET = 10000;
 
-    /** 搜索拿到几个源的结果就算够（够排序出个像样的列表了）。 */
-    private static final int SEARCH_ENOUGH_N = 5;
+    /** 搜索拿到这么多条结果就算够了（7 列 × 3 行，铺满一屏还能翻一下）。 */
+    private static final int SEARCH_ENOUGH_N = 21;
+
+    /** 已经有结果后，多久没有新增就收摊。留 1.2s 给还在路上的中等慢源。 */
+    private static final long SEARCH_QUIET_MS = 1200;
 
     /**
      * 分类页至少等到几个源回来才肯出画面。
@@ -334,10 +342,24 @@ public final class Multi {
         return r;
     }
 
-    /** 搜索侧的「够用就走」，判定依据是已经拿到多少个源的结果。 */
+    /**
+     * 搜索侧的「够用就走」。
+     *
+     * 原始判据是「有几个源返回了结果」，5 个源才算够。实测这个判据在搜索场景下是错的：
+     * 首字母/冷门片全 14 个源里只有 1 个有货，永远凑不满 5 个，于是每次都死等满
+     * SEARCH_BUDGET=10s —— 哪怕唯一有货的源 810ms 就回来了。
+     *
+     * 改成三重判据，任一满足就返回：
+     *   1. 全部线程结束（latch 归零）；
+     *   2. 已经收到 enoughItems 条结果（够铺一屏就不等慢源）；
+     *   3. 已经有结果，且 SEARCH_QUIET_MS 内没有新增 —— 「该来的都来了」，慢源再来也不影响观感。
+     * 一条都没有时仍然等满 timeout：没结果就让用户早些看到「没找到」，比装作还在搜好。
+     */
     private static void awaitSearch(CountDownLatch latch, List<Vod>[] got,
-            long timeout, int enoughSources) {
+            long timeout, int enoughItems) {
         long end = System.currentTimeMillis() + timeout;
+        long lastGrow = 0;
+        int lastN = 0;
         while (System.currentTimeMillis() < end) {
             try {
                 if (latch.await(80, TimeUnit.MILLISECONDS)) {
@@ -348,11 +370,18 @@ public final class Multi {
             }
             int n = 0;
             for (int i = 0; i < got.length; i++) {
-                if (got[i] != null && !got[i].isEmpty()) {
-                    n++;
+                if (got[i] != null) {
+                    n += got[i].size();
                 }
             }
-            if (n >= enoughSources) {
+            if (n >= enoughItems) {
+                return;
+            }
+            long now = System.currentTimeMillis();
+            if (n > lastN) {
+                lastN = n;
+                lastGrow = now;
+            } else if (n > 0 && lastGrow > 0 && now - lastGrow >= SEARCH_QUIET_MS) {
                 return;
             }
         }
@@ -387,7 +416,15 @@ public final class Multi {
         }
     }
 
-    /** 搜索：中文走各源 wd=，纯字母/拼音走 wsyzy 联想，两路合并。 */
+    /**
+     * 搜索：中文走各源 wd=，纯字母走两条路 —— 全拼问各源 suggest，首字母先查本地
+     * 拼音索引翻成中文名再走 wd=。
+     *
+     * 为什么首字母必须多这一步：苹果CMS 的服务端只有 vod_en（全拼）索引，实测
+     * wd=wddcz 在 14 个源上只有 bfzy 吐 20 条噪声，《伟大的长征》一条没有；
+     * 换成中文名 wd=伟大的长征 立刻有 11 个源命中。所以「首字母 → 中文名」这一跳
+     * 只能在客户端做，见 {@link PyIndex}。
+     */
     public static List<Vod> search(final String kw) {
         if (kw == null || kw.trim().length() == 0) {
             return new ArrayList<Vod>();
@@ -402,6 +439,17 @@ public final class Multi {
             }
         }
         final boolean ascii = isAscii(k);
+
+        // 首字母（wddcz）：本地索引翻出中文片名，拿到就用中文名去查，服务端认得。
+        // 全拼（weidadechangzheng）在这里查不到东西 —— 索引的 key 是首字母不是全拼，
+        // startsWith 自然不命中，于是继续走下面的 suggest 老路。
+        List<String> cand = ascii ? PyIndex.lookup(k) : new ArrayList<String>();
+        final String query = cand.isEmpty() ? k : cand.get(0);
+        // 排序/剪枝的关键词用真正发出去的那个词：拿 wddcz 去比中文片名必然 100 分，
+        // 那样 rank 和 prune 全失效，结果顺序会变成「谁先返回谁在前」。
+        final String rankKw = query;
+        final boolean byPy = !cand.isEmpty();
+
         final List<Vod>[] got = new List[srcs.size() + 1];
         final CountDownLatch latch = new CountDownLatch(srcs.size() + 1);
 
@@ -411,9 +459,9 @@ public final class Multi {
             POOL.execute(new Runnable() {
                 public void run() {
                     try {
-                        // 纯字母/全拼：各源的 wd= 实测全 0（拼音根本不进库），
-                        // 直接问 suggest 又快又准；中文才走 wd=
-                        got[idx] = ascii ? Api.suggest(s, k) : Api.wd(s, k);
+                        // 首字母已翻成中文 → 走 wd=（11 个源有货）；
+                        // 仍没翻出来且是纯字母 → 走 suggest（只对全拼有效）
+                        got[idx] = (ascii && !byPy) ? Api.suggest(s, k) : Api.wd(s, query);
                         if (got[idx] == null && !"wsyzy".equals(s.key)) {
                             markDown(s);
                         }
@@ -444,6 +492,49 @@ public final class Multi {
         // 搜索也一样：够铺一屏就不等慢源了
         awaitSearch(latch, got, SEARCH_BUDGET, SEARCH_ENOUGH_N);
 
+        List<Vod> out = collect(got);
+
+        // 首字母索引给出的头号候选全军覆没时，再试一个候选。只在这时才多等一轮：
+        // 有结果的情况绝不加延迟，没结果的情况用户本来就在等。
+        if (out.isEmpty() && byPy && cand.size() > 1) {
+            for (int ci = 1; ci < cand.size() && out.isEmpty(); ci++) {
+                final String alt = cand.get(ci);
+                final List<Vod>[] g2 = new List[srcs.size()];
+                final CountDownLatch l2 = new CountDownLatch(srcs.size());
+                for (int i = 0; i < srcs.size(); i++) {
+                    final Src s = srcs.get(i);
+                    final int idx = i;
+                    POOL.execute(new Runnable() {
+                        public void run() {
+                            try {
+                                g2[idx] = Api.wd(s, alt);
+                            } catch (Throwable ignored) {
+                            } finally {
+                                l2.countDown();
+                            }
+                        }
+                    });
+                }
+                awaitSearch(l2, g2, SEARCH_BUDGET / 2, SEARCH_ENOUGH_N);
+                out = collect(g2);
+                if (!out.isEmpty()) {
+                    Api.rank(out, alt);
+                    Trace.add("multi", "首字母回退到候选「" + alt + "」→ " + out.size() + " 条");
+                    break;
+                }
+            }
+        } else {
+            Api.rank(out, rankKw);
+            // 剪掉「只是碰巧带这几个字」的噪声：搜「逐玉」不该出现枭雄、逐爱、没问题
+            out = Api.prune(out, rankKw);
+        }
+        Trace.add("multi", "搜索 " + k + (byPy ? "→" + query : "") + " → " + out.size()
+                + " 条（" + count(got) + " 个源有结果）");
+        return out;
+    }
+
+    /** 把各路结果合并去重（按「片名|年份」）。 */
+    private static List<Vod> collect(List<Vod>[] got) {
         List<Vod> out = new ArrayList<Vod>();
         Set<String> seen = new HashSet<String>();
         for (int i = 0; i < got.length; i++) {
@@ -458,10 +549,6 @@ public final class Multi {
                 }
             }
         }
-        Api.rank(out, k);
-        // 剪掉「只是碰巧带这几个字」的噪声：搜「逐玉」不该出现枭雄、逐爱、没问题
-        out = Api.prune(out, k);
-        Trace.add("multi", "搜索 " + k + " → " + out.size() + " 条（" + count(got) + " 个源有结果）");
         return out;
     }
 

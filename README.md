@@ -4,7 +4,7 @@
 （Android 5.1.1 / API 22，已 root）定制。片源来自 **14 个苹果CMS采集源聚合**，App 内部只认
 统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
 
-当前版本：**v2.4（versionCode 15）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.5（versionCode 16）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -18,7 +18,9 @@
   换源 / 加源 / 调优先级**不用发版**；远端出任何问题都自动退回内置表（v2.4）
 - 搜索：**一屏左右分栏**——左边键盘 + 最近搜过的词，右边实时结果；**停手 2 秒自动搜**，
   不用再按「搜索」；中文关键词并发问 14 个源的 `wd=`，纯拼音改问各源的 `suggest`（实测比 `wd=` 准得多），
-  两路结果合并后按贴合度重排，再把「只是碰巧带这几个字」的噪声剪掉
+  两路结果合并后按贴合度重排，再把「只是碰巧带这几个字」的噪声剪掉；
+  **拼音首字母也能搜到**（v2.5）——本地维护一份 14.5 万条片名的首字母表，`wddcz` 先翻成
+  「伟大的长征」再走 `wd=`；结果不再死等 10 秒，凑够一屏就走
 - 详情：海报 + **导演/主演/地区/语言 + 简介（点一下展开全文，缺失时自动跨源回填）** + 选集列表，每行 10 个选集按钮
 - 播放：全屏 HLS 播放，上下键选集、左右键快进快退 15 秒、OK 暂停、自动连播下一集；
   画面比例**默认自动**（裁得少就铺满、裁得多就留黑），遥控器菜单键循环「自动 → 适应 → 铺满」
@@ -207,6 +209,85 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
+### v2.5：拼音首字母能搜到了
+
+老板原话：「我搜伟大的长征，搜的拼音缩写 wddcz，出来的结果都没有这部剧」，
+接着又一句：「搜索出结果很慢，有的时候可能都要几秒，你要不然去 GitHub 上抄抄别人是怎么做拼音首字母搜索的，比如 TVBox 那套」。
+
+#### 一、先证明「这件事抄不到」
+
+按老板的意思去翻 TVBox 系仓库，结论是**没有可抄的实现**：
+
+| 查了什么 | 结果 |
+| --- | --- |
+| `FongMi/TV` 全仓库树（`git/trees?recursive=1`，499180 字节） | 搜 `inyin`/`PinYin` 路径**命中 0 个**，连拼音工具类都没有 |
+| `takagen99/Box` 全仓库树（257636 字节） | 只有 `ui/adapter/PinyinAdapter.java`，那是**列表按拼音排序**的适配器，跟搜索无关 |
+| `raw.githubusercontent.com/.../PinyinUtil.java` | 404 |
+
+真正的解法不是抄代码，是搞清**服务端到底认什么**。用 `test/source_scan.py` 的 `get()` 直连 14 个源实测：
+
+| 输入 | bfzy | 其余 13 源 |
+| --- | --- | --- |
+| `wd=wddcz`（首字母） | 20 条噪声：我的独裁者 / 伟大的转折 / 温暖的村庄…，**没有目标** | 全 0 条 |
+| `wd=weidadechangzheng`（全拼） | **1 条，正是《伟大的长征》** | 全 0 条 |
+| `wd=伟大的长征`（中文） | 20 条（含目标） | **11 个源命中** |
+
+也就是说苹果CMS 只给 `vod_en`（全拼）建了索引，**首字母这条路服务端根本不存在**。
+再试加 `limit=100`（拿 40 条，是站点硬顶）、`pg=1..5`（pg3 起全空）、把 `wd` 缩成 `wddc`/`wdd`/`wd`——
+40 条里始终没有《伟大的长征》。也试过 `suggest?mid=2`（空）、`mid=0`（参数错误）、
+`/index.php/vod/search.html`（HTML 站内搜索页）、`/vodsearch/xxx.html`（404），**没有一个现成的首字母接口**。
+
+#### 二、所以自己建索引，而且是拿 `vod_en` 切出来的
+
+关键发现：**14 个源的 `?ac=list` 全部自带 `vod_en`**（全拼，如 `伟大的长征 → weidadechangzheng`）。
+于是根本不需要中文转拼音的 2 万字库，只要把 `vod_en` 按音节切开、每个音节取首字母：
+
+```
+weidadechangzheng → wei/da/de/chang/zheng → wddcz
+jiamianguilai     → jia/mian/gui/lai      → jmgl
+```
+
+`test/pinyin_index.py`（249 行）做这件事：410 条无声调拼音音节表 + 从后往前 DP 做最大匹配，
+先把 `vod_en` 过滤成只剩 `a-z`（原始值里有 `121212`、`nitianxieshen3D`、`nishishijiancuican_9a6139` 这类脏值）。
+按首字母分 23 个桶写 `app/src/main/assets/py/{a..z}.txt`，每行 `首字母<TAB>中文片名`。
+
+| 指标 | 实测值 |
+| --- | --- |
+| 全库翻页 | 8584 页 / 171667 条，20 线程，**297.9 秒**（约 5 分钟） |
+| 去重后写入 | **145202 条**（重名率极低，146112 → 145187 只掉 925 条） |
+| 索引总体积 | **4784607 字节（4.56 MB）**，23 个桶 |
+| 最大的桶 | `s.txt` 15740 条 / 741785 字节；其次 `w.txt` 10519 条 / 345997 字节 |
+| 最小的桶 | `o.txt` 150 条 / 4788 字节 |
+
+为什么是纯文本不是 gzip：gzip 每次重建整份文件都变，git 只能整份存副本，日更一年几百 MB 仓库体积；
+纯文本按行排序，新增几条只产生小 delta，而 GitHub raw 本身对文本就做 gzip 传输，客户端实际拿到的字节数差不多。
+
+#### 三、App 侧只下自己那一桶
+
+`PyIndex.java`（317 行）：`lookup("wddcz")` → 只看首字母决定下 `w.txt`（346 KB，下过一次永久缓存在 `/cache/py/`）→
+`pick(body, "wddcz", 8)` 扫两轮：第一轮收 key **完全等于**输入的，第二轮才收「以输入开头」的长 key。
+两轮的理由是「头号候选查不到就退下一个」——`wddcz` 的两条必须先于 `wddczxxx` 这种长 key 出来。
+
+`Multi.search()` 也跟着改了两处：
+
+1. **首字母先翻中文名**：`ascii` 且索引命中时 `query = cand.get(0)`，各源走 `Api.wd(s, query)` 而不是 `suggest`。
+   排序关键词也用翻出来的中文名（`rankKw`）——拿 `wddcz` 去比中文片名必然 100 分，`rank`/`prune` 会全失效。
+2. **不再死等 10 秒**：`awaitSearch` 的判据从「5 个源有结果」改成三重——全部线程结束 / 凑够 21 条 /
+   已有结果且 1200ms 内没有新增。旧判据在首字母场景下必然等满 `SEARCH_BUDGET=10000`：全 14 个源只有 bfzy 有货，
+   永远凑不满 5 个，哪怕它 810ms 就回来了。
+
+首字母全落空时还会拿索引里的第二个候选再试一轮（只在这时多等，有结果的情况绝不加延迟）。
+
+#### 四、验收
+
+| 套件 | 项数 | 覆盖 |
+| --- | --- | --- |
+| PyTab | 24 | `PyIndex.pick` 纯函数：两条 `wddcz` 且正主在前、前缀天然包含、精确 key 优先、cap 上限、脏行、去重、CRLF |
+
+`app/build.sh` / `build-ci.sh` 的 class 清单跟着补到 **21 个**（新增 `PyIndex`）。
+`.github/workflows/scan.yml` 加了「重建拼音索引」步骤（`timeout-minutes: 20` + `continue-on-error: true`，
+站点挂了不算错、索引保持上一版），提交步骤加 `git add -A app/src/main/assets/py`。
+
 ### v2.4：源表热更 + 消灭「加载中」和「海报一张张跳」
 
 老板原话：「我觉得可以重构一下，GitHub 上的 TVBOX 很成熟啊」→ 讨论后否掉二开；
@@ -265,6 +346,7 @@ GitHub Actions 每天北京 02:00（`cron: '0 18 * * *'`，源站负载最低的
    → 硬失败（列表非 JSON / 无数据 / 无选集）判 DEAD，不参与排序
    → 播放链路没测成判 OK_NOPLAY：仍写入源表，只用折中分排在测通的源后面
    → 按分数降序写 app/src/main/assets/sources.json（顺序就是 App 的源优先级）
+   → v2.5：再跑 test/pinyin_index.py 重建拼音首字母表（bfzy 全库 8584 页 → assets/py/*.txt）
    → 有变化才 git commit && push
 ```
 
@@ -338,12 +420,13 @@ m3u8 http 403
 
 v2.4 改的两处都是「失败时很安静」的地方：源表解析错了电视会直接用内置表（看不出来），
 缓存编解码错了表现为「有缓存却点进去是空页」。所以各配一套不联网的 JVM 断言，
-和既有的 Harness/Wire/Tabs/Rank/Meta/Upd 一起跑，总共 8 套：
+和既有的 Harness/Wire/Tabs/Rank/Meta/Upd 一起跑，加上 v2.5 的 PyTab 总共 9 套：
 
 | 套件 | 项数 | 覆盖 |
 | --- | --- | --- |
 | SrcTab | 23 | `Src.load()` 六层容错、types 两种形态、坏项只丢一条、`all()` 返副本 |
 | CacheTab | 34 | `Multi.encode/decode` 17 字段往还原、脏字符转义、7 组坏输入不抛、`Cache` 落盘不串 |
+| PyTab | 24 | `PyIndex.pick` 精确 key 优先于前缀、cap 上限、脏行、CRLF、去重（v2.5） |
 
 #### 七、实发记录
 
@@ -787,7 +870,8 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 | `app/src/com/yg/vodtv/SrcSync.java` | **源表热更**：启动同步读缓存 → 后台拉远端 `sources.json` → `Src.load` 换表；`status()` 给自检页报「内置 / 当前 / 远端时间」 |
 | `app/src/com/yg/vodtv/Cache.java` | **列表 JSON 落盘**：`cacheDir/list/{ch}_{pg}.json`，16MB 上限 / 12MB 触发清理，tmp→rename 原子替换 |
 | `app/src/com/yg/vodtv/Prefetch.java` | **相邻频道预热**：单线程空闲预取 `cur±1` 的首页 JSON，间隔 400ms，`INFLIGHT` 去重 |
-| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填；`Result.raw` + `encode`/`decode` 供落盘 |
+| `app/src/com/yg/vodtv/PyIndex.java` | **拼音首字母表**：`lookup(wddcz)` → 按需下 `assets/py/w.txt`（走 raw）→ `pick` 两轮扫描（精确 key 优先，再收前缀）→ 候选中文片名 |
+| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填；`Result.raw` + `encode`/`decode` 供落盘；搜索侧 `awaitSearch` 三重判据（凑够 21 条 / 静默 1200ms 就走） |
 | `app/src/com/yg/vodtv/Api.java` | 单源接口封装（list / detail / wd / suggest）+ 搜索结果贴合度重排 |
 | `app/src/com/yg/vodtv/Vod.java` | 影片模型 + `vod_play_url` 选集解析 |
 | `app/src/com/yg/vodtv/Http.java` | HTTP 封装 + 信任全部证书的 SSLContext + 5xx 一次重试 |
@@ -826,8 +910,8 @@ APK 信息：`package=com.yg.vodtv`、`versionCode=6`、`versionName=1.5`、`min
 `targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 
-`build.sh` 里有防假成功的检查：javac 之后逐个确认 **20 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
-v2.4 补了 `Cache`、`Prefetch`、`SrcSync`），并比对 `MainActivity.class` 与源码时间戳，避免 javac
+`build.sh` 里有防假成功的检查：javac 之后逐个确认 **21 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
+v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`），并比对 `MainActivity.class` 与源码时间戳，避免 javac
 悄悄失败却打包了旧 class。
 
 ## 四、安装
@@ -876,6 +960,7 @@ env -u MSYS_NO_PATHCONV bash run.sh meta   # Meta：刮削字段 + 海报双通�
 env -u MSYS_NO_PATHCONV bash run.sh upd    # Upd：版本号 + 镜像兜底 + 真实 Release 下载，19 项
 env -u MSYS_NO_PATHCONV bash run.sh srctab # SrcTab：源表热更容错与频道映射，23 项（不联网）
 env -u MSYS_NO_PATHCONV bash run.sh cachetab # CacheTab：列表缓存编解码往返 + 落盘，34 项（不联网）
+env -u MSYS_NO_PATHCONV bash run.sh pytab   # PyTab：拼音首字母表的精确/前缀两轮扫描，24 项（不联网）
 env -u MSYS_NO_PATHCONV bash run.sh dump   # 打印真实改写的播放列表头部
 ```
 
@@ -924,6 +1009,13 @@ encode 结果不含裸换行、控制字符被替换成空格、7 组坏输入�
 Cache 侧验 `put/get` 字节一致、`sameAs` 正负两例、**不同频道与不同页码的文件名不串**、
 短于 `MIN_LEN` 的内容拒写、`clear()` 后占用归零。
 
+**PyTab（24/24 PASS，v2.5 新增，不联网）**：`PyIndex.pick` 是纯函数，坏掉的方式是「排序错」
+而不是「报错」——精确 key 排到前缀命中后面，就会让「头号候选查不到再退下一个」的兜底彻底失效，
+用户看到的是「搜到了别的片」。所以喂一个含 6 行的 `w` 桶（`w` 两条、`wd`/`wdz`/`wddcz` 三条不同长度），
+断言 `wddcz` 的两条里**正主（伟大的长征）排第一**、`wd` 命中 4 行、`w` 命中 6 行且首条是精确 key、
+cap=3 时只出 3 条、cap=0 用默认上限，再验大写/空白输入、无制表符/制表符在末尾/空行三种脏行、
+重复片名去重、null/空/纯空白/查不到全部返回空列表、CRLF 行尾、无结尾换行。
+
 **Tabs（24/24 PASS，v2.0 复测）**：首页 24 个统一频道逐个拉第一页，
 要求「有数据 + 有海报」。空分类是最容易被忽略的坑 —— App 能开，点进去一片空白。
 实测**共聚合 1694 条，每个频道都有数据且全部带海报**，每个频道 6~9 个源返回
@@ -970,19 +1062,26 @@ Cache 侧验 `put/get` 字节一致、`sameAs` 正负两例、**不同频道与�
 
 ### 构建验证
 
-`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.4 本地出包）：APK **107377 字节**，dex **144144 字节**（v2.3 是 99185 / 128176——v2.4 新增 Cache/Prefetch/SrcSync 三个类 + Multi 的 encode/decode + Ui 的批量上屏）；
+`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.5 本地出包）：APK **111473 字节**，dex **149200 字节**（v2.4 是 107377 / 144144——v2.5 新增 PyIndex 一个类 + Multi 的搜索链路改造）；
 dex 内确认含 `MODE_AUTO`、`wantFill`、`describe`、`DISK_MAX_BYTES`、`clearDisk`、`trimDiskAsync`、
 `clearCacheConfirm`、`banner`、`diskLimit`，以及 v2.1 的 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
 还有 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`，
-v2.4 的 `pushReady`、`primeNow`、`onDisk`、`decode`、`encode`、`sameAs`、`BUILTIN`、`SrcSync`
+v2.4 的 `pushReady`、`primeNow`、`onDisk`、`decode`、`encode`、`sameAs`、`BUILTIN`、`SrcSync`，
+v2.5 的 `PyIndex`、`pick`、`lookup`、`SEARCH_QUIET_MS`、`rankKw`
 （每版改动确实打进去了，不是只改源码没进包）。
-`aapt2 dump badging` → `versionCode='15' versionName='2.4'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`aapt2 dump badging` → `versionCode='16' versionName='2.5'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名（v2.4 复验）：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
 SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`（与 v2.3 一致，所以能用 App 内更新直接覆盖安装）。
 
 ### 未验证
+
+**v2.5 的拼音索引还没有真机跑过：**`PyIndex` 走 `raw.githubusercontent.com/.../assets/py/{L}.txt` 按需下桶，
+本机实测这条路径对 `sources.json` 是通的，但索引文件 4.6MB 分 23 个桶、最大单桶 725KB（`s.txt`），
+电视上首次搜某个字母要等这一桶下完（局域网走 Passwall，估计 1~3 秒），下过一次永久缓存。
+**需要确认的是**：①电视能不能拉到 `py/*.txt`；②首字母搜索的体感延迟；③`w.txt` 里的《伟大的长征》能否被翻出来。
+判定标准：搜索框输 `wddcz`，结果里出现《伟大的长征》。
 
 **v2.2 的两处改动也只验证了逻辑，没上真机：**「自动」比例档的 `MAX_CROP=0.34` 是否合手感（20:9 手机放
 21:9 老片会怎么选）、磁盘缓存按字节清理在 `getCacheDir()` 真可写时的实际表现（自检页第 5 步会直接读数）。
@@ -1019,7 +1118,8 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.4」
+6. 标题栏「检查更新」显示「已是最新版本 v2.5」
+7. 搜索框输 `wddcz`，结果里应有《伟大的长征》（v2.5 拼音首字母索引）；输 `weidadechangzheng` 也应命中
 
 ## 六、目录
 
@@ -1027,7 +1127,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 YG影视TV/
 ├── README.md
 ├── .github/workflows/build.yml  # push tag v* 自动出包 + 发 Release
-├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → 自动 commit sources.json
+├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 起同时重建拼音索引，一起自动 commit
 ├── .gitignore                   # 排除 build/、*.apk、yg.keystore
 ├── app/
 │   ├── AndroidManifest.xml
@@ -1038,13 +1138,14 @@ YG影视TV/
 │   ├── res/drawable/ic_launcher.png          # 192px 兜底（电视 banner 复用）
 │   ├── res/drawable-{m,h,xh,xxh,xxxh}dpi/    # v2.3 机器人图标五档密度
 │   ├── src/main/assets/sources.json          # v2.4 源表（巡检自动重写；不打包进 APK，供 GitHub raw 与 CI）
-│   ├── src/com/yg/vodtv/*.java  # 19 个源文件（v2.4 新增 Cache/Prefetch/SrcSync）
+│   ├── src/main/assets/py/{a..z}.txt         # v2.5 拼音首字母表（23 桶 4.6MB，CI 每天重建；同样走 raw）
+│   ├── src/com/yg/vodtv/*.java  # 20 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
 └── test/
     ├── harness/                 # JVM 端到端验证（跑真实源码）
-    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab]
+    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab|pytab]
     │   ├── Harness.java         # 16 项链路断言
     │   ├── Wire.java            # 21 项线上字节格式断言（模拟 NuPlayer）
     │   ├── Tabs.java            # 24 个统一频道逐项验证（多源聚合，有数据 + 有海报）
@@ -1053,11 +1154,13 @@ YG影视TV/
     │   ├── Upd.java             # 版本号解析/比较 + 镜像顺序 + 真实 Release 下载（19 项）
     │   ├── SrcTab.java          # v2.4 源表热更：Src.load() 六层容错 + 频道映射（23 项，不联网）
     │   ├── CacheTab.java        # v2.4 列表缓存：Multi.encode/decode 往返 + Cache 落盘（34 项，不联网）
+    │   ├── PyTab.java           # v2.5 首字母索引：PyIndex.pick 精确优先/前缀兜底/脏行（24 项，不联网）
     │   ├── Dump.java            # 打印改写后的播放列表
     │   ├── android/*.java       # android.util/net/os/content 替身
     │   └── org/json/*.java            # org.json 替身
     ├── proxy_sim.py             # 早期 Python 复刻（已被 harness 取代）
     ├── source_scan.py           # v2.4 源健康巡检 + 100 分制打分 → sources.json
+    ├── pinyin_index.py          # v2.5 从 bfzy 全库切首字母 → assets/py/*.txt（8584 页 / 5 分钟）
     ├── sources_health.json      # 巡检结果（App 不直接读，供 CI/人看）
     ├── sources_health.md        # 同上，人读表
     ├── tvbox_cfg/               # v2.4 调研时下载的 TVBox 配置样本（type=1 抽取用）
@@ -1107,9 +1210,10 @@ v1.7 起搜索结果来自两路，覆盖面比单源大得多：
 | 中文（如「凡人修仙传」） | 14 个源并发 `?ac=detail&wd=`，按贴合度重排后**再剪掉噪声** | maoyan 2 条、ffzy 3、ysxq 20、bfzy 20、ikun 4、360zy 11、yhzy 3、cmov 7、modu 10（`wsyzy` 不支持 `wd=`，返回纯文本） |
 | 纯拼音/全拼（如 `xiaochengliangfang`） | v2.0 起改问各源的 `suggest`（`wd=` 对拼音实测全 0，拼音根本不进库） | 11 个源里 9 个能命中：「小城良方」「兰香如故」「南部档案」全部 1 条精确 |
 | 全拼（如 `fanhua`） | 额外一路 `wsyzy` 的 `suggest` | 20 条，首条「繁花错」 |
-| 首字母缩写（如 `qyn`） | 无 | 各源 `wd=` 与 `suggest` 都返回 0 条，这是片源侧限制 |
+| 首字母缩写（如 `wddcz`） | **v2.5 起先查本地首字母表翻成中文名，再走 14 源 `wd=`** | `wddcz` → 「伟大的长征」，11 个源命中 1 条精确 |
 
-`suggest` 单源那一路支持中文和**完整拼音**，但**不支持拼音首字母缩写**：
+`suggest` 单源那一路支持中文和**完整拼音**，但**不支持拼音首字母缩写**（这是服务端侧的限制，
+v2.5 用离线索引绕过它，见上文「### v2.5：拼音首字母能搜到了」）：
 
 | 输入 | 结果 |
 | --- | --- |
@@ -1117,10 +1221,11 @@ v1.7 起搜索结果来自两路，覆盖面比单源大得多：
 | `繁花` | 20 条 |
 | `庆余年` | 8 条 |
 | `doupo` / `doupocangqiong` | 19 / 12 条 |
-| `qyn`（庆余年首字母） | **0 条** |
+| `qyn`（庆余年首字母） | **0 条**（走 `suggest` 时）；v2.5 起先查索引 |
 | `fh`（繁花首字母） | 1 条噪声 |
 
-搜索面板的提示文案已按此改成「输入片名全拼或中文，例如 fanhua / 繁花（首字母缩写搜不到）」。
+搜索面板空结果文案 v2.5 起改成「没找到，换个中文名或全拼试试」——首字母已经能用了，
+旧文案里「（首字母缩写搜不到）」这句不再成立。
 
 ### 搜索结果排序（v1.2 新增）
 
@@ -1150,4 +1255,5 @@ v1.7 起搜索结果来自两路，覆盖面比单源大得多：
 | `kuangbiao` | 狂飙之浴血玫瑰 | 狂飙1998 / 狂飙之浴血玫瑰 / 狂飙之绝地反击 |
 | `sanguo` | 三国第一部：争洛阳 | 三国假刘协 / 三国王道恋爱 / 三国演义3D |
 
-重排**不解决**首字母缩写问题（`qyn` 接口本来就返回 0 条），那是片源侧的限制。
+重排**不解决**首字母缩写问题（`qyn` 走 `suggest` 接口本来就返回 0 条）——那是 v2.5 用离线首字母索引解决的，
+见上文「### v2.5：拼音首字母能搜到了」。

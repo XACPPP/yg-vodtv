@@ -34,7 +34,17 @@ jobs:
         timeout-minutes: 15
         run: python test/source_scan.py
 
-      # 有变化才提交。三条产物都要看：报告是给人看的，sources.json 是给电视用的。
+      # 拼音首字母索引：从 bfzy 全库翻 8584 页（171667 条）切出首字母，产出
+      # app/src/main/assets/py/*.txt（23 个桶、约 4.6MB），电视按需下桶。
+      # 为什么必须在这里建：14 个源都是苹果CMS，服务端只有全拼索引，实测
+      # wd=wddcz 在 14 个源上一条正主都没有 —— 首字母这条路只能靠离线索引。
+      # 站点挂了不算错（索引保持上一版），所以 continue-on-error。
+      - name: 重建拼音索引
+        timeout-minutes: 20
+        continue-on-error: true
+        run: python test/pinyin_index.py
+
+      # 有变化才提交。四类产物都要看：报告是给人看的，sources.json 和 py/ 是给电视用的。
       # git diff --quiet 的退出码 1 表示「有差异」，0 表示「没差异」。
       - name: 提交变更
         run: |
@@ -42,8 +52,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add test/sources_health.json test/sources_health.md app/src/main/assets/sources.json
+          git add -A app/src/main/assets/py
           if git diff --cached --quiet; then
-            echo "源表无变化，跳过提交"
+            echo "源表与拼音索引都无变化，跳过提交"
             exit 0
           fi
           git commit -m "chore: 源表自动巡检 $(date +%F)"

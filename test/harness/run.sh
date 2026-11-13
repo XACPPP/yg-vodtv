@@ -40,6 +40,8 @@ elif [ "$1" = "srctab" ]; then
     MAIN="SrcTab"
 elif [ "$1" = "cachetab" ]; then
     MAIN="CacheTab"
+elif [ "$1" = "pytab" ]; then
+    MAIN="PyTab"
 fi
 
 rm -rf "$OUT"
@@ -66,6 +68,7 @@ mkdir -p "$OUT"
     "$SRC/com/yg/vodtv/Src.java" \
     "$SRC/com/yg/vodtv/Multi.java" \
     "$SRC/com/yg/vodtv/Cache.java" \
+    "$SRC/com/yg/vodtv/PyIndex.java" \
     Harness.java \
     Wire.java \
     Tabs.java \
@@ -75,7 +78,8 @@ mkdir -p "$OUT"
     Upd.java \
     Search.java \
     SrcTab.java \
-    CacheTab.java
+    CacheTab.java \
+    PyTab.java
 
 [ -f "$OUT/$MAIN.class" ] || { echo "FAILED: 编译未产出 $MAIN.class"; exit 1; }
 
