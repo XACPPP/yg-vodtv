@@ -214,6 +214,59 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
 
+### v2.9：首页一片空白 —— 是我自己加的渐隐层把海报墙挤成了 0 高
+
+v2.8 发出去之后，老板在手机上打开影视板块：
+
+> 准确来说是频道能显示和点击，但是没有任何影片，连个框框都没有，首页只剩顶部栏，
+> 下面是纯黑，连海报占位框都没渲染出来 分类能切，但每个分类点进去都是空的，
+> 估计接口返回空数组或解析全挂了
+
+先按老板的猜测查数据侧，全部排除：
+
+- `bash run.sh tabs` 24 个分类 1686 条全绿（每类都有数据、都有海报）
+- PC 上用 App 的 UA 直接打 14 个源的 `?ac=detail&pg=1`，12 个返回 200 且 `list` 非空
+  （只有 `uku`、`ysxq` 两个源 301，被 `Http.get` 判失败后冷却 3 分钟，不影响其它 12 个）
+- `Multi.list` 单源异常有 `catch`，永不返回 null；`Multi.decode` 有兜底
+- 三套占位图 `loading/letter/placeholder/channelTile` 全部 `Math.max(8, …)`，0 尺寸不崩
+
+真正的凶手在 `MainActivity.java` 的 `chipWrap` —— **v2.8 为了抄设计稿的左右渐隐，自己加的那层 `FrameLayout`**：
+
+```java
+FrameLayout chipWrap = new FrameLayout(this);          // WRAP_CONTENT 高
+chipWrap.addView(chipScroll, MATCH_PARENT × WRAP_CONTENT);
+chipWrap.addView(fadeL, Ui.px(32) × MATCH_PARENT);     // ← 病根
+chipWrap.addView(fadeR, Ui.px(96) × MATCH_PARENT);
+```
+
+`chipWrap` 自己是 `WRAP_CONTENT`，父 `LinearLayout` 量它时给的是
+`AT_MOST(整屏高)`；`FrameLayout` 于是把两个 `height=MATCH_PARENT` 的子 View
+也量成 `AT_MOST(整屏高)`，而 `View.getDefaultSize()` 对 `AT_MOST` 直接返回
+**上限值**（就是整屏高）。结果两层渐隐各占一整屏，`chipWrap` 被撑成整屏高，
+下面 `weight=1` 的 ScrollView 只能分到 **0 高**：
+
+| 元素 | 用户看到的 |
+|---|---|
+| 顶栏 `bar` | 正常 |
+| `titleRow` / `chipWrap`（分类条在它顶部） | 正常、可点、可切 |
+| `scroll`（海报墙，weight=1） | **0 高，整片黑** |
+| `buildDock()` | 被顶到屏幕外，看不到 |
+
+这和「v2.7.1 一切正常」也完全对得上 —— v2.7.1 没有 `chipWrap`，`chipScroll`
+是直接 `col.addView` 的。
+
+修法：
+
+1. 两个渐隐层初始高度给 `0`（不占位），挂 `OnGlobalLayoutListener`，
+   按 `chipScroll.getHeight()` 的实测值同步高度。不再用 `MATCH_PARENT`。
+2. 顺手修 `Cards.java` 的横向溢出：外层 `box` 有 `padding = Ui.px(4)`，
+   内层 `f` 却用满宽 `outerW`，7 列一行每张多出 `2*4`，合计溢出 `56px`。
+   改成 `Math.max(1, outerW - padOuter * 2)`。
+
+教训写在这里：**`WRAP_CONTENT` 的父容器里放 `MATCH_PARENT` 的子 View，
+在 `AT_MOST` 约束下会被量成上限值**。抄设计稿做遮罩/渐隐层时，这类叠层一律
+给确定高度或 `GONE`，不能指望它「跟着父容器自适应」。
+
 ### v2.8：比例算对、直播能看、直播不再像影视
 
 老板原话（三条一起骂的）：
@@ -1483,7 +1536,7 @@ ANDROID_HOME=/path/to/sdk bash app/build-ci.sh
 
 签名：`app/yg.keystore`，storepass/keypass 都是 `yg123456`，alias `yg`。
 
-APK 信息：`package=com.yg.vodtv`、`versionCode=17`、`versionName=2.6`、`minSdkVersion=21`、
+APK 信息：`package=com.yg.vodtv`、`versionCode=21`、`versionName=2.9`、`minSdkVersion=21`、
 `targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 

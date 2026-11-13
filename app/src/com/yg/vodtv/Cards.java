@@ -56,7 +56,10 @@ public final class Cards {
      */
     public static View poster(Context c, final Vod v, int outerW, int posterH,
                               View.OnClickListener click, boolean lazy, final OnCardFocus cb) {
-        final int w = outerW;
+        // 外层 box 四周各有 pad 的内边距，内层必须扣掉，
+        // 否则 7 列一行会横向溢出（每张多出 2*pad）。
+        final int padOuter = Ui.px(4);
+        final int w = Math.max(1, outerW - padOuter * 2);
         final int h = posterH;
 
         FrameLayout box = new FrameLayout(c);

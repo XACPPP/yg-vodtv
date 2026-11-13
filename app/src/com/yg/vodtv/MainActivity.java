@@ -379,24 +379,42 @@ public final class MainActivity extends Activity {
         // 看着像「内容坏了」，加一道 96px 的渐隐就变成「还有更多」。
         // 设计稿用 mask-image，Android 没有对应 API，用两层渐变 View 盖上来等效。
         final HorizontalScrollView cs = chipScroll;
-        FrameLayout chipWrap = new FrameLayout(this);
+        final FrameLayout chipWrap = new FrameLayout(this);
         chipWrap.setClipChildren(false);
         chipWrap.addView(chipScroll, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-        View fadeL = new View(this);
+        // 渐变层的高度必须给确定值，不能用 MATCH_PARENT。
+        // 原因：chipWrap 自己是 WRAP_CONTENT 高，父 LinearLayout 量它时给的是
+        // AT_MOST(整屏高)；FrameLayout 会把 height=MATCH_PARENT 的子 View 量成
+        // AT_MOST(整屏高)，而 View.getDefaultSize() 对 AT_MOST 直接返回上限值，
+        // 于是两层渐隐各占整屏高，chipWrap 被撑成整屏高，下面 weight=1 的
+        // 海报墙只分到 0 高 —— v2.8 首页「只剩顶栏、底下一片黑」就是这么来的。
+        // 先给 0 高不占位，布局完成后按 chipScroll 实测高度校正一次。
+        final View fadeL = new View(this);
         fadeL.setBackground(Ui.railFade(true, Ui.px(32), Ui.BG));
         fadeL.setClickable(false);
         fadeL.setFocusable(false);
-        FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(Ui.px(32),
-                FrameLayout.LayoutParams.MATCH_PARENT, Gravity.START);
+        final FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(Ui.px(32), 0, Gravity.START);
         chipWrap.addView(fadeL, flp);
-        View fadeR = new View(this);
+        final View fadeR = new View(this);
         fadeR.setBackground(Ui.railFade(false, Ui.px(96), Ui.BG));
         fadeR.setClickable(false);
         fadeR.setFocusable(false);
-        FrameLayout.LayoutParams frp = new FrameLayout.LayoutParams(Ui.px(96),
-                FrameLayout.LayoutParams.MATCH_PARENT, Gravity.END);
+        final FrameLayout.LayoutParams frp = new FrameLayout.LayoutParams(Ui.px(96), 0, Gravity.END);
         chipWrap.addView(fadeR, frp);
+        cs.getViewTreeObserver().addOnGlobalLayoutListener(
+                new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+                    public void onGlobalLayout() {
+                        int h = cs.getHeight();
+                        if (h <= 0 || (flp.height == h && frp.height == h)) {
+                            return;
+                        }
+                        flp.height = h;
+                        frp.height = h;
+                        fadeL.setLayoutParams(flp);
+                        fadeR.setLayoutParams(frp);
+                    }
+                });
         col.addView(chipWrap, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
