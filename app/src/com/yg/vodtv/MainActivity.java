@@ -82,6 +82,8 @@ public final class MainActivity extends Activity {
     private LinearLayout resultRows;
     private TextView searchInput;
     private TextView resultTitle;
+    /** 结果栏顶部那行说明（v2.13）：空态时它是唯一的提示，有结果时写「按 → 进入」。 */
+    private TextView resultHint;
     private String query = "";
 
     /** 停手多久自动搜。电视遥控器一个字一个字点，太快会把十个源打爆。 */
@@ -1130,6 +1132,12 @@ public final class MainActivity extends Activity {
         searchOverlay.addView(left, llp);
 
         /* ---------- 右栏：结果 ---------- */
+        resultHint = Ui.text(this, " ", 22, Ui.FG_DIM);
+        resultHint.setPadding(Ui.px(2), Ui.px(14), 0, Ui.px(10));
+        LinearLayout right = new LinearLayout(this);
+        right.setOrientation(LinearLayout.VERTICAL);
+        right.addView(resultHint);
+
         resultScroll = new ScrollView(this);
         resultScroll.setVerticalScrollBarEnabled(false);
         // v2.11 关键修复：ScrollView 默认可聚焦且 FOCUS_AFTER_DESCENDANTS，
@@ -1150,11 +1158,20 @@ public final class MainActivity extends Activity {
                         Ui.pump(resultRows);
                     }
                 });
-        searchOverlay.addView(resultScroll, new LinearLayout.LayoutParams(
+        right.addView(resultScroll, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        searchOverlay.addView(right, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
 
         root.addView(searchOverlay, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+    }
+
+    /** v2.13：结果栏顶部说明行，空态和结果态都靠它告诉用户下一步按什么。 */
+    private void setResultHint(String text) {
+        if (resultHint != null) {
+            resultHint.setText(text);
+        }
     }
 
     private void openSearch() {
@@ -1162,9 +1179,9 @@ public final class MainActivity extends Activity {
         updateInput();
         renderHistory();
         resultRows.removeAllViews();
-        TextView tip = Ui.text(this, "输入片名，停手 2 秒自动搜", 24, Ui.FG_DIM);
-        tip.setPadding(0, Ui.px(10), 0, 0);
-        resultRows.addView(tip);
+        // v2.13：空态原来只在右上角写一行小字，右边一大片黑，看着像坏了。
+        // 现在把话说清楚，并且跟左边键盘的说明行对齐。
+        setResultHint("拼出片名后，影片出现在这里 · 停手 2 秒自动搜");
         searchOverlay.setVisibility(View.VISIBLE);
         // 让背后的海报墙失去焦点能力，否则方向键会「按了没反应」（焦点跑到被遮住的控件上）。
         if (pageCol != null) {
@@ -1398,9 +1415,7 @@ public final class MainActivity extends Activity {
         firstResult = null;
 
         if (list.isEmpty()) {
-            TextView t = Ui.text(this, "没找到，换个中文名或全拼试试", 24, Ui.FG_DIM);
-            t.setPadding(0, Ui.px(20), 0, 0);
-            resultRows.addView(t);
+            setResultHint("没找到「" + kw + "」，换个中文名、全拼或首字母试试");
             return;
         }
 
@@ -1433,7 +1448,8 @@ public final class MainActivity extends Activity {
             resultRows.addView(row, rlp);
         }
         // 有结果就把「怎么进去」写在标题后面 —— 遥控器用户不会去猜。
-        resultTitle.setText("「" + kw + "」" + list.size() + " 个结果 · 按 → 进入");
+        resultTitle.setText("「" + kw + "」" + list.size() + " 个结果");
+        setResultHint("共 " + list.size() + " 个结果 · 按 → 进结果 · OK 看详情 · ← 回键盘");
 
         resultRows.post(new Runnable() {
             public void run() {
