@@ -980,7 +980,7 @@ public final class LivePlayerActivity extends Activity {
                         : Ui.round(0x1AFFFFFF, 6, 1, 0x1AFFFFFF));
 
                 name.setTextColor(has ? 0xFFFFFFFF : 0xE6FFFFFF);
-                name.setTextSize(has ? 20 : 18);
+                name.setTextSize(Ui.TYPE * (has ? 20 : 18));
                 playing.setVisibility(has && idx == chIdx ? View.VISIBLE : View.GONE);
                 tag4k.setVisibility(has ? View.VISIBLE : View.GONE);
                 sub.setText(has ? subFocus : subNormal);

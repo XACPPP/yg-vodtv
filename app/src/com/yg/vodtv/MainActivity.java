@@ -23,7 +23,14 @@ import java.util.concurrent.Executors;
 /** 首页：分类浏览 + 拼音搜索键盘 + 海报墙。 */
 public final class MainActivity extends Activity {
 
-    private static final int COLS = 7;
+    /**
+     * 海报墙一行几列。
+     *
+     * v2.11：7 → 5。老板说「整体布局太小气，坐远点看屏幕上的字都费劲」。
+     * 7 列时单卡只有 240 宽、片名 22px，10 尺距离上只能看个色块；
+     * 5 列后单卡 342×513、片名 30px，才是电视该有的尺度（Stitch v2.11 稿同此）。
+     */
+    private static final int COLS = 5;
 
     /**
      * 频道条一屏完整露几个。
@@ -47,11 +54,13 @@ public final class MainActivity extends Activity {
             "大陆综艺", "日韩综艺", "港台综艺", "欧美综艺", "国产动漫", "日韩动漫", "欧美动漫",
             "悬疑剧" };
 
-    private static final String[] KEYS = { "A", "B", "C", "D", "E", "F",
-            "G", "H", "I", "J", "K", "L",
-            "M", "N", "O", "P", "Q", "R",
-            "S", "T", "U", "V", "W", "X",
-            "Y", "Z", "空格", "删除", "清空", "搜索" };
+    /** 键盘按键表：按 5 个一行排，所以 6 行正好是 A–Z 依次铺开，最后一行 Z + 四个功能键。 */
+    private static final String[] KEYS = { "A", "B", "C", "D", "E",
+            "F", "G", "H", "I", "J",
+            "K", "L", "M", "N", "O",
+            "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y",
+            "Z", "空格", "删除", "清空", "搜索" };
 
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -64,6 +73,9 @@ public final class MainActivity extends Activity {
     private final java.util.List<TextView> tabChips = new java.util.ArrayList<TextView>();
 
     private LinearLayout searchOverlay;
+    private LinearLayout pageCol;
+    /** 搜索结果的第一个海报：方向键右键从键盘跳进来就靠它。 */
+    private View firstResult;
     private LinearLayout keypad;
     private LinearLayout historyRow;
     private ScrollView resultScroll;
@@ -74,8 +86,12 @@ public final class MainActivity extends Activity {
 
     /** 停手多久自动搜。电视遥控器一个字一个字点，太快会把十个源打爆。 */
     private static final int AUTO_SEARCH_MS = 2000;
-    /** 左栏放键盘所以右栏列数要少：1920 宽下左 760 + 间距 28，右剩约 1050。 */
-    private static final int SEARCH_COLS = 4;
+    /**
+     * 左栏放键盘所以右栏列数要少：1920 宽下左 760 + 间距 28，右剩约 1050。
+     * v2.11：4 列改 3 列。字号整体 ×1.4 后 251 宽的海报只能塞 24px 片名，
+     * 又回到"坐远看不清"；3 列 334 宽和首页 345 宽基本一致，结果区看着才像同一个 App。
+     */
+    private static final int SEARCH_COLS = 3;
     private int searchCardW = 200;
     private int searchPosterH = 300;
     /** 上一次真搜过的词与结果数，同一个词不重复请求。 */
@@ -190,6 +206,10 @@ public final class MainActivity extends Activity {
 
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
+        // v2.11：提成字段。搜索层只是叠在 root 上的可视层，背后的海报墙/顶栏
+        // 依然可聚焦，焦点会从搜索层"漏"到被遮住的控件上，表现就是按键像没反应。
+        // 开搜索时把它设为 INVISIBLE（保留布局尺寸，失去焦点能力），关掉再还原。
+        pageCol = col;
 
         // 标题栏
         LinearLayout bar = new LinearLayout(this);
@@ -308,28 +328,13 @@ public final class MainActivity extends Activity {
         bar.addView(updateChip, ulp);
         col.addView(bar);
 
-        // 标题行：设计稿在顶栏下面还有一层「大标题 + 内联小标签 + 副标题」，
-        // v2.6 是直接从顶栏跳到分类条，整页没有任何「主标题」，看着就像一个
-        // 没做完的列表页。这一行是这套设计语言里最便宜的层次感来源。
-        LinearLayout titleRow = new LinearLayout(this);
-        titleRow.setOrientation(LinearLayout.HORIZONTAL);
-        titleRow.setGravity(Gravity.CENTER_VERTICAL);
-        titleRow.setPadding(Ui.px(56), Ui.px(6), Ui.px(56), Ui.px(2));
-
-        titleRow.addView(Chrome.title(this, "影视大厅"));
-
-        TextView inline = Chrome.inlineTag(this, "VOD · 多源聚合");
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        ilp.leftMargin = Ui.px(12);
-        titleRow.addView(inline, ilp);
-
-        TextView sub = Chrome.subtitle(this, "14 个采集源 · 换源自动兜底 · 支持拼音首字母");
-        LinearLayout.LayoutParams slp2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        slp2.leftMargin = Ui.px(16);
-        titleRow.addView(sub, slp2);
-        col.addView(titleRow);
+        // v2.11：删掉「影视大厅 + VOD·多源聚合 + 14 个采集源…」这一整行。
+        //
+        // v2.7 加它是为了给页面一个「主标题」；但那是 7 列小海报时代的算法：
+        // 字号放大 1.4 倍、dock 从 150 涨到 300 之后，这一行要吃掉 70px，
+        // 而海报区只剩 640px —— 结果第二行海报只露出 20px 的一条边，
+        // 看着像「加载失败」。这一行的信息（分类数/源数）顶栏统计胶囊里本来就有，
+        // 是纯重复。删掉它换来第二行露出 130px，纵深立刻出来。
 
         // 提示条（默认隐藏）：清缓存、刷新被限流这类「刚做完一件事」的反馈放这儿，
         // 比弹窗轻，不打断遥控器操作。
@@ -355,7 +360,7 @@ public final class MainActivity extends Activity {
         // v2.8 照设计稿改回「自适应宽 + 20px 间距 + 8px 圆角」。
         // v2.7 用的是定宽 999 全胶囊，一屏 6.5 个：虽然整齐，但胶囊串在一起
         // 像一排按钮条，设计稿那种「标签云」的轻量感全没了。
-        int tabGap = Ui.px(20);
+        int tabGap = Ui.px(24);
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
             TextView t = tabChip(TAB_NAME[i]);
@@ -433,7 +438,7 @@ public final class MainActivity extends Activity {
         rows = new LinearLayout(this);
         rows.setOrientation(LinearLayout.VERTICAL);
         rows.setClipChildren(false);
-        rows.setPadding(Ui.px(52), Ui.px(8), Ui.px(52), Ui.px(36));
+        rows.setPadding(Ui.px(56), Ui.px(8), Ui.px(56), Ui.px(36));
         scroll.addView(rows);
 
         // 惰性取图：滚动时只把进入视口（含一屏预取）的海报发出去。
@@ -489,8 +494,10 @@ public final class MainActivity extends Activity {
         dock = new LinearLayout(this);
         dock.setOrientation(LinearLayout.VERTICAL);
         dock.setBackgroundColor(0xFF11141A);
-        dock.setPadding(Ui.px(56), Ui.px(10), Ui.px(56), Ui.px(4));
-        dock.setMinimumHeight(Ui.px(150));
+        dock.setPadding(Ui.px(56), Ui.px(20), Ui.px(56), Ui.px(10));
+        // v2.11：150 → 300。字号整体放大后，片名 56px + 元信息 + 两行简介塞不进 150，
+        // 会被压得互相叠字。300 是 Stitch v2.11 稿标注的 dock 高度（屏高的 28%）。
+        dock.setMinimumHeight(Ui.px(300));
 
         // 上沿 hairline：设计稿 border-t border-white/[0.08]
         View line = new View(this);
@@ -523,21 +530,23 @@ public final class MainActivity extends Activity {
         dockTitle.setLetterSpacing(-0.01f);
         left.addView(dockTitle);
 
-        dockMeta = Ui.text(this, " ", 15, Ui.FG_DIM);
+        dockMeta = Ui.text(this, " ", 16, Ui.FG_DIM);
         dockMeta.setSingleLine(true);
         dockMeta.setEllipsize(TextUtils.TruncateAt.END);
         LinearLayout.LayoutParams metlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        metlp.topMargin = Ui.px(4);
+        metlp.topMargin = Ui.px(8);
         left.addView(dockMeta, metlp);
 
-        dockIntro = Ui.text(this, " ", 17, Ui.FG_DIM);
-        dockIntro.setMaxLines(1);
+        dockIntro = Ui.text(this, " ", 17, Ui.FG_BODY);
+        // v2.11：一行 → 两行。10 尺距离上一行 26px 只够 30 来个字，
+        // 简介等于没有；给两行才看得出「这片讲什么」。
+        dockIntro.setMaxLines(2);
         dockIntro.setEllipsize(TextUtils.TruncateAt.END);
-        dockIntro.setLineSpacing(Ui.px(4), 1f);
+        dockIntro.setLineSpacing(Ui.px(8), 1f);
         LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        ilp.topMargin = Ui.px(6);
+        ilp.topMargin = Ui.px(10);
         left.addView(dockIntro, ilp);
 
         // 右栏两钮：影片详情（描边）/ 立即播放（琥珀实心 + [OK] 键帽）
@@ -670,17 +679,19 @@ public final class MainActivity extends Activity {
      */
     private TextView dockButton(String label, boolean primary) {
         TextView t = primary
-                ? Ui.bold(this, label, 18, Ui.BG)
-                : Ui.text(this, label, 18, 0xFFFFFFFF);
+                ? Ui.bold(this, label, 20, Ui.BG)
+                : Ui.text(this, label, 20, 0xFFFFFFFF);
         t.setGravity(Gravity.CENTER);
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(primary ? 28 : 24), Ui.px(12), Ui.px(primary ? 28 : 24), Ui.px(12));
+        // v2.11：内边距按 78px 高按钮标（20×1.4≈28px 字 + 上下各 20px）
+        t.setPadding(Ui.px(primary ? 40 : 34), Ui.px(20),
+                Ui.px(primary ? 40 : 34), Ui.px(20));
         if (primary) {
-            t.setBackground(Ui.focusBgGlow(Ui.ACCENT, 8, Ui.ACCENT_HI));
+            t.setBackground(Ui.focusBgGlow(Ui.ACCENT, 12, Ui.ACCENT_HI));
         } else {
-            t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 8, Ui.ACCENT));
+            t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 12, Ui.ACCENT));
         }
         return t;
     }
@@ -755,8 +766,10 @@ public final class MainActivity extends Activity {
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(32), Ui.px(6), Ui.px(32), Ui.px(6));
-        t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 8, Ui.ACCENT));
+        // v2.11：字号乘 1.4 后 18 → 25px，内边距同步放大到 36/10，
+        // 胶囊高度约 60px（设计稿 v2.11 标注），10 尺距离才按得准、看得清。
+        t.setPadding(Ui.px(36), Ui.px(10), Ui.px(36), Ui.px(10));
+        t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 10, Ui.ACCENT));
         return t;
     }
 
@@ -766,7 +779,7 @@ public final class MainActivity extends Activity {
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(20), Ui.px(8), Ui.px(20), Ui.px(8));
+        t.setPadding(Ui.px(24), Ui.px(10), Ui.px(24), Ui.px(10));
         t.setBackground(active
                 ? Ui.glowBg(Ui.ACCENT, 999, Ui.ACCENT_HI)
                 : Ui.focusBgGlow(0x1F1B2029, 999, Ui.ACCENT));
@@ -1070,13 +1083,16 @@ public final class MainActivity extends Activity {
 
         keypad = new LinearLayout(this);
         keypad.setOrientation(LinearLayout.VERTICAL);
-        int kw = Ui.px(115);
-        int kh = Ui.px(78);
-        for (int r = 0; r < 5; r++) {
+        // v2.11：6 列 → 5 列。键盘字号乘了 1.4（26 → 36px），6 列时单键只有 115 宽，
+        // 「空格/删除/清空/搜索」这类两字键会被挤到贴边；5 列单键 140×84（5×140 + 4×10
+        // = 740，正好落进 760 的左栏），10 尺距离上键位边界一眼能分清。
+        int kw = Ui.px(140);
+        int kh = Ui.px(84);
+        for (int r = 0; r < 6; r++) {
             LinearLayout line = new LinearLayout(this);
             line.setOrientation(LinearLayout.HORIZONTAL);
-            for (int c = 0; c < 6; c++) {
-                final String key = KEYS[r * 6 + c];
+            for (int c = 0; c < 5; c++) {
+                final String key = KEYS[r * 5 + c];
                 TextView k = Ui.bold(this, key, 26, Ui.FG);
                 k.setGravity(Gravity.CENTER);
                 k.setFocusable(true);
@@ -1104,6 +1120,12 @@ public final class MainActivity extends Activity {
         /* ---------- 右栏：结果 ---------- */
         resultScroll = new ScrollView(this);
         resultScroll.setVerticalScrollBarEnabled(false);
+        // v2.11 关键修复：ScrollView 默认可聚焦且 FOCUS_AFTER_DESCENDANTS，
+        // 从键盘按右键时它比卡片更靠近（左边缘 828 < 卡片 832），焦点会先落到
+        // ScrollView 自己身上 —— 之后方向键只滚轮，永远进不到海报里。
+        // 这就是老板说的「搜索界面用遥控器选不到影片」。
+        resultScroll.setFocusable(false);
+        resultScroll.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         resultRows = new LinearLayout(this);
         resultRows.setOrientation(LinearLayout.VERTICAL);
         resultRows.setPadding(0, 0, 0, Ui.px(30));
@@ -1132,6 +1154,10 @@ public final class MainActivity extends Activity {
         tip.setPadding(0, Ui.px(10), 0, 0);
         resultRows.addView(tip);
         searchOverlay.setVisibility(View.VISIBLE);
+        // 让背后的海报墙失去焦点能力，否则方向键会「按了没反应」（焦点跑到被遮住的控件上）。
+        if (pageCol != null) {
+            pageCol.setVisibility(View.INVISIBLE);
+        }
         focusFirstKey();
     }
 
@@ -1181,9 +1207,86 @@ public final class MainActivity extends Activity {
     private void closeSearch() {
         ui.removeCallbacks(autoSearch);
         searchOverlay.setVisibility(View.GONE);
+        // 先把主界面还原成可见（可见才可聚焦），再要焦点。
+        if (pageCol != null) {
+            pageCol.setVisibility(View.VISIBLE);
+        }
         if (!tabChips.isEmpty()) {
             tabChips.get(tabIndex).requestFocus();
         }
+    }
+
+    /**
+     * 搜索层的方向键路由（v2.11）。
+     *
+     * 遥控器上左右键本该在「键盘 ↔ 结果海报」之间来回，但 Android 的默认焦点搜索只按
+     * 几何距离算，键盘 6 列排满左边 760 宽之后，右边第一列卡片和键盘最后两列的
+     * X 距离只差几像素，经常判错方向。这里直接把左右键钉死，行为可预期。
+     */
+    private boolean searchKey(int code) {
+        if (code == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            View f = getCurrentFocus();
+            if (f != null && insideResult(f)) {
+                return false; // 已经在结果区里，交给系统做卡片间移动
+            }
+            if (firstResult != null) {
+                firstResult.requestFocus();
+                return true;
+            }
+            return false;
+        }
+        if (code == KeyEvent.KEYCODE_DPAD_LEFT) {
+            View f = getCurrentFocus();
+            if (f == null || !insideResult(f)) {
+                return false; // 已经在键盘区，交给系统
+            }
+            // 只有最左一列才回键盘，否则先让系统往左挪一列
+            View card = f;
+            int idx = indexInRow(card);
+            if (idx == 0) {
+                focusFirstKey();
+                return true;
+            }
+            return false;
+        }
+        if (code == KeyEvent.KEYCODE_DPAD_UP) {
+            View f = getCurrentFocus();
+            if (f != null && insideResult(f) && indexInResultRow(f) == 0) {
+                focusFirstKey();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean insideResult(View v) {
+        View p = v;
+        while (p != null) {
+            if (p == resultRows) {
+                return true;
+            }
+            p = (p.getParent() instanceof View) ? (View) p.getParent() : null;
+        }
+        return false;
+    }
+
+    private int indexInRow(View card) {
+        if (!(card.getParent() instanceof ViewGroup)) {
+            return -1;
+        }
+        ViewGroup row = (ViewGroup) card.getParent();
+        return row.indexOfChild(card);
+    }
+
+    private int indexInResultRow(View card) {
+        if (!(card.getParent() instanceof ViewGroup)) {
+            return -1;
+        }
+        ViewGroup row = (ViewGroup) card.getParent();
+        if (row.getParent() != resultRows) {
+            return -1;
+        }
+        return resultRows.indexOfChild(row);
     }
 
     private void updateInput() {
@@ -1280,6 +1383,7 @@ public final class MainActivity extends Activity {
 
         resultRows.removeAllViews();
         resultTitle.setText("「" + kw + "」" + list.size() + " 个结果");
+        firstResult = null;
 
         if (list.isEmpty()) {
             TextView t = Ui.text(this, "没找到，换个中文名或全拼试试", 24, Ui.FG_DIM);
@@ -1289,6 +1393,7 @@ public final class MainActivity extends Activity {
         }
 
         int i = 0;
+        boolean firstCard = true;
         while (i < list.size()) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -1304,6 +1409,10 @@ public final class MainActivity extends Activity {
                                 openDetail(v);
                             }
                         });
+                if (firstCard) {
+                    firstCard = false;
+                    firstResult = card;
+                }
                 LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(searchCardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
                 clp.rightMargin = Ui.px(16);
@@ -1311,6 +1420,8 @@ public final class MainActivity extends Activity {
             }
             resultRows.addView(row, rlp);
         }
+        // 有结果就把「怎么进去」写在标题后面 —— 遥控器用户不会去猜。
+        resultTitle.setText("「" + kw + "」" + list.size() + " 个结果 · 按 → 进入");
 
         resultRows.post(new Runnable() {
             public void run() {
@@ -1496,6 +1607,11 @@ public final class MainActivity extends Activity {
                 closeSearch();
                 return true;
             }
+            // 普通搜索页：左右键在键盘和结果海报之间切换（见 searchKey 注释）。
+            if (searchKey(code)) {
+                return true;
+            }
+            return super.onKeyDown(code, e);
         }
         // v2.10：方向键/OK 一按，就算用户开始选片了，dock 从占位态切成真实内容。
         switch (code) {

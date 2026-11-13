@@ -30,8 +30,13 @@ import android.widget.TextView;
  */
 public final class Chrome {
 
-    /** 顶栏高度（设计稿 72px）。 */
-    public static final float BAR_H = 72f;
+    /**
+     * 顶栏高度（设计稿 v2.11 88px）。
+     *
+     * v2.7 是 72px。整体字号 ×1.4 之后 72 装不下 30px 的品牌字标 + 胶囊的内边距，
+     * 会被压成「字贴着上下边」。88 是 Stitch v2.11 稿标注值（屏高 8.1%）。
+     */
+    public static final float BAR_H = 88f;
 
     private Chrome() {
     }
@@ -50,27 +55,27 @@ public final class Chrome {
         GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[] { 0xFFFFC107, 0xFFFF9F00 });
         g.setShape(GradientDrawable.RECTANGLE);
-        g.setCornerRadius(Ui.px(8));
+        g.setCornerRadius(Ui.px(10));
         box.setBackground(g);
 
+        // v2.11：40 → 52。里面的 "YG" 跟着 TYPE 放大到 28px，40 的方块会顶边。
         TextView t = Ui.bold(c, "YG", 20, Ui.BG);
         t.setGravity(Gravity.CENTER);
         t.setLetterSpacing(0.02f);
         box.addView(t, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        box.setLayoutParams(new LinearLayout.LayoutParams(Ui.px(40), Ui.px(40)));
+        box.setLayoutParams(new LinearLayout.LayoutParams(Ui.px(52), Ui.px(52)));
         return box;
     }
 
     /**
      * 品牌字样「极清影院」。
      *
-     * 设计稿是 `text-headline-md 32px font-bold text-primary #FFD79B tracking-wide`。
-     * v2.7 做成了 20px 灰白字，和右边 17px 的板块胶囊差不多大 ——
-     * 结果整条顶栏没有一个视觉锚点，看着像工具栏而不是品牌头。
+     * v2.11：32 → 22。Ui.text 内部会乘 1.4，实际落在 31px，正是新设计稿的品牌字标标注；
+     * 如果直接留 32 不改，乘完是 45px，顶栏里像个横幅标语，抢了片名区的视觉权重。
      */
     public static TextView brandText(Context c) {
-        TextView t = Ui.bold(c, "极清影院", 32, Ui.PRIMARY_LIGHT);
+        TextView t = Ui.bold(c, "极清影院", 22, Ui.PRIMARY_LIGHT);
         t.setLetterSpacing(0.04f);
         return t;
     }
@@ -79,7 +84,7 @@ public final class Chrome {
     public static View vDivider(Context c) {
         View v = new View(c);
         v.setBackgroundColor(Ui.BG_HOVER);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Ui.px(1), Ui.px(24));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Ui.px(1), Ui.px(34));
         lp.leftMargin = Ui.px(20);
         lp.rightMargin = Ui.px(20);
         v.setLayoutParams(lp);
@@ -118,7 +123,7 @@ public final class Chrome {
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(24), Ui.px(7), Ui.px(24), Ui.px(7));
+        t.setPadding(Ui.px(28), Ui.px(10), Ui.px(28), Ui.px(10));
         if (on) {
             t.setBackground(glowPill(Ui.ACCENT, true));
         } else {
@@ -165,11 +170,11 @@ public final class Chrome {
      * 一屏电视上看就是「数字比汉字高半个像素」，很脏。
      */
     public static TextView statPill(Context c, String text) {
-        TextView t = Ui.text(c, text, 13, Ui.FG_DIM);
+        TextView t = Ui.text(c, text, 14, Ui.FG_DIM);
         t.setGravity(Gravity.CENTER);
         t.setSingleLine(true);
         t.setLetterSpacing(0.04f);
-        t.setPadding(Ui.px(16), Ui.px(6), Ui.px(16), Ui.px(6));
+        t.setPadding(Ui.px(20), Ui.px(8), Ui.px(20), Ui.px(8));
         GradientDrawable g = pillBg(0xCC1B2029, 0x33252C38, 1);
         t.setBackground(g);
         return t;

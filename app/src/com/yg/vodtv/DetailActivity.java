@@ -384,7 +384,7 @@ public final class DetailActivity extends Activity {
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         TextView from = flatButton("从头播放");
-        from.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.px(17));
+        from.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.px(17 * Ui.TYPE));
         from.setPadding(Ui.px(26), Ui.px(14), Ui.px(26), Ui.px(14));
         from.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -646,7 +646,7 @@ public final class DetailActivity extends Activity {
                                 : Ui.focusBgGlow(w2 ? 0x222A3240 : Ui.BG_CARD, 8, Ui.ACCENT));
                         t.setTextColor(has ? 0xFFFFFFFF : (w2 ? Ui.FG_DIM : Ui.FG));
                         t.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
-                                Ui.px(has ? 20 : 18));
+                                Ui.px((has ? 20 : 18) * Ui.TYPE));
                     }
                 });
 

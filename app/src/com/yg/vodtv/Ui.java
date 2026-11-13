@@ -75,6 +75,25 @@ public final class Ui {
     /** 状态绿（在线/正常）。 */
     public static final int OK_GREEN = 0xFF00E676;
 
+    /**
+     * v2.11：全局字号放大系数。
+     *
+     * 老板原话「整体布局太小气，坐远点看屏幕上的字都费劲」。
+     * 根因不在某几个控件，而是 v2.7 那版设计稿按「1920 宽网页」的比例出的图：
+     * 片名 22px、副标题 13px —— 那是在 60cm 的电脑屏前看的尺寸，
+     * 放到 3 米外的电视上，13px 只有画面的 1.2%，基本等于看不见。
+     *
+     * 10 尺（3 米）人机工程的经验值：正文不小于屏高的 2.2%（1080p ≈ 24px），
+     * 片名 2.8%（≈30px），重点标题 5%（≈56px）。
+     * Stitch 重出的 v2.11 稿（影视野首页 / 10 尺远视版）就是按这套尺寸标的，
+     * 和旧稿相比整体约 1.4 倍。
+     *
+     * 所以这里不逐个控件改数字（200 多处调用点，改必漏），
+     * 而是在 text()/bold() 这两个唯一的文字出口上统一乘系数 ——
+     * 全 App 所有 TextView 都从这两个方法出来，一处生效、全局一致。
+     */
+    public static final float TYPE = 1.4f;
+
     private static float scale = 1f;
     private static int screenW = 1920;
     private static int screenH = 1080;
@@ -118,7 +137,8 @@ public final class Ui {
         TextView t = new TextView(c);
         t.setText(s);
         t.setTextColor(color);
-        t.setTextSize(TypedValue.COMPLEX_UNIT_PX, px(size));
+        // v2.11：乘全局字号系数，10 尺视距才看得清（见 TYPE 注释）
+        t.setTextSize(TypedValue.COMPLEX_UNIT_PX, px(size * TYPE));
         t.setIncludeFontPadding(false);
         return t;
     }

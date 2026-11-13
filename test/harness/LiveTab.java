@@ -21,6 +21,7 @@ public final class LiveTab {
         System.out.flush();
 
         testBuiltin();
+        testJiangxi();
         testNormal();
         testBadJson();
         testMissingGroups();
@@ -61,15 +62,20 @@ public final class LiveTab {
         Live.load(json);
 
         ok("load 后 seq 自增", Live.loadSeq() == seq + 1);
-        List<Live.Group> gs = Live.groups();
+        List<Live.Group> gs = remote();
         ok("两组", gs.size() == 2);
         ok("第一组 id", "cctv".equals(gs.get(0).id));
         ok("第一组名", "央视".equals(gs.get(0).name));
         ok("第一组两台", gs.get(0).chs.size() == 2);
         ok("台名正确", "CCTV-1".equals(gs.get(0).chs.get(0).name));
         ok("多线路都进来", gs.get(0).chs.get(0).urls.size() == 2);
-        ok("channelCount 三台", Live.channelCount() == 3);
-        ok("groupCount 两组", Live.groupCount() == 2);
+        int rc = 0;
+        for (int i = 0; i < gs.size(); i++) {
+            rc += gs.get(i).chs.size();
+        }
+        // 参与统计的还有内置江西电信的 12 台，所以总数是 3 + 12
+        ok("channelCount 三台", rc == 3 && Live.channelCount() == 15);
+        ok("groupCount 两组", Live.groupCount() == 2 + builtinJxGroups());
     }
 
     /** 坏 JSON：解析抛异常，但表不能被冲掉。 */
@@ -109,7 +115,7 @@ public final class LiveTab {
                 + "{\"id\":\"empty\",\"name\":\"空组\",\"chs\":[]}]}";
 
         Live.load(json);
-        List<Live.Group> gs = Live.groups();
+        List<Live.Group> gs = remote();
         ok("无效组被跳过", gs.size() == 1);
         ok("留下的是 ok 组", "ok".equals(gs.get(0).id));
         ok("空名台被跳过", gs.get(0).chs.size() == 1);
@@ -130,7 +136,7 @@ public final class LiveTab {
                 + "{\"name\":\"只有IPv6\",\"urls\":[\"http://[::1]/x.m3u8\"]}]}]}";
 
         Live.load(json);
-        List<Live.Group> gs = Live.groups();
+        List<Live.Group> gs = remote();
         ok("一组", gs.size() == 1);
         // v2.8 改：线路全废的台不再整台丢掉，而是保留台名 + 空 urls。
         // 丢台会让「湖南卫视」这种老台从抽屉里消失，用户以为软件坏了。
@@ -144,7 +150,7 @@ public final class LiveTab {
         // URL 里带逗号：不能被当成两个地址切开
         Live.load("{\"version\":1,\"groups\":[{\"id\":\"t\",\"name\":\"t\",\"chs\":["
                 + "{\"name\":\"A\",\"urls\":[\"http://h/x.m3u8?a=1,2&b=3\"]}]}]}");
-        gs = Live.groups();
+        gs = remote();
         ok("带逗号的地址仍是一条", gs.get(0).chs.get(0).urls.size() == 1);
         ok("逗号没丢", gs.get(0).chs.get(0).urls.get(0).indexOf("a=1,2") > 0);
     }
@@ -169,18 +175,79 @@ public final class LiveTab {
                 + "{\"name\":\"台\",\"urls\":[\"http://z/1.m3u8\"]}]},"
                 + "{\"id\":\"n2\",\"name\":\"新二\",\"chs\":["
                 + "{\"name\":\"台\",\"urls\":[\"http://z/2.m3u8\"]}]}]}");
-        ok("换表后组数变了", Live.groupCount() == 2 && n != 2 || Live.groupCount() == 2);
+        ok("换表后组数变了", remote().size() == 2);
         ok("旧快照仍是旧的", old.size() == n);
-        ok("新快照是新的", Live.groups().get(0).id.startsWith("n"));
+        ok("新快照是新的", remote().get(0).id.startsWith("n"));
         int s3 = Live.loadSeq();
         Live.load("{\"version\":1,\"groups\":[]}");
         ok("被放弃的 load 不动 seq", Live.loadSeq() == s3);
     }
 
+
+    /** ==================== 江西电信内置组（v2.11） ==================== */
+
+    /** 组的 id 以 jx 开头即视为内置的江西电信组（永远存在，不受 load 影响）。 */
+    private static boolean isJx(Live.Group g) {
+        return g != null && g.id != null && g.id.startsWith("jx");
+    }
+
+    /** 剔除内置江西电信组之后的「远端表部分」——原来那些 load 断言都针对这一部分。 */
+    private static List<Live.Group> remote() {
+        List<Live.Group> out = new java.util.ArrayList<Live.Group>();
+        List<Live.Group> all = Live.groups();
+        for (int i = 0; i < all.size(); i++) {
+            if (!isJx(all.get(i))) {
+                out.add(all.get(i));
+            }
+        }
+        return out;
+    }
+
+    private static int builtinJxGroups() {
+        int n = 0;
+        List<Live.Group> all = Live.groups();
+        for (int i = 0; i < all.size(); i++) {
+            if (isJx(all.get(i))) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    /**
+     * 江西电信组：必须排在最前、两个组 12 台、每条线路都带 ?fmt=ts2hls。
+     *
+     * 这组是写死在源码里的内网单播源（CI 在公网，巡检必然判死，只能内置），
+     * 所以这里断言的是「代码没被改坏」，不是「线路一定活着」。
+     */
+    private static void testJiangxi() {
+        List<Live.Group> all = Live.groups();
+        ok("江西电信组排在最前", !all.isEmpty() && isJx(all.get(0)));
+        ok("江西电信两组", builtinJxGroups() == 2);
+        int chs = 0;
+        boolean allFmt = true;
+        for (int i = 0; i < all.size(); i++) {
+            Live.Group g = all.get(i);
+            if (!isJx(g)) {
+                continue;
+            }
+            for (int j = 0; j < g.chs.size(); j++) {
+                Live.Ch c = g.chs.get(j);
+                chs++;
+                if (c.urls.size() != 1 || c.urls.get(0).indexOf("fmt=ts2hls") < 0) {
+                    allFmt = false;
+                }
+            }
+        }
+        ok("江西电信 12 台", chs == 12);
+        ok("每条线路都带 fmt=ts2hls", allFmt);
+        ok("台名带江西卫视", all.get(0).chs.get(0).name.indexOf("江西") >= 0);
+    }
+
     /** ==================== 断言工具 ==================== */
 
     private static String firstGroupName() {
-        List<Live.Group> gs = Live.groups();
+        List<Live.Group> gs = remote();
         return gs.isEmpty() ? "" : String.valueOf(gs.get(0).name);
     }
 
