@@ -1,5 +1,8 @@
 package com.yg.vodtv;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -102,17 +105,200 @@ public final class Multi {
         public int pagecount = 1;
         /** 有几个源回了数据。 */
         public int okSources = 0;
+        /**
+         * 这一页的紧凑 JSON 文本（见 {@link Multi#encode(Result)}），空列表时为空串。
+         * 给 Cache 落盘、给 Prefetch 预热用；上屏完全不需要它。
+         */
+        public String raw = "";
+    }
+
+    /* ==================== 缓存序列化 ==================== */
+
+    /**
+     * 把一个 Result 序列化成紧凑 JSON 文本，供 Cache 落盘。
+     *
+     * 为什么手写拼接而不用 JSONObject.put：这套代码要被 test/harness 的
+     * org.json 替身编译，替身只有解析能力（5 个 opt*），没有任何写方法。
+     * 所以转义、逗号、括号全部手写。
+     *
+     * 不序列化 epNames/epUrls：列表页一个字段都用不到，而且 84 条 × 几十集的
+     * 播放地址会让单页 JSON 涨到几百 KB；详情页本来就会按 id 重新拉一次。
+     */
+    public static String encode(Result r) {
+        if (r == null || r.items.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(8 * 1024);
+        sb.append("{\"v\":1,\"page\":").append(r.page)
+                .append(",\"pagecount\":").append(r.pagecount)
+                .append(",\"ok\":").append(r.okSources)
+                .append(",\"items\":[");
+        boolean first = true;
+        for (int i = 0; i < r.items.size(); i++) {
+            Vod v = r.items.get(i);
+            if (v == null) {
+                continue;
+            }
+            if (!first) {
+                sb.append(',');
+            }
+            first = false;
+            sb.append("{\"id\":\"");
+            sb.append(v.id);
+            sb.append("\",\"s\":\"");
+            esc(sb, v.src);
+            sb.append("\",\"n\":\"");
+            esc(sb, v.name);
+            sb.append("\",\"p\":\"");
+            esc(sb, v.pic);
+            sb.append("\",\"r\":\"");
+            esc(sb, v.remarks);
+            sb.append("\",\"t\":\"");
+            esc(sb, v.typeName);
+            sb.append("\",\"y\":\"");
+            esc(sb, v.year);
+            sb.append("\",\"a\":\"");
+            esc(sb, v.area);
+            sb.append("\",\"pf\":\"");
+            esc(sb, v.playFrom);
+            sb.append("\",\"pu\":\"");
+            esc(sb, v.playUrl);
+            sb.append("\",\"e\":\"");
+            esc(sb, v.en);
+            sb.append("\",\"ac\":\"");
+            esc(sb, v.actor);
+            sb.append("\",\"d\":\"");
+            esc(sb, v.director);
+            sb.append("\",\"l\":\"");
+            esc(sb, v.lang);
+            sb.append("\",\"b\":\"");
+            esc(sb, v.blurb);
+            sb.append("\",\"c\":\"");
+            esc(sb, v.content);
+            sb.append("\"}");
+        }
+        sb.append("]}");
+        return sb.toString();
+    }
+
+    /**
+     * 写 JSON 字符串内容（调用方已经写好开头的引号）。
+     * 规则：`"` → `\"`、`\` → `\\`、换行/回车/制表 → `\n`/`\r`/`\t`、
+     * 其余 < 0x20 的控制字符换成空格（JSON 不允许裸控制字符）。null 输出空串。
+     */
+    private static void esc(StringBuilder sb, String s) {
+        if (s == null || s.length() == 0) {
+            return;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(' ');
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+    }
+
+    /**
+     * 把 {@link #encode(Result)} 的文本还原成 Result；任何异常都吞掉，返回 null。
+     *
+     * 只走替身也支持的那几个读方法：new JSONObject(text) + optInt/optString/
+     * optJSONArray + JSONArray.length()/optJSONObject(i)。
+     * 特别注意：**不用** optJSONObject(String)、也不用 new JSONArray(String)
+     * （替身 JSONArray 没有 String 构造）。
+     *
+     * @param ch 仅用于日志，解码不依赖频道号（频道号已在文件名里）
+     */
+    public static Result decode(String raw, int ch) {
+        if (raw == null || raw.length() < 20) {
+            return null;
+        }
+        try {
+            JSONObject o = new JSONObject(raw);
+            if (o.optInt("v", 1) > 1) {
+                return null; // 将来换格式直接当不存在，让上层重新拉
+            }
+            JSONArray arr = o.optJSONArray("items");
+            if (arr == null) {
+                return null;
+            }
+            Result r = new Result();
+            r.page = o.optInt("page", 1);
+            if (r.page < 1) {
+                r.page = 1;
+            }
+            r.pagecount = o.optInt("pagecount", 1);
+            if (r.pagecount < 1) {
+                r.pagecount = 1;
+            }
+            r.okSources = o.optInt("ok", 0);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject it = arr.optJSONObject(i);
+                if (it == null) {
+                    continue;
+                }
+                Vod v = new Vod();
+                v.id = it.optInt("id", 0);
+                v.src = it.optString("s", "");
+                v.name = it.optString("n", "");
+                v.pic = it.optString("p", "");
+                v.remarks = it.optString("r", "");
+                v.typeName = it.optString("t", "");
+                v.year = it.optString("y", "");
+                v.area = it.optString("a", "");
+                v.playFrom = it.optString("pf", "");
+                v.playUrl = it.optString("pu", "");
+                v.en = it.optString("e", "");
+                v.actor = it.optString("ac", "");
+                v.director = it.optString("d", "");
+                v.lang = it.optString("l", "");
+                v.blurb = it.optString("b", "");
+                v.content = it.optString("c", "");
+                // 刻意不 parseEpisodes()：列表页只画卡片，选集在详情页重新拉，
+                // 84 条各切一遍 $$$/# 纯属白烧电视的 CPU。
+                if (v.name.length() > 0) {
+                    r.items.add(v);
+                }
+            }
+            if (r.items.isEmpty()) {
+                return null;
+            }
+            r.raw = raw;
+            return r;
+        } catch (Throwable t) {
+            Trace.err("multi", "缓存解析失败 ch=" + ch, t);
+            return null;
+        }
     }
 
     /** 按统一频道取一页，多源并行合并。 */
     public static Result list(final int ch, final int pg) {
+        // 只取一次快照：Src.all() 现在返回副本，循环里反复调会拿到不同副本，
+        // 一旦后台换表把数量改小，索引就会越界。
+        final List<Src> snap = Src.all();
         final List<Src> srcs = new ArrayList<Src>();
-        for (int i = 0; i < Src.all().size(); i++) {
-            if (Src.all().get(i).has(ch)) {
-                Src s = Src.all().get(i);
-                if (isDown(s)) {
-                    continue;
-                }
+        for (int i = 0; i < snap.size(); i++) {
+            Src s = snap.get(i);
+            if (s.has(ch) && !isDown(s)) {
                 srcs.add(s);
             }
         }
@@ -140,7 +326,12 @@ public final class Multi {
         // 不再死等满预算：边等边看，手上够了就立刻出画面。
         // 电视上快源 1 秒内就回来了，慢源再等它 8 秒毫无意义。
         awaitEnough(latch, got, LIST_BUDGET);
-        return merge(srcs, got, pg);
+        Result r = merge(srcs, got, pg);
+        // 空列表不 encode（拼接 84 条字符串纯属白烧 CPU，而且空页也没什么好缓存的）
+        if (!r.items.isEmpty()) {
+            r.raw = encode(r);
+        }
+        return r;
     }
 
     /** 搜索侧的「够用就走」，判定依据是已经拿到多少个源的结果。 */
@@ -202,9 +393,10 @@ public final class Multi {
             return new ArrayList<Vod>();
         }
         final String k = kw.trim();
+        final List<Src> snap = Src.all();
         final List<Src> srcs = new ArrayList<Src>();
-        for (int i = 0; i < Src.all().size(); i++) {
-            Src s = Src.all().get(i);
+        for (int i = 0; i < snap.size(); i++) {
+            Src s = snap.get(i);
             if (!isDown(s)) {
                 srcs.add(s);
             }

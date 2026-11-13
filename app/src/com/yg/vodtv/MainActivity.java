@@ -87,6 +87,8 @@ public final class MainActivity extends Activity {
     private int pageCount = 1;
     private int tabIndex = 0;
     private boolean loading = false;
+    /** 加载中又被点了别的频道：先记下，等这一轮回来立刻换过去，别把这次点击吞掉。 */
+    private int wantType = -1;
     private int cardW = 240;
     private int posterH = 336;
 
@@ -103,11 +105,23 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Ui.init(this);
+        Store.init(this);
+        Cache.init(this);
+        // 源表现在可以从远端覆盖：先拿本地缓存的那份同步生效（几十 KB，几十毫秒），
+        // 再后台默默拉最新。拉失败就一直是内置的 14 个源，不影响看电视。
+        SrcSync.init(this);
+        SrcSync.refresh();
         Ui.immersive(getWindow());
         Http.trustAll();
         Proxy.start();
         buildUi();
-        load(TAB_TYPE[0], 1, false);
+        // 上次停在哪个频道就回哪个，冷启动少按几次遥控器
+        int startTab = Store.tab();
+        if (startTab < 0 || startTab >= TAB_TYPE.length) {
+            startTab = 0;
+        }
+        syncChips(startTab);
+        load(TAB_TYPE[startTab], 1, false);
     }
 
     @Override
@@ -217,7 +231,7 @@ public final class MainActivity extends Activity {
         chipRow.setPadding(0, Ui.px(10), 0, Ui.px(10));
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
-            TextView t = chip(TAB_NAME[i], i == 0);
+            TextView t = chip(TAB_NAME[i], false);
             t.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     selectTab(idx);
@@ -297,10 +311,8 @@ public final class MainActivity extends Activity {
         return t;
     }
 
-    private void selectTab(int idx) {
-        if (idx < 0 || idx >= TAB_TYPE.length) {
-            return;
-        }
+    /** 只切频道条的高亮，不触发加载（冷启动恢复上次频道时用）。 */
+    private void syncChips(int idx) {
         tabIndex = idx;
         for (int i = 0; i < tabChips.size(); i++) {
             boolean on = i == idx;
@@ -308,23 +320,61 @@ public final class MainActivity extends Activity {
             t.setTextColor(on ? 0xFF12161C : Ui.FG);
             t.setBackground(Ui.focusBg(on ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
         }
+    }
+
+    private void selectTab(int idx) {
+        if (idx < 0 || idx >= TAB_TYPE.length) {
+            return;
+        }
+        // 点的就是当前频道：画面已经是对的，别推倒重来
+        if (idx == tabIndex && rows.getChildCount() > 1) {
+            return;
+        }
+        syncChips(idx);
+        Store.saveTab(idx);
+        // 先滚到顶，再加载。真正让人看到「闪一下」的不是这两行的顺序，
+        // 是渲染本身异步 —— 现在 load() 里缓存命中会同步铺满画面，
+        // 清空和重建落在同一帧里，中间那个空白状态根本不会被画出来。
         scroll.scrollTo(0, 0);
         load(TAB_TYPE[idx], 1, false);
+        Prefetch.warm(TAB_TYPE, idx);
     }
 
     /** ==================== 数据 ==================== */
 
     private void load(final int type, final int pg, final boolean append) {
         if (loading) {
+            // 上一轮还在跑就又点了别的频道：记下来，等它回来立刻补一刀。
+            // 以前这里直接 return，用户连点两下频道，后点的那个完全没反应。
+            if (!append) {
+                wantType = type;
+            }
             return;
         }
         loading = true;
+        wantType = -1;
         curType = type;
-        if (!append) {
+
+        // 第一页先看磁盘：命中就同步把画面铺上去，一个「加载中」都不给看。
+        // 铺完照样发网络请求，回来了比一比，内容没变就不重画（防闪烁）。
+        String cached = pg == 1 ? Cache.get(type, pg) : null;
+        Multi.Result cr = cached == null ? null : Multi.decode(cached, type);
+        if (cr != null && !cr.items.isEmpty()) {
+            status.setText(append ? "正在加载第 " + pg + " 页…" : "");
+            renderPage(cr, append);
+            // 缓存里的海报多半已在磁盘上。等一帧让布局跑完，再一次性把首屏铺出来。
+            rows.post(new Runnable() {
+                public void run() {
+                    Ui.primeNow(rows);
+                }
+            });
+        } else if (!append) {
             status.setText("加载中…");
         } else {
             status.setText("正在加载第 " + pg + " 页…");
         }
+
+        final String before = cached;
         io.execute(new Runnable() {
             public void run() {
                 final Multi.Result p = Multi.list(type, pg);
@@ -333,16 +383,41 @@ public final class MainActivity extends Activity {
                         loading = false;
                         if (p.items.isEmpty()) {
                             Trace.add("list", "第 " + pg + " 页没数据 ch=" + type);
-                            status.setText(pg == 1
-                                    ? "没取到数据，检查网络后按 OK 重试（点分类任意一项）"
-                                    : "没有更多了");
-                            if (!append && pg == 1) {
-                                addRetry(type);
+                            // 后台没数据时绝不清空已有画面 —— 网络抖一下就把满屏海报
+                            // 换成一句「没取到数据」，比慢难受得多。
+                            if (rows.getChildCount() <= 1) {
+                                status.setText(pg == 1
+                                        ? "没取到数据，检查网络后按 OK 重试（点分类任意一项）"
+                                        : "没有更多了");
+                                if (!append && pg == 1) {
+                                    addRetry(type);
+                                }
+                            }
+                            if (wantType >= 0) {
+                                int t = wantType;
+                                wantType = -1;
+                                load(t, 1, false);
                             }
                             return;
                         }
-                        status.setText("");
-                        renderPage(p, append);
+                        // 磁盘上的内容跟这次拿到的一模一样：画面已经是它了，重画只会闪
+                        if (pg == 1 && before != null && before.equals(p.raw)) {
+                            Trace.add("list", "第 1 页内容未变，跳过重画 ch=" + type);
+                        } else {
+                            status.setText("");
+                            renderPage(p, append);
+                        }
+                        // 这一页落盘，下次切回来（甚至下次开机）直接上屏。
+                        // 只存第一页：翻页是临时行为，存了基本用不上，白占空间。
+                        if (pg == 1 && p.raw != null && p.raw.length() > 20) {
+                            Cache.put(type, 1, p.raw);
+                        }
+                        Prefetch.warm(TAB_TYPE, tabIndex);
+                        if (wantType >= 0) {
+                            int t = wantType;
+                            wantType = -1;
+                            load(t, 1, false);
+                        }
                     }
                 });
             }
@@ -368,6 +443,9 @@ public final class MainActivity extends Activity {
     private void clearCacheConfirm() {
         long before = Ui.diskBytes();
         Ui.clearDisk();
+        // 列表 JSON 也一起清，否则「清了缓存」之后切频道还是秒出旧列表，
+        // 用户会以为没清干净。
+        Cache.clear();
         Trace.add("cache", "手动清缓存，释放 " + (before / 1024) + "KB");
         showBanner("缓存已清空（释放 " + (before / 1024) + "KB），海报会重新下载");
         if (rows != null && rows.getChildCount() > 0) {
@@ -448,10 +526,12 @@ public final class MainActivity extends Activity {
             rows.addView(nextBtn, lp);
         }
 
-        // 卡片是刚加的，布局还没走完，等一帧再决定哪些海报进视口
+        // 卡片是刚加的，布局还没走完，等一帧再决定哪些海报进视口。
+        // primeNow 会把首屏这一批图在同一个后台任务里解完，再一次性贴上屏 ——
+        // 一张一张地贴，用户看到的就是「海报一张张跳出来」。
         rows.post(new Runnable() {
             public void run() {
-                Ui.pump(rows);
+                Ui.primeNow(rows);
             }
         });
         // 预加载：趁用户还在看第一排，把后面几排的图先下到内存/磁盘

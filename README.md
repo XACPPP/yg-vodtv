@@ -4,7 +4,7 @@
 （Android 5.1.1 / API 22，已 root）定制。片源来自 **14 个苹果CMS采集源聚合**，App 内部只认
 统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
 
-当前版本：**v2.3（versionCode 14）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.4（versionCode 15）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -12,7 +12,10 @@
 一句话：**遥控器点开就能搜片、选集、播放的电视 App。**
 
 - 首页：**24 个统一频道**（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、悬疑剧……）海报墙，
-  每页最多 84 条、14 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页
+  每页最多 84 条、14 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页；
+  **第一页列表落盘 + 相邻频道预取**，切频道不转圈，海报整屏一次出（v2.4）
+- **源表热更**：源的定义是一份远端 JSON，GitHub Actions 每天自动巡检打分重排，
+  换源 / 加源 / 调优先级**不用发版**；远端出任何问题都自动退回内置表（v2.4）
 - 搜索：**一屏左右分栏**——左边键盘 + 最近搜过的词，右边实时结果；**停手 2 秒自动搜**，
   不用再按「搜索」；中文关键词并发问 14 个源的 `wd=`，纯拼音改问各源的 `suggest`（实测比 `wd=` 准得多），
   两路结果合并后按贴合度重排，再把「只是碰巧带这几个字」的噪声剪掉
@@ -90,7 +93,7 @@ Multi.java  按频道并行取各源第 N 页 → 轮转交织 → 按「片名+
   且 `vod_play_url` 里的 m3u8 真能 200 返回 `#EXTM3U`。
 - 完整表格见 `test/sources_recommended.md`，全量明细见 `test/sources_report.txt`。
 
-**实际接入 App 的 14 个源**（v2.0，`Src.SPEC` 里就这十四行，按优先级排）：
+**实际接入 App 的 14 个源**（v2.0 定表，v2.4 起同时存在于 `Src.BUILTIN` 与 `assets/sources.json`，按优先级排）：
 
 | key | 接口 base | 条/页 | 首条海报 | 简介覆盖 | 页首耗时 |
 |---|---|---|---|---|---|
@@ -112,6 +115,41 @@ Multi.java  按频道并行取各源第 N 页 → 轮转交织 → 按「片名+
 片库规模（`total`）：`ysxq` 429174（停摆）> `bfzy` 171653 > `zuidazy` 125836 > `wsyzy` 127940 >
 `jszyapi` 116466 > `yhzy` 105335 > `ffzy` 99083 > `modu` 91655 > `cmov` 89832 > `dytt` 85094 >
 `360zy` 74931 > `ikun` 67663 > `uku` 60501 > `maoyan` 34484。
+
+### 巡检复测（2026-11-13，v2.4 首跑）
+
+`python test/source_scan.py` 全量跑了一遍，**14 个源全部存活、0 个 DEAD**，得分排序：
+
+| 排名 | key | 分 | 等级 | 关键数据 |
+|---|---|---|---|---|
+| 1 | `bfzy` | 80 | A | list 886ms · 简介 17/20 · 片库 171663 |
+| 2 | `jszyapi` | 80 | A | list 846ms · 简介 19/20 · m3u8 TTFB 780ms |
+| 3 | `dytt` | 76 | B | 简介 20/20 · 选集 69 集 |
+| 4 | `ffzy` | 74 | B | 选集 1313 集（最多） |
+| 5 | `ysxq` | 72 | B | **已恢复**，片库 429268 最大 |
+| 6 | `modu` | 71 | B | list 904ms |
+| 7 | `maoyan` | 68 | B | TTFB 222ms · 分片 1376kbps（最快） |
+| 8 | `360zy` | 68 | B | 分片 851kbps |
+| 9 | `zuidazy` | 65 | B | 4K 62 / 悬疑 68 |
+| 10 | `wsyzy` | 64 | C | **简介已改善到 18/20**（旧记录 3/20），但 `wd=` 仍不支持 |
+| 11 | `yhzy` | 63 | C | 首跑 10.4s 超时、复测 459ms → 见下方坑 |
+| 12 | `ikun` | 60 | C | 分片 352kbps 偏慢 |
+| 13 | `cmov` | 56 | C | list 3683ms 最慢，但支持 `h=` 的例外之外一切正常 |
+| 14 | `uku` | 52 | C | 简介 4/20、选集 1 集，纯凑数 |
+
+**两个把好源误判成 DEAD 的脚本 bug（已修）**：
+
+1. **m3u8 变体地址拼错**：源站 master playlist 给的变体是
+   `/20261112/xxx/hls/index.m3u8` 这种**根相对**路径，脚本按目录拼接得到
+   `.../xxx//20261112/xxx/hls/...` → 404 → 首分片取不到 → 判 DEAD。
+   第一版跑出来 `maoyan`/`360zy`/`modu`/`uku`/`ikun` 五个好源全是 0kbps，
+   就是这一条造成的。修法：新增 `abs_url(base, ref)`，遇到 `/` 开头的直接拼
+   `scheme://host`（和 App 里 `Proxy.resolve()` 的规则一致）。
+2. **list 只问一次**：`yhzy` 冷启动首问 10.4s 超时 → 判 DEAD。复测间隔 0.5s
+   就是 459ms 正常。修法：第一次非 200 时放宽到 20s 重试一次。
+
+外加一个可用性改进：`ac=detail` 大多数源不回 `class` 表，导致「自动匹配频道」一节
+全是空的。现在 `probe_list` 在 `classes` 为空时补问一次 `ac=list` 专门拿分类表。
 
 `wsyzy` 排在中间偏下不是因为它差，而是**它最新页的 `vod_content` 覆盖率只有 3/20**，
 这正是老板看到「全是电影、没简介」的根因；但它的 `suggest` 好用，所以留着。
@@ -164,6 +202,117 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.4：源表热更 + 消灭「加载中」和「海报一张张跳」
+
+老板原话：「我觉得可以重构一下，GitHub 上的 TVBOX 很成熟啊」→ 讨论后否掉二开；
+后来「我其实想要的是无感预加载，因为现在打开任一界面其实还是偏慢，会出现加载中的提示」。
+这一版只解决两件事：**换源不再发版**，**首屏不再一张张出图**。
+
+#### 一、为什么没有二开 TVBox
+
+| 项目 | 星数 | 能不能装在这台电视 | 结论 |
+| --- | --- | --- | --- |
+| FongMi/TV | 10470 | `minSdk = 24`（Android 7.0），**API 22 装不上** | 否决 |
+| takagen99/Box | 3105 | `minSdk 21` 能装，但 2026-02-27 起停更 | 否决 |
+| q215613905/TVBoxOSC | 21 | 2022-07 停更 | 否决 |
+
+更关键的是内容结构：实测一份主流 TVBox 配置（`sites=135`）里 **111 个是 type=3 csp 爬虫源**，
+依赖 QuickJS/Node 运行时，只有 **22 个 type=1 苹果CMS 直连**。TVBox 生态里最值钱的网盘/弹幕/解析
+能力，恰好全在 Android 5.1 上成功率最低的那半边。**结论：抄协议不抄代码。**
+
+#### 二、源表热更（`Src.java` + `SrcSync.java`）
+
+源的定义从「编译进代码的常量」变成「一份可以远端替换的 JSON」：
+
+| 项 | 做法 |
+| --- | --- |
+| 内置表 | `Src.BUILTIN`（原 `SPEC` 改名的，14 行没动内容），编译进 APK，**永远兜底** |
+| 远端表 | `SrcSync.URL` 指向仓库里的 `app/src/main/assets/sources.json`（走 `raw.githubusercontent.com`） |
+| 生效方式 | `Src.load(jsonText)` 整体替换源表；**远端坏了等价于什么都没发生** |
+| 换源 / 加源 / 调优先级 | 改 JSON → 推上去 → 电视下次开机自动生效，**不用发版** |
+| 自检页 | 第 0 步「网络参数」会带上 `内置 14 / 当前 14 / 远端 11-13 09:51`，两个数字不一样才说明远端表真生效 |
+
+> 注意：`assets/` **没有打进 APK**（`build.sh` 的 aapt2 link 没带 `-A`）。这个 JSON 的用途是
+> 给 GitHub raw 当远端源、给 CI 巡检当输出物，App 靠 `SrcSync` 联网拉，不是编译期内置的。
+> 真正的编译期兜底是 `Src.BUILTIN`。
+
+`Src.load()` 六层容错，每一层都是为了让「远端出问题」等于「什么都没发生」：
+
+1. null / 太短 → 直接 return，源表不动
+2. JSON 解析抛异常 → `catch (Throwable)` 吞掉，保留内置
+3. 没有 `sources` 数组 / 数组为空 → return
+4. 逐项校验（`key` 非空、`api` 含 `://`），坏项只丢这一条
+5. `types` 为空串 → 补 `"0"`（不补的话 `"".split(",")` 会让 `Integer.parseInt` 抛异常，整条源被丢）
+6. **合法项为 0 → 整体放弃**（防止远端写了个空数组把 App 变砖）
+
+`Src.all()` 和 `byKey()` 现在返回**副本**而不是 `ALL` 本体：`SrcSync` 在后台线程 clear+addAll，
+`Multi` 在另一个线程按索引遍历，直接暴露本体就是 `ConcurrentModificationException` / 越界。
+`Multi.list()` / `Multi.search()` 也都改成开头只取一次快照。
+
+#### 三、巡检流水线（`test/source_scan.py` + `.github/workflows/scan.yml`）
+
+GitHub Actions 每天北京 02:00（`cron: '0 18 * * *'`，源站负载最低的时段）跑一次：
+
+```
+14 个源 + 外部候选池
+   → 七项探测：list 延迟/条数/海报/简介/分类、detail 选集、search、suggest、play（m3u8 TTFB + 首分片 kbps + Range）
+   → 100 分制打分：速度 45 + 内容 35 + 能力 20
+   → 硬失败（列表非 JSON / 无数据 / m3u8 拿不到 / 无选集）直接判 DEAD，不参与排序
+   → 按分数降序写 app/src/main/assets/sources.json（顺序就是 App 的源优先级）
+   → 有变化才 git commit && push
+```
+
+两道保险：**全 DEAD 时不写文件**（避免把线上打成空表）；脚本里强制 IPv4
+（`socket.getaddrinfo` 打补丁传 `AF_INET`），因为电视端 `Http.java` 设了 `preferIPv4Stack=true`，
+巡检必须和电视同视角，否则 IPv6 侧的假 DEAD 会把好源踢掉。
+
+#### 四、消灭「加载中」：列表 JSON 落盘（`Cache.java` + `Multi.raw`）
+
+以前列表 JSON 只活在内存里，`renderPage()` 用完即丢 —— 这就是「切个频道就转圈」的根因。
+
+现在第一页落盘到 `cacheDir/list/{ch}_{pg}.json`（16MB 上限 / 12MB 触发清理，实际只用 6.5MB）：
+
+| 时机 | 行为 |
+| --- | --- |
+| 切 Tab / 开机 | **先读盘 → 同步铺满画面**（一个「加载中」都不给看）→ 再发网络请求 |
+| 后台返回 | 内容跟盘上一样（`before.equals(p.raw)`）→ **不重画**，避免闪一下 |
+| 后台返回空 | **不清空已有画面**（网络抖一下不该把满屏海报换成一句「没取到数据」） |
+| 加载中又点了别的频道 | 记在 `wantType` 里，这一轮回来立刻补一刀（以前直接 `return`，后点的完全没反应） |
+| 切回上次的频道 | `Store.tab()` / `saveTab()` 记住冷启动的频道 |
+
+`Prefetch.java` 在空闲时单线程预热**相邻两个频道**的首页 JSON（`cur-1` / `cur+1`，
+每个 87KB，成本几乎为零，间隔 400ms）。
+
+#### 五、消灭「海报一张张跳」：批量解码 + 一次上屏（`Ui.java`）
+
+这个问题跟有没有缓存**无关**。真凶是提交模型：`pump()` 逐张调 `startLoad()`，
+`startLoad()` 对每张图单独 `DISKPOOL.execute`，而 `DISKPOOL` 只有 2 条线程 ——
+42 张首屏 = 42 个任务 + 42 次 `MAIN.post`，叠着出现是必然的。
+
+| 改动 | 效果 |
+| --- | --- |
+| 新增 `READY` 队列 + `pushReady()` + 单次 `FLUSH` | 一批图**在一个主线程消息里**全部 `setImageBitmap`，整屏同时出现 |
+| `pump()` 重写 | 内存命中直接入队，其余**汇成一个** `DISKPOOL` 任务循环解码，未命中才走网络 |
+| `fromDisk()` 加 `inPreferredConfig = RGB_565` | 一张从 384KB 降到 192KB，48MB 的 LRU 从装 128 张变 256 张 |
+| `applyToWaiting()` 改走 `pushReady()` | 预取下完的图也批量贴，不再一张一条消息 |
+
+`FLUSH` 里先持锁把队列拷走再解锁，真正的 `setImageBitmap` 在锁外做；每张都校验
+`url.equals(iv.getTag())`，卡片被复用了就丢掉这张，不会贴错图。
+
+**验证判据**：进推荐页等图出来 → 返回 → 再进，必须**整屏一次出**；清缓存后首次允许逐张，
+下载完再进同样要整屏出。
+
+#### 六、新增两套离线验收（`SrcTab` / `CacheTab`）
+
+v2.4 改的两处都是「失败时很安静」的地方：源表解析错了电视会直接用内置表（看不出来），
+缓存编解码错了表现为「有缓存却点进去是空页」。所以各配一套不联网的 JVM 断言，
+和既有的 Harness/Wire/Tabs/Rank/Meta/Upd 一起跑，总共 8 套：
+
+| 套件 | 项数 | 覆盖 |
+| --- | --- | --- |
+| SrcTab | 23 | `Src.load()` 六层容错、types 两种形态、坏项只丢一条、`all()` 返副本 |
+| CacheTab | 34 | `Multi.encode/decode` 17 字段往还原、脏字符转义、7 组坏输入不抛、`Cache` 落盘不串 |
 
 ### v2.3：换掉那个「憨批」图标
 
@@ -595,13 +744,16 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 | `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：9 步链路检测（含海报下载、海报缓存）+ 错误日志面板 |
 | `app/src/com/yg/vodtv/Store.java` | 播放位置 + 最近观看 + **搜索历史 6 条**（都按「源_id」区分） |
 | `app/src/com/yg/vodtv/Proxy.java` | 本地 HLS 代理（见上） |
-| `app/src/com/yg/vodtv/Src.java` | **采集源定义**：14 个源的 base/Referer + 统一频道 → 各源 `type_id` 映射 |
-| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填 |
+| `app/src/com/yg/vodtv/Src.java` | **采集源定义**：`BUILTIN` 内置 14 个源的 base/Referer + 统一频道 → 各源 `type_id` 映射；`load(json)` 用远端表整体替换（六层容错）；`all()`/`byKey()` 返快照 |
+| `app/src/com/yg/vodtv/SrcSync.java` | **源表热更**：启动同步读缓存 → 后台拉远端 `sources.json` → `Src.load` 换表；`status()` 给自检页报「内置 / 当前 / 远端时间」 |
+| `app/src/com/yg/vodtv/Cache.java` | **列表 JSON 落盘**：`cacheDir/list/{ch}_{pg}.json`，16MB 上限 / 12MB 触发清理，tmp→rename 原子替换 |
+| `app/src/com/yg/vodtv/Prefetch.java` | **相邻频道预热**：单线程空闲预取 `cur±1` 的首页 JSON，间隔 400ms，`INFLIGHT` 去重 |
+| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填；`Result.raw` + `encode`/`decode` 供落盘 |
 | `app/src/com/yg/vodtv/Api.java` | 单源接口封装（list / detail / wd / suggest）+ 搜索结果贴合度重排 |
 | `app/src/com/yg/vodtv/Vod.java` | 影片模型 + `vod_play_url` 选集解析 |
 | `app/src/com/yg/vodtv/Http.java` | HTTP 封装 + 信任全部证书的 SSLContext + 5xx 一次重试 |
 | `app/src/com/yg/vodtv/Trace.java` | 环形错误日志（120 条） |
-| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + **惰性取图** + LRU 缓存 + 首字色块兜底 |
+| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + **惰性取图** + **`READY`/`FLUSH` 批量上屏** + LRU 缓存 + 首字色块兜底 |
 | `app/src/com/yg/vodtv/Cards.java` | 海报卡片：底部渐变压暗 + 片名压在图上 + 角标 + 焦点放大，支持惰性加载 |
 | `app/src/com/yg/vodtv/Ver.java` | 版本号与构建时间（首页右上角显示） |
 | `app/src/com/yg/vodtv/Store.java` | SharedPreferences 播放记忆：每剧每集看到哪儿、上次看到哪一集 |
@@ -635,8 +787,9 @@ APK 信息：`package=com.yg.vodtv`、`versionCode=6`、`versionName=1.5`、`min
 `targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 
-`build.sh` 里有防假成功的检查：javac 之后逐个确认 16 个 class 都产出了（v1.7 把 `Src`、`Multi`
-也加进了清单），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
+`build.sh` 里有防假成功的检查：javac 之后逐个确认 **20 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
+v2.4 补了 `Cache`、`Prefetch`、`SrcSync`），并比对 `MainActivity.class` 与源码时间戳，避免 javac
+悄悄失败却打包了旧 class。
 
 ## 四、安装
 
@@ -670,9 +823,9 @@ D:\platform-tools\adb.exe shell am start -n com.yg.vodtv/.MainActivity
 
 ### JVM 端到端验证（`test/harness/`，跑的是 APK 里的真实源码）
 
-这套 harness 直接编译并运行 `app/src/com/yg/vodtv/` 下的**同一份** `Api/Http/Proxy/Vod/Trace`，
+这套 harness 直接编译并运行 `app/src/com/yg/vodtv/` 下的**同一份** `Api/Http/Proxy/Vod/Trace/Src/Multi`，
 只把 `android.util.Base64` 和 `org.json` 换成桌面替身 —— 证明的是 APK 里那份代码本身正确，
-而不是我用 Python 重写的逻辑正确。
+而不是我用 Python 重写的逻辑正确。v2.4 起 `Src`/`Multi` 也进了编译列表（源表解析与列表编解码要测）。
 
 ```bash
 cd test/harness
@@ -682,6 +835,8 @@ env -u MSYS_NO_PATHCONV bash run.sh tabs   # Tabs：27 个分类逐项验证，2
 env -u MSYS_NO_PATHCONV bash run.sh rank   # Rank：搜索结果贴合度排序，4 组
 env -u MSYS_NO_PATHCONV bash run.sh meta   # Meta：刮削字段 + 海报双通道，9 项
 env -u MSYS_NO_PATHCONV bash run.sh upd    # Upd：版本号 + 镜像兜底 + 真实 Release 下载，19 项
+env -u MSYS_NO_PATHCONV bash run.sh srctab # SrcTab：源表热更容错与频道映射，23 项（不联网）
+env -u MSYS_NO_PATHCONV bash run.sh cachetab # CacheTab：列表缓存编解码往返 + 落盘，34 项（不联网）
 env -u MSYS_NO_PATHCONV bash run.sh dump   # 打印真实改写的播放列表头部
 ```
 
@@ -710,6 +865,25 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 并**真的经 `gh-proxy.com` 拉了一次 release API**（6061 字节，含 `tag_name`）；
 **真的下载了一次**（53713 字节，落在外部存储 `Download/YG影视TV/YGTV-new.apk`，是合法 zip）。
 直连一路在本机是 `SSL: CERTIFICATE_VERIFY_FAILED`，所以测试里显式跳过、App 里只当兜底。
+
+**SrcTab（23/23 PASS，v2.4 新增，不联网）**：源表热更是 v2.4 唯一能「远程把 App 弄坏」的改动，
+所以单独配了一套离线断言 —— 喂手写 JSON 给 `Src.load()`，专测失败路径：
+内置表仍是 14 个源、单源表整体替换、`types` 逗号串映射到 `CH_MOVIE/CH_TV/CH_VARIETY`、
+没写到的频道回 0、推荐频道任何源都支持、`types` 写成 JSON 数组也能解析、
+**`types` 缺失补 0 而不是丢源**（空串会让 `Integer.parseInt` 抛异常整条消失）、
+坏项（空 key / 无 scheme）只丢这一条、`load(null)`/纯空白/半截 JSON/根是数组/空数组/全坏项
+**六种情况一律不改变现有源表**、`loadSeq()` 自增、`all()` 每次返回新副本（`s1 != s2`）。
+真正的联网打分不在这套里，由 `test/source_scan.py` 负责。
+
+**CacheTab（34/34 PASS，v2.4 新增，不联网）**：列表缓存是「切频道不转圈」的地基，
+但它的失败方式很阴 —— encode 少转义一个引号、decode 读错一个字段，电视上表现为
+「有缓存却点进去是空页」，而且只在片名带引号/换行/控制字符时才炸，真机几乎复现不出来。
+所以喂一条最脏的样本（`测试"片名\带反斜杠`、多行简介含 `\n\t\r`、简介里夹 `\u0001`、
+播放地址带 `$`、海报 URL 带 `?x=1&y=2`）做往返：17 个字段逐个比对、
+encode 结果不含裸换行、控制字符被替换成空格、7 组坏输入（半截 JSON、根是数组、
+纯文本、items 是数字数组、名字全空）都不抛异常、`v` 字段更高时主动拒读。
+Cache 侧验 `put/get` 字节一致、`sameAs` 正负两例、**不同频道与不同页码的文件名不串**、
+短于 `MIN_LEN` 的内容拒写、`clear()` 后占用归零。
 
 **Tabs（24/24 PASS，v2.0 复测）**：首页 24 个统一频道逐个拉第一页，
 要求「有数据 + 有海报」。空分类是最容易被忽略的坑 —— App 能开，点进去一片空白。
@@ -757,12 +931,13 @@ Range 回 206 + `Content-Range`、body 恰好 1024 字节、未知路径 404。
 
 ### 构建验证
 
-`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.3）：APK **99185 字节**，dex **128176 字节**（v2.2 也是 128176——v2.3 只动资源和版本号，没改代码）；
+`build.sh` 六步全绿（现在由 GitHub Actions 在 tag 上跑）。最近一次（v2.4 本地出包）：APK **107377 字节**，dex **144144 字节**（v2.3 是 99185 / 128176——v2.4 新增 Cache/Prefetch/SrcSync 三个类 + Multi 的 encode/decode + Ui 的批量上屏）；
 dex 内确认含 `MODE_AUTO`、`wantFill`、`describe`、`DISK_MAX_BYTES`、`clearDisk`、`trimDiskAsync`、
 `clearCacheConfirm`、`banner`、`diskLimit`，以及 v2.1 的 `applyToWaiting`、`DISKPOOL`、`bucket`、`diskBytes`、`normPic`、`baseOf`，
-还有 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`
+还有 v2.0 的 `FitVideoView`、`toggleScaleMode`、`letterBlock`、`prefetch`、`cacheStat`、`prune`、`zuidazy`、`dytt`、`jszyapi`、`uku`，
+v2.4 的 `pushReady`、`primeNow`、`onDisk`、`decode`、`encode`、`sameAs`、`BUILTIN`、`SrcSync`
 （每版改动确实打进去了，不是只改源码没进包）。
-`aapt2 dump badging` → `versionCode='14' versionName='2.3'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
+`aapt2 dump badging` → `versionCode='15' versionName='2.4'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
 签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
@@ -805,7 +980,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.3」
+6. 标题栏「检查更新」显示「已是最新版本 v2.4」
 
 ## 六、目录
 
@@ -813,6 +988,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 YG影视TV/
 ├── README.md
 ├── .github/workflows/build.yml  # push tag v* 自动出包 + 发 Release
+├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → 自动 commit sources.json
 ├── .gitignore                   # 排除 build/、*.apk、yg.keystore
 ├── app/
 │   ├── AndroidManifest.xml
@@ -822,23 +998,30 @@ YG影视TV/
 │   ├── res/values/strings.xml
 │   ├── res/drawable/ic_launcher.png          # 192px 兜底（电视 banner 复用）
 │   ├── res/drawable-{m,h,xh,xxh,xxxh}dpi/    # v2.3 机器人图标五档密度
-│   ├── src/com/yg/vodtv/*.java  # 16 个源文件（v1.7 新增 Src.java / Multi.java）
+│   ├── src/main/assets/sources.json          # v2.4 源表（巡检自动重写；不打包进 APK，供 GitHub raw 与 CI）
+│   ├── src/com/yg/vodtv/*.java  # 19 个源文件（v2.4 新增 Cache/Prefetch/SrcSync）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
 └── test/
     ├── harness/                 # JVM 端到端验证（跑真实源码）
-    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd]
+    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab]
     │   ├── Harness.java         # 16 项链路断言
     │   ├── Wire.java            # 21 项线上字节格式断言（模拟 NuPlayer）
     │   ├── Tabs.java            # 24 个统一频道逐项验证（多源聚合，有数据 + 有海报）
     │   ├── Rank.java            # 搜索结果贴合度排序验证
     │   ├── Meta.java            # 刮削字段 + 海报通道验证（9 项）
     │   ├── Upd.java             # 版本号解析/比较 + 镜像顺序 + 真实 Release 下载（19 项）
+    │   ├── SrcTab.java          # v2.4 源表热更：Src.load() 六层容错 + 频道映射（23 项，不联网）
+    │   ├── CacheTab.java        # v2.4 列表缓存：Multi.encode/decode 往返 + Cache 落盘（34 项，不联网）
     │   ├── Dump.java            # 打印改写后的播放列表
     │   ├── android/*.java       # android.util/net/os/content 替身
     │   └── org/json/*.java            # org.json 替身
     ├── proxy_sim.py             # 早期 Python 复刻（已被 harness 取代）
+    ├── source_scan.py           # v2.4 源健康巡检 + 100 分制打分 → sources.json
+    ├── sources_health.json      # 巡检结果（App 不直接读，供 CI/人看）
+    ├── sources_health.md        # 同上，人读表
+    ├── tvbox_cfg/               # v2.4 调研时下载的 TVBox 配置样本（type=1 抽取用）
     ├── parse_codec.py           # 离线解析 TS 编码
     ├── codec_survey.py          # 跨分类抽样探测编码
     ├── fetch_sample.py          # 抓样本分片落盘
@@ -853,7 +1036,7 @@ YG影视TV/
     ├── sources_recommended.md   # 最终推荐表
     ├── class_all.json           # 十源完整 class 表（JSON）
     ├── class_wsyzy.json         # 仅 wsyzy 的 60 个分类
-    ├── class_view.txt           # 十源 `id=名称` 对照表（UTF-8，Src.SPEC 就是照它填的）
+    ├── class_view.txt           # 十源 `id=名称` 对照表（UTF-8，Src.BUILTIN 就是照它填的）
     ├── make_icon_robot.py       # v2.3 图标生成器（Pillow 纯代码画，五档密度一起出）
     ├── icon_candidates/         # 图标大图 + 七档尺寸对比图（验小尺寸可读性）
     └── samples/                 # 已抓的 *.ts / *.m3u8
@@ -861,13 +1044,15 @@ YG影视TV/
 
 ## 七、已知限制
 
-- 片源是第三方接口，上游改了域名或加了防盗链就得跟着改 `Src.java` 的 `SPEC` 数组
-  （每个源一行：`key|base|Referer|频道映射`），改完不用动界面代码
+- 片源是第三方接口，上游改了域名或加了防盗链就得换源。**v2.4 起改
+  `app/src/main/assets/sources.json` 就够了**，推上去电视下次开机自动生效；只有当远端表整体
+  不可用时才需要动 `Src.java` 的 `BUILTIN` 数组（编译进 APK 的兜底表，格式同 JSON 的四个字段）
 - 各源仍可能单个分类返回空或非 JSON，`Api.parsePage()` 全 catch 容错，聚合时跳过该源
 - **`limit=` 各源都不认**，所以每页条数只能本地截断（当前 84 条）
 - 翻页上限写了 400 页（`curPage < 400`），再往后意义不大
 - 没有收藏、没有字幕切换（片源自带硬字幕）
-- 首页每次冷启动都重新拉第一页，没有本地缓存
+- 列表缓存只存**第一页**（`Cache.put` 只处理 `pg == 1`）：翻页是临时行为，存了基本用不上。
+  开机首屏走缓存，翻到第 2 页仍要发网络请求
 - 个别源偶尔超时，会把整页拖到 7 秒预算上限（结果仍是完整的，只是慢）；
   真机上若觉得「推荐」开页慢，可以调小 `Multi.LIST_BUDGET`
 - 代理挑变体时上限 5 Mbps，片源若有更高码率也不会选；老芯片解不动比看不清更糟

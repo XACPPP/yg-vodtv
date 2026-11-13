@@ -1,0 +1,61 @@
+name: scan
+
+# 每天北京时间 02:00（UTC 18:00）跑一次源表巡检。
+# 为什么挑这个点：电视基本关着、源站负载最低，probe 出来的延迟和码率更接近
+# 用户实际观看时的水平；白天跑会把源站白天的抖动当成「源变差」。
+# 注意 GitHub 的 cron 是 UTC，且高峰期可能延迟几十分钟，对周级变化的源表无所谓。
+on:
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+# 巡检结果要直接提交回仓库，否则电视永远拿不到新表
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取代码
+        uses: actions/checkout@v4
+
+      - name: 装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 装依赖
+        run: python -m pip install --quiet requests
+
+      # 巡检有 14 个源、每个要跑列表/详情/搜索/播放四类请求，给足 15 分钟；
+      # 超时宁可失败也不要卡住队列（源站挂掉时 requests 会一直等到 TIMEOUT）。
+      - name: 巡检采集源
+        timeout-minutes: 15
+        run: python test/source_scan.py
+
+      # 有变化才提交。三条产物都要看：报告是给人看的，sources.json 是给电视用的。
+      # git diff --quiet 的退出码 1 表示「有差异」，0 表示「没差异」。
+      - name: 提交变更
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add test/sources_health.json test/sources_health.md app/src/main/assets/sources.json
+          if git diff --cached --quiet; then
+            echo "源表无变化，跳过提交"
+            exit 0
+          fi
+          git commit -m "chore: 源表自动巡检 $(date +%F)"
+          git push
+
+      # 失败也把报告传上去，免得只能翻日志猜哪个源挂了
+      - name: 上传巡检报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sources-health
+          path: |
+            test/sources_health.json
+            test/sources_health.md
+          if-no-files-found: warn

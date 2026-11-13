@@ -81,6 +81,38 @@ public final class Store {
         }
     }
 
+    /* ==================== 上次停留的频道 ==================== */
+
+    private static final String K_TAB = "tab";
+
+    /**
+     * 上次看的是第几个频道。
+     *
+     * 冷启动默认停在「推荐」，但用户的习惯往往是连着追某部剧的时候
+     * 天天在同一类里翻 —— 记住一下，下次开机少按几次遥控器。
+     */
+    public static int tab() {
+        if (sp == null) {
+            return 0;
+        }
+        try {
+            return sp.getInt(K_TAB, 0);
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    public static void saveTab(int idx) {
+        if (sp == null || idx < 0) {
+            return;
+        }
+        try {
+            sp.edit().putInt(K_TAB, idx).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "保存频道位置失败", t);
+        }
+    }
+
     /* ==================== 搜索历史 ==================== */
 
     private static final String K_HIST = "hist";

@@ -15,6 +15,24 @@ public class JSONArray {
         return list.size();
     }
 
+    public int optInt(int i, int def) {
+        if (i < 0 || i >= list.size()) {
+            return def;
+        }
+        Object o = list.get(i);
+        if (o instanceof Number) {
+            return ((Number) o).intValue();
+        }
+        if (o instanceof String) {
+            try {
+                return Integer.parseInt((String) o);
+            } catch (Throwable t) {
+                return def;
+            }
+        }
+        return def;
+    }
+
     public JSONObject optJSONObject(int i) {
         if (i < 0 || i >= list.size()) {
             return null;

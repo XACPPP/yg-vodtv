@@ -196,6 +196,65 @@ public final class Ui {
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
+    /**
+     * 攒批上屏队列。
+     *
+     * 以前每张图解码完就单独 MAIN.post 一次，首屏 42 张就是 42 条主线程消息，
+     * 一帧贴一张，视觉上就是「海报一张一张跳出来」——图其实早就在磁盘里，
+     * 体感却像没加载好。改成先入队，由一次 FLUSH 在同一个消息里贴完整屏。
+     *
+     * 每项固定是 { ImageView, Bitmap, String url } 三元组。
+     */
+    private static final java.util.List<Object[]> READY = new java.util.ArrayList<Object[]>();
+    private static boolean flushPosted = false;
+
+    /**
+     * 一次主线程消息贴完整批。
+     *
+     * 先持锁把队列拷走并立刻解锁，真正的 setImageBitmap 在锁外做：
+     * 上屏过程中后台线程还能继续往 READY 里塞，不会被主线程卡住。
+     * tag 对不上说明卡片已被复用/滚走，直接丢掉，不贴错图。
+     */
+    private static final Runnable FLUSH = new Runnable() {
+        public void run() {
+            java.util.List<Object[]> batch;
+            synchronized (READY) {
+                batch = new java.util.ArrayList<Object[]>(READY);
+                READY.clear();
+                flushPosted = false;
+            }
+            for (int i = 0; i < batch.size(); i++) {
+                Object[] e = batch.get(i);
+                ImageView iv = (ImageView) e[0];
+                Bitmap b = (Bitmap) e[1];
+                String url = (String) e[2];
+                if (iv != null && iv.getParent() != null && url.equals(iv.getTag())) {
+                    iv.setImageBitmap(b);
+                }
+            }
+        }
+    };
+
+    /**
+     * 把一张解好的图排进下一批。
+     *
+     * 判断和入队必须在同一把锁里，否则「已 post / 未 post」会和 FLUSH 里的
+     * clear + flushPosted=false 撞车，出现图排进队列却没人贴的情况。
+     */
+    private static void pushReady(ImageView iv, String url, Bitmap b) {
+        if (iv == null || url == null || b == null) {
+            return;
+        }
+        synchronized (READY) {
+            READY.add(new Object[] { iv, b, url });
+            if (flushPosted) {
+                return;
+            }
+            flushPosted = true;
+            MAIN.post(FLUSH);
+        }
+    }
+
     /* ============ 磁盘缓存 ============ */
 
     /** 海报磁盘缓存目录（cacheDir/poster）。电视内存小，重启后全靠它。 */
@@ -251,9 +310,37 @@ public final class Ui {
             if (now - f.lastModified() > 60000L) {
                 f.setLastModified(now);
             }
-            return BitmapFactory.decodeFile(f.getAbsolutePath());
+            // 必须显式指定 RGB_565：默认 decodeFile 给的是 ARGB_8888（384KB/张），
+            // 而 CACHE 只有 48MB，几十张就把它挤爆。海报是不透明 JPEG，
+            // 565 看不出差别，内存直接省一半。
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inPreferredConfig = Bitmap.Config.RGB_565;
+            Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+            if (bm == null || bm.getByteCount() < 200) {
+                return null;
+            }
+            return bm;
         } catch (Throwable t) {
             return null;
+        }
+    }
+
+    /**
+     * 磁盘上是否已有这张图（纯 stat，不解码）。
+     *
+     * 给 MainActivity 在渲染整屏时做「先判盘、再决定贴什么」用：
+     * stat 一次是微秒级，decode 是毫秒级，能先判就不必白白占 DISKPOOL。
+     * 判据和 fromDisk 保持一致，否则会出现「说有好、解出来是空」的假命中。
+     */
+    public static boolean onDisk(String url, int w, int h) {
+        try {
+            if (DISK == null || url == null || url.length() == 0) {
+                return false;
+            }
+            java.io.File f = new java.io.File(DISK, diskName(url, w, h));
+            return f.exists() && f.length() >= 200;
+        } catch (Throwable t) {
+            return false;
         }
     }
 
@@ -592,6 +679,9 @@ public final class Ui {
         int pad = Math.max(200, vis.height());
 
         java.util.Iterator<Map.Entry<ImageView, Pending>> it = WAITING.entrySet().iterator();
+        // 两张堆：内存里现成的直接进 READY（一次 FLUSH 贴完），
+        // 剩下的攒成一批交给 DISKPOOL 的**一个**任务读完。
+        final java.util.List<Object[]> batch = new java.util.ArrayList<Object[]>();
         while (it.hasNext()) {
             Map.Entry<ImageView, Pending> e = it.next();
             ImageView iv = e.getKey();
@@ -610,8 +700,48 @@ public final class Ui {
             }
             Pending p = e.getValue();
             it.remove();
-            startLoad(iv, p.url, p.w, p.h, p.name);
+            Bitmap hit = CACHE.get(p.url);
+            if (hit != null) {
+                pushReady(iv, p.url, hit);
+                continue;
+            }
+            batch.add(new Object[] { iv, p });
         }
+        if (batch.isEmpty()) {
+            return;
+        }
+        // 关键：整批只占 DISKPOOL 的一个位置。
+        // 以前是 42 张各排一个任务，排在 2 条线程上、各自 MAIN.post 一次，
+        // 于是上屏被拉成 42 帧 —— 这就是「一张一张跳出来」的真凶。
+        DISKPOOL.execute(new Runnable() {
+            public void run() {
+                for (int i = 0; i < batch.size(); i++) {
+                    Object[] e = batch.get(i);
+                    ImageView iv = (ImageView) e[0];
+                    Pending p = (Pending) e[1];
+                    Bitmap b = fromDisk(p.url, p.w, p.h);
+                    if (b != null) {
+                        CACHE.put(p.url, b);
+                        DEAD.remove(p.url);
+                        pushReady(iv, p.url, b);
+                        continue;
+                    }
+                    // 盘上没有才走网络，这张仍然排进 POOL（只有 4 条线程），
+                    // 不在这里串行等，否则一张慢图会卡住后面整批。
+                    netLoad(iv, p.url, p.w, p.h, p.name);
+                }
+            }
+        });
+    }
+
+    /**
+     * 「切 Tab 渲染完立刻整屏铺满」的入口。
+     *
+     * 内容和 pump 完全一样，只是语义更明确：MainActivity 在整页重新构建之后
+     * 主动叫一次，把已经在视口里的卡片一次性铺出来，不等滚动事件。
+     */
+    public static void primeNow(View container) {
+        pump(container);
     }
 
     /**
@@ -636,7 +766,10 @@ public final class Ui {
             ImageView iv = e.getKey();
             it.remove();
             if (iv != null && iv.getParent() != null && url.equals(iv.getTag())) {
-                iv.setImageBitmap(b);
+                // 不在这里贴：预取是 2 条线程并发下完一张就回调一次，
+                // 直接 setImageBitmap 会是「又跳一张」。排进 READY，
+                // 让同一批完成的图合并成一次消息贴完。
+                pushReady(iv, url, b);
                 hit++;
             }
         }
@@ -732,13 +865,8 @@ public final class Ui {
                 if (disk != null) {
                     CACHE.put(key, disk);
                     DEAD.remove(key);
-                    MAIN.post(new Runnable() {
-                        public void run() {
-                            if (key.equals(iv.getTag())) {
-                                iv.setImageBitmap(disk);
-                            }
-                        }
-                    });
+                    // 交给攒批通道，和同批读盘的其他张合并成一次主线程回帖
+                    pushReady(iv, key, disk);
                     return;
                 }
                 netLoad(iv, url, w, h, name);

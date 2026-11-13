@@ -162,11 +162,13 @@ public final class SelfTestActivity extends Activity {
                 String ipv4 = System.getProperty("java.net.preferIPv4Stack");
                 if ("true".equals(ipv4)) {
                     pass++;
+                    // 顺带报源表来源：内置 / 缓存 / 远端。两个数字不一样，
+                    // 才说明远端 sources.json 真的生效了（换源不发版就靠它）。
                     add(true, "网络参数", "已强制 IPv4，连接层最多重试 "
-                            + Http.attempts() + " 次");
+                            + Http.attempts() + " 次；源表 " + SrcSync.status());
                 } else {
                     add(false, "网络参数", "未强制 IPv4（" + ipv4
-                            + "），IPv6 地址会先被尝试，连接可能超时");
+                            + "），IPv6 地址会先被尝试，连接可能超时；源表 " + SrcSync.status());
                 }
 
                 // 1. 本地代理

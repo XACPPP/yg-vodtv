@@ -36,6 +36,10 @@ elif [ "$1" = "upd" ]; then
     MAIN="Upd"
 elif [ "$1" = "search" ]; then
     MAIN="Search"
+elif [ "$1" = "srctab" ]; then
+    MAIN="SrcTab"
+elif [ "$1" = "cachetab" ]; then
+    MAIN="CacheTab"
 fi
 
 rm -rf "$OUT"
@@ -61,6 +65,7 @@ mkdir -p "$OUT"
     "$SRC/com/yg/vodtv/Update.java" \
     "$SRC/com/yg/vodtv/Src.java" \
     "$SRC/com/yg/vodtv/Multi.java" \
+    "$SRC/com/yg/vodtv/Cache.java" \
     Harness.java \
     Wire.java \
     Tabs.java \
@@ -68,7 +73,9 @@ mkdir -p "$OUT"
     Rank.java \
     Meta.java \
     Upd.java \
-    Search.java
+    Search.java \
+    SrcTab.java \
+    CacheTab.java
 
 [ -f "$OUT/$MAIN.class" ] || { echo "FAILED: 编译未产出 $MAIN.class"; exit 1; }
 
