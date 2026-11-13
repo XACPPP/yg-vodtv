@@ -26,6 +26,14 @@ public final class MainActivity extends Activity {
     private static final int COLS = 7;
 
     /**
+     * 频道条一屏完整露几个。
+     *
+     * 6.5 是特意留半个：整数个会让人以为「就这些了」，半个才会去按右键。
+     * 老板的原话是「没必要把 24 个频道都显示出来，显得拥挤小气」。
+     */
+    private static final float TAB_VISIBLE = 6.5f;
+
+    /**
      * 频道改为「统一频道号」（Src.CH_xxx）：各源自己的 type_id 由 Src 内部的映射表翻译，
      * 这里只表达用户想看的类别，不再硬编码某一家的编号。
      */
@@ -109,6 +117,10 @@ public final class MainActivity extends Activity {
         Cache.init(this);
         // 拼音首字母索引（wddcz → 伟大的长征）：只建目录，桶等用户真搜了才按需下
         PyIndex.init(this);
+        // 直播表在点播页就预热好：点「电视」那一刻直接有分组可画，
+        // 进去才 init 的话首屏会先空一下再填。
+        LiveSync.init(this);
+        LiveSync.refresh();
         // 源表现在可以从远端覆盖：先拿本地缓存的那份同步生效（几十 KB，几十毫秒），
         // 再后台默默拉最新。拉失败就一直是内置的 14 个源，不影响看电视。
         SrcSync.init(this);
@@ -148,18 +160,36 @@ public final class MainActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setPadding(Ui.px(56), Ui.px(24), Ui.px(56), Ui.px(6));
 
-        TextView logo = Ui.text(this, "YG影视", 34, Ui.ACCENT);
+        TextView logo = Ui.text(this, "YG", 34, Ui.ACCENT);
         logo.setTypeface(Typeface.DEFAULT_BOLD);
         bar.addView(logo);
 
-        bar.addView(Ui.text(this, "  多源聚合 · 点开即播", 18, Ui.FG_DIM));
+        // 双板块：这是「影视」，实心琥珀；左边「电视」点一下去直播板块。
+        // 两个板块平级、各占一屏，不再把直播塞进这里当第 25 个频道 ——
+        // 那样频道条会更长，正是老板说的「拥挤小气」。
+        LinearLayout boards = new LinearLayout(this);
+        boards.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams blp2 = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        blp2.leftMargin = Ui.px(26);
+
+        TextView tvOff = pill("电视", false);
+        tvOff.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, LiveActivity.class));
+            }
+        });
+        boards.addView(tvOff);
+
+        TextView mvOn = pill("影视", true);
+        LinearLayout.LayoutParams mvl = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mvl.leftMargin = Ui.px(10);
+        boards.addView(mvOn, mvl);
+        bar.addView(boards, blp2);
 
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
-
-        TextView tips = Ui.text(this, "方向键移动   OK 确认", 18, Ui.FG_DIM);
-        tips.setPadding(0, 0, Ui.px(20), 0);
-        bar.addView(tips);
 
         TextView searchBtn = chip("搜 索", false);
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -231,6 +261,13 @@ public final class MainActivity extends Activity {
         LinearLayout chipRow = new LinearLayout(this);
         chipRow.setOrientation(LinearLayout.HORIZONTAL);
         chipRow.setPadding(0, Ui.px(10), 0, Ui.px(10));
+        // 一屏只完整露 6 个、第 7 个被右边缘裁一半。
+        // 之前 24 个 WRAP_CONTENT 全挤在一行，长度参差不齐，看着又满又碎；
+        // 定宽之后节奏一致，右边那半个就是「还能往右滑」的提示。
+        int tabGap = Ui.px(12);
+        int tabUsable = Ui.w() - Ui.px(104) - (int) (tabGap * (TAB_VISIBLE - 1));
+        int tabW = Math.max(Ui.px(120), Math.round(tabUsable / TAB_VISIBLE));
+
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
             TextView t = chip(TAB_NAME[i], false);
@@ -249,8 +286,8 @@ public final class MainActivity extends Activity {
                 }
             });
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = Ui.px(12);
+                    tabW, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = tabGap;
             chipRow.addView(t, lp);
             tabChips.add(t);
         }
@@ -300,6 +337,19 @@ public final class MainActivity extends Activity {
         buildUpdatePanel();
         // 开机静默查一次（失败只在 Trace 里留痕，不打扰看电视）
         checkUpdate(false);
+    }
+
+    /** 板块胶囊：选中态实心琥珀 + 深色字，未选中透明底。只用在顶栏那两个字上。 */
+    private TextView pill(String label, boolean on) {
+        TextView t = Ui.bold(this, label, 22, on ? 0xFF12161C : Ui.FG);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setFocusable(true);
+        t.setClickable(true);
+        t.setPadding(Ui.px(24), Ui.px(8), Ui.px(24), Ui.px(8));
+        t.setBackground(on ? Ui.round(Ui.ACCENT, 8, 0, 0)
+                : Ui.focusBg(0x00000000, 8, Ui.ACCENT));
+        return t;
     }
 
     private TextView chip(String label, boolean active) {

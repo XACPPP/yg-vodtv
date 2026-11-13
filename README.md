@@ -1,10 +1,11 @@
 # YG影视TV
 
-自用的电视端影视 App，纯原生 Android（无 Gradle、无第三方库），专为海信 VIDAA 电视
-（Android 5.1.1 / API 22，已 root）定制。片源来自 **14 个苹果CMS采集源聚合**，App 内部只认
-统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码。
+自用的电视端 **影视 + 直播** 双板块 App，纯原生 Android（无 Gradle、无第三方库），专为海信
+VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 **14 个苹果CMS采集源聚合**，
+App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
+直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的（v2.6）。
 
-当前版本：**v2.5（versionCode 16）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.6（versionCode 17）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -14,6 +15,10 @@
 - 首页：**24 个统一频道**（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、悬疑剧……）海报墙，
   每页最多 84 条、14 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页；
   **第一页列表落盘 + 相邻频道预取**，切频道不转圈，海报整屏一次出（v2.4）
+- **电视直播**（v2.6）：顶栏「电视 / 影视」双板块一键互跳。直播表来自 GitHub 两份公共 IPTV
+  清单（Guovin + vbskycn，约 2200 条），逐条实测 `200 + #EXTM3U`，**只留真能播的那 41%**，
+  同台最多留 3 条按首播毫秒排序。**卡了一下就换源**：菜单键呼出线路面板、左右键直接切、
+  遥控器 CH+/CH- 也行；一条挂了自动静默切下一条，三条全挂才提示。上下键在同组内换台
 - **源表热更**：源的定义是一份远端 JSON，GitHub Actions 每天自动巡检打分重排，
   换源 / 加源 / 调优先级**不用发版**；远端出任何问题都自动退回内置表（v2.4）
 - 搜索：**一屏左右分栏**——左边键盘 + 最近搜过的词，右边实时结果；**停手 2 秒自动搜**，
@@ -208,6 +213,114 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.6：电视直播板块 + 双板块 UI
+
+老板原话：
+
+> 1、新增一个电视功能，你去GitHub上找找高速电视源，集合进去，要高速、流畅，整合多源，方便卡的时候换源；
+> 2、再优化一下UI，排版有点冗余，没必要把24个频道都显示出来，这也显得画面整体很拥挤小气
+> 建议改成横向滚动一行，只露 6 到 8 个，其余滑动查看，可以找stitch重新设计个简约版的，
+> 整体就做两个版本，一个电视板块、一个影视板块，要高端、大气、科技感一点；
+
+#### 一、直播源：不是「接个列表」就完事
+
+公共 IPTV 清单都是几千行的 `频道名,url`，照抄进来能播的不到一半。实测：
+
+| 项 | 实测值 |
+|---|---|
+| 源1 Guovin `result.txt` | 1619 行 / 40 分组 |
+| 源2 vbskycn `iptv4.txt` | 551 行 / 12 分组 |
+| 去重后唯一 URL | **1757** 条（丢掉 IPv6 67 条、`更新时间` 分组 3 条、非法 3 条） |
+| 探测结果 | **可播 721 条 = 41.0%**，24 线程 157 秒 |
+| 最终入库 | **428 个频道 / 669 条 URL** |
+
+所以 `test/live_scan.py` 的判据是「真能播」而不是「列表里有」：
+
+- `status == 200` **且** 首 4096 字节含 `#EXTM3U` —— 只看连通性会被 https 劫持站和 302 骗过去
+- TTFB 取**首块数据到达**时刻，不是请求完成时刻。否则一个 6 秒才发完的源会排在 200ms 的正常源前面
+- 同台最多留 3 条按 TTFB 升序 —— 这就是「卡了换下一个」的备用池
+- 全量探测 < 20 个台可播时**保留旧文件、退出码 0**，CI 不会因为源站集体抽风就把直播页清空
+
+分组从 41 个收敛成 7 个（`cctv` 36 / `sat` 39 / `sports` 6 / `movie` 28 / `hkmotw` 9 / `local` 267 / `other` 43）。
+`kids` 动画组是 **0**：源里动画那 54 条单探 40 条，全是 migu token 中转和已失效的 freetv.fun，403 或连不上 ——
+是源的问题，不是筛选逻辑，等有可用源再放开。
+
+#### 二、换源是这一页存在的核心理由
+
+直播和点播最大的差别：点播选错了源，换个播放器还能播；直播源挂了就是黑屏，**必须一键换**。
+所以 `LivePlayerActivity` 三个入口都能切，而且互不冲突：
+
+| 操作 | 行为 |
+|---|---|
+| 菜单键 | 呼出线路面板，选具体某条 |
+| ← / → | 直接切上一条 / 下一条 |
+| CH+ / CH-（码 166/167） | **换台**，不是换源 —— 频道键按电视惯例就该换台；换源交给 ←→ 和菜单键 |
+| 一条播挂了 | **静默自动切下一条**，用户几乎无感 |
+| 三条全挂 | 才提示「该频道暂时看不了，试试别的台」 |
+
+为什么不复用 `PlayerActivity`：那边一整套是为点播写的 —— 进度条、断点续播、`onCompletion` 自动下一集、
+选集浮层。直播没有「总时长」，`onCompletion` 一触发就去播下一集，反而把正常播放打断。
+所以直播单独写一份薄的：`VideoView` + 换源 + 换台，**没有进度条和时长**。
+
+#### 三、UI：24 个频道改成只露 6.5 个
+
+老板说的是「24 个频道全显示出来显得拥挤小气」。改法不是简单加个滚动，而是**定宽**：
+
+```java
+// 一屏完整露 6 个，第 7 个被右边缘裁一半
+int tabUsable = Ui.w() - Ui.px(104) - (int)(tabGap * (TAB_VISIBLE - 1));
+int tabW = Math.max(Ui.px(120), Math.round(tabUsable / TAB_VISIBLE));
+```
+
+`WRAP_CONTENT` 的 24 个胶囊长短不一，即使能滑也显得碎；定宽之后节奏一致，而右边那半个
+就是「还能往右滑」的天然提示。`TAB_VISIBLE = 6.5f` 是特意留的半个 —— 整数个会让人以为「就这些了」。
+
+顶栏也从「YG影视 + 24 个频道」改成 **`YG` + 双板块胶囊**：
+
+- 「电视」透明底 → 点它进 `LiveActivity`
+- 「影视」实心琥珀 → 当前所在
+- 两个板块平级、各占一屏。**没有把直播塞成第 25 个频道** —— 那样频道条只会更长，正是被吐槽的那个问题
+
+设计稿在 Stitch 项目 `9584627652671101173`（「Cinematic Cinema 10-Foot Experience」设计系统：
+DARK / INTER / ROUND_EIGHT / `#ffb300`，画布 1920×1080，overscan 横 56px / 纵 40px，
+焦点 `scale(1.06)` + 3px 琥珀描边 + 4px outline-offset）。落地时全部复用 `Ui.java` 已有的设计令牌，
+没有引入新颜色，所以两个板块看着是同一套东西。
+
+#### 四、直播表同样是「数据化 + 每日巡检」
+
+照 v2.4 点播源表那套做，一行没改：
+
+```
+GitHub Actions 每天 02:00
+  ├─ source_scan.py  → sources.json   （点播源，14 个）
+  ├─ pinyin_index.py → py/*.txt       （首字母表，23 桶 4.6MB）
+  └─ live_scan.py    → live.json      （直播源，428 台 669 条）  ← v2.6
+  ↓ 有变化才 commit
+raw.githubusercontent.com/.../assets/*
+  ↓ App 启动时拉
+LiveSync → Live.load()（六层容错，0 组则整体放弃保留内置）
+```
+
+`Live.load()` 的六层容错和 `Src.load()` 一个思路，但多一条直播特有的：**URL 里带 `[` 的一律丢**
+（IPv6 地址在 API 22 的 NuPlayer 上直接连不上，实测 67 条）。另外 `urls` 数组在 harness 替身上
+没有 `optString(int)`，所以是「把整个数组当文本读、剥方括号、按逗号切、碎片不以 http(s) 开头就并回上一条」——
+这样 URL 里带逗号（`?a=1,2`）也不会被切坏。
+
+#### 五、验收
+
+| 套件 | 结果 |
+|---|---|
+| `bash run.sh livetab` | **40/40 PASS**（不联网：坏 JSON / 缺 groups / 全坏项 / IPv6 清洗 / 快照副本 / 被放弃的 load 不动 seq） |
+| `bash run.sh`（Harness） | 16/16 PASS |
+| `bash run.sh wire` | 21/21 PASS |
+| `bash run.sh tabs` | 24 个分类全部有数据且有海报（共聚合 1611 条） |
+| `bash run.sh rank` / `meta` / `upd` | PASS / 9 项 PASS / 19 项 PASS |
+| `bash run.sh srctab` / `cachetab` / `pytab` | 23 / 34 / 24 PASS |
+| 直播真机采样 | 随机 14 条 → **14/14 可播**，最快 33ms、最慢 1310ms |
+
+出包：APK **123761 字节**（v2.5 是 111473），dex **176628 字节**（v2.5 是 149200），
+`versionCode='17' versionName='2.6'`，`minSdkVersion 21` / `targetSdkVersion 22` 未变。
 
 ### v2.5：拼音首字母能搜到了
 
@@ -868,7 +981,11 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 
 | 文件 | 作用 |
 | --- | --- |
-| `app/src/com/yg/vodtv/MainActivity.java` | 首页：分类条 + 海报墙 + 左右分栏搜索（自动搜 + 历史词） |
+| `app/src/com/yg/vodtv/MainActivity.java` | **影视板块**首页：双板块胶囊 + 定宽频道条（一屏 6.5 个）+ 海报墙 + 左右分栏搜索 |
+| `app/src/com/yg/vodtv/LiveActivity.java` | **电视板块**首页：分组条（一屏 6.5 个）+ 频道墙（每排 6 张 260:150）+ 台名色条 |
+| `app/src/com/yg/vodtv/LivePlayerActivity.java` | 直播播放：VideoView + ←→/菜单两路换源 + ↑↓/CH± 换台 + 挂了一条自动静默切下一条；无进度条无续播 |
+| `app/src/com/yg/vodtv/Live.java` | **直播表**：`BUILTIN` 兜底 + `load(json)` 六层容错（含 IPv6 清洗）+ `groups()` 返快照 |
+| `app/src/com/yg/vodtv/LiveSync.java` | **直播表热更**：启动同步读缓存 → 后台拉远端 `live.json` → `Live.load`；`status()` 报「内置/当前/缓存时间」 |
 | `app/src/com/yg/vodtv/DetailActivity.java` | 详情页：海报 + meta + 选集网格 |
 | `app/src/com/yg/vodtv/PlayerActivity.java` | 播放页：VideoView + 自绘进度条 + 选集浮层 |
 | `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：9 步链路检测（含海报下载、海报缓存）+ 错误日志面板 |
@@ -914,13 +1031,13 @@ ANDROID_HOME=/path/to/sdk bash app/build-ci.sh
 
 签名：`app/yg.keystore`，storepass/keypass 都是 `yg123456`，alias `yg`。
 
-APK 信息：`package=com.yg.vodtv`、`versionCode=6`、`versionName=1.5`、`minSdkVersion=21`、
+APK 信息：`package=com.yg.vodtv`、`versionCode=17`、`versionName=2.6`、`minSdkVersion=21`、
 `targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
 都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
 
-`build.sh` 里有防假成功的检查：javac 之后逐个确认 **21 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
-v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`），并比对 `MainActivity.class` 与源码时间戳，避免 javac
-悄悄失败却打包了旧 class。
+`build.sh` 里有防假成功的检查：javac 之后逐个确认 **25 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
+v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`，v2.6 补了 `Live`、`LiveSync`、`LiveActivity`、
+`LivePlayerActivity`），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
 
 ## 四、安装
 
@@ -1085,6 +1202,21 @@ SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`（与
 
 ### 未验证
 
+**v2.6 的直播板块还没有真机跑过（这是当前最需要确认的一块）：**
+桌面上能验的都验了 —— `live_scan.py` 全量跑通（1757 条探出 721 条可播）、`livetab` 40 项断言全绿、
+随机抽 14 条直播地址实测 14/14 返回 `#EXTM3U`（最快 33ms / 最慢 1310ms）、APK 编译打包签名全过。
+**但没验的是真机能验的那部分**：
+①`raw.githubusercontent.com/.../assets/live.json`（81KB）电视能不能拉到；
+②API 22 的 NuPlayer 对这种「无 `#EXTINF` 时长之外的常规 HLS 直播流」能不能起播（点播 m3u8 已经证明可以，
+直播流的 `#EXT-X-TARGETDURATION` / `#EXT-X-MEDIA-SEQUENCE` 滚动窗口是另一套）；
+③`Proxy.wrapPlaylist` 对直播流的改写会不会把 `#EXT-X-PROGRAM-DATE-TIME` 这类直播特有标签搞坏
+（`rewrite()` 只动 `#EXT-X-KEY`/`#EXT-X-MAP` 和分片行，理论上安全，但没实测）；
+④遥控器 CH+ / CH- 在海信 VIDAA 上到底映射成 166/167 还是别的码 —— 这两个键做的是**换台**（不是换源），
+如果不是这两个码，↑↓ 换台仍然可用，只是那个快捷键不生效。
+
+判定标准：点顶栏「电视」→ 分组条一屏只露 6 个半 → 点「央视」→ 点 CCTV-1 → 能出画面 →
+按 ←→ 屏幕上方提示「线路 2/3」并且画面重连。
+
 **v2.5 的拼音索引还没有真机跑过：**`PyIndex` 走 `raw.githubusercontent.com/.../assets/py/{L}.txt` 按需下桶，
 本机实测这条路径对 `sources.json` 是通的，但索引文件 4.6MB 分 23 个桶、最大单桶 725KB（`s.txt`），
 电视上首次搜某个字母要等这一桶下完（局域网走 Passwall，估计 1~3 秒），下过一次永久缓存。
@@ -1126,7 +1258,9 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 3. 点某一集能起播（`Proxy` 三跳改写 + VideoView 都通）
 4. 上键弹选集、OK 暂停、返回退出（遥控器映射通）
 5. 自检页 9 项全绿（**含「网络参数」「海报下载」「海报缓存」三步**，片源链路整体通）
-6. 标题栏「检查更新」显示「已是最新版本 v2.5」
+6. 标题栏「检查更新」显示「已是最新版本 v2.6」
+7. 点顶栏「电视」进直播板块，分组条一屏只露 6 个半，右边缘那半个要能被滑出来
+8. 直播随便点一个台能出画面；按菜单键能换线路，按 ←→ 能直接切源
 7. 搜索框输 `wddcz`，结果里应有《伟大的长征》（v2.5 拼音首字母索引）；输 `weidadechangzheng` 也应命中
 
 ## 六、目录
@@ -1135,7 +1269,7 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 YG影视TV/
 ├── README.md
 ├── .github/workflows/build.yml  # push tag v* 自动出包 + 发 Release
-├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 起同时重建拼音索引，一起自动 commit
+├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 加拼音索引 → v2.6 加直播源，一起自动 commit
 ├── .gitignore                   # 排除 build/、*.apk、yg.keystore
 ├── app/
 │   ├── AndroidManifest.xml
@@ -1147,13 +1281,14 @@ YG影视TV/
 │   ├── res/drawable-{m,h,xh,xxh,xxxh}dpi/    # v2.3 机器人图标五档密度
 │   ├── src/main/assets/sources.json          # v2.4 源表（巡检自动重写；不打包进 APK，供 GitHub raw 与 CI）
 │   ├── src/main/assets/py/{a..z}.txt         # v2.5 拼音首字母表（23 桶 4.6MB，CI 每天重建；同样走 raw）
-│   ├── src/com/yg/vodtv/*.java  # 20 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex）
+│   ├── src/main/assets/live.json             # v2.6 直播表（428 台 669 条，CI 每天重建；同样走 raw）
+│   ├── src/com/yg/vodtv/*.java  # 24 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LiveActivity/LivePlayerActivity）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
 └── test/
     ├── harness/                 # JVM 端到端验证（跑真实源码）
-    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab|pytab]
+    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab|pytab|livetab]
     │   ├── Harness.java         # 16 项链路断言
     │   ├── Wire.java            # 21 项线上字节格式断言（模拟 NuPlayer）
     │   ├── Tabs.java            # 24 个统一频道逐项验证（多源聚合，有数据 + 有海报）
@@ -1163,12 +1298,14 @@ YG影视TV/
     │   ├── SrcTab.java          # v2.4 源表热更：Src.load() 六层容错 + 频道映射（23 项，不联网）
     │   ├── CacheTab.java        # v2.4 列表缓存：Multi.encode/decode 往返 + Cache 落盘（34 项，不联网）
     │   ├── PyTab.java           # v2.5 首字母索引：PyIndex.pick 精确优先/前缀兜底/脏行（24 项，不联网）
+    │   ├── LiveTab.java         # v2.6 直播表：Live.load() 六层容错 + IPv6 清洗 + 快照（40 项，不联网）
     │   ├── Dump.java            # 打印改写后的播放列表
     │   ├── android/*.java       # android.util/net/os/content 替身
     │   └── org/json/*.java            # org.json 替身
     ├── proxy_sim.py             # 早期 Python 复刻（已被 harness 取代）
     ├── source_scan.py           # v2.4 源健康巡检 + 100 分制打分 → sources.json
     ├── pinyin_index.py          # v2.5 从 bfzy 全库切首字母 → assets/py/*.txt（8584 页 / 5 分钟）
+    ├── live_scan.py             # v2.6 直播源采集+测速+分组 → assets/live.json（1757 条探 157 秒）
     ├── sources_health.json      # 巡检结果（App 不直接读，供 CI/人看）
     ├── sources_health.md        # 同上，人读表
     ├── tvbox_cfg/               # v2.4 调研时下载的 TVBox 配置样本（type=1 抽取用）
@@ -1198,6 +1335,13 @@ YG影视TV/
   `app/src/main/assets/sources.json` 就够了**，推上去电视下次开机自动生效；只有当远端表整体
   不可用时才需要动 `Src.java` 的 `BUILTIN` 数组（编译进 APK 的兜底表，格式同 JSON 的四个字段）
 - 各源仍可能单个分类返回空或非 JSON，`Api.parsePage()` 全 catch 容错，聚合时跳过该源
+- **直播源衰减比点播源快得多**：公共 IPTV 清单里 59% 是死的（实测 1757 条只有 721 条能播），
+  而且今天能播的明天可能就 403。所以 `live.json` 必须靠每天巡检重刷；如果哪天电视上大片频道
+  都放不出来，先看 GitHub Actions 的 `scan` 是否还在正常跑，别急着改代码
+- **动画/少儿台目前是空的**（`kids` 组 0 个频道）：两个公共清单里动画那 54 条单探 40 条全挂，
+  多为 migu token 中转站和已停服的 freetv.fun。等找到可用源再放开 `live_scan.py` 的筛选规则
+- **直播表不打包进 APK**：和 `sources.json`、`py/*.txt` 一样，`assets/` 没进包（`aapt2 link` 没有 `-A`），
+  运行期走 `raw.githubusercontent.com`，编译期兜底是 `Live.BUILTIN`（5 组 17 台占位台名）
 - **`limit=` 各源都不认**，所以每页条数只能本地截断（当前 84 条）
 - 翻页上限写了 400 页（`curPage < 400`），再往后意义不大
 - 没有收藏、没有字幕切换（片源自带硬字幕）

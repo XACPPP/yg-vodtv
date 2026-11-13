@@ -44,7 +44,16 @@ jobs:
         continue-on-error: true
         run: python test/pinyin_index.py
 
-      # 有变化才提交。四类产物都要看：报告是给人看的，sources.json 和 py/ 是给电视用的。
+      # 直播源：拉 Guovin + vbskycn 两份公共直播清单（约 2200 条），逐条探
+      # 200 + 首 4KB 含 #EXTM3U，只留真能播的（实测约 41%），同台最多留 3 条按
+      # TTFB 升序 —— 这就是「卡了一键换源」的底气。
+      # 全挂时脚本自己保留旧文件并 exit 0，所以 continue-on-error 只是兜住意外崩溃。
+      - name: 巡检直播源
+        timeout-minutes: 15
+        continue-on-error: true
+        run: python test/live_scan.py
+
+      # 有变化才提交。四类产物都要看：报告是给人看的，sources.json / py/ / live.json 是给电视用的。
       # git diff --quiet 的退出码 1 表示「有差异」，0 表示「没差异」。
       - name: 提交变更
         run: |
@@ -53,8 +62,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add test/sources_health.json test/sources_health.md app/src/main/assets/sources.json
           git add -A app/src/main/assets/py
+          git add -A app/src/main/assets/live.json
           if git diff --cached --quiet; then
-            echo "源表与拼音索引都无变化，跳过提交"
+            echo "源表、拼音索引、直播表都无变化，跳过提交"
             exit 0
           fi
           git commit -m "chore: 源表自动巡检 $(date +%F)"

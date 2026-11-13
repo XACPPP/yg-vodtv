@@ -37,7 +37,7 @@ javac -source 8 -target 8 -nowarn -encoding UTF-8 \
   -d build/classes \
   @build/sources.txt 2>&1 | grep -v 'bootstrap class path' || true
 # javac 失败必须中止，否则 d8 会打包旧 class 造成假成功
-for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex; do
+for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex Live LiveSync LiveActivity LivePlayerActivity; do
   if [ ! -f "build/classes/com/yg/vodtv/$c.class" ]; then
     echo "[build] FAILED: javac 未产出 $c.class" >&2
     exit 1
