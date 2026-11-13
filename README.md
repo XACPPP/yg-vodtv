@@ -314,6 +314,14 @@ v2.4 改的两处都是「失败时很安静」的地方：源表解析错了电
 | SrcTab | 23 | `Src.load()` 六层容错、types 两种形态、坏项只丢一条、`all()` 返副本 |
 | CacheTab | 34 | `Multi.encode/decode` 17 字段往还原、脏字符转义、7 组坏输入不抛、`Cache` 落盘不串 |
 
+#### 七、实发记录
+
+- CI run [`43355284246`](https://github.com/XACPPP/yg-vodtv/actions/runs/43355284246) 一次通过
+  （35 秒，`校验 tag 与 Ver.NAME 一致` → `构建 APK` → `发 Release` 全绿）。
+- Release：<https://github.com/XACPPP/yg-vodtv/releases/tag/v2.4>（2026-11-13 10:53）。
+- 资产 `YGTV.apk` / `YG.TV.apk` 均 **107377 字节**，CI 侧 md5 `19b2e6fb1ebfcd091bf27ff0b03381d0`；
+  本地出包同尺寸（md5 因 zipalign 时间戳不同而不同，属正常）。
+
 ### v2.3：换掉那个「憨批」图标
 
 老板原话：「这个 APP 图标是不是有点憨批了，太简陋了吧」。原来是一个 192×192 的纯蓝圆角方块
@@ -939,9 +947,9 @@ v2.4 的 `pushReady`、`primeNow`、`onDisk`、`decode`、`encode`、`sameAs`、
 （每版改动确实打进去了，不是只改源码没进包）。
 `aapt2 dump badging` → `versionCode='15' versionName='2.4'`、`sdkVersion:'21'`、`targetSdkVersion:'22'`；
 `aapt2 dump permissions` → INTERNET / ACCESS_NETWORK_STATE / WAKE_LOCK / **REQUEST_INSTALL_PACKAGES** / **WRITE_EXTERNAL_STORAGE**。
-签名：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
+签名（v2.4 复验）：`apksigner verify -v --min-sdk-version 21` → v1/v2/v3 = true、v4 = false（v1 在，Android 5.1 才能装）；
 证书 `CN=YG, OU=TV, O=YG, L=Ganzhou, ST=Jiangxi, C=CN`，
-SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`。
+SHA-256 `bbdf5b3916abe4c82f5fbee470e8aad21c2f9b8db8ef5688b85ead25bd967f8c`（与 v2.3 一致，所以能用 App 内更新直接覆盖安装）。
 
 ### 未验证
 
