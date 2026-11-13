@@ -3,9 +3,9 @@
 自用的电视端 **影视 + 直播** 双板块 App，纯原生 Android（无 Gradle、无第三方库），专为海信
 VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 **14 个苹果CMS采集源聚合**，
 App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
-直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7）。
+直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7 / v2.7.1 修好打包）。
 
-当前版本：**v2.7（versionCode 18）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.7.1（versionCode 19）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -213,6 +213,32 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.7.1：修 CI 漏打包 assets（v2.7 的 Release 里台标一张都没有）
+
+v2.7 发出去之后核对产物才发现：**GitHub Release 上的 APK 只有 136049 字节，本地构建是 560057 字节**，
+差的正是 `app/src/main/assets/logo/` 那 84 张台标。
+
+根因：`aapt2 link` 少了 `-A build/assets`。之前只改了本机用的 `app/build.sh`，
+**CI 走的是另一份 `app/build-ci.sh`**，两条构建链各写一遍参数，改一条漏一条。
+
+| 项 | v2.7（坏的） | v2.7.1（修好） |
+|---|---|---|
+| `app/build-ci.sh` link 参数 | 无 `-A` | `-A build/assets` |
+| Release APK 大小 | 136049 字节 | **560057 字节** |
+| APK 内 `assets/` 条目 | **0** | **84**（总条目 96） |
+| 电视上看到的台标 | 全是短标签色块 | 90 台真实台标 |
+
+修法：`build-ci.sh` 的 `[2/6] aapt2 link` 之前加 `rm -rf build/assets` /
+`mkdir -p build/assets` / `cp -r src/main/assets/logo build/assets/logo`，
+参数里补 `-A build/assets`，与本机 `build.sh` 完全一致。
+版本号提到 **2.7.1 / versionCode 19**，这样电视上的「检查更新」能识别到这次修复。
+
+验收：`gh release download v2.7.1` 拉下来的 APK → `zipfile` 条目 96 / assets 84 /
+`testzip()` 返回 `None`；`aapt2 dump badging` 显示 `versionCode='19' versionName='2.7.1'`。
+
+> 教训：**构建脚本有两份就必须同步改**，发版后要拿 Release 产物本身复核字节数和 assets 条目，
+> 不能只看 CI 是绿的 —— CI 绿只代表「跑完了」，不代表「打进去了」。
 
 ### v2.7：抄设计稿、修画面截断、直播台标 + 源质量
 
@@ -1415,7 +1441,7 @@ YG影视TV/
 ├── app/
 │   ├── AndroidManifest.xml
 │   ├── build.sh                 # 六步构建脚本（Windows / MSYS）；v2.7 起 link 加 -A，只打 assets/logo
-│   ├── build-ci.sh              # 六步构建脚本（Linux / GitHub Actions）
+│   ├── build-ci.sh              # 六步构建脚本（Linux / GitHub Actions）；-A 必须与 build.sh 同步改，v2.7.1 就是漏了这条
 │   ├── yg.keystore              # 签名（yg123456）—— 不进仓库，CI 用 Secret 还原
 │   ├── res/values/strings.xml
 │   ├── res/drawable/ic_launcher.png          # 192px 兜底（电视 banner 复用）
