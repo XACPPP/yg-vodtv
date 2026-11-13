@@ -224,6 +224,19 @@ public final class Live {
         }
     }
 
+    /** 「江西电信」内置分组的下标；没有内置组时返回 -1。 */
+    public static int jiangxiGroup() {
+        synchronized (ALL) {
+            for (int i = 0; i < JX.size(); i++) {
+                String id = JX.get(i).id;
+                if (id != null && id.startsWith("jx")) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
+
     public static int groupCount() {
         synchronized (ALL) {
             return JX.size() + ALL.size();

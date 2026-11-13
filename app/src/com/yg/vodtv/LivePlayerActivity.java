@@ -240,6 +240,18 @@ public final class LivePlayerActivity extends Activity {
         Proxy.start();
 
         groups = Live.groups();
+        // v2.12：老用户升级后第一次进直播，把默认分组挪到「江西电信」。
+        // 不迁的话记忆里还是公共表的下标 —— 老板升级完点进直播，看到的仍是那个
+        // 三路源全在转圈的 CCTV-8，等于这次换源白做。迁一次就够，之后按他自己的选择走。
+        if (!getIntent().hasExtra("groupIdx") && !Store.liveJxMigrated()) {
+            int jx = Live.jiangxiGroup();
+            if (jx >= 0) {
+                Store.saveLive(jx, 0);
+                Store.clearLiveName();
+            }
+            Store.markLiveJxMigrated();
+            Trace.add("live", "已把默认分组迁到江西电信 idx=" + jx);
+        }
         // 入口不再要求「先选组再选台」：没带参数就恢复上次看的台
         groupIdx = getIntent().getIntExtra("groupIdx", Store.liveGroup());
         chIdx = getIntent().getIntExtra("chIdx", Store.liveChannel());

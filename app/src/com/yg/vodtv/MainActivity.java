@@ -360,7 +360,11 @@ public final class MainActivity extends Activity {
         // v2.8 照设计稿改回「自适应宽 + 20px 间距 + 8px 圆角」。
         // v2.7 用的是定宽 999 全胶囊，一屏 6.5 个：虽然整齐，但胶囊串在一起
         // 像一排按钮条，设计稿那种「标签云」的轻量感全没了。
-        int tabGap = Ui.px(24);
+        // v2.12：胶囊内边距 36 → 22、间距 24 → 14。
+        // 真机上量过：内边距 36 时 14 个分类只有 11 个露得出来，「日剧/港剧/台剧」
+        // 被右侧渐隐吃掉，看着像只有 11 个分类。缩到 22 后 14 个刚好排满 1749px
+        // （可用 1760px），字号一点没动，还是 25px。
+        int tabGap = Ui.px(14);
         for (int i = 0; i < TAB_NAME.length; i++) {
             final int idx = i;
             TextView t = tabChip(TAB_NAME[i]);
@@ -425,6 +429,13 @@ public final class MainActivity extends Activity {
                         frp.height = h;
                         fadeL.setLayoutParams(flp);
                         fadeR.setLayoutParams(frp);
+                        // v2.12：内容没溢出就把两层渐隐收掉。否则「刚好排满」的那一版
+                        // 会把最右边一个分类压暗，看着像坏了；只有真需要横向滚动时
+                        // 才用渐隐提示「还有更多」。
+                        View row = cs.getChildAt(0);
+                        boolean canScroll = row != null && row.getWidth() > cs.getWidth();
+                        fadeL.setVisibility(canScroll ? View.VISIBLE : View.GONE);
+                        fadeR.setVisibility(canScroll ? View.VISIBLE : View.GONE);
                     }
                 });
         col.addView(chipWrap, new LinearLayout.LayoutParams(
@@ -766,9 +777,10 @@ public final class MainActivity extends Activity {
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        // v2.11：字号乘 1.4 后 18 → 25px，内边距同步放大到 36/10，
-        // 胶囊高度约 60px（设计稿 v2.11 标注），10 尺距离才按得准、看得清。
-        t.setPadding(Ui.px(36), Ui.px(10), Ui.px(36), Ui.px(10));
+        // v2.11：字号乘 1.4 后 18 → 25px，内边距同步放大到 36/10。
+        // v2.12：横向收到 22 —— 36 时 14 个分类有 3 个被渐隐遮掉（真机截图确认），
+        // 22 后全部露出；纵向仍是 10，胶囊还是 45px 高，按得准、看得清。
+        t.setPadding(Ui.px(22), Ui.px(10), Ui.px(22), Ui.px(10));
         t.setBackground(Ui.focusBgGlow(0x14FFFFFF, 10, Ui.ACCENT));
         return t;
     }
@@ -1612,6 +1624,13 @@ public final class MainActivity extends Activity {
                 return true;
             }
             return super.onKeyDown(code, e);
+        }
+        // v2.12：首页按菜单键直接进搜索。
+        // 底部键帽从 v2.6 起就写着「菜单 搜索」，但代码里从来没拦过这个键 ——
+        // 老板按下去没反应，自然以为「搜索坏了」。
+        if (code == KeyEvent.KEYCODE_MENU) {
+            openSearch();
+            return true;
         }
         // v2.10：方向键/OK 一按，就算用户开始选片了，dock 从占位态切成真实内容。
         switch (code) {

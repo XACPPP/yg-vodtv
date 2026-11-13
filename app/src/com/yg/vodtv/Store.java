@@ -219,6 +219,44 @@ public final class Store {
         }
     }
 
+    /** 清掉记忆的台名。v2.12 一次性迁到「江西电信」组时用：
+     *  不清的话 restoreByName() 会按台名把老用户又拽回公共表的 CCTV-8。 */
+    public static void clearLiveName() {
+        if (sp == null) {
+            return;
+        }
+        try {
+            sp.edit().remove(K_LIVE_NAME).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "清直播台名失败", t);
+        }
+    }
+
+    /** v2.12 一次性迁移标记：老用户升级后第一次进直播，默认落到「江西电信」组。 */
+    private static final String K_LIVE_JX = "live_jx_mig";
+
+    public static boolean liveJxMigrated() {
+        if (sp == null) {
+            return true;
+        }
+        try {
+            return sp.getBoolean(K_LIVE_JX, false);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    public static void markLiveJxMigrated() {
+        if (sp == null) {
+            return;
+        }
+        try {
+            sp.edit().putBoolean(K_LIVE_JX, true).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "写直播迁移标记失败", t);
+        }
+    }
+
     /* ==================== 每个台上次能播的线路 ==================== */
 
     private static final String K_LIVE_URL = "live_u";
