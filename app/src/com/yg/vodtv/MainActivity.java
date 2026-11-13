@@ -127,6 +127,8 @@ public final class MainActivity extends Activity {
     private TextView dockPlayBtn;
     /** dock 当前展示的片子（焦点落在哪张卡就换成哪一部）。 */
     private Vod dockVod;
+    /** v2.18：更新弹窗左下那颗按钮，文案随「有新版本 / 已是最新」变化。 */
+    private TextView updateLater;
     /**
      * v2.10：dock 是否已经被用户「武装」。
      * 首页刚渲染完会自动 requestFocus 到第一张卡，Cards 的焦点回调会把第一部片
@@ -1526,8 +1528,10 @@ public final class MainActivity extends Activity {
         });
         btns.addView(upGo);
 
-        TextView later = chip("以后再说", false);
-        later.setOnClickListener(new View.OnClickListener() {
+        // v2.18：这个按钮的文案要跟着状态走（见 checkUpdate）：
+        // 「已是最新版本」时喊「以后再说」很别扭，应该是「知道了」。
+        updateLater = chip("以后再说", false);
+        updateLater.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 hideUpdate();
             }
@@ -1535,7 +1539,7 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams lpl = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lpl.leftMargin = Ui.px(16);
-        btns.addView(later, lpl);
+        btns.addView(updateLater, lpl);
         box.addView(btns, bl);
 
         FrameLayout.LayoutParams boxLp = new FrameLayout.LayoutParams(
@@ -1579,6 +1583,9 @@ public final class MainActivity extends Activity {
                     if (manual) {
                         upTitle.setText("已是最新版本");
                         upNotes.setText("当前 " + Ver.FULL);
+                        if (updateLater != null) {
+                            updateLater.setText("知道了");
+                        }
                         pending = null;
                         upState.setText("");
                         showUpdatePanel(false);
@@ -1586,6 +1593,9 @@ public final class MainActivity extends Activity {
                     return;
                 }
                 pending = info;
+                if (updateLater != null) {
+                    updateLater.setText("以后再说");
+                }
                 upTitle.setText("发现新版本 " + info.version);
                 upNotes.setText(info.notes.length() > 0 ? info.notes : "（这次没有写更新说明）");
                 upState.setText("当前 " + Ver.NAME

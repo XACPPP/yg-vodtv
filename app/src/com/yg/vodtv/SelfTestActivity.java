@@ -247,16 +247,21 @@ public final class SelfTestActivity extends Activity {
                 }
 
                 // 6. master playlist 经代理
+                // v2.18：这一步改成先探「直播内置源」—— 老板真正在看的是这条链路。
+                // 以前探的是公共采集源的点播 m3u8，那批源在这条电信家宽上成片失效，
+                // 自检页就长期挂着一个红项，看着像 App 坏了，其实直播是好的。
                 total++;
-                String raw = d.epUrls[0];
+                String[] liveProbe = firstLive();
+                String raw = liveProbe != null ? liveProbe[0] : d.epUrls[0];
+                String rawName = liveProbe != null ? liveProbe[1] : "点播源";
                 String local = Proxy.wrapPlaylist(raw);
                 String master = Http.get(local, Api.REFERER);
                 if (master != null && master.indexOf("#EXTM3U") >= 0) {
                     pass++;
                     String first = firstUri(master);
-                    add(true, "播放列表首跳", master.contains("#EXT-X-STREAM-INF")
+                    add(true, "播放列表首跳", rawName + "：" + (master.contains("#EXT-X-STREAM-INF")
                             ? "master 正常，子列表已改写到本地代理"
-                            : "媒体列表正常，共 " + count(master, "#EXTINF") + " 个分片");
+                            : "媒体列表正常，共 " + count(master, "#EXTINF") + " 个分片"));
                     if (first == null) {
                         add(false, "子列表地址", "master 里没找到子列表 URI");
                     } else {
@@ -280,7 +285,7 @@ public final class SelfTestActivity extends Activity {
                         }
                     }
                 } else {
-                    add(false, "播放列表首跳", "代理取 m3u8 失败，检查 Proxy/证书/Referer");
+                    add(false, "播放列表首跳", rawName + " 经代理取 m3u8 失败，检查 Proxy/证书/Referer");
                 }
 
                 finishRun(pass, total, t0);
@@ -392,6 +397,27 @@ public final class SelfTestActivity extends Activity {
     }
 
     /** ==================== 小工具 ==================== */
+
+    /**
+     * 取一台内置直播源的线路，用来做「播放列表首跳」的探针（v2.18）。
+     * 返回 {线路, 台名}；没有内置台时返回 null，调用方退回点播源。
+     */
+    private String[] firstLive() {
+        java.util.List<Live.Group> gs = Live.groups();
+        for (int i = 0; i < gs.size(); i++) {
+            Live.Group g = gs.get(i);
+            if (g == null || g.chs == null) {
+                continue;
+            }
+            for (int j = 0; j < g.chs.size(); j++) {
+                Live.Ch c = g.chs.get(j);
+                if (c != null && c.urls != null && !c.urls.isEmpty()) {
+                    return new String[]{c.urls.get(0), g.name + " · " + c.name};
+                }
+            }
+        }
+        return null;
+    }
 
     /** 取 m3u8 里第一条非注释、非标签的行。 */
     private static String firstUri(String text) {
