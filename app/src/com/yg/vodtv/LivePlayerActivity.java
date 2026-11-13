@@ -778,16 +778,16 @@ public final class LivePlayerActivity extends Activity {
         drawer.addView(line, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, Math.max(1, Ui.px(1))));
 
-        HorizontalScrollView gs = new HorizontalScrollView(this);
-        gs.setHorizontalScrollBarEnabled(false);
-        gs.setClipChildren(false);
+        // v2.15：分组条改成「按宽度自动换行」。
+        // 原来套在 HorizontalScrollView 里，可抽屉里 ←→ 被用来切分组，
+        // 用户没有任何办法把这条横向滚起来 —— 5 个分组时最后一个「付费专业 64」
+        // 就永远卡在右边缘外面，看着像只有 4 个分组。改成换行后 5 个分组两行排完。
         groupStrip = new LinearLayout(this);
-        groupStrip.setOrientation(LinearLayout.HORIZONTAL);
+        groupStrip.setOrientation(LinearLayout.VERTICAL);
         groupStrip.setClipChildren(false);
         // 设计稿分组条上下各 16px
-        groupStrip.setPadding(0, Ui.px(16), 0, Ui.px(16));
-        gs.addView(groupStrip);
-        drawer.addView(gs, new LinearLayout.LayoutParams(
+        groupStrip.setPadding(0, Ui.px(16), 0, Ui.px(8));
+        drawer.addView(groupStrip, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         drawerScroll = new ScrollView(this);
@@ -848,11 +848,28 @@ public final class LivePlayerActivity extends Activity {
         }
     }
 
+    /** 分组条的一行：横向排 chip，行间留 8px。 */
+    private LinearLayout newGroupRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setClipChildren(false);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = Ui.px(8);
+        row.setLayoutParams(lp);
+        return row;
+    }
+
     private void renderDrawer() {
         if (groupStrip == null) {
             return;
         }
         groupStrip.removeAllViews();
+        // 抽屉内可用宽度（drawer 两侧各 32 内边距），超出就换一行，不把分组挤到屏幕外
+        int avail = Ui.px(DRAWER_W) - Ui.px(32) * 2 - Ui.px(4);
+        LinearLayout row = newGroupRow();
+        groupStrip.addView(row);
+        int used = 0;
         for (int i = 0; i < groups.size(); i++) {
             final int gi = i;
             Live.Group g = groups.get(i);
@@ -874,10 +891,20 @@ public final class LivePlayerActivity extends Activity {
                     focusRow(0);
                 }
             });
+            // wrap_content 的宽度只有 measure 之后才知道，这里先量一次再决定放哪一行
+            chip.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            int w = chip.getMeasuredWidth() + Ui.px(8);
+            if (used > 0 && used + w > avail) {
+                row = newGroupRow();
+                groupStrip.addView(row);
+                used = 0;
+            }
             LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             clp.rightMargin = Ui.px(8);
-            groupStrip.addView(chip, clp);
+            row.addView(chip, clp);
+            used += w;
         }
 
         Live.Group g = groups.get(browseGroupIdx);

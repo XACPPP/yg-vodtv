@@ -615,7 +615,9 @@ public final class MainActivity extends Activity {
         rlp.topMargin = Ui.px(6);
         dock.addView(row, rlp);
 
+        // v2.15：补上「↑↓ 选片」。之前只写「←→ 分类」，很多人不知道还有第二、第三行影片
         row.addView(Chrome.keyHintRow(this, new String[][]{
+                {"↑ ↓", "选片"},
                 {"← →", "分类"},
                 {"OK", "详情"},
                 {"菜单", "搜索"},
@@ -657,14 +659,29 @@ public final class MainActivity extends Activity {
         }
     }
 
+    /**
+     * v2.15：可用/不可用不再用「整体 alpha 0.35」表示。
+     *
+     * 原来只是把整颗按钮压到 35% 透明，「立即播放」底色是琥珀色，压完变成土黄，
+     * 远看仍像个按得下去的实心按钮（老板在真机上就把它当成可用了）。
+     * 现在禁用态换成「深灰底 + 灰字 + 灰描边」，和可用的琥珀实心一眼能分开。
+     */
     private void setDockBtnEnabled(TextView b, boolean on) {
         if (b == null) {
             return;
         }
-        b.setAlpha(on ? 1f : 0.35f);
+        boolean primary = b == dockPlayBtn;
         b.setEnabled(on);
         b.setClickable(on);
         b.setFocusable(on);
+        b.setAlpha(1f);
+        if (on) {
+            b.setTextColor(primary ? Ui.BG : 0xFFFFFFFF);
+            b.setBackground(Ui.focusBgGlow(primary ? Ui.ACCENT : 0x14FFFFFF, 12, Ui.ACCENT_HI));
+        } else {
+            b.setTextColor(0x59FFFFFF);
+            b.setBackground(Ui.round(0x0DFFFFFF, 12, Math.max(1, Ui.px(1)), 0x1FFFFFFF));
+        }
     }
 
     /**
