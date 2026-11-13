@@ -322,6 +322,13 @@ LiveSync → Live.load()（六层容错，0 组则整体放弃保留内置）
 出包：APK **123761 字节**（v2.5 是 111473），dex **176628 字节**（v2.5 是 149200），
 `versionCode='17' versionName='2.6'`，`minSdkVersion 21` / `targetSdkVersion 22` 未变。
 
+#### 六、实发记录
+
+- 提交 `81488bf`「v2.6：电视直播板块 + 双板块 UI」已推 `origin/master`，tag `v2.6` 已推。
+- CI run [`43372349140`](https://github.com/XACPPP/yg-vodtv/actions/runs/43372349140) success（36 秒）。
+- Release <https://github.com/XACPPP/yg-vodtv/releases/tag/v2.6>，资产 `YGTV.apk` / `YG.TV.apk` 均 **123761 字节**。
+- Release notes 已用 `gh release edit v2.6 --notes-file` 换成完整 changelog（本文件第 217 行起的同款内容）。
+
 ### v2.5：拼音首字母能搜到了
 
 老板原话：「我搜伟大的长征，搜的拼音缩写 wddcz，出来的结果都没有这部剧」，
