@@ -113,8 +113,46 @@ public final class Store {
         }
     }
 
-    /* ==================== 搜索历史 ==================== */
+    /* ==================== 直播上次看到哪个台 ==================== */
 
+    private static final String K_LIVE_GROUP = "live_g";
+    private static final String K_LIVE_CH = "live_c";
+
+    /** 上次看的直播分组下标。没记录返回 -1，由调用方决定回落到第 0 组。 */
+    public static int liveGroup() {
+        if (sp == null) {
+            return -1;
+        }
+        try {
+            return sp.getInt(K_LIVE_GROUP, -1);
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    public static int liveChannel() {
+        if (sp == null) {
+            return -1;
+        }
+        try {
+            return sp.getInt(K_LIVE_CH, -1);
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    public static void saveLive(int groupIdx, int chIdx) {
+        if (sp == null || groupIdx < 0 || chIdx < 0) {
+            return;
+        }
+        try {
+            sp.edit().putInt(K_LIVE_GROUP, groupIdx).putInt(K_LIVE_CH, chIdx).apply();
+        } catch (Throwable t) {
+            Trace.err("store", "保存直播位置失败", t);
+        }
+    }
+
+    /* ==================== 搜索历史 ==================== */
     private static final String K_HIST = "hist";
     private static final int HIST_MAX = 6;
 

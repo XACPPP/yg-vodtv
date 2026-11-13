@@ -62,7 +62,7 @@ public final class SelfTestActivity extends Activity {
     private void buildUi() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Ui.BG);
+        root.setBackground(Ui.pageBg());
         root.setPadding(Ui.px(56), Ui.px(30), Ui.px(56), Ui.px(20));
 
         LinearLayout bar = new LinearLayout(this);

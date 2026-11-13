@@ -149,7 +149,10 @@ public final class MainActivity extends Activity {
 
     private void buildUi() {
         root = new FrameLayout(this);
-        root.setBackgroundColor(Ui.BG);
+        // v2.7：纯色底 → 径向渐变（设计稿 body 是
+        // radial-gradient(ellipse at 50% 30%, #151A22, #0E1116)）。
+        // 纯色底在 10 尺距离上看就是一块灰板，渐变才有「屏幕发光」的层次。
+        Chrome.applyPageBg(root);
 
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
@@ -158,22 +161,30 @@ public final class MainActivity extends Activity {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(Ui.px(56), Ui.px(24), Ui.px(56), Ui.px(6));
+        bar.setPadding(Ui.px(56), Ui.px(18), Ui.px(56), Ui.px(6));
+        bar.setMinimumHeight(Ui.px(Chrome.BAR_H));
+        bar.setClipChildren(false);
 
-        TextView logo = Ui.text(this, "YG", 34, Ui.ACCENT);
-        logo.setTypeface(Typeface.DEFAULT_BOLD);
-        bar.addView(logo);
+        // 品牌：v2.6 是个裸「YG」文字，设计稿是 40x40 琥珀渐变圆角方块里嵌 YG，
+        // 右边再跟一行「极清影院」字标 —— 这是「有设计感」最直观的一处。
+        bar.addView(Chrome.brandBlock(this));
+
+        TextView brandTxt = Chrome.brandText(this);
+        LinearLayout.LayoutParams btlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        btlp.leftMargin = Ui.px(14);
+        bar.addView(brandTxt, btlp);
+
+        bar.addView(Chrome.vDivider(this));
 
         // 双板块：这是「影视」，实心琥珀；左边「电视」点一下去直播板块。
         // 两个板块平级、各占一屏，不再把直播塞进这里当第 25 个频道 ——
         // 那样频道条会更长，正是老板说的「拥挤小气」。
-        LinearLayout boards = new LinearLayout(this);
-        boards.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout boards = Chrome.boardCapsule(this);
         LinearLayout.LayoutParams blp2 = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        blp2.leftMargin = Ui.px(26);
 
-        TextView tvOff = pill("电视", false);
+        TextView tvOff = Chrome.boardPill(this, "电视", false);
         tvOff.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, LiveActivity.class));
@@ -181,15 +192,18 @@ public final class MainActivity extends Activity {
         });
         boards.addView(tvOff);
 
-        TextView mvOn = pill("影视", true);
+        TextView mvOn = Chrome.boardPill(this, "影视", true);
         LinearLayout.LayoutParams mvl = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        mvl.leftMargin = Ui.px(10);
+        mvl.leftMargin = Ui.px(4);
         boards.addView(mvOn, mvl);
         bar.addView(boards, blp2);
 
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
+
+        // 统计胶囊（设计稿右上角「24 频道 · 14 源」那个位置）
+        bar.addView(Chrome.statPill(this, Ver.NAME + " · 极清影院"));
 
         TextView searchBtn = chip("搜 索", false);
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -197,7 +211,10 @@ public final class MainActivity extends Activity {
                 openSearch();
             }
         });
-        bar.addView(searchBtn);
+        LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        sblp.leftMargin = Ui.px(12);
+        bar.addView(searchBtn, sblp);
 
         TextView testBtn = chip("自检", false);
         testBtn.setOnClickListener(new View.OnClickListener() {
@@ -223,7 +240,7 @@ public final class MainActivity extends Activity {
         clp2.leftMargin = Ui.px(12);
         bar.addView(clearBtn, clp2);
 
-        TextView ver = Ui.text(this, Ver.FULL, 18, Ui.FG_DIM);
+        TextView ver = Ui.text(this, Ver.FULL, 16, Ui.FG_DIM);
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         vlp.leftMargin = Ui.px(16);
@@ -242,6 +259,29 @@ public final class MainActivity extends Activity {
         bar.addView(updateChip, ulp);
         col.addView(bar);
 
+        // 标题行：设计稿在顶栏下面还有一层「大标题 + 内联小标签 + 副标题」，
+        // v2.6 是直接从顶栏跳到分类条，整页没有任何「主标题」，看着就像一个
+        // 没做完的列表页。这一行是这套设计语言里最便宜的层次感来源。
+        LinearLayout titleRow = new LinearLayout(this);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        titleRow.setPadding(Ui.px(56), Ui.px(6), Ui.px(56), Ui.px(2));
+
+        titleRow.addView(Chrome.title(this, "影视大厅"));
+
+        TextView inline = Chrome.inlineTag(this, "VOD · 多源聚合");
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ilp.leftMargin = Ui.px(12);
+        titleRow.addView(inline, ilp);
+
+        TextView sub = Chrome.subtitle(this, "14 个采集源 · 换源自动兜底 · 支持拼音首字母");
+        LinearLayout.LayoutParams slp2 = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        slp2.leftMargin = Ui.px(16);
+        titleRow.addView(sub, slp2);
+        col.addView(titleRow);
+
         // 提示条（默认隐藏）：清缓存、刷新被限流这类「刚做完一件事」的反馈放这儿，
         // 比弹窗轻，不打断遥控器操作。
         banner = Ui.text(this, "", 20, 0xFF12161C);
@@ -257,9 +297,11 @@ public final class MainActivity extends Activity {
         // 分类条
         HorizontalScrollView chipScroll = new HorizontalScrollView(this);
         chipScroll.setHorizontalScrollBarEnabled(false);
+        chipScroll.setClipChildren(false);
         chipScroll.setPadding(Ui.px(52), 0, Ui.px(52), 0);
         LinearLayout chipRow = new LinearLayout(this);
         chipRow.setOrientation(LinearLayout.HORIZONTAL);
+        chipRow.setClipChildren(false);
         chipRow.setPadding(0, Ui.px(10), 0, Ui.px(10));
         // 一屏只完整露 6 个、第 7 个被右边缘裁一半。
         // 之前 24 个 WRAP_CONTENT 全挤在一行，长度参差不齐，看着又满又碎；
@@ -298,8 +340,11 @@ public final class MainActivity extends Activity {
         // 海报墙
         scroll = new ScrollView(this);
         scroll.setVerticalScrollBarEnabled(false);
+        // 焦点卡的外发光会溢出到 ScrollView 之外，放开裁剪免得被切边
+        scroll.setClipChildren(false);
         rows = new LinearLayout(this);
         rows.setOrientation(LinearLayout.VERTICAL);
+        rows.setClipChildren(false);
         rows.setPadding(Ui.px(52), Ui.px(8), Ui.px(52), Ui.px(36));
         scroll.addView(rows);
 
@@ -319,6 +364,12 @@ public final class MainActivity extends Activity {
 
         col.addView(scroll, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        // 底部键帽条：设计稿每个页面都有这一行（键帽 chip + 说明），
+        // 它同时干两件事 —— 告诉用户遥控器怎么按，以及给页面收个边，
+        // 不至于海报直接贴到屏幕最下沿。
+        col.addView(buildFooter());
+
         root.addView(col, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
@@ -339,27 +390,66 @@ public final class MainActivity extends Activity {
         checkUpdate(false);
     }
 
-    /** 板块胶囊：选中态实心琥珀 + 深色字，未选中透明底。只用在顶栏那两个字上。 */
-    private TextView pill(String label, boolean on) {
-        TextView t = Ui.bold(this, label, 22, on ? 0xFF12161C : Ui.FG);
-        t.setGravity(Gravity.CENTER);
-        t.setSingleLine(true);
-        t.setFocusable(true);
-        t.setClickable(true);
-        t.setPadding(Ui.px(24), Ui.px(8), Ui.px(24), Ui.px(8));
-        t.setBackground(on ? Ui.round(Ui.ACCENT, 8, 0, 0)
-                : Ui.focusBg(0x00000000, 8, Ui.ACCENT));
-        return t;
+    /**
+     * 底部键帽条。
+     *
+     * 设计稿每个页面底部都有这一行：左边几组「键帽 + 说明」，右边一个在线状态点。
+     * 这一行不只是版权声明 —— 它是「这是个体面的产品」和「这是堆控件的 demo」
+     * 的区别之一，同时也是唯一告诉用户遥控器怎么按的地方（v2.6 完全没有）。
+     */
+    private View buildFooter() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(Ui.px(56), 0, Ui.px(56), Ui.px(14));
+
+        box.addView(Chrome.hairline(this, 0));
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, Ui.px(11), 0, 0);
+
+        row.addView(Chrome.keyHintRow(this, new String[][]{
+                {"← →", "分类"},
+                {"OK", "详情"},
+                {"菜单", "搜索"},
+                {"返回", "退出"}
+        }, "OK"));
+
+        View sp = new View(this);
+        row.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
+
+        row.addView(Chrome.statusDot(this, Ver.NAME + " · 极清影院 · 遥控器信号 良好", Ui.OK_GREEN));
+
+        box.addView(row);
+        return box;
     }
 
+    /**
+     * 板块胶囊（v2.7 迁到 {@link Chrome#boardPill}，这里保留是为了兼容旧调用点）。
+     * 单独留一层而不是删掉，是因为以后可能还有「选中态但不带发光」的场合。
+     */
+    private TextView pill(String label, boolean on) {
+        return Chrome.boardPill(this, label, on);
+    }
+
+    /**
+     * 小胶囊按钮。
+     *
+     * v2.6 是 8px 圆角 + 实心底，在一堆「满屏方块」里毫无层级感。
+     * v2.7 改成设计稿的胶囊形（圆角 999）+ 焦点时外发光，
+     * 跟顶栏、分组条、播放页的按钮统一成同一套语言。
+     */
     private TextView chip(String label, boolean active) {
-        TextView t = Ui.text(this, label, 20, active ? 0xFF12161C : Ui.FG);
+        TextView t = Ui.text(this, label, 18, active ? Ui.BG : Ui.FG);
         t.setGravity(Gravity.CENTER);
         t.setSingleLine(true);
         t.setFocusable(true);
         t.setClickable(true);
-        t.setPadding(Ui.px(20), Ui.px(9), Ui.px(20), Ui.px(9));
-        t.setBackground(Ui.focusBg(active ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
+        t.setPadding(Ui.px(20), Ui.px(8), Ui.px(20), Ui.px(8));
+        t.setBackground(active
+                ? Ui.glowBg(Ui.ACCENT, 999, Ui.ACCENT_HI)
+                : Ui.focusBgGlow(0x1F1B2029, 999, Ui.ACCENT));
         return t;
     }
 
@@ -369,8 +459,10 @@ public final class MainActivity extends Activity {
         for (int i = 0; i < tabChips.size(); i++) {
             boolean on = i == idx;
             TextView t = tabChips.get(i);
-            t.setTextColor(on ? 0xFF12161C : Ui.FG);
-            t.setBackground(Ui.focusBg(on ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
+            t.setTextColor(on ? Ui.BG : Ui.FG_DIM);
+            t.setBackground(on
+                    ? Ui.glowBg(Ui.ACCENT, 999, Ui.ACCENT_HI)
+                    : Ui.focusBgGlow(0x1F1B2029, 999, Ui.ACCENT));
         }
     }
 
@@ -533,6 +625,9 @@ public final class MainActivity extends Activity {
         while (i < p.items.size()) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
+            // 焦点卡放大 1.06 + 2px 外发光，行容器不放开裁剪会把上沿辉光切一条，
+            // 描边看起来就变成「缺了个口」。
+            row.setClipChildren(false);
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.bottomMargin = Ui.px(14);
@@ -618,7 +713,7 @@ public final class MainActivity extends Activity {
     private void buildSearch() {
         searchOverlay = new LinearLayout(this);
         searchOverlay.setOrientation(LinearLayout.HORIZONTAL);
-        searchOverlay.setBackgroundColor(Ui.BG);
+        searchOverlay.setBackground(Ui.pageBg());
         searchOverlay.setVisibility(View.GONE);
         searchOverlay.setPadding(Ui.px(40), Ui.px(24), Ui.px(40), Ui.px(24));
 
@@ -866,6 +961,7 @@ public final class MainActivity extends Activity {
         while (i < list.size()) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setClipChildren(false);
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.bottomMargin = Ui.px(14);

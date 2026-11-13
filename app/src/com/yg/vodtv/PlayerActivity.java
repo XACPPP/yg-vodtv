@@ -66,9 +66,13 @@ public final class PlayerActivity extends Activity {
      * 而竖屏短剧（9:16）铺满要裁掉七成以上，那就不能铺。所以按「裁切比例」判断：
      * 裁得少就铺满，裁得多就适应。
      */
-    private static final int MODE_AUTO = 0;
-    private static final int MODE_FIT = 1;
-    private static final int MODE_FILL = 2;
+    /**
+     * 画面比例三档。改成包内可见，是因为直播页 {@link LivePlayerActivity}
+     * 复用同一个 FitVideoView，也要用同一套语义（v2.7 起直播页支持红键切比例）。
+     */
+    static final int MODE_AUTO = 0;
+    static final int MODE_FIT = 1;
+    static final int MODE_FILL = 2;
     private int scaleMode = MODE_AUTO;
 
     /** 自动模式下能容忍的最大裁切比例，超过就走「适应」。 */
@@ -157,27 +161,41 @@ public final class PlayerActivity extends Activity {
 
         // 顶部标题。用字段而不是局部变量：局部变量的话 hideControlsNow() 拿不到它，
         // 控制条收起时这条黑条会永远压在画面上沿。
+        //
+        // v2.7：顶/底控制条不再用「一块半透明黑」，改成上下渐隐 scrim ——
+        // 一块纯色黑条压在画面上，边缘是硬切的一条直线，观感很廉价；
+        // 渐隐是设计稿里所有浮层的统一做法，画面边缘过渡自然，文字也更清楚。
         topBar = new LinearLayout(this);
-        topBar.setOrientation(LinearLayout.HORIZONTAL);
-        topBar.setGravity(Gravity.CENTER_VERTICAL);
-        topBar.setBackgroundColor(0x99000000);
-        topBar.setPadding(Ui.px(32), Ui.px(14), Ui.px(32), Ui.px(14));
-        titleView = Ui.text(this, "", 30, 0xFFFFFFFF);
+        topBar.setOrientation(LinearLayout.VERTICAL);
+        topBar.setBackground(Ui.roundGrad(0xE6000000, 0x00000000, 0));
+        topBar.setPadding(Ui.px(48), Ui.px(22), Ui.px(48), Ui.px(26));
+
+        LinearLayout topRow = new LinearLayout(this);
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setGravity(Gravity.CENTER_VERTICAL);
+        titleView = Ui.text(this, "", 32, 0xFFFFFFFF);
         titleView.setSingleLine(true);
         titleView.setEllipsize(TextUtils.TruncateAt.END);
-        topBar.addView(titleView, new LinearLayout.LayoutParams(0,
+        topRow.addView(titleView, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        topBar.addView(Ui.text(this, "OK 暂停/播放   上下键选集   左右键快进退   菜单键画面比例", 22, 0xFFBFC7D2));
-        root.addView(topBar, new FrameLayout.LayoutParams(
+        topRow.addView(Chrome.keyHintRow(this, new String[][]{
+                {"OK", "暂停"}, {"↑", "选集"}, {"← →", "快进退"}, {"菜单", "画面比例"}
+        }, "OK"));
+        topBar.addView(topRow);
+
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.TOP));
+                Gravity.TOP);
+        // 让 scrim 自己盖住状态栏高度那一截，避免开机第一帧出现一条没渲染的黑边
+        tlp.topMargin = -Ui.px(4);
+        root.addView(topBar, tlp);
 
         // 底部进度
         bottomBar = new LinearLayout(this);
         bottomBar.setOrientation(LinearLayout.VERTICAL);
-        bottomBar.setBackgroundColor(0x99000000);
-        bottomBar.setPadding(Ui.px(40), Ui.px(12), Ui.px(40), Ui.px(16));
-        timeLabel = Ui.text(this, "00:00 / 00:00", 22, 0xFFBFC7D2);
+        bottomBar.setBackground(Ui.roundGrad(0x00000000, 0xE6000000, 0));
+        bottomBar.setPadding(Ui.px(48), Ui.px(30), Ui.px(48), Ui.px(20));
+        timeLabel = Ui.bold(this, "00:00 / 00:00", 22, 0xFFFFFFFF);
         timeLabel.setPadding(0, Ui.px(6), 0, Ui.px(6));
         bottomBar.addView(timeLabel);
         seekBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
@@ -188,9 +206,11 @@ public final class PlayerActivity extends Activity {
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM));
 
-        toast = Ui.text(this, "", 26, 0xFFFFFFFF);
-        toast.setBackground(Ui.round(0xCC000000, 10, 0, 0));
-        toast.setPadding(Ui.px(24), Ui.px(12), Ui.px(24), Ui.px(12));
+        toast = Ui.bold(this, "", 24, 0xFFFFFFFF);
+        // v2.7：提示条跟顶栏用同一套「浮层语言」—— 实底 surface + 琥珀细描边，
+        // 比半透明纯黑更像设计稿里的 pill。
+        toast.setBackground(Ui.glowBg(Ui.SURFACE, 12, Ui.ACCENT));
+        toast.setPadding(Ui.px(28), Ui.px(14), Ui.px(28), Ui.px(14));
         toast.setVisibility(View.GONE);
         FrameLayout.LayoutParams olp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -215,22 +235,33 @@ public final class PlayerActivity extends Activity {
     private void buildEpPanel() {
         epPanel = new LinearLayout(this);
         epPanel.setOrientation(LinearLayout.VERTICAL);
-        epPanel.setBackgroundColor(0xF20E1116);
-        epPanel.setPadding(Ui.px(48), Ui.px(28), Ui.px(48), Ui.px(24));
+        // v2.7：面板底色从「半透明纯黑」换成设计稿的 surface_lowest 实底 + 上沿一道细线，
+        // 半透明黑在深色画面上会显得发灰、跟画面糊在一起。
+        epPanel.setBackgroundColor(Ui.SURFACE_LOWEST);
+        epPanel.setPadding(Ui.px(56), Ui.px(32), Ui.px(56), Ui.px(24));
         epPanel.setVisibility(View.GONE);
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(Ui.text(this, "选集", 34, Ui.ACCENT));
-        head.addView(Ui.text(this, "    按 返回 / 上键 收起", 22, Ui.FG_DIM));
+        head.addView(Chrome.title(this, "选集"));
+        LinearLayout.LayoutParams tagLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        tagLp.leftMargin = Ui.px(14);
+        head.addView(Chrome.inlineTag(this, "EPISODES"), tagLp);
+        LinearLayout.LayoutParams subLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        subLp.leftMargin = Ui.px(16);
+        head.addView(Chrome.subtitle(this, "按 返回 / 上键 收起"), subLp);
         epPanel.addView(head);
 
         ScrollView sv = new ScrollView(this);
         sv.setVerticalScrollBarEnabled(false);
+        sv.setClipChildren(false);
         epRows = new LinearLayout(this);
         epRows.setOrientation(LinearLayout.VERTICAL);
-        epRows.setPadding(0, Ui.px(16), 0, Ui.px(8));
+        epRows.setClipChildren(false);
+        epRows.setPadding(0, Ui.px(20), 0, Ui.px(8));
         sv.addView(epRows);
         epPanel.addView(sv, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
@@ -250,6 +281,8 @@ public final class PlayerActivity extends Activity {
         while (i < names.length) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
+            // 焦点格放大 + 外发光，行/列容器不放开裁剪会把辉光切掉一圈
+            row.setClipChildren(false);
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.bottomMargin = Ui.px(12);
@@ -257,13 +290,17 @@ public final class PlayerActivity extends Activity {
                 final int idx = i;
                 boolean cur = idx == index;
                 String label = (cur ? "▶ " : "") + names[i];
-                TextView t = Ui.text(this, label, 24, cur ? 0xFF12161C : Ui.FG);
+                TextView t = Ui.bold(this, label, 22, cur ? Ui.BG : Ui.FG);
                 t.setGravity(Gravity.CENTER);
                 t.setSingleLine(true);
                 t.setEllipsize(TextUtils.TruncateAt.END);
                 t.setFocusable(true);
                 t.setClickable(true);
-                t.setBackground(Ui.focusBg(cur ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
+                // v2.7：当前集用琥珀实心（一眼能看出正在看哪一集），其余用「描边 + 外发光」，
+                // 跟首页海报、直播卡同一套焦点语言。
+                t.setBackground(cur
+                        ? Ui.focusBgGlow(Ui.ACCENT, 10, Ui.ACCENT_HI)
+                        : Ui.focusBgGlow(Ui.BG_CARD, 10, Ui.ACCENT));
                 t.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         playAt(idx);
@@ -689,6 +726,18 @@ public final class PlayerActivity extends Activity {
         /** 自动模式下能容忍的最大裁切比例。 */
         private double maxCrop = 0.34;
 
+        /**
+         * 外部显式告知的视频尺寸（0 表示还不知道）。
+         *
+         * 为什么需要这个：原来只能靠反射读 VideoView 的私有字段 mVideoWidth，
+         * 那是**上一帧**的值。直播流的特点恰恰是「起播快、尺寸晚到」——
+         * onPrepared 时 mVideoWidth 常常还是 0，于是第一次测量走 super.onMeasure
+         * 拿满屏尺寸，之后尺寸到了却没人再触发 requestLayout，
+         * 画面就一直按「满屏」渲染。播放器自己给的尺寸最可信，直接喂进来。
+         */
+        private int exW = 0;
+        private int exH = 0;
+
         /** 上一次测量实际用了哪种方式，给日志/提示用。 */
         private boolean lastFill = false;
         private int lastVw = 0;
@@ -698,6 +747,19 @@ public final class PlayerActivity extends Activity {
             if (this.mode != mode || this.maxCrop != maxCrop) {
                 this.mode = mode;
                 this.maxCrop = maxCrop;
+                requestLayout();
+            }
+        }
+
+        int mode() {
+            return mode;
+        }
+
+        /** 由播放器回调喂真实视频尺寸（MediaPlayer.getVideoWidth/Height）。 */
+        void setVideoSize(int w, int h) {
+            if (w > 0 && h > 0 && w <= 8192 && h <= 8192 && (w != exW || h != exH)) {
+                exW = w;
+                exH = h;
                 requestLayout();
             }
         }
@@ -733,12 +795,17 @@ public final class PlayerActivity extends Activity {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            int vw = 0;
-            int vh = 0;
-            try {
-                vw = getMeasuredVideoWidth();
-                vh = getMeasuredVideoHeight();
-            } catch (Throwable t) {
+            // 优先用播放器显式喂进来的尺寸（setVideoSize），它一定是最新的。
+            // 反射读 mVideoWidth 只作为兜底：那是上一帧的值，直播起播时经常还是 0，
+            // 拿到 0 就退回 super.onMeasure 按容器铺满 —— 这正是之前「放大截断」的来源。
+            int vw = exW;
+            int vh = exH;
+            if (vw <= 0 || vh <= 0) {
+                try {
+                    vw = getMeasuredVideoWidth();
+                    vh = getMeasuredVideoHeight();
+                } catch (Throwable t) {
+                }
             }
             // 还没拿到视频尺寸（刚 new 出来、纯音频流、或解析器还没探到 SPS）：
             // 先按父容器来，别撑成 0；等尺寸回来后会 requestLayout 重新量。

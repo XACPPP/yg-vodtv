@@ -43,7 +43,11 @@ public final class Cards {
         FrameLayout box = new FrameLayout(c);
         box.setFocusable(true);
         box.setClickable(true);
-        box.setBackground(Ui.focusBg(0x00000000, 12, Ui.ACCENT));
+        // v2.7：焦点态从「只有一层 3px 描边」升级成设计稿的 tv-focus-glow
+        // （描边 + 外发光 + 投影三件套）。纯描边在 10 尺距离上只是「边上有点黄」，
+        // 加上外发光才有「这张卡亮了」的感觉 —— 这是设计稿和 v2.6 最直观的差距。
+        box.setBackground(Ui.focusBgGlow(0x00000000, 12, Ui.ACCENT));
+        box.setClipChildren(false);
         int pad = Ui.px(4);
         box.setPadding(pad, pad, pad, pad);
 

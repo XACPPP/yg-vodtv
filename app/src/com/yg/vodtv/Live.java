@@ -373,7 +373,27 @@ public final class Live {
         return u;
     }
 
-    /** 台标：只收绝对 http(s) 地址，相对路径/空值一律当没有（远端表里常有 "logo": ""）。 */
+    /**
+     * 台标三条通路用的前缀。必须与 {@code Ui.ASSET_PREFIX} 字面量一致，
+     * 但这里不能直接引用 Ui —— Live 会被 test/harness 编译，而 Ui 依赖
+     * android.graphics / android.util，harness 没有它的替身。
+     */
+    public static final String LOGO_ASSET = "asset:";
+
+    /**
+     * 台标：三条通路。
+     *
+     *   1. {@code http://} / {@code https://} 绝对地址 → 远端图，保持原样；
+     *   2. {@code asset:logo/xxx.png} → APK 内置（v2.7 新增）；
+     *   3. 其它（空串、相对路径、协议相对 {@code //host/x.png}）→ 当没有。
+     *
+     * 第 2 条是 v2.7 修「直播全是黑框」的核心：live.json 里原来 428 个台
+     * `"logo": ""` 全是空的，巡检脚本指望远端给，远端从来没给过。
+     * 现在由 test/live_scan.py 从 iptv-org 抓下来、编成 PNG 打进 APK，
+     * 表里写 `asset:logo/<md5>.png`。
+     *
+     * 兼容 harness：只用到 optString，不碰 optString(int)。
+     */
     private static String logoOf(org.json.JSONObject o) {
         String s = o.optString("logo", "");
         if (s == null) {
@@ -382,6 +402,69 @@ public final class Live {
         s = s.replace("\\/", "/").trim();
         if (s.startsWith("http://") || s.startsWith("https://")) {
             return s;
+        }
+        if (s.startsWith(LOGO_ASSET) && s.length() > LOGO_ASSET.length()) {
+            return s;
+        }
+        return "";
+    }
+
+    /**
+     * 台名 → 副名映射（设计稿里台名下面那行小字）。
+     *
+     * 为什么必须内置一张表：live.json 里 428 个台名**全部没有空格**
+     * （实测 two-part = 0），不存在「CCTV-1 综合」这种可切分的形式，
+     * 想做出设计稿那种「台名 + 副名」的两行层次，只能靠自己认。
+     *
+     * 只收 CCTV / CGTN / CETV 这类稳定频道，地方台不猜 —— 猜错了
+     * 副名比没有副名更难看。成对存放，读的时候两两取。
+     */
+    private static final String[] ALIAS_PAIRS = {
+            "CCTV-1", "综合",
+            "CCTV-2", "财经",
+            "CCTV-3", "综艺",
+            "CCTV-4", "中文国际",
+            "CCTV-5", "体育",
+            "CCTV-5+", "体育赛事",
+            "CCTV-6", "电影",
+            "CCTV-7", "国防军事",
+            "CCTV-8", "电视剧",
+            "CCTV-9", "纪录",
+            "CCTV-10", "科教",
+            "CCTV-11", "戏曲",
+            "CCTV-12", "社会与法",
+            "CCTV-13", "新闻",
+            "CCTV-14", "少儿",
+            "CCTV-15", "音乐",
+            "CCTV-16", "奥林匹克",
+            "CCTV-17", "农业农村",
+            "CCTV-4K", "超高清",
+            "CCTV-8K", "超高清",
+            "CGTN", "国际",
+            "CGTN纪录", "纪录",
+            "CETV-1", "教育综合",
+            "CETV-2", "教育教学",
+            "CETV-3", "教育人文",
+            "CETV-4", "职业教育",
+    };
+
+    /**
+     * 取副名，没有就返回空串（调用方据此决定那一行 GONE）。
+     *
+     * 匹配顺序有讲究：先查长名再查短名，否则 "CCTV-5+" 会先被
+     * "CCTV-5" 命中，副名变成「体育」。所以按表里给出的顺序做**全等**匹配，
+     * 不做 startsWith —— 源表里还有 "CCTV-1综合"、"CCTV1" 这类变体，
+     * 全等匹配最省事也最不容易错。
+     */
+    public static String aliasOf(String name) {
+        if (name == null) {
+            return "";
+        }
+        String n = name.trim();
+        for (int i = 0; i + 1 < ALIAS_PAIRS.length; i += 2) {
+            if (ALIAS_PAIRS[i].equals(n)) {
+                return ALIAS_PAIRS[i + 1];
+            }
         }
         return "";
     }

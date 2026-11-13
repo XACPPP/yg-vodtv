@@ -3,9 +3,9 @@
 自用的电视端 **影视 + 直播** 双板块 App，纯原生 Android（无 Gradle、无第三方库），专为海信
 VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 **14 个苹果CMS采集源聚合**，
 App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
-直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的（v2.6）。
+直播源来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7）。
 
-当前版本：**v2.6（versionCode 17）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.7（versionCode 18）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -213,6 +213,140 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.7：抄设计稿、修画面截断、直播台标 + 源质量
+
+老板原话：
+
+> 1、UI界面怎么那么low啊，我看了stitch的设计稿，人家设计的那么好看，你怎么不抄呢？优化一下！
+> 2、电视直播画面播放不正常，像是放大截断了，是不是跟之前影视一样的渲染位置的问题？找出问题优化一下；
+> 3、电视直播咋一个海报都没有，全是黑框框，丑死了，而且好多源都特别卡，你没做筛选吗？优化一下。
+
+#### 一、「low」的不是配色，是层次
+
+先核对了 Stitch 项目 `9584627652671101173`「YG影视 TV」的设计系统，`customColor #ffb300`、
+`neutral #0e1116`，跟 `Ui.java` 里原有的 `ACCENT=0xFFFFB300` / `BG=0xFF0E1116` **完全一致**。
+所以问题不在调色板，而在于这套色板没被用出层次。逐项比出来的差距：
+
+| 项 | 设计稿 | v2.6 实际 |
+|---|---|---|
+| 页面底色 | `radial-gradient(circle at 50% 35%, #151A22, #0E1116)` | `setBackgroundColor(Ui.BG)` 纯色 |
+| 品牌标识 | 40×40 琥珀渐变圆角方块嵌 `YG` + 「极清影院」字标 | 一个裸文字 `YG` |
+| 板块切换 | 内凹胶囊容器（`#151A22` 底 + 描边）包两个 pill | 两个 8px 圆角按钮并排 |
+| 页面主标题 | 38px 特大标题 + 内联小标签 + 副标题 | **完全没有** |
+| 焦点态 | `outline 3px + 0 0 28px 外发光 + 投影` 三件套 | 只有 3px 描边 |
+| 底部 | 键帽 chip + 说明 + 右侧在线状态点 | 一行灰色提示文字 |
+| 直播卡 | CH 编号 + 画质角标 + 台名 + 副名 + 源数 + 台标 | 6px 竖条 + 居中台名 + N 源 |
+
+逐条落地（新增 `Chrome.java` 承载共享零件，直播/影视两页共用同一套语言）：
+
+- `Ui.pageBg()`：`RadialGradient(50% 35%, 半径 0.78×屏宽, #151A22 → #0E1116)` 的自绘 Drawable，
+  四个 Activity 全部换成它。
+- `Chrome.brandBlock()` 渐变方块品牌 + `brandText()`「极清影院」+ `vDivider()` 竖分隔。
+- `Chrome.boardCapsule()` 内凹胶囊容器 + `boardPill()` 选中态带外发光。
+- `Chrome.title()/inlineTag()/subtitle()`：影视页补「影视大厅 / VOD · 多源聚合 / 14 个采集源…」，
+  直播页补「电视直播 / LIVE · IP-TV / 多源自动切换…」。
+- `Ui.focusBgGlow()`：`LayerDrawable` 两层 —— 外层 5px 描边当光晕（inset -2px），
+  内层实底 + 2px 描边当主体。卡片、胶囊、选集格全部换过去。
+- `Chrome.keyHintRow()` + `Ui.keycap()`：底部键帽条，OK 键用琥珀底深色字。
+- `Chrome.statusDot()`：右侧绿点在线状态。
+- 直播卡重做成四层：`CH 001` + 画质角标 / 台标 + 台名 + 副名 / 「当前聚焦」+「N 源」；
+  焦点卡换 `#1F2530` 底、scale 1.045、`ObjectAnimator` 呼吸点。
+- 分组条改胶囊（圆角 999、高 44、17px bold），选中琥珀实心 + 外发光。
+
+#### 二、直播「放大截断」的三处真因
+
+`PlayerActivity.FitVideoView` 本来就写得对，直播页却从没调用过它：
+
+1. **从没设过缩放模式**。`LivePlayerActivity` 只 `new FitVideoView` 就加进容器，`mode` 停在默认
+   `MODE_AUTO` + `maxCrop=0.34`。直播频道混着 4:3 和 16:9，34% 的容差足以把 4:3 拉成铺满，
+   上下直接切掉。→ 直播页默认改 `MODE_FIT`（完整显示），容差收到 `0.12`，红键循环三档。
+2. **靠反射读 `mVideoWidth` 有竞态**。`onMeasure` 里反射拿的是上一帧的值，直播起播快、尺寸晚到，
+   第一次测量常常拿到 0 → 退回 `super.onMeasure` 按容器铺满；拿到尺寸后又没人再触发
+   `requestLayout` → 一直停在满屏值。→ `FitVideoView` 加 `setVideoSize(w,h)` 显式喂尺寸，
+   `onPrepared` 和 `MEDIA_INFO_VIDEO_RENDERING_START` 各喂一次 + `requestLayout`，
+   `onMeasure` 优先用这个值，反射只做兜底。
+3. **父容器默认 `START|TOP`**。铺满时视图比容器大，不居中的话溢出全落在右下，
+   看起来就是「只截掉一边」。→ `addView(vv, ..., Gravity.CENTER)`。
+
+另加看门狗（2 秒一轮）：起播 15 秒未 prepared / 缓冲 9 秒未结束 / 位置 12 秒不前进，
+三种情况自动换下一路，跳过次数上限 `urls.size()*2`。
+
+#### 三、直播「全是黑框」与源卡
+
+**黑框**：`live.json` 里 428 个频道的 `logo` 字段**全是空串** —— `live_scan.py` 从来没抓过台标，
+`LiveActivity` 也从没画过 `ImageView`，只有文字。所以那不是「海报没加载出来」，是压根没做。
+
+改法（四条都做）：
+
+1. 直播卡里塞进真实台标 `ImageView`，走 `Ui.loadPoster()`，拿不到就回退频道短标签色块。
+2. `live_scan.py` 从 `iptv-org` 的 `channels.json` + `logos.json` 建索引抓台标，
+   纯 Python（zlib）重编码成 96×54 PNG，写进 `app/src/main/assets/logo/`，`live.json` 里
+   写成 `asset:logo/<md5前12位>.png`；`Ui.assetBitmap()` 走 `getAssets().open()` 本地解码。
+3. **透明底被压成黑**：台标 PNG 是透明底的，`assetBitmap()` 原本按 `RGB_565` 解码 ——
+   丢 alpha 后透明区变纯黑，整张图就是一个黑洞。改 `ARGB_8888`，并加 `ensureVisible()`：
+   先合成到与卡片同色（`SURFACE_HIGH`）的不透明底上，再按「不透明像素平均亮度 < 110
+   或暗像素占比 ≥ 45%」垫一层很淡的白。实测 CETV-1 的不透明像素里 57.9% 亮度低于 60，
+   不垫白贴在深色卡上等于隐形。
+4. **台标框改 16:9**：iptv-org 的台标本来就是 96×54，塞进正方形只用到 62×35，字全糊；
+   改成 `logoH = cardH*0.40`、`logoW = logoH*1.62`、`FIT_CENTER`。
+
+没台标的台（382 台里 292 台）也不能全画同一个大字母：`Ui.channelTile()/channelLabel()`
+按台名生成短标签 —— `CCTV-8 → 8`、`CCTV-5+ → 5+`、`CGTN纪录 → 纪`、`湖南卫视 → 湖南`、
+`广东体育 → 体育`，其余取前两字。实测 382 个台名生成 241 个不同标签（取首字只有 206 个，
+且「浙」一个标签重复 22 次），色块底走 8 色哈希调色板。
+
+**顺带挖出一个更严重的坑**：`app/build.sh` 的 `aapt2 link` 原来**没有 `-A` 参数**，
+`assets/` 从来没被打进 APK（旧 APK 只有 12 个条目，一个 assets 都没有）。
+也就是说凡是走 `asset:` 的东西在电视上都必然读不到。已补上 `-A build/assets`，
+并且只拷 `assets/logo` 到临时根目录 —— `py/*.txt` 那 4.6MB 只给 CI 用，不能进包。
+验证：塞一张 8×8 测试 PNG → 重跑 → `zipfile.namelist()` 里出现 `assets/logo/__selftest.png`
+→ `zipalign -c -v 4` 报 `Verification succesful`。
+
+**源卡**：v2.6 的筛选判据只有「`200` + 首 4KB 含 `#EXTM3U`」，那只是「连得上」，
+不代表「播得动」。v2.7 的巡检加了三道：
+
+- **TTFB 上限 3 秒**：超过就直接淘汰（用户按下遥控器 3 秒没画面就觉得电视坏了）。
+- **实际吞吐**：取 m3u8 里真实分片下 256KB，算 KB/s，**低于 40KB/s（约 320kbps）淘汰**——
+  那个码率连 480p 都撑不住，播出来就是幻灯片。
+- **两轮复测**：间隔一轮再探一次，只有两轮都活着的才留（昨天能播今天 403 的源太多）。
+
+巡检结果：1757 条候选 → 留存 382 台 / **573 条线路**（v2.6 是 428 台 / 669 条）。
+台数变少是筛选变严的必然结果，换来的是「点开就能看」的概率。台标命中 **90/382（23.6%）**。
+
+**台标覆盖率这一步单独说**，因为第一次只做到 41 台（10.7%），查下去发现不是脚本笨：
+iptv-org 的省级卫视条目 `alt_names` 大多是空数组（`GuangdongSatelliteTV`/`HainanSatelliteTV`/
+`HubeiSatelliteTV`/`SichuanSatelliteTV`/`YanbianSatelliteTV`/`HenanTVSatellite`/`HunanTV`
+全是 `[]`），而源站给的台名是纯中文「广东卫视」——一个归一化成 `GUANGDONGSATELLITETV`、
+一个是「广东卫视」，fuzzy 怎么调都对不上。所以加了一张 `MANUAL_LOGO_IDS` 硬映射表
+（`test/live_scan.py`），把中文台名直接对到 iptv-org 的 channel id，**每条都手工核实过
+「logos.json 里确实有这个 id 的图 + 名字确实是这个台」**：35 个省级卫视、CCTV-4/CCTV-5+
+（这两个也必须手写 —— CCTV-4 被拆成亚洲/欧洲/美洲三版，CCTV-5+ 归一化后会被 CCTV-5
+抢先占位）、CGTN 五个语种、6 个港澳台、11 个省级地面、CHC 电影。
+
+效果：匹配 48 → **100 个（26.2%）**，其中手写映射贡献 **66 个**；实际落盘 **84 张 PNG**。
+抓不到就写空串走短标签色块，**不硬凑错图** —— `人间卫视`、`安多卫视` 在 iptv-org 里
+确实没有台标，宁可空着。
+
+#### 验收
+
+| 项 | 结果 |
+|---|---|
+| `app/build.sh` | `[build] OK`，APK **560057 字节**，dex 200088 字节 |
+| APK 内 `assets/logo/*` | **84 个条目进包**（`zipfile` 实测），总条目 96 |
+| `live.json` ↔ `logo/` 一致性 | 90 条引用（含沿用旧图）、**0 缺失、0 孤儿** |
+| `test/harness/run.sh wire` | PASS（21 项，代理字节格式符合 NuPlayer 预期） |
+| `test/harness/run.sh tabs` | PASS（24 分类全部有数据且有海报） |
+| `test/harness/run.sh livetab` | PASS（40 项，含新增 `aliasOf`） |
+| `meta` / `upd` / `srctab` / `cachetab` / `pytab` / `rank` | 全部 PASS |
+
+**已知未解决**：`live.json` 里有 16 个台名出现在两个分组（`河北卫视` 在 sat+local、
+`广东体育` 在 sports+local、`浙江科教影视` 在 movie+local 等），是巡检脚本分类规则重叠，
+不影响播放，下次调分组规则时一起修。
+
+真机未验证：径向渐变在 API 22 上的渲染开销、`RadialGradient` 在 1080p 上的实际观感、
+`ObjectAnimator` 呼吸点在低端芯片上的掉帧情况、台标 `ARGB_8888` 解码（84 张 96×54 约 1.7MB
+内存 + `ensureVisible` 每张再合成一份，理论上无压力但没实测）。
 
 ### v2.6：电视直播板块 + 双板块 UI
 
@@ -1276,11 +1410,11 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 YG影视TV/
 ├── README.md
 ├── .github/workflows/build.yml  # push tag v* 自动出包 + 发 Release
-├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 加拼音索引 → v2.6 加直播源，一起自动 commit
-├── .gitignore                   # 排除 build/、*.apk、yg.keystore
+├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 加拼音索引 → v2.6 加直播源 → v2.7 加台标 PNG，一起自动 commit
+├── .gitignore                   # 排除 build/、*.apk、yg.keystore、__pycache__、test/live_preview.json
 ├── app/
 │   ├── AndroidManifest.xml
-│   ├── build.sh                 # 六步构建脚本（Windows / MSYS）
+│   ├── build.sh                 # 六步构建脚本（Windows / MSYS）；v2.7 起 link 加 -A，只打 assets/logo
 │   ├── build-ci.sh              # 六步构建脚本（Linux / GitHub Actions）
 │   ├── yg.keystore              # 签名（yg123456）—— 不进仓库，CI 用 Secret 还原
 │   ├── res/values/strings.xml
@@ -1289,7 +1423,8 @@ YG影视TV/
 │   ├── src/main/assets/sources.json          # v2.4 源表（巡检自动重写；不打包进 APK，供 GitHub raw 与 CI）
 │   ├── src/main/assets/py/{a..z}.txt         # v2.5 拼音首字母表（23 桶 4.6MB，CI 每天重建；同样走 raw）
 │   ├── src/main/assets/live.json             # v2.6 直播表（428 台 669 条，CI 每天重建；同样走 raw）
-│   ├── src/com/yg/vodtv/*.java  # 24 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LiveActivity/LivePlayerActivity）
+│   ├── src/main/assets/logo/*.png            # v2.7 台标（96×54，CI 巡检产出；v2.7 起随 APK 打包，不走 raw）
+│   ├── src/com/yg/vodtv/*.java  # 25 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LiveActivity/LivePlayerActivity，v2.7 加 Chrome）
 │   ├── build/                   # 中间产物
 │   ├── YG影视TV.apk             # 成品
 │   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
@@ -1312,7 +1447,7 @@ YG影视TV/
     ├── proxy_sim.py             # 早期 Python 复刻（已被 harness 取代）
     ├── source_scan.py           # v2.4 源健康巡检 + 100 分制打分 → sources.json
     ├── pinyin_index.py          # v2.5 从 bfzy 全库切首字母 → assets/py/*.txt（8584 页 / 5 分钟）
-    ├── live_scan.py             # v2.6 直播源采集+测速+分组 → assets/live.json（1757 条探 157 秒）
+    ├── live_scan.py             # v2.6 直播源采集+测速+分组 → assets/live.json（1757 条探 157 秒）；v2.7 加台标抓取（iptv-org + MANUAL_LOGO_IDS 硬映射 → assets/logo/*.png）+ TTFB≤3s + 实测吞吐≥40KB/s + 两轮复测
     ├── sources_health.json      # 巡检结果（App 不直接读，供 CI/人看）
     ├── sources_health.md        # 同上，人读表
     ├── tvbox_cfg/               # v2.4 调研时下载的 TVBox 配置样本（type=1 抽取用）

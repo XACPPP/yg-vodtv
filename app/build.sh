@@ -31,10 +31,19 @@ echo "[1/6] aapt2 compile"
 "$BT/aapt2.exe" compile --dir res -o build/res.zip
 
 echo "[2/6] aapt2 link"
+# 台标要打进 APK：直播卡片一屏 18 张，走网络首屏必等 2~3 秒，图床还可能挂。
+# 但 assets 目录下还有 py/*.txt（4.6MB）等只给 CI 用的原始数据，不能整个塞进 APK，
+# 所以只把 assets/logo 拷到一个干净的临时 assets 根，-A 指向它。
+rm -rf build/assets
+mkdir -p build/assets
+if [ -d src/main/assets/logo ]; then
+  cp -r src/main/assets/logo build/assets/logo
+fi
 "$BT/aapt2.exe" link -o build/base.apk \
   --manifest AndroidManifest.xml \
   -I "$PLAT" \
   -R build/res.zip \
+  -A build/assets \
   --java build/gen \
   --auto-add-overlay
 
@@ -46,7 +55,7 @@ find src build/gen -name '*.java' > build/sources.txt
   -d build/classes \
   @build/sources.txt 2>&1 | grep -v 'bootstrap class path' || true
 # javac 失败必须中止，否则 d8 会打包旧 class 造成假成功
-for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex Live LiveSync LiveActivity LivePlayerActivity; do
+for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace Api Http Vod Ui Cards Chrome Ver Store Update Src Multi Cache Prefetch SrcSync PyIndex Live LiveSync LiveActivity LivePlayerActivity; do
   if [ ! -f "build/classes/com/yg/vodtv/$c.class" ]; then
     echo "[build] FAILED: javac 未产出 $c.class" >&2
     exit 1
@@ -54,6 +63,10 @@ for c in MainActivity DetailActivity PlayerActivity SelfTestActivity Proxy Trace
 done
 if [ build/classes/com/yg/vodtv/MainActivity.class -ot src/com/yg/vodtv/MainActivity.java ]; then
   echo "[build] FAILED: MainActivity.class 比源码旧，javac 未成功" >&2
+  exit 1
+fi
+if [ build/classes/com/yg/vodtv/LiveActivity.class -ot src/com/yg/vodtv/LiveActivity.java ]; then
+  echo "[build] FAILED: LiveActivity.class 比源码旧，javac 未成功" >&2
   exit 1
 fi
 

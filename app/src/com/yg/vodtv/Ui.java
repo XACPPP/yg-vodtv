@@ -4,9 +4,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.RadialGradient;
+import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +25,7 @@ import android.widget.TextView;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,14 +54,37 @@ public final class Ui {
     public static final int TAG_EXCLUSIVE = 0xFFE50914;
     public static final int TAG_VIP = 0xFFD4AF37;
 
+    /* ===== surface 层级（stitch 设计稿 M3 令牌，界面分区靠它分层） ===== */
+    /** 最低层：整页底色。 */
+    public static final int SURFACE_LOWEST = 0xFF0B0E13;
+    /** 低层：分组条凹陷容器 / 次级面板。 */
+    public static final int SURFACE_LOW = 0xFF191C21;
+    /** 标准卡片底色。 */
+    public static final int SURFACE = 0xFF1D2025;
+    /** 高层：焦点卡 / 悬浮块。 */
+    public static final int SURFACE_HIGH = 0xFF272A30;
+    /** 最高层：角标、键帽。 */
+    public static final int SURFACE_HIGHEST = 0xFF32353A;
+    /** 正文强调色（比 FG 暖，设计稿 on_surface_variant）。 */
+    public static final int ON_SURFACE_VARIANT = 0xFFD6C4AC;
+    /** 描边色（设计稿 outline_variant）。 */
+    public static final int OUTLINE_VARIANT = 0xFF514532;
+    /** 品牌浅琥珀，用于顶栏字标（设计稿 primary）。 */
+    public static final int PRIMARY_LIGHT = 0xFFFFD79B;
+    /** 状态绿（在线/正常）。 */
+    public static final int OK_GREEN = 0xFF00E676;
+
     private static float scale = 1f;
     private static int screenW = 1920;
     private static int screenH = 1080;
+    /** 读 assets 里的台标要用，init 时保存一份。 */
+    private static Context APP;
 
     private Ui() {
     }
 
     public static void init(Context c) {
+        APP = c.getApplicationContext();
         screenW = c.getResources().getDisplayMetrics().widthPixels;
         screenH = c.getResources().getDisplayMetrics().heightPixels;
         scale = screenW / 1920f;
@@ -125,6 +156,132 @@ public final class Ui {
         d.addState(new int[] { android.R.attr.state_pressed }, round(0xFF2A3242, radius, 3, strokeColor));
         d.addState(new int[] {}, round(fill, radius, 0, 0));
         return d;
+    }
+
+    /* ===== 设计稿级别的绘制件 ===== */
+
+    /**
+     * 整页背景：径向渐变 #151A22 → #0E1116，光源在屏幕上方 35% 处。
+     *
+     * 之前整页是纯色 {@link #BG}，跟设计稿差的就是这一层——纯色屏幕像 PPT，
+     * 有中心光的背景才有「影院暗厅」的纵深感。这是用户说「low」的第一层原因。
+     *
+     * 用自定义 Drawable 而不是 GradientDrawable：后者只支持线性渐变，
+     * 画不出设计稿里的 radial-gradient。Shader 在 onBoundsChange 里重建，
+     * 保证任何屏幕尺寸下光源都落在同一个相对位置。
+     */
+    public static Drawable pageBg() {
+        return new Drawable() {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private Shader shader;
+
+            @Override
+            protected void onBoundsChange(Rect b) {
+                if (b.width() <= 0 || b.height() <= 0) {
+                    return;
+                }
+                float cx = b.width() * 0.5f;
+                float cy = b.height() * 0.35f;
+                float r = Math.max(b.width(), b.height()) * 0.78f;
+                shader = new RadialGradient(cx, cy, r,
+                        new int[] { 0xFF151A22, 0xFF0E1116 },
+                        new float[] { 0f, 1f }, Shader.TileMode.CLAMP);
+                p.setShader(shader);
+            }
+
+            @Override
+            public void draw(Canvas c) {
+                Rect b = getBounds();
+                if (shader == null) {
+                    onBoundsChange(b);
+                }
+                c.drawRect(b, p);
+            }
+
+            @Override
+            public void setAlpha(int a) {
+                p.setAlpha(a);
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter cf) {
+                p.setColorFilter(cf);
+            }
+
+            @Override
+            public int getOpacity() {
+                return PixelFormat.OPAQUE;
+            }
+        };
+    }
+
+    /**
+     * 焦点发光底：外扩一圈半透明琥珀（模拟 CSS box-shadow）+ 内层实心描边。
+     *
+     * 设计稿里焦点三件套是
+     *   box-shadow: 0 0 0 2px #FFC107, 0 0 0 6px rgba(255,193,7,.2), 0 10px 30px rgba(255,179,0,.35)
+     * Android 的 GradientDrawable 只有单层 stroke，画不出「双环 + 外发光」，
+     * 所以用 LayerDrawable 叠三层：外发光（半透明粗描边）、琥珀环、填充。
+     * 焦点卡因此比原来「3px 描边」明显更「亮起来」。
+     */
+    public static Drawable glowBg(int fill, int radius, int ringColor) {
+        int r = px(radius);
+        // 第 1 层：最外圈，宽 5px、透明度约 20%，模仿扩散光晕
+        GradientDrawable halo = new GradientDrawable();
+        halo.setShape(GradientDrawable.RECTANGLE);
+        halo.setCornerRadius(r + px(4));
+        halo.setColor(0x00000000);
+        halo.setStroke(px(5), (ringColor & 0x00FFFFFF) | 0x33000000);
+        // 第 2 层：主环，2px 实心琥珀
+        GradientDrawable ring = new GradientDrawable();
+        ring.setShape(GradientDrawable.RECTANGLE);
+        ring.setCornerRadius(r);
+        ring.setColor(fill);
+        ring.setStroke(px(2), ringColor);
+        LayerDrawable ld = new LayerDrawable(new Drawable[] { halo, ring });
+        // 外圈左右上下各让出 2px，视觉上环和方块之间有呼吸感
+        ld.setLayerInset(0, -px(2), -px(2), -px(2), -px(2));
+        return ld;
+    }
+
+    /**
+     * 焦点态背景（新版）：默认态用 surface 层级底色 + 极淡描边，
+     * 聚焦态切到 {@link #glowBg} 的发光环。替换 {@link #focusBg} 用于新页面。
+     */
+    public static StateListDrawable focusBgGlow(int fill, int radius, int glowColor) {
+        StateListDrawable d = new StateListDrawable();
+        d.addState(new int[] { android.R.attr.state_focused },
+                glowBg(SURFACE_HIGH, radius, glowColor));
+        d.addState(new int[] { android.R.attr.state_pressed },
+                glowBg(SURFACE_HIGH, radius, glowColor));
+        d.addState(new int[] {},
+                round(fill, radius, 1, 0x14FFFFFF));
+        return d;
+    }
+
+    /**
+     * 遥控器键帽：设计稿 footer 里那种「深色小方块包一个键名」。
+     * primary=true 时用琥珀实心（对应设计稿的 OK 键）。
+     */
+    public static TextView keycap(Context c, String label, boolean primary) {
+        TextView t = bold(c, label, 15, primary ? BG : FG);
+        t.setGravity(android.view.Gravity.CENTER);
+        int padH = px(primary ? 9 : 8);
+        t.setPadding(padH, px(3), padH, px(3));
+        t.setBackground(primary
+                ? round(ACCENT, 5, 0, 0)
+                : round(SURFACE, 5, 1, 0x33FFFFFF));
+        return t;
+    }
+
+    /**
+     * 圆点（状态灯 / 焦点呼吸点）。size 为直径（设计稿单位）。
+     */
+    public static View dot(Context c, float size, int color) {
+        View v = new View(c);
+        v.setBackground(round(color, (int) (size / 2f) + 1, 0, 0));
+        v.setLayoutParams(new android.widget.FrameLayout.LayoutParams(px(size), px(size)));
+        return v;
     }
 
     public static void immersive(android.view.Window w) {
@@ -577,17 +734,26 @@ public final class Ui {
      * 3) 彻底失败 → 亮白首字色块，并在 Trace 里留痕。
      */
     public static void loadPoster(final ImageView iv, final String url, final int w, final int h) {
-        loadPoster(iv, url, w, h, null);
+        loadPoster(iv, url, w, h, null, false);
     }
 
     public static void loadPoster(final ImageView iv, final String url, final int w, final int h,
                                   final String name) {
+        loadPoster(iv, url, w, h, name, false);
+    }
+
+    /**
+     * @param channel true 表示这是直播频道卡：占位图用 {@link #channelTile}
+     *                （CCTV-8 画 "8"、湖南卫视画 "湖南"），而不是所有人都一样的首字。
+     */
+    public static void loadPoster(final ImageView iv, final String url, final int w, final int h,
+                                  final String name, final boolean channel) {
         if (iv == null) {
             return;
         }
         if (url == null || url.length() == 0) {
             iv.setTag("__none__");
-            iv.setImageBitmap(letter(w, h, name));
+            iv.setImageBitmap(tile(w, h, name, channel));
             return;
         }
         iv.setTag(url);
@@ -597,11 +763,16 @@ public final class Ui {
             return;
         }
         if (dead(url)) {
-            iv.setImageBitmap(letter(w, h, name));
+            iv.setImageBitmap(tile(w, h, name, channel));
             return;
         }
-        iv.setImageBitmap(loading(w, h, name));
-        startLoad(iv, url, w, h, name);
+        iv.setImageBitmap(loading(w, h, name, channel));
+        startLoad(iv, url, w, h, name, channel);
+    }
+
+    /** 占位图二选一：直播卡用短标签块，影视海报用首字块。 */
+    private static Bitmap tile(int w, int h, String name, boolean channel) {
+        return channel ? channelTile(w, h, name) : letter(w, h, name);
     }
 
     /* ============ 惰性加载：滚到哪下哪 ============ */
@@ -612,12 +783,14 @@ public final class Ui {
         final int w;
         final int h;
         final String name;
+        final boolean channel;
 
-        Pending(String url, int w, int h, String name) {
+        Pending(String url, int w, int h, String name, boolean channel) {
             this.url = url;
             this.w = w;
             this.h = h;
             this.name = name;
+            this.channel = channel;
         }
     }
 
@@ -631,12 +804,18 @@ public final class Ui {
      * 期间整墙都是占位图，看起来就是卡。改成进入视口附近才真取。
      */
     public static void loadPosterDeferred(ImageView iv, String url, int w, int h, String name) {
+        loadPosterDeferred(iv, url, w, h, name, false);
+    }
+
+    /** @param channel 见 {@link #loadPoster(ImageView, String, int, int, String, boolean)}。 */
+    public static void loadPosterDeferred(ImageView iv, String url, int w, int h, String name,
+                                          boolean channel) {
         if (iv == null) {
             return;
         }
         if (url == null || url.length() == 0) {
             iv.setTag("__none__");
-            iv.setImageBitmap(letter(w, h, name));
+            iv.setImageBitmap(tile(w, h, name, channel));
             return;
         }
         iv.setTag(url);
@@ -646,11 +825,11 @@ public final class Ui {
             return;
         }
         if (dead(url)) {
-            iv.setImageBitmap(letter(w, h, name));
+            iv.setImageBitmap(tile(w, h, name, channel));
             return;
         }
-        iv.setImageBitmap(loading(w, h, name));
-        WAITING.put(iv, new Pending(url, w, h, name));
+        iv.setImageBitmap(loading(w, h, name, channel));
+        WAITING.put(iv, new Pending(url, w, h, name, channel));
     }
 
     /**
@@ -728,7 +907,7 @@ public final class Ui {
                     }
                     // 盘上没有才走网络，这张仍然排进 POOL（只有 4 条线程），
                     // 不在这里串行等，否则一张慢图会卡住后面整批。
-                    netLoad(iv, p.url, p.w, p.h, p.name);
+                    netLoad(iv, p.url, p.w, p.h, p.name, p.channel);
                 }
             }
         });
@@ -847,7 +1026,7 @@ public final class Ui {
 
     /** 真正发起下载（内部用，loadPoster 与 pump 共用）。 */
     private static void startLoad(final ImageView iv, final String url, final int w, final int h,
-                                  final String name) {
+                                  final String name, final boolean channel) {
         final String key = url;
         if (!key.equals(iv.getTag())) {
             return; // 这张卡已经被复用了，别再往它身上贴图
@@ -856,6 +1035,27 @@ public final class Ui {
         Bitmap hit = CACHE.get(key);
         if (hit != null) {
             iv.setImageBitmap(hit);
+            return;
+        }
+        // APK 内置台标：直接从 assets 读，不走网络也不进磁盘缓存
+        if (isAsset(url)) {
+            DISKPOOL.execute(new Runnable() {
+                public void run() {
+                    final Bitmap b = assetBitmap(url, w, h);
+                    if (b == null) {
+                        MAIN.post(new Runnable() {
+                            public void run() {
+                                if (key.equals(iv.getTag())) {
+                                    iv.setImageBitmap(tile(w, h, name, channel));
+                                }
+                            }
+                        });
+                        return;
+                    }
+                    CACHE.put(key, b);
+                    pushReady(iv, key, b);
+                }
+            });
             return;
         }
         // 先单独问一遍磁盘线程池：几毫秒的事，不该排在网络请求后面
@@ -869,14 +1069,140 @@ public final class Ui {
                     pushReady(iv, key, disk);
                     return;
                 }
-                netLoad(iv, url, w, h, name);
+                netLoad(iv, url, w, h, name, channel);
             }
         });
     }
 
+    /* ============ 内置台标（APK assets/logo/*.png） ============ */
+
+    /** 台标地址前缀。live.json 里写 "asset:logo/ab12cd34.png" 就走这条路。 */
+    public static final String ASSET_PREFIX = "asset:";
+    public static boolean isAsset(String url) {
+        return url != null && url.startsWith(ASSET_PREFIX);
+    }
+
+    /**
+     * 从 assets 解一张台标。
+     *
+     * 为什么台标要打进 APK 而不是走网络：直播卡片一屏 18 张，电视台标都是
+     * 几十 KB 的小 PNG，走网络第一屏必等 2~3 秒，而且图床随时会挂
+     * （之前 428 个台 logo 全是空串，就是因为指望远端给、远端没给）。
+     * 打进 APK 后首屏 0 延迟，且永远可用。
+     *
+     * 解码按目标高度降采样 + RGB_565，96x54 的台标解出来只占几十 KB 内存。
+     */
+    private static Bitmap assetBitmap(String url, int reqW, int reqH) {
+        if (APP == null) {
+            return null;
+        }
+        java.io.InputStream in = null;
+        try {
+            String path = url.substring(ASSET_PREFIX.length());
+            in = APP.getAssets().open(path);
+            byte[] data = readAll(in);
+            if (data == null || data.length == 0) {
+                return null;
+            }
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(data, 0, data.length, o);
+            int sample = 1;
+            while (reqW > 0 && o.outWidth / (sample * 2) >= reqW) {
+                sample *= 2;
+            }
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = sample;
+            // 必须按 ARGB_8888 解：台标 PNG 全是透明底，直接用 RGB_565 会
+            // 把透明区压成纯黑 —— 那正是用户说的「全是黑框框」。
+            o2.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap b = BitmapFactory.decodeByteArray(data, 0, data.length, o2);
+            return b == null ? null : ensureVisible(b);
+        } catch (Throwable t) {
+            Trace.add("logo", "内置台标读不到 " + url);
+            return null;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Throwable t) {
+            }
+        }
+    }
+
+    private static byte[] readAll(java.io.InputStream in) {
+        try {
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(16384);
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                out.write(buf, 0, n);
+            }
+            return out.toByteArray();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /**
+     * 台标「防糊」：iptv-org 抓来的台标有一批是深色字压在透明底上，
+     * 直接贴到深色卡片（SURFACE_HIGH #272A30）上等于隐形。
+     * 实测 CETV-1 的不透明像素里有 57.9% 亮度低于 60，眼看上去就是一团黑。
+     *
+     * 做法两件事：
+     *   1. 先把台标合成到与卡片同色的不透明底上 —— 原图是透明底的，
+     *      ImageView 底下的圆角板是 SURFACE_HIGH，合成后完全看不出接缝，
+     *      同时避免 RGB_565 丢 alpha 后透明区变纯黑（那就是用户说的「黑框框」）。
+     *   2. 深色字占比重时，垫一层很淡的白，把深色笔画提亮到能看清。
+     */
+    private static Bitmap ensureVisible(Bitmap src) {
+        if (src == null) {
+            return null;
+        }
+        int w = src.getWidth();
+        int h = src.getHeight();
+        long sum = 0;
+        long n = 0;
+        int dark = 0;
+        int stepX = Math.max(1, w / 32);
+        int stepY = Math.max(1, h / 18);
+        for (int y = 0; y < h; y += stepY) {
+            for (int x = 0; x < w; x += stepX) {
+                int px = src.getPixel(x, y);
+                if (((px >>> 24) & 0xFF) < 40) {
+                    continue; // 透明像素不参与判断
+                }
+                int lum = (((px >> 16) & 0xFF) * 299 + ((px >> 8) & 0xFF) * 587
+                        + (px & 0xFF) * 114) / 1000;
+                sum += lum;
+                n++;
+                if (lum < 60) {
+                    dark++;
+                }
+            }
+        }
+        int avg = n == 0 ? 255 : (int) (sum / n);
+        int darkPct = n == 0 ? 0 : (int) (dark * 100 / n);
+        // 够亮且不暗：不垫白，只做底色合成
+        boolean lift = avg < 110 || darkPct >= 45;
+        try {
+            Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            Canvas cv = new Canvas(out);
+            cv.drawColor(SURFACE_HIGH);
+            if (lift) {
+                cv.drawColor(darkPct >= 55 ? 0x26FFFFFF : 0x1AFFFFFF);
+            }
+            cv.drawBitmap(src, 0, 0, null);
+            return out;
+        } catch (Throwable t) {
+            return src;
+        }
+    }
+
     /** 磁盘没有，才走网络（在 POOL 里跑）。 */
     private static void netLoad(final ImageView iv, final String url, final int w, final int h,
-                                final String name) {
+                                final String name, final boolean channel) {
         final String key = url;
         POOL.execute(new Runnable() {
             public void run() {
@@ -886,7 +1212,7 @@ public final class Ui {
                     MAIN.post(new Runnable() {
                         public void run() {
                             if (key.equals(iv.getTag())) {
-                                iv.setImageBitmap(letter(w, h, name));
+                                iv.setImageBitmap(tile(w, h, name, channel));
                             }
                         }
                     });
@@ -994,10 +1320,15 @@ public final class Ui {
      * 同样的等待时间，观感差别很大。
      */
     public static Bitmap loading(int w, int h, String name) {
+        return loading(w, h, name, false);
+    }
+
+    /** @param channel 见 {@link #loadPoster(ImageView, String, int, int, String, boolean)}。 */
+    public static Bitmap loading(int w, int h, String name, boolean channel) {
         if (name == null || name.trim().length() == 0) {
             return placeholder(w, h, "载入中");
         }
-        return letterBlock(w, h, name, 0x66FFFFFF);
+        return channel ? channelTile(w, h, name) : letterBlock(w, h, name, 0x66FFFFFF);
     }
 
     /** 灰底 + 文字占位图（老接口，等价于 loading）。 */
@@ -1055,6 +1386,93 @@ public final class Ui {
         cv.drawText(ch, bw / 2f, bh / 2f + p.getTextSize() / 3f, p);
         remember(k, b);
         return b;
+    }
+
+    /**
+     * 直播频道的兜底色块（没有台标时用）。
+     *
+     * 为什么不直接用 {@link #letter}：382 个台里有 34 个是 CCTV-x 打头，
+     * 全画一个「C」等于没有信息量 —— 一屏 18 张卡，十几张长得一模一样。
+     * 所以这里换成「能区分开来的短标签」：
+     *   CCTV-8 / CCTV-8K      → 8 / 8K
+     *   CCTV-5+                → 5+
+     *   CGTN纪录               → 纪
+     *   湖南卫视 / 浙江卫视     → 湖南 / 浙江
+     *   广东体育               → 体育
+     * 其余取前两字。
+     */
+    public static Bitmap channelTile(int w, int h, String name) {
+        int bw = Math.max(8, w);
+        int bh = Math.max(8, h);
+        String label = channelLabel(name);
+        String k = "T" + bw + "x" + bh + label;
+        Bitmap hit = PLACEHOLDERS.get(k);
+        if (hit != null) {
+            return hit;
+        }
+        Bitmap b = Bitmap.createBitmap(bw, bh, Bitmap.Config.RGB_565);
+        Canvas cv = new Canvas(b);
+        cv.drawColor(palette(label));
+        Paint p = new Paint();
+        p.setAntiAlias(true);
+        p.setColor(0xF2FFFFFF);
+        p.setTypeface(Typeface.DEFAULT_BOLD);
+        // 标签 1~3 个字符，字号跟着缩，免得 "5+" 撑满而 "湖南" 出框
+        int n = label.length();
+        float factor = n >= 3 ? 0.30f : (n == 2 ? 0.36f : 0.42f);
+        p.setTextSize(Math.max(12, Math.min(bw, bh) * factor));
+        p.setTextAlign(Paint.Align.CENTER);
+        cv.drawText(label, bw / 2f, bh / 2f + p.getTextSize() / 3f, p);
+        remember(k, b);
+        return b;
+    }
+
+    /** 给兜底色块挑一个「能区分」的短标签，规则见 {@link #channelTile}。 */
+    public static String channelLabel(String name) {
+        if (name == null) {
+            return "?";
+        }
+        String s = name.trim();
+        if (s.length() == 0) {
+            return "?";
+        }
+        String up = s.toUpperCase(Locale.US);
+        if (up.startsWith("CCTV")) {
+            String rest = s.substring(4);
+            while (rest.startsWith("-") || rest.startsWith("_") || rest.startsWith(" ")) {
+                rest = rest.substring(1);
+            }
+            if (rest.length() > 0) {
+                return rest.length() > 3 ? rest.substring(0, 3) : rest;
+            }
+            return "CC";
+        }
+        if (up.startsWith("CGTN")) {
+            String rest = s.substring(4).replace("纪录", "纪").replace("记录", "纪");
+            return rest.length() > 0 ? firstChar(rest) : "CG";
+        }
+        if (up.startsWith("CETV")) {
+            String rest = s.substring(4);
+            while (rest.startsWith("-")) {
+                rest = rest.substring(1);
+            }
+            return rest.length() > 0 ? rest.substring(0, Math.min(2, rest.length())) : "CE";
+        }
+        int wei = s.indexOf("卫视");
+        if (wei > 0) {
+            String head = s.substring(0, wei);
+            return head.length() > 2 ? head.substring(0, 2) : head;
+        }
+        if (s.startsWith("广东") && s.length() == 4) {
+            // 广东体育 → 「体育」比「广东」更有辨识度（广东系台有 6 个，
+            // 全叫「广东」就又是一排一样的方块）。只在长度刚好 4 时这么干，
+            // 避免把「广东广播电视台」这类长名截成怪的半截词。
+            return s.substring(2);
+        }
+        // 兜底取两个字而不是一个字：382 个台里地方台占 234 个，
+        // 只取首字会出现「浙」重复 22 次、「广」8 次，看起来像一堆一样的方块。
+        // 取两字后唯一标签从 206 提到 241，重复感明显下降。
+        return s.length() >= 2 ? s.substring(0, 2) : firstChar(s);
     }
 
     private static void remember(String key, Bitmap b) {

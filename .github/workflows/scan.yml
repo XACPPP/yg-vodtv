@@ -63,6 +63,9 @@ jobs:
           git add test/sources_health.json test/sources_health.md app/src/main/assets/sources.json
           git add -A app/src/main/assets/py
           git add -A app/src/main/assets/live.json
+          # 台标 PNG 跟 live.json 是同一次巡检产出：APK 内置台标走 assets/logo，
+          # 不提交进仓库的话电视上就永远只有首字色块。
+          git add -A app/src/main/assets/logo
           if git diff --cached --quiet; then
             echo "源表、拼音索引、直播表都无变化，跳过提交"
             exit 0

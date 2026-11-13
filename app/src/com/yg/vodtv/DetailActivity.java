@@ -88,7 +88,7 @@ public final class DetailActivity extends Activity {
     private void buildUi() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.HORIZONTAL);
-        root.setBackgroundColor(Ui.BG);
+        root.setBackground(Ui.pageBg());
         // 设计稿安全边距：左右 56，上下 40
         root.setPadding(Ui.px(56), Ui.px(40), Ui.px(56), Ui.px(32));
 
@@ -184,7 +184,8 @@ public final class DetailActivity extends Activity {
         t.setFocusable(true);
         t.setClickable(true);
         t.setPadding(Ui.px(20), Ui.px(11), Ui.px(20), Ui.px(11));
-        t.setBackground(Ui.focusBg(Ui.BG_CARD, 8, Ui.ACCENT));
+        // v2.7 统一焦点语言：描边 + 外发光，跟首页胶囊、直播卡片同一套
+        t.setBackground(Ui.focusBgGlow(Ui.BG_CARD, 999, Ui.ACCENT));
         return t;
     }
 
@@ -351,7 +352,7 @@ public final class DetailActivity extends Activity {
                 FrameLayout cell = new FrameLayout(this);
                 cell.setFocusable(true);
                 cell.setClickable(true);
-                cell.setBackground(Ui.focusBg(watched ? 0xFF23282F : Ui.BG_CARD, 8, Ui.ACCENT));
+                cell.setBackground(Ui.focusBgGlow(watched ? 0xFF23282F : Ui.BG_CARD, 8, Ui.ACCENT));
 
                 TextView t = Ui.text(this, d.epNames[i], 19, watched ? Ui.FG_DIM : Ui.FG);
                 t.setGravity(Gravity.CENTER);

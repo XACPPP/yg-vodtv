@@ -13,3 +13,10 @@ app/*.idsig
 
 # 探测过程的滚动日志（体积大，随时可重跑）
 test/probe_run*.log
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 巡检脚本的预览产物（本地调参用，不发布）
+test/live_preview.json
