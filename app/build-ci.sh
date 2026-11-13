@@ -22,10 +22,19 @@ echo "[1/6] aapt2 compile"
 "$BT/aapt2" compile --dir res -o build/res.zip
 
 echo "[2/6] aapt2 link"
+# assets 只有 logo/ 需要进包（台标 PNG）。py/*.txt 那 4.6MB 只给巡检用，不进 APK。
+# 必须与 build.sh 保持一致：漏了 -A，assets/ 一个条目都不会进包，
+# 电视上所有 asset: 台标都读不到，只能退回短标签色块。
+rm -rf build/assets
+mkdir -p build/assets
+if [ -d src/main/assets/logo ]; then
+  cp -r src/main/assets/logo build/assets/logo
+fi
 "$BT/aapt2" link -o build/base.apk \
   --manifest AndroidManifest.xml \
   -I "$PLAT" \
   -R build/res.zip \
+  -A build/assets \
   --java build/gen \
   --auto-add-overlay
 
