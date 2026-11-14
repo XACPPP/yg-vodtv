@@ -148,6 +148,31 @@ public final class Store {
 
     /* ==================== 直播上次看到哪个台 ==================== */
 
+    private static final String K_SECTION = "sect";
+
+    /** 上次停在哪个卡片栏：0 影视点播 / 1 电视直播。 */
+    public static int section() {
+        if (sp == null) {
+            return 0;
+        }
+        try {
+            return sp.getInt(K_SECTION, 0);
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    public static void saveSection(int s) {
+        if (sp == null) {
+            return;
+        }
+        try {
+            sp.edit().putInt(K_SECTION, s).apply();
+        } catch (Throwable t) {
+            // 存不上就算了，只是少了「记住上次板块」
+        }
+    }
+
     private static final String K_LIVE_GROUP = "live_g";
     private static final String K_LIVE_CH = "live_c";
 

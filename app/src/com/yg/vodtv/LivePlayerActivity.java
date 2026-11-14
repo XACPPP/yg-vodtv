@@ -774,7 +774,7 @@ public final class LivePlayerActivity extends Activity {
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.addView(Chrome.title(this, "切换线路"));
-        TextView tip = Chrome.subtitle(this, "　同一个台有多路源，挑能播的就行");
+        TextView tip = Chrome.subtitle(this, " 同一个台有多路源，挑能播的就行");
         head.addView(tip);
         panel.addView(head);
 
@@ -877,7 +877,7 @@ public final class LivePlayerActivity extends Activity {
         hlp.bottomMargin = Ui.px(6);
         drawer.addView(head, hlp);
 
-        TextView hint = Ui.text(this, "↑↓ 换台　·　← → 切分组　·　OK 直接播放", 13, 0xB39AA6B5);
+        TextView hint = Ui.text(this, "上下键 换台   |   左右键 切分组   |   OK 直接播放", 15, 0xB39AA6B5);
         hint.setPadding(0, 0, 0, Ui.px(16));
         drawer.addView(hint);
 
@@ -908,6 +908,7 @@ public final class LivePlayerActivity extends Activity {
         drawerList.setSelector(new ColorDrawable(0x00000000));
         drawerList.setCacheColorHint(0x00000000);
         drawerList.setClipToPadding(false);
+        drawerList.setPadding(0, Ui.px(6), 0, Ui.px(6));
         drawerList.setFocusable(true);
         drawerList.setFocusableInTouchMode(true);
         drawerList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -1289,6 +1290,12 @@ public final class LivePlayerActivity extends Activity {
 
     /** ListView 会把焦点行滚进可视区，这里不再需要手工算位置。 */
     private void scrollRowIntoView(View row) {
+        if (row == null) {
+            return;
+        }
+        // v2.26：ListView 只在「焦点矩形进不了屏幕」时才滚，刚好卡在边缘的行
+        // 会被顶边裁掉一半。把请求区域上下各撑 16px，行就完整露出来。
+        row.requestRectangleOnScreen(new android.graphics.Rect(0, -Ui.px(16), 0, Ui.px(16)));
     }
 
     private void focusRow(int idx) {
@@ -1462,7 +1469,7 @@ public final class LivePlayerActivity extends Activity {
         // v2.19：以前只有一句「正在缓冲…」，用户不知道在等哪个台、第几路线。
         // 换成「台名 + 线路 i/n」，等的时候心里有数，也方便判断是不是这条源在赌运气。
         busyText.setText("正在接入 " + (ch == null ? "直播" : ch.name)
-                + "　·　线路 " + (idx + 1) + "/" + urls.size());
+                + " · 线路 " + (idx + 1) + "/" + urls.size());
         busyText.setVisibility(View.VISIBLE);
         updateInfo();
 
@@ -1850,12 +1857,12 @@ public final class LivePlayerActivity extends Activity {
         StringBuilder sb = new StringBuilder();
         sb.append("第 ").append(pad2(chIdx + 1)).append(" 台");
         if (alias.length() > 0) {
-            sb.append("　·　").append(alias);
+            sb.append("   |   ").append(alias);
         }
-        sb.append("　·　").append(qualityOf(ch.name));
-        sb.append("　·　第 ").append(urlIdx + 1).append("/").append(urls.size()).append(" 路源");
+        sb.append("   |   ").append(qualityOf(ch.name));
+        sb.append("   |   第 ").append(urlIdx + 1).append("/").append(urls.size()).append(" 路源");
         if (startMs > 0) {
-            sb.append("　·　接入 ").append(oneDecimal(startMs / 1000.0)).append("s");
+            sb.append("   |   接入 ").append(oneDecimal(startMs / 1000.0)).append("s");
         }
         topSub.setText(sb.toString());
         topBadge.setText(qualityOf(ch.name).equals("HD") ? "FHD" : qualityOf(ch.name));
@@ -1949,16 +1956,13 @@ public final class LivePlayerActivity extends Activity {
         if (e.getAction() == KeyEvent.ACTION_DOWN) {
             int kc = e.getKeyCode();
             boolean volKey = kc == KeyEvent.KEYCODE_VOLUME_UP || kc == KeyEvent.KEYCODE_VOLUME_DOWN;
-            if (!volKey && kc != KeyEvent.KEYCODE_BACK) {
-                // v2.24：界面已经收起时，这一下只把它叫回来，不顺手触发别的动作
-                // （否则黑屏上按 OK 会莫名开出抽屉）
-                boolean wasHidden = !chromeShown;
-                pokeChrome();
-                if (wasHidden && !drawerVisible && !panelVisible) {
-                    return true;
-                }
-            } else {
-                pokeChrome();
+            // v2.25：界面收起时不再「吃掉这一下」。老板要的是「按 OK 就进频道列表」，
+            // 如果第一下只用来唤醒界面，他会觉得遥控器失灵、得按两次。
+            // 现在按键即生效，界面同时被唤回（换台时顶栏会显示新台名，正好当反馈）。
+            pokeChrome();
+            if (!volKey && kc != KeyEvent.KEYCODE_BACK
+                    && !chromeShown && !drawerVisible && !panelVisible) {
+                Trace.add("live", "界面收起时按键 " + kc + "，唤回界面并执行");
             }
         }
         if (e.getAction() == KeyEvent.ACTION_DOWN && drawerVisible && drawerAdapter != null) {
