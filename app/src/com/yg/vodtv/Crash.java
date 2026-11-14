@@ -19,7 +19,7 @@ import java.io.StringWriter;
  * 所以把「抓栈」这件事放进 App 自己：
  *   1. 装 Thread.setDefaultUncaughtExceptionHandler，崩溃时把完整栈写进 Trace
  *      （内存环 + ygtv.log + logcat 三通道，至少有一条能读到）；
- *   2. 立刻重启回首页 GateActivity，别让电视停在桌面 —— 用户要的是「继续能看」；
+ *   2. 立刻重启回首页 MainActivity，别让电视停在桌面 —— 用户要的是「继续能看」；
  *   3. 20 秒内连续崩溃就不再自重启（防止真·必崩场景变成无限重启闪烁），
  *      只留日志和桌面。
  */
@@ -51,7 +51,7 @@ public final class Crash {
                 }
                 if (!loop) {
                     try {
-                        Intent i = new Intent(app, GateActivity.class);
+                        Intent i = new Intent(app, MainActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);

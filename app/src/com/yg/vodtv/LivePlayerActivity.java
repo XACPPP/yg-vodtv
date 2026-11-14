@@ -125,6 +125,22 @@ public final class LivePlayerActivity extends Activity {
     private TextView bigMsg;
     private TextView toast;
     private LinearLayout bottomWrap;
+    /** v2.24：干净观影 —— 起播 2 秒无操作就把顶栏/底栏一起收掉，任何按键再叫回来。 */
+    private static final long CHROME_IDLE_MS = 2000;
+    private boolean chromeShown = true;
+    private final Runnable hideChromeTask = new Runnable() {
+        public void run() {
+            // 缓冲中 / 起播失败时不收：黑屏上什么都看不见，比「界面挡着」更让人慌
+            boolean buffering = busy != null && busy.getVisibility() == View.VISIBLE;
+            boolean dead = bigMsg != null && bigMsg.getVisibility() == View.VISIBLE;
+            if (drawerVisible || panelVisible || buffering || dead) {
+                // 抽屉/线路面板开着时不收，否则用户会看着一块「悬空」的列表
+                ui.postDelayed(this, CHROME_IDLE_MS);
+                return;
+            }
+            setChrome(false);
+        }
+    };
     private LinearLayout panel;
     private LinearLayout panelSources;
 
@@ -923,6 +939,30 @@ public final class LivePlayerActivity extends Activity {
         drawer.addView(listWrap, dlp);
     }
 
+    /** 顶部信息条与底部键帽条的显隐（干净观影的核心）。 */
+    private void setChrome(boolean on) {
+        chromeShown = on;
+        float a = on ? 1f : 0f;
+        if (topBar != null) {
+            topBar.animate().alpha(a).setDuration(on ? 140 : 220).start();
+        }
+        if (bottomWrap != null) {
+            bottomWrap.animate().alpha(a).setDuration(on ? 140 : 220).start();
+        }
+        if (!on) {
+            ui.removeCallbacks(hideChromeTask);
+        }
+    }
+
+    /** 有操作：把界面元素拉回来，并把 2 秒的倒计时重新开始。 */
+    private void pokeChrome() {
+        if (!chromeShown) {
+            setChrome(true);
+        }
+        ui.removeCallbacks(hideChromeTask);
+        ui.postDelayed(hideChromeTask, CHROME_IDLE_MS);
+    }
+
     private void toggleDrawer() {
         drawerVisible = !drawerVisible;
         ui.removeCallbacks(hideDrawerAnim);
@@ -1464,6 +1504,8 @@ public final class LivePlayerActivity extends Activity {
                     }
                 });
                 restInfo();
+                // v2.24：起播即开始 2 秒倒计时，没人按遥控器就自动进入干净观影
+                pokeChrome();
                 posAt = System.currentTimeMillis();
                 lastPos = -1;
                 // v2.10：这一路真的起来了，记下台名 → 线路下标，下次进这个台直接从这里起播。
@@ -1904,6 +1946,21 @@ public final class LivePlayerActivity extends Activity {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            int kc = e.getKeyCode();
+            boolean volKey = kc == KeyEvent.KEYCODE_VOLUME_UP || kc == KeyEvent.KEYCODE_VOLUME_DOWN;
+            if (!volKey && kc != KeyEvent.KEYCODE_BACK) {
+                // v2.24：界面已经收起时，这一下只把它叫回来，不顺手触发别的动作
+                // （否则黑屏上按 OK 会莫名开出抽屉）
+                boolean wasHidden = !chromeShown;
+                pokeChrome();
+                if (wasHidden && !drawerVisible && !panelVisible) {
+                    return true;
+                }
+            } else {
+                pokeChrome();
+            }
+        }
         if (e.getAction() == KeyEvent.ACTION_DOWN && drawerVisible && drawerAdapter != null) {
             int c = e.getKeyCode();
             if (c == KeyEvent.KEYCODE_DPAD_DOWN) {

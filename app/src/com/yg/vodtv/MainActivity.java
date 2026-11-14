@@ -11,7 +11,10 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -116,6 +119,8 @@ public final class MainActivity extends Activity {
     /** 加载中又被点了别的频道：先记下，等这一轮回来立刻换过去，别把这次点击吞掉。 */
     private int wantType = -1;
     private int cardW = 240;
+    /** 海报行间距：按上面算出来的卡宽把整行撑满，避免右边空一大块。 */
+    private int cardGap = 20;
     private int posterH = 336;
 
     /** 底部焦点信息 dock（设计稿 footer：150px 高、#11141A 底、上沿一条 hairline）。 */
@@ -136,6 +141,27 @@ public final class MainActivity extends Activity {
      * 现在只有用户真的按了方向键/OK，才置 true；切分类会重置回 false。
      */
     private boolean dockArmed = false;
+
+    /* ==================== v2.24：单屏卡片壳 ==================== */
+    /** 0 = 影视点播，1 = 电视直播。两块大卡就是这两个值的开关。 */
+    private int section = 0;
+    private LinearLayout movieCol;
+    private LinearLayout liveCol;
+    private LinearLayout topBarRow;
+    private View searchBar;
+    private LinearLayout heroRowView;
+    private final java.util.List<TextView> groupChips = new java.util.ArrayList<TextView>();
+    private LinearLayout heroLive;
+    private TextView heroLiveTag;
+    private TextView heroVodTag;
+    private LinearLayout heroVod;
+    /** 直播分组条 / 频道列表：v2.24 起选台在首页完成，不再钻进播放页的抽屉。 */
+    private LinearLayout liveGroupRow;
+    private ListView liveList;
+    private LiveAdapter liveAdapter;
+    private java.util.List<Live.Group> liveGroups = new java.util.ArrayList<Live.Group>();
+    private int liveGi = 0;
+    private TextView liveStat;
 
     /** 顶栏右侧时钟（设计稿 headline-sm 26px）。 */
     private TextView clockView;
@@ -219,6 +245,7 @@ public final class MainActivity extends Activity {
 
         // 标题栏
         LinearLayout bar = new LinearLayout(this);
+        topBarRow = bar;
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setPadding(Ui.px(56), Ui.px(18), Ui.px(56), Ui.px(6));
@@ -229,7 +256,8 @@ public final class MainActivity extends Activity {
         // 右边再跟一行「极清影院」字标 —— 这是「有设计感」最直观的一处。
         bar.addView(Chrome.brandBlock(this));
 
-        TextView brandTxt = Chrome.brandText(this);
+        // v2.24：品牌名跟设计稿对齐（原来写的是「极清影院」，跟 App 名字对不上）
+        TextView brandTxt = Ui.bold(this, "影视TV", 24, Ui.FG);
         LinearLayout.LayoutParams btlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         btlp.leftMargin = Ui.px(14);
@@ -237,17 +265,31 @@ public final class MainActivity extends Activity {
 
         bar.addView(Chrome.vDivider(this));
 
-        // v2.22：板块选择搬到首屏 GateActivity 那两块大卡上了，这里不再重复摆一对胶囊。
-        // 顶栏只留一个「← 首页」，回退到那两块卡，别让影视页继续兼任「App 总入口」。
-        TextView homeBtn = chip("← 首页", false);
-        homeBtn.setOnClickListener(new View.OnClickListener() {
+        // v2.24：首屏 GateActivity 已并入本页（老板要「就一个界面」），
+        // 顶栏不再需要「← 首页」；换成三个工具胶囊，各管一件事。
+        updateChip = chip("检查更新", false);
+        updateChip.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                finish();
+                checkUpdate(true);
             }
         });
-        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        bar.addView(homeBtn, hlp);
+        bar.addView(updateChip, chipLp(8));
+
+        TextView clearBtn = chip("清除缓存", false);
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                clearCacheConfirm();
+            }
+        });
+        bar.addView(clearBtn, chipLp(10));
+
+        TextView selfBtn = chip("自检", false);
+        selfBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SelfTestActivity.class));
+            }
+        });
+        bar.addView(selfBtn, chipLp(10));
 
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
@@ -266,17 +308,6 @@ public final class MainActivity extends Activity {
         bar.addView(clockView, cklp);
         tickClock();
         ui.postDelayed(clockTick, 30000);
-
-        TextView searchBtn = chip("搜 索", false);
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                openSearch();
-            }
-        });
-        LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        sblp.leftMargin = Ui.px(12);
-        bar.addView(searchBtn, sblp);
 
 
         TextView ver = Ui.text(this, Ver.FULL, 16, Ui.FG_DIM);
@@ -299,6 +330,11 @@ public final class MainActivity extends Activity {
         hairLp.leftMargin = Ui.px(52);
         hairLp.rightMargin = Ui.px(52);
         col.addView(hairline, hairLp);
+
+        // v2.24：顶部两块大卡（电视直播 / 影视点播）——这是老板明确要求的
+        // 「进软件第一件事就该从这两个里面选」，所以做成首屏主视觉，不是小胶囊。
+        col.addView(buildHeroRow(), new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // v2.11：删掉「影视大厅 + VOD·多源聚合 + 14 个采集源…」这一整行。
         //
@@ -410,7 +446,17 @@ public final class MainActivity extends Activity {
                         fadeR.setVisibility(canScroll ? View.VISIBLE : View.GONE);
                     }
                 });
-        col.addView(chipWrap, new LinearLayout.LayoutParams(
+        // v2.24：影视区整体收进 movieCol —— 它和 liveCol 抢同一块内容区，
+        // 靠 section 切换显示，一个界面两套内容，不再靠跳 Activity 换页。
+        movieCol = new LinearLayout(this);
+        movieCol.setOrientation(LinearLayout.VERTICAL);
+        movieCol.setClipChildren(false);
+
+        // 搜索条：影视区最高频的操作，单独一条宽药丸放在两块大卡正下面。
+        movieCol.addView(buildSearchBar(), new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        movieCol.addView(chipWrap, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // 海报墙
@@ -446,20 +492,37 @@ public final class MainActivity extends Activity {
         status.setPadding(Ui.px(8), Ui.px(20), 0, Ui.px(20));
         rows.addView(status);
 
-        col.addView(scroll, new LinearLayout.LayoutParams(
+        movieCol.addView(scroll, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
         // 底部焦点信息 dock：设计稿 footer 的主体。v2.7 只做了它最下面那行键帽，
         // 等于把设计稿里信息密度最高的一块整个丢了 —— 一屏 14 张海报，
         // 遥控器移到哪张都只能看到片名，年份、地区、类型、简介全得进详情页才知道。
-        col.addView(buildDock());
+        movieCol.addView(buildDock());
+
+        // 直播面板 + 两套内容同处一区
+        liveCol = buildLiveCol();
+        FrameLayout content = new FrameLayout(this);
+        content.setClipChildren(false);
+        content.addView(movieCol, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        content.addView(liveCol, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        liveCol.setVisibility(View.GONE);
+        col.addView(content, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
         root.addView(col, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         int avail = Ui.w() - Ui.px(112) - (COLS - 1) * Ui.px(20);
-        cardW = avail / COLS;
+        // v2.24：海报按 2:3 出图，一屏高度是硬约束。先算留给海报区多少高，
+        // 再反推每张卡能有多宽；宽度按列均分会把海报撑到 517 高，片名直接被 dock 切掉。
+        int hBudget = Ui.h() - Ui.px(88 + 190 + 72 + 58 + 204 + 34) - Ui.px(56);
+        int wByH = Math.round(hBudget / Cards.RATIO);
+        cardW = Math.min(avail / COLS, wByH);
         posterH = Math.round(cardW * Cards.RATIO);
+        cardGap = Math.max(Ui.px(20), (Ui.w() - Ui.px(104) - COLS * cardW) / (COLS - 1));
 
         // 搜索页右栏 4 列；左栏 760 + 间距 28 + 两侧内边距 80
         int searchAvail = Ui.w() - Ui.px(80) - Ui.px(760) - Ui.px(28)
@@ -468,6 +531,7 @@ public final class MainActivity extends Activity {
         searchPosterH = Math.round(searchCardW * Cards.RATIO);
 
         setContentView(root);
+        refreshHeroActive();
         buildSearch();
         buildUpdatePanel();
         // 开机静默查一次（失败只在 Trace 里留痕，不打扰看电视）
@@ -496,7 +560,7 @@ public final class MainActivity extends Activity {
         dock.setPadding(Ui.px(56), Ui.px(20), Ui.px(56), Ui.px(10));
         // v2.11：150 → 300。字号整体放大后，片名 56px + 元信息 + 两行简介塞不进 150，
         // 会被压得互相叠字。300 是 Stitch v2.11 稿标注的 dock 高度（屏高的 28%）。
-        dock.setMinimumHeight(Ui.px(300));
+        dock.setMinimumHeight(Ui.px(220));
 
         // 上沿 hairline：设计稿 border-t border-white/[0.08]
         View line = new View(this);
@@ -785,6 +849,473 @@ public final class MainActivity extends Activity {
         return t;
     }
 
+
+    /* ==================== v2.24：单屏卡片壳的积木 ==================== */
+
+    /** 胶囊的通用 LayoutParams（间距统一走这里，别在东一处西一处写 margin）。 */
+    private LinearLayout.LayoutParams chipLp(int leftMargin) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = Ui.px(leftMargin);
+        return lp;
+    }
+
+    /** 顶部两块大卡：各占一半宽、172px 高，焦点态琥珀描边 + 3% 放大。 */
+    private LinearLayout buildHeroRow() {
+        LinearLayout row = new LinearLayout(this);
+        heroRowView = row;
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(Ui.px(52), Ui.px(6), Ui.px(52), Ui.px(6));
+        row.setClipChildren(false);
+
+        int srcCount = Src.all() == null ? 0 : Src.all().size();
+        heroLive = heroCard("电视直播", "江西本地 · 央视 · 卫视 · 付费专业 · 500+ 台",
+                "按 OK 进直播", true);
+        heroVod = heroCard("影视点播", TAB_NAME.length + " 个分类 · " + srcCount + " 个片源 · 每日更新",
+                "按 OK 看影视", false);
+
+        int w = (Ui.w() - Ui.px(104) - Ui.px(18)) / 2;
+        LinearLayout.LayoutParams l1 = new LinearLayout.LayoutParams(w, Ui.px(190));
+        row.addView(heroLive, l1);
+        LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(w, Ui.px(190));
+        l2.leftMargin = Ui.px(18);
+        row.addView(heroVod, l2);
+        return row;
+    }
+
+    private LinearLayout heroCard(String title, String sub, String cta, final boolean live) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setFocusable(true);
+        card.setClickable(true);
+        card.setBackground(Ui.focusBgGlow(0xFF171C24, 20, 0xB3FFB300));
+        card.setPadding(Ui.px(26), Ui.px(14), Ui.px(26), Ui.px(12));
+
+        TextView tag = Ui.bold(this, live ? "● 直播 LIVE" : "● 点播 VOD", 14,
+                live ? Ui.ACCENT : Ui.FG_DIM);
+        card.addView(tag);
+        // 板块指示放在标签里，不跟焦点描边抢同一个视觉语言（两样都画琥珀环就分不清了）
+        if (live) {
+            heroLiveTag = tag;
+        } else {
+            heroVodTag = tag;
+        }
+
+        TextView t = Ui.bold(this, title, 30, Ui.FG);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = Ui.px(4);
+        card.addView(t, tlp);
+
+        TextView s = Ui.text(this, sub, 18, Ui.FG_DIM);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        slp.topMargin = Ui.px(2);
+        card.addView(s, slp);
+
+        card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1f));
+
+        TextView go = Ui.bold(this, cta, 18, 0xFF12161C);
+        go.setBackground(Ui.round(Ui.ACCENT, 14, 0, 0));
+        go.setPadding(Ui.px(18), Ui.px(7), Ui.px(18), Ui.px(7));
+        card.addView(go, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        card.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showSection(live ? 1 : 0);
+            }
+        });
+        card.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean has) {
+                v.animate().scaleX(has ? 1.03f : 1f).scaleY(has ? 1.03f : 1f)
+                        .setDuration(150).start();
+                v.setAlpha(has ? 1f : 0.92f);
+            }
+        });
+        return card;
+    }
+
+    /** 影视区的搜索条：全屏最宽的一条可聚焦控件，点 OK 直接进搜索页。 */
+    private View buildSearchBar() {
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.HORIZONTAL);
+        wrap.setGravity(Gravity.CENTER_VERTICAL);
+        wrap.setPadding(Ui.px(52), Ui.px(2), Ui.px(52), Ui.px(6));
+        wrap.setClipChildren(false);
+
+        LinearLayout box = new LinearLayout(this);
+        searchBar = box;
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        box.setFocusable(true);
+        box.setClickable(true);
+        box.setBackground(Ui.focusBgGlow(0xFF171C24, 22, 0xB3FFB300));
+        box.setPadding(Ui.px(20), Ui.px(8), Ui.px(8), Ui.px(8));
+
+        // 字号缺字形（⌕ 在这台电视上渲染成豆腐块），放大镜自己画，不走字体
+        box.addView(new SearchGlyph(), new LinearLayout.LayoutParams(Ui.px(30), Ui.px(30)));
+
+        TextView hint = Ui.text(this, "搜索片名 / 拼音首字母（如 NF、狂飙）", 21, Ui.FG_DIM);
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        hlp.leftMargin = Ui.px(12);
+        box.addView(hint, hlp);
+
+        TextView go = Ui.bold(this, "搜索", 21, 0xFF12161C);
+        go.setBackground(Ui.round(Ui.ACCENT, 16, 0, 0));
+        go.setPadding(Ui.px(22), Ui.px(7), Ui.px(22), Ui.px(7));
+        box.addView(go);
+
+        View.OnClickListener open = new View.OnClickListener() {
+            public void onClick(View v) {
+                openSearch();
+            }
+        };
+        box.setOnClickListener(open);
+        go.setOnClickListener(open);
+        wrap.addView(box, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView note = Ui.text(this, "全网聚合 · 首字母直搜", 17, 0x66FFFFFF);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        nlp.leftMargin = Ui.px(16);
+        wrap.addView(note, nlp);
+        return wrap;
+    }
+
+    /**
+     * 两块大卡用常亮描边标出「我现在在哪一栏」。
+     *
+     * 之前只有 showSection() 里刷，冷启动走的是初始 section=0，没人刷 → 两张卡
+     * 长得一模一样，老板看不出进来的是影视还是直播，还得靠下方内容猜。
+     */
+    private void refreshHeroActive() {
+        // 「当前板块」和「焦点」是两回事：焦点是 2px 琥珀环 + 放大，板块是常亮小字。
+        // 之前两者都画琥珀环，老板看到的是一张永远亮着的卡，反而不确定遥控器停在哪。
+        if (heroLiveTag != null) {
+            heroLiveTag.setText(section == 1 ? "● 直播 LIVE　当前" : "● 直播 LIVE");
+            heroLiveTag.setTextColor(section == 1 ? Ui.ACCENT : Ui.FG_DIM);
+        }
+        if (heroVodTag != null) {
+            heroVodTag.setText(section == 0 ? "● 点播 VOD　当前" : "● 点播 VOD");
+            heroVodTag.setTextColor(section == 0 ? Ui.ACCENT : Ui.FG_DIM);
+        }
+    }
+
+    /** 一个 30x30 的琥珀放大镜：不依赖字体里有没有那个字形。 */
+    private final class SearchGlyph extends View {
+        private final android.graphics.Paint p = new android.graphics.Paint(
+                android.graphics.Paint.ANTI_ALIAS_FLAG);
+
+        SearchGlyph() {
+            super(MainActivity.this);
+            p.setColor(Ui.ACCENT);
+            p.setStyle(android.graphics.Paint.Style.STROKE);
+            p.setStrokeWidth(Ui.px(2.4f));
+        }
+
+        protected void onDraw(android.graphics.Canvas c) {
+            float w = getWidth();
+            float h = getHeight();
+            float r = Math.min(w, h) * 0.30f;
+            float cx = w * 0.42f;
+            float cy = h * 0.42f;
+            c.drawCircle(cx, cy, r, p);
+            c.drawLine(cx + r * 0.75f, cy + r * 0.75f, w * 0.92f, h * 0.92f, p);
+        }
+    }
+
+    /** 直播面板：分组条 + 频道列表 + 键位提示。列表用 ListView 只为按需建行。 */
+    private LinearLayout buildLiveCol() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setClipChildren(false);
+
+        liveStat = Ui.text(this, "", 18, Ui.FG_DIM);
+        liveStat.setPadding(Ui.px(56), 0, Ui.px(56), Ui.px(2));
+        box.addView(liveStat);
+
+        HorizontalScrollView hs = new HorizontalScrollView(this);
+        hs.setHorizontalScrollBarEnabled(false);
+        hs.setClipChildren(false);
+        liveGroupRow = new LinearLayout(this);
+        liveGroupRow.setOrientation(LinearLayout.HORIZONTAL);
+        liveGroupRow.setPadding(Ui.px(52), Ui.px(2), Ui.px(52), Ui.px(4));
+        liveGroupRow.setClipChildren(false);
+        hs.addView(liveGroupRow);
+        box.addView(hs, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        liveList = new ListView(this);
+        liveList.setVerticalScrollBarEnabled(false);
+        liveList.setDivider(null);
+        liveList.setDividerHeight(0);
+        liveList.setSelector(new android.graphics.drawable.ColorDrawable(0x00000000));
+        liveList.setCacheColorHint(0x00000000);
+        liveList.setClipToPadding(false);
+        liveList.setPadding(Ui.px(52), 0, Ui.px(52), Ui.px(60));
+        liveList.setFocusable(true);
+        liveList.setFocusableInTouchMode(true);
+        liveList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        // 关键：不开这个，ListView 里的行（自己 setFocusable(true) 的）永远拿不到焦点，
+        // 界面上就没有琥珀描边 —— 老板按 OK 时根本不知道会播哪台。
+        liveList.setItemsCanFocus(true);
+        box.addView(liveList, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        LinearLayout hint = Chrome.keyHintRow(this, new String[][] {
+                {"↑ ↓", "选频道"}, {"◀ ▶", "换分组"}, {"OK", "开播"},
+                {"返回", "回影视"}}, "OK");
+        // 键位条必须有实底：不然列表滚到底会从字缝里透出来，看着像「界面叠坏了」
+        hint.setBackgroundColor(0xFF11141A);
+        hint.setPadding(Ui.px(52), Ui.px(6), Ui.px(52), Ui.px(6));
+        box.addView(hint);
+
+        return box;
+    }
+
+    private void renderLiveGroupRow() {
+        if (liveGroupRow == null) {
+            return;
+        }
+        if (liveGroups.isEmpty()) {
+            liveGroups = Live.playerGroups();
+        }
+        liveGroupRow.removeAllViews();
+        groupChips.clear();
+        for (int i = 0; i < liveGroups.size(); i++) {
+            Live.Group g = liveGroups.get(i);
+            final int gi = i;
+            TextView t = chip(g.name + " " + g.chs.size(), i == liveGi);
+            t.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    liveGi = gi;
+                    renderLiveGroupRow();
+                    renderLiveList();
+                    if (liveList != null) {
+                        liveList.setSelection(0);
+                        liveList.requestFocus();
+                    }
+                    Trace.add("home", "直播分组 → " + liveGroups.get(gi).name
+                            + " " + liveGroups.get(gi).chs.size() + " 台");
+                }
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = Ui.px(10);
+            liveGroupRow.addView(t, lp);
+            groupChips.add(t);
+        }
+        // 分组条重建时它自己得能接焦点，否则焦点会「逃」到顶栏工具胶囊上
+        liveGroupRow.setFocusable(true);
+        liveGroupRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+
+        if (liveStat != null && !liveGroups.isEmpty()) {
+            int total = 0;
+            for (int i = 0; i < liveGroups.size(); i++) {
+                total += liveGroups.get(i).chs.size();
+            }
+            liveStat.setText(liveGroups.size() + " 个分组 · 共 " + total + " 台　当前："
+                    + liveGroups.get(liveGi).name);
+        }
+    }
+
+    /**
+     * v2.24：把焦点真正落到第 idx 行上。
+     *
+     * ListView 自己 requestFocus 时，行不会进入 focused 状态，界面上看不到琥珀描边，
+     * 用户会以为「没选中」，这时按 OK 也不知道会播哪台 —— 老板说的「选频道出问题」
+     * 有一半就是这个。所以这里 setSelection 之后，取到那一行的子 View 直接给它焦点。
+     */
+    private void focusLiveRow(int idx) {
+        if (liveList == null || liveAdapter == null || liveAdapter.getCount() == 0) {
+            return;
+        }
+        final int i = Math.max(0, Math.min(idx, liveAdapter.getCount() - 1));
+        liveList.setSelection(i);
+        liveList.requestFocus();
+        tryFocusRow(i, 0);
+    }
+
+    /**
+     * 行不一定在身边：ListView 的 getChildAt 要等布局量完才拿得到，而切分组 /
+     * 刚进板块时列表还在铺。只 post 一次的话经常扑空 —— 焦点就留在 ListView 本身，
+     * 屏幕上只有第一行亮着，用户以为「选中了第一台」。所以重试几次，最多 5 次。
+     */
+    private void tryFocusRow(final int i, final int attempt) {
+        if (liveList == null) {
+            return;
+        }
+        liveList.postDelayed(new Runnable() {
+            public void run() {
+                if (liveList == null) {
+                    return;
+                }
+                liveList.setSelection(i);
+                int first = liveList.getFirstVisiblePosition();
+                View row = liveList.getChildAt(i - first);
+                if (row instanceof ViewGroup && ((ViewGroup) row).getChildCount() > 0) {
+                    View inner = ((ViewGroup) row).getChildAt(0);
+                    if (inner.requestFocus()) {
+                        Trace.add("home", "直播焦点 → 第 " + (i + 1) + " 台");
+                        return;
+                    }
+                } else if (row != null && row.requestFocus()) {
+                    Trace.add("home", "直播焦点 → 第 " + (i + 1) + " 台");
+                    return;
+                }
+                if (attempt < 5) {
+                    tryFocusRow(i, attempt + 1);
+                }
+            }
+        }, attempt == 0 ? 60 : 90);
+    }
+
+    private void renderLiveList() {
+        if (liveList == null) {
+            return;
+        }
+        liveAdapter = new LiveAdapter();
+        liveList.setAdapter(liveAdapter);
+        Trace.add("home", "直播列表就绪 " + liveGroups.get(liveGi).name + " "
+                + liveAdapter.getCount() + " 台（按需建行）");
+    }
+
+    private final class LiveAdapter extends BaseAdapter {
+        public int getCount() {
+            return liveGroups.isEmpty() ? 0 : liveGroups.get(liveGi).chs.size();
+        }
+
+        public Object getItem(int p) {
+            return liveGroups.get(liveGi).chs.get(p);
+        }
+
+        public long getItemId(int p) {
+            return p;
+        }
+
+        public View getView(int p, View reuse, ViewGroup parent) {
+            return liveRow(liveGroups.get(liveGi).chs.get(p), p);
+        }
+    }
+
+    private View liveRow(final Live.Ch c, final int idx) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setFocusable(true);
+        // 触摸模式下没有 focusableInTouchMode，行就拿不到焦点（遥控器不经触摸没事，
+        // 但只要有人用手指戳过屏幕，界面就再也点不亮选中态了）
+        row.setFocusableInTouchMode(true);
+        row.setClickable(true);
+        row.setBackground(Ui.focusBgGlow(0xFF171C24, 12, 0xB3FFB300));
+        row.setPadding(Ui.px(16), Ui.px(6), Ui.px(20), Ui.px(6));
+
+        FrameLayout badge = new FrameLayout(this);
+        TextView initial = Ui.bold(this, liveInitials(c.name), 17, 0xCCFFFFFF);
+        initial.setGravity(Gravity.CENTER);
+        badge.addView(initial, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        ImageView logo = new ImageView(this);
+        logo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        badge.addView(logo, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        badge.setBackground(Ui.round(0xFF272A30, 10, 0, 0));
+        row.addView(badge, new LinearLayout.LayoutParams(Ui.px(58), Ui.px(38)));
+        if (c.logo != null && c.logo.length() > 4) {
+            Ui.loadPoster(logo, c.logo, Ui.px(58), Ui.px(38));
+        }
+
+        TextView name = Ui.bold(this, c.name, 23, Ui.FG);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        nlp.leftMargin = Ui.px(16);
+        row.addView(name, nlp);
+
+        row.addView(Ui.text(this, c.urls.size() + " 路源", 17, Ui.FG_DIM));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                playLive(liveGi, idx);
+            }
+        });
+
+        FrameLayout shell = new FrameLayout(this);
+        shell.setPadding(0, 0, 0, Ui.px(6));
+        shell.addView(row, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, Ui.px(58)));
+        return shell;
+    }
+
+    private static String liveInitials(String name) {
+        if (name == null || name.length() == 0) {
+            return "?";
+        }
+        String n = name.trim();
+        if (n.length() >= 4 && (n.startsWith("CCTV") || n.startsWith("cctv"))) {
+            return "央视";
+        }
+        return n.length() <= 2 ? n : n.substring(0, 2);
+    }
+
+    /** 首页选台 → 直接带着分组/频道下标进播放页（播放页本来就认这两个 extra）。 */
+    private void playLive(int gi, int ci) {
+        if (liveGroups.isEmpty() || gi < 0 || gi >= liveGroups.size()) {
+            return;
+        }
+        Intent it = new Intent(this, LivePlayerActivity.class);
+        it.putExtra("groupIdx", gi);
+        it.putExtra("chIdx", ci);
+        startActivity(it);
+        Trace.add("home", "首页开播 " + liveGroups.get(gi).name + " 第 " + (ci + 1) + " 台");
+    }
+
+    /** 切换板块：0 影视 / 1 直播。焦点跟着走，别让它留在被隐藏的区域里。 */
+    private void showSection(int s) {
+        section = s;
+        if (movieCol != null) {
+            movieCol.setVisibility(s == 0 ? View.VISIBLE : View.GONE);
+        }
+        if (liveCol != null) {
+            liveCol.setVisibility(s == 1 ? View.VISIBLE : View.GONE);
+        }
+        refreshHeroActive();
+        if (s == 1) {
+            renderLiveGroupRow();
+            renderLiveList();
+            if (liveList != null && liveAdapter != null) {
+                int keep = Store.liveChannel();
+                if (keep < 0 || keep >= liveAdapter.getCount()) {
+                    keep = 0;
+                }
+                focusLiveRow(keep);
+            }
+        } else if (rows != null) {
+            rows.requestFocus();
+        }
+        Trace.add("home", s == 0 ? "切到影视点播" : "切到电视直播");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (section == 1) {
+            showSection(0);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 从播放页回来，焦点回到刚才那台直播上，别飘回影视区
+        if (section == 1 && liveList != null && liveAdapter != null) {
+            liveList.requestFocus();
+        }
+    }
+
     private TextView chip(String label, boolean active) {
         TextView t = Ui.text(this, label, 18, active ? Ui.BG : Ui.FG);
         t.setGravity(Gravity.CENTER);
@@ -995,7 +1526,7 @@ public final class MainActivity extends Activity {
                 });
                 LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(cardW,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-                clp.rightMargin = Ui.px(20);
+                clp.rightMargin = cardGap;
                 row.addView(card, clp);
                 if (first && !append) {
                     first = false;
@@ -1640,6 +2171,153 @@ public final class MainActivity extends Activity {
         }, "update-download").start();
     }
 
+    /**
+     * v2.24.2：方向键自己排，不交给系统「就近找焦点」。
+     *
+     * 真机实测：从海报墙按 ↑ 三下，焦点直接跳到顶栏「检查更新」，把搜索条和
+     * 两块大卡整段跨过去了 —— 系统按几何距离找焦点，大卡这种「又宽又矮」的
+     * 容器在它眼里不如顶栏胶囊近，于是首屏最该按到的两个入口反而按不到。
+     * 遥控器应用必须有确定的路由，这里按「顶栏 → 大卡 → 搜索/分组 → 列表」写死。
+     */
+    private boolean navRoute(int code) {
+        View f = getCurrentFocus();
+        if (f == null) {
+            return false;
+        }
+        boolean up = code == KeyEvent.KEYCODE_DPAD_UP;
+        boolean down = code == KeyEvent.KEYCODE_DPAD_DOWN;
+        if (!up && !down) {
+            return false;
+        }
+        // 顶栏 ↔ 大卡
+        if (topBarRow != null && inside(f, topBarRow)) {
+            if (down) {
+                View h = section == 1 ? heroLive : heroVod;
+                if (h != null) {
+                    h.requestFocus();
+                    return true;
+                }
+            }
+            return false;
+        }
+        // 大卡 ↔ 顶栏 / 搜索条（直播板块则是分组条）
+        if (heroRowView != null && inside(f, heroRowView)) {
+            if (up) {
+                if (updateChip != null) {
+                    updateChip.requestFocus();
+                    return true;
+                }
+            } else {
+                View t = section == 1 ? currentGroupChip() : searchBar;
+                if (t != null) {
+                    t.requestFocus();
+                    return true;
+                }
+            }
+            return false;
+        }
+        // 搜索条 ↔ 大卡 / 分类条
+        if (f == searchBar) {
+            if (up) {
+                if (heroVod != null) {
+                    heroVod.requestFocus();
+                    return true;
+                }
+            } else if (!tabChips.isEmpty()) {
+                View c = tabChips.get(Math.max(0, Math.min(tabIndex, tabChips.size() - 1)));
+                if (c != null) {
+                    c.requestFocus();
+                    return true;
+                }
+            }
+            return false;
+        }
+        // 海报墙按 ↑ 必须回到分类条：ScrollView 自己会把 ↑ 当成「向上滚」吃掉，
+        // 焦点原地不动 —— 真机实测连按两下 ↑ 海报只是轻微滚动，人以为遥控器失灵了。
+        if (scroll != null && inside(f, scroll)) {
+            if (up && !tabChips.isEmpty()) {
+                View c = tabChips.get(Math.max(0, Math.min(tabIndex, tabChips.size() - 1)));
+                c.requestFocus();
+                return true;
+            }
+            return false;
+        }
+        // 分类条 ↔ 搜索条（往下交给系统，落第一张海报）
+        if (tabChips.contains(f)) {
+            if (up) {
+                if (searchBar != null) {
+                    searchBar.requestFocus();
+                    return true;
+                }
+            }
+            return false;
+        }
+        // 直播分组条 ↔ 大卡 / 频道列表
+        if (groupChips.contains(f)) {
+            if (up) {
+                if (heroLive != null) {
+                    heroLive.requestFocus();
+                    return true;
+                }
+            } else {
+                focusLiveRow(browseLiveIdx());
+                return true;
+            }
+            return false;
+        }
+        // 频道行 ↔ 分组条，只在第一行走 ↑ 时才跳到分组条
+        if (liveList != null && inside(f, liveList)) {
+            if (up && browseLiveIdx() <= 0) {
+                View g = currentGroupChip();
+                if (g != null) {
+                    g.requestFocus();
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private static boolean inside(View f, ViewGroup group) {
+        View v = f;
+        while (v != null) {
+            if (v == group) {
+                return true;
+            }
+            if (!(v.getParent() instanceof View)) {
+                return false;
+            }
+            v = (View) v.getParent();
+        }
+        return false;
+    }
+
+    /** 当前分组胶囊 —— 大卡往下、第一行往上，都落到这里，别让焦点乱跳。 */
+    private View currentGroupChip() {
+        if (groupChips.isEmpty()) {
+            return null;
+        }
+        int i = Math.max(0, Math.min(liveGi, groupChips.size() - 1));
+        return groupChips.get(i);
+    }
+
+    /** 直播列表当前焦点行（ListView 焦点在列表本身时取选中位置）。 */
+    private int browseLiveIdx() {
+        int n = liveAdapter == null ? 0 : liveAdapter.getCount();
+        if (liveList == null || n == 0) {
+            return 0;
+        }
+        int i = liveList.getSelectedItemPosition();
+        if (i < 0) {
+            i = 0;
+        }
+        if (i >= n) {
+            i = n - 1;
+        }
+        return i;
+    }
+
     /** ==================== 按键 ==================== */
 
     @Override
@@ -1689,6 +2367,9 @@ public final class MainActivity extends Activity {
                 default:
                     break;
             }
+        }
+        if (e.getAction() == KeyEvent.ACTION_DOWN && navRoute(e.getKeyCode())) {
+            return true;
         }
         return super.dispatchKeyEvent(e);
     }

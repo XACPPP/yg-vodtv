@@ -604,7 +604,8 @@ public final class PlayerActivity extends Activity {
                 hideControlsNow();
             }
         };
-        ui.postDelayed(hideControls, 5000);
+        // v2.24：老板要「播放后 2 秒没操作就进入干净观影」，从 5 秒收到 2 秒。
+        ui.postDelayed(hideControls, 2000);
     }
 
     private void hideControlsNow() {
