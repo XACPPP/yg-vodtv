@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -18,9 +19,12 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -138,8 +142,8 @@ public final class LivePlayerActivity extends Activity {
     private LinearLayout drawer;
     private TextView drawerCount;
     private LinearLayout groupStrip;
-    private ScrollView drawerScroll;
-    private LinearLayout drawerList;
+    private ListView drawerList;
+    private DrawerAdapter drawerAdapter;
 
     private List<Live.Group> groups = new ArrayList<Live.Group>();
     private Live.Group group;
@@ -151,6 +155,9 @@ public final class LivePlayerActivity extends Activity {
     private int urlIdx = 0;
     /** 抽屉里正在浏览的分组。跟正在播的 groupIdx 分开，避免「翻列表把正在看的台换掉」。 */
     private int browseGroupIdx = 0;
+
+    /** 抽屉里正在浏览的台下标（列表虚拟化后不能靠 view 位置反推）。 */
+    private int browseChIdx = 0;
 
     /** 这一轮已经自动跳过的次数。到 urls.size()*2 就认为这个台整体不可用。 */
     private int autoSkips = 0;
@@ -874,19 +881,25 @@ public final class LivePlayerActivity extends Activity {
         drawer.addView(groupStrip, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        drawerScroll = new ScrollView(this);
-        drawerScroll.setVerticalScrollBarEnabled(false);
-        drawerScroll.setClipChildren(false);
-        drawerList = new LinearLayout(this);
-        drawerList.setOrientation(LinearLayout.VERTICAL);
+        // v2.22：原来是一个 LinearLayout 里塞满整组所有行 —— 公共源 382 行要 17 秒才画完，
+        // 电视整屏卡死，老板看到的就是「切到公共源就崩溃」（其实是 ANR）。
+        // 换成 ListView：只有屏幕上那十来行会被创建，382 行和 15 行一样快。
+        drawerList = new ListView(this);
+        drawerList.setVerticalScrollBarEnabled(false);
         drawerList.setClipChildren(false);
-        drawerScroll.addView(drawerList, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        drawerList.setDivider(null);
+        drawerList.setDividerHeight(0);
+        drawerList.setSelector(new ColorDrawable(0x00000000));
+        drawerList.setCacheColorHint(0x00000000);
+        drawerList.setClipToPadding(false);
+        drawerList.setFocusable(true);
+        drawerList.setFocusableInTouchMode(true);
+        drawerList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
         // 列表上下各盖一道 32px 渐隐：滚到边界时行不会「齐刷刷被切一半」
         FrameLayout listWrap = new FrameLayout(this);
         listWrap.setClipChildren(true);
-        listWrap.addView(drawerScroll, new FrameLayout.LayoutParams(
+        listWrap.addView(drawerList, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         View topFade = new View(this);
@@ -918,6 +931,7 @@ public final class LivePlayerActivity extends Activity {
                 togglePanel();
             }
             browseGroupIdx = groupIdx;
+            browseChIdx = chIdx;
             renderDrawer();
             // 先从右边滑进来：10 尺视距下，抽屉「啪」地出现会让人找不到焦点落在哪。
             drawer.setVisibility(View.VISIBLE);
@@ -945,6 +959,9 @@ public final class LivePlayerActivity extends Activity {
     }
 
     private void renderDrawer() {
+        // v2.22：抽屉要一次画最多 382 行，任何一行出问题都不该把整个直播页带走
+        try {
+
         if (groupStrip == null) {
             return;
         }
@@ -991,19 +1008,64 @@ public final class LivePlayerActivity extends Activity {
             used += w;
         }
 
+        if (browseGroupIdx < 0 || browseGroupIdx >= groups.size()) {
+            browseGroupIdx = 0;
+        }
         Live.Group g = groups.get(browseGroupIdx);
         drawerCount.setText("共 " + g.chs.size() + " 台");
 
-        drawerList.removeAllViews();
-        // v2.20：把「这一行属于哪个分组」一起传进去。旧代码在点击时用 groupIdx（正在播的组）
-        // 覆盖 browseGroupIdx，于是「抽屉里切到央视选集」会按央视列表里的行号去取江西组里的台
-        // ——老板实测：选 CCTV-1 播出来是江西少儿。分组下标必须取渲染时的快照。
-        for (int i = 0; i < g.chs.size(); i++) {
-            drawerList.addView(drawerRow(g.chs.get(i), i, browseGroupIdx));
+        // v2.20：分组下标必须取渲染时的快照（旧代码点行时用 groupIdx，选央视台播江西台）。
+        drawerAdapter = new DrawerAdapter(g, browseGroupIdx);
+        drawerList.setAdapter(drawerAdapter);
+        Trace.add("live", "抽屉就绪 " + g.name + " " + g.chs.size() + " 台（按需建行）");
+        } catch (Throwable t) {
+            Trace.err("live", "分组渲染异常，保持原列表", t);
+        }
+    }
+
+    /** 只画可见行：382 台的分组也不会一次性建 382 个 View。 */
+    private final class DrawerAdapter extends BaseAdapter {
+        private final Live.Group g;
+        private final int gi;
+
+        DrawerAdapter(Live.Group g, int gi) {
+            this.g = g;
+            this.gi = gi;
+        }
+
+        public int getCount() {
+            return g == null || g.chs == null ? 0 : g.chs.size();
+        }
+
+        public Object getItem(int p) {
+            return g.chs.get(p);
+        }
+
+        public long getItemId(int p) {
+            return p;
+        }
+
+        public View getView(int p, View reuse, ViewGroup parent) {
+            return drawerRow(g.chs.get(p), p, gi);
         }
     }
 
     /** 抽屉里的一行频道：指示条 + 台标 + 台名/别名 + 源数。 */
+    /** 台标占位字：CCTV-5 → 央视，其余取前两个字。 */
+    private static String initials(String name) {
+        if (name == null) {
+            return "";
+        }
+        String n = name.trim();
+        if (n.length() == 0) {
+            return "";
+        }
+        if (n.startsWith("CCTV") || n.startsWith("cctv")) {
+            return "央视";
+        }
+        return n.length() <= 2 ? n : n.substring(0, 2);
+    }
+
     private View drawerRow(final Live.Ch c, final int idx, final int gi) {
         final LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -1019,16 +1081,27 @@ public final class LivePlayerActivity extends Activity {
         final FrameLayout logoBox = new FrameLayout(this);
         // 非焦点是「半透明白底 + 白描边」，焦点变白底 + 琥珀描边（设计稿）
         logoBox.setBackground(Ui.round(0x1AFFFFFF, 6, 1, 0x1AFFFFFF));
-        ImageView logo = new ImageView(this);
-        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         final int lw = Ui.px(44);
         final int lh = Ui.px(28);
+        // 没加载台标时给个台名首字兜底（公共源 382 台不可能一口气全拉图）
+        TextView initial = Ui.bold(this, initials(c.name), 12, 0xCCFFFFFF);
+        initial.setGravity(Gravity.CENTER);
+        logoBox.addView(initial, new FrameLayout.LayoutParams(lw, lh, Gravity.CENTER));
+        final ImageView logo = new ImageView(this);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         logoBox.addView(logo, new FrameLayout.LayoutParams(lw, lh, Gravity.CENTER));
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(lw, lh);
         llp.leftMargin = Ui.px(12);
         row.addView(logoBox, llp);
-        Ui.loadPoster(logo, c.logo, Math.max(8, lw - Ui.px(6)), Math.max(8, lh - Ui.px(6)),
-                c.name, true);
+        // v2.22：以前这里对每一行都 loadPoster —— 切到「公共源 382 台」等于一口气
+        // 排 382 个网络台标请求 + 382 个 Bitmap，这台的 1G 内存直接顶到天花板，
+        // 表现就是「从别的分组切到公共源就崩」。改成只给正在播的那台预加载，
+        // 其余行等真正聚焦到它时才拉一张。
+        final boolean[] logoLoaded = new boolean[] { gi == groupIdx && idx == chIdx };
+        if (logoLoaded[0]) {
+            Ui.loadPoster(logo, c.logo, Math.max(8, lw - Ui.px(6)), Math.max(8, lh - Ui.px(6)),
+                    c.name, true);
+        }
 
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
@@ -1094,6 +1167,9 @@ public final class LivePlayerActivity extends Activity {
         row.setBackground(rowBg(false));
         row.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean has) {
+                if (has) {
+                    browseChIdx = idx;
+                }
                 row.setBackground(rowBg(has));
                 bar.setBackground(Ui.round(has ? Ui.ACCENT : 0x00000000, 2, 0, 0));
                 // 设计稿焦点态：指示条变成 4×32 的发光琥珀块
@@ -1106,7 +1182,11 @@ public final class LivePlayerActivity extends Activity {
                         : Ui.round(0x1AFFFFFF, 6, 1, 0x1AFFFFFF));
 
                 name.setTextColor(has ? 0xFFFFFFFF : 0xE6FFFFFF);
-                name.setTextSize(Ui.TYPE * (has ? 20 : 18));
+                // v2.22：原来写 setTextSize(28f)，默认单位是 SP、又没走 px()，
+                // 于是每聚焦一次字号就大一档且永不还原 —— 滚一遍列表全被撑大。
+                // 统一走 px() + COMPLEX_UNIT_PX，跟 Ui.text() 的口径对齐。
+                name.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                        Ui.px(Ui.TYPE * (has ? 20 : 18)));
                 playing.setVisibility(has && idx == chIdx ? View.VISIBLE : View.GONE);
                 tag4k.setVisibility(has ? View.VISIBLE : View.GONE);
                 sub.setText(has ? subFocus : subNormal);
@@ -1117,6 +1197,11 @@ public final class LivePlayerActivity extends Activity {
                         : Ui.round(0x0DFFFFFF, 4, 1, 0x1AFFFFFF));
                 if (has) {
                     scrollRowIntoView(v);
+                    if (!logoLoaded[0]) {
+                        logoLoaded[0] = true;
+                        Ui.loadPoster(logo, c.logo, Math.max(8, lw - Ui.px(6)),
+                                Math.max(8, lh - Ui.px(6)), c.name, true);
+                    }
                 }
             }
         });
@@ -1128,11 +1213,13 @@ public final class LivePlayerActivity extends Activity {
             }
         });
 
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, Ui.px(64));
-        rlp.bottomMargin = Ui.px(8);
-        row.setLayoutParams(rlp);
-        return row;
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Ui.px(64)));
+        // ListView 会忽略行 LayoutParams 里的 margin，间隙用一层外壳留白
+        FrameLayout shell = new FrameLayout(this);
+        shell.setPadding(0, 0, 0, Ui.px(8));
+        shell.addView(row);
+        return shell;
     }
 
     private GradientDrawable rowBg(boolean on) {
@@ -1144,40 +1231,30 @@ public final class LivePlayerActivity extends Activity {
         return g;
     }
 
+    /** ListView 会把焦点行滚进可视区，这里不再需要手工算位置。 */
     private void scrollRowIntoView(View row) {
-        if (drawerScroll == null) {
-            return;
-        }
-        final int top = row.getTop();
-        final int h = row.getHeight();
-        final int vh = drawerScroll.getHeight();
-        drawerScroll.post(new Runnable() {
-            public void run() {
-                int y = drawerScroll.getScrollY();
-                if (top < y) {
-                    drawerScroll.smoothScrollTo(0, Math.max(0, top - Ui.px(8)));
-                } else if (top + h > y + vh - Ui.px(8)) {
-                    drawerScroll.smoothScrollTo(0, top + h - vh + Ui.px(8));
-                }
-            }
-        });
     }
 
     private void focusRow(int idx) {
-        if (drawerList == null || drawerList.getChildCount() == 0) {
+        if (drawerList == null || drawerAdapter == null || drawerAdapter.getCount() == 0) {
             return;
         }
-        int i = idx;
-        if (i < 0) {
-            i = 0;
-        }
-        if (i >= drawerList.getChildCount()) {
-            i = drawerList.getChildCount() - 1;
-        }
-        final View v = drawerList.getChildAt(i);
-        v.post(new Runnable() {
+        final int i = Math.max(0, Math.min(idx, drawerAdapter.getCount() - 1));
+        drawerList.setSelection(i);
+        drawerList.post(new Runnable() {
             public void run() {
-                v.requestFocus();
+                // ListView 自己拿到焦点并不等于「某一行被选中」，必须把焦点落到具体行上，
+                // 否则按上下键时焦点还在分组条上，看着像列表失灵。
+                View row = drawerList.getChildAt(i - drawerList.getFirstVisiblePosition());
+                if (row instanceof ViewGroup && ((ViewGroup) row).getChildCount() > 0) {
+                    ((ViewGroup) row).getChildAt(0).requestFocus();
+                } else if (row != null) {
+                    row.requestFocus();
+                } else {
+                    drawerList.requestFocus();
+                }
+                Trace.add("live", "抽屉焦点 → 行 " + (i + 1)
+                        + (drawerList.hasFocus() ? "（列表已聚焦）" : ""));
             }
         });
     }
@@ -1669,7 +1746,14 @@ public final class LivePlayerActivity extends Activity {
         int n = groups.size();
         if (drawerVisible) {
             browseGroupIdx = ((browseGroupIdx + delta) % n + n) % n;
+            // v2.22：切分组是「公共源崩溃」唯一必经的入口，这里必须留痕：
+            // 崩在渲染里的话，/trace 里能看到「切分组」但看不到「分组渲染完成」。
+            Live.Group bg = groups.get(browseGroupIdx);
+            Trace.add("live", "切分组 → " + browseGroupIdx + "/" + n + " "
+                    + (bg == null ? "?" : bg.name) + " " + (bg == null ? 0 : bg.chs.size()) + " 台");
             renderDrawer();
+            Trace.add("live", "分组渲染完成 " + (bg == null ? "?" : bg.name));
+            browseChIdx = 0;
             focusRow(0);
             return;
         }
@@ -1795,6 +1879,33 @@ public final class LivePlayerActivity extends Activity {
 
     /* ==================== 按键 ==================== */
 
+    /**
+     * 抽屉开着时，上下键必须在「视图树分发之前」截住。
+     *
+     * ListView 自己也会处理方向键（它要移动 selection），但它走的是内部逻辑，
+     * 复用行的情况下焦点会停在原处 —— 老板看到的就是「按上下键没反应」。
+     * 这里提前接管，改下标 + 重新落焦点，行为确定。
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        if (e.getAction() == KeyEvent.ACTION_DOWN && drawerVisible && drawerAdapter != null) {
+            int c = e.getKeyCode();
+            if (c == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (browseChIdx < drawerAdapter.getCount() - 1) {
+                    focusRow(browseChIdx + 1);
+                }
+                return true;
+            }
+            if (c == KeyEvent.KEYCODE_DPAD_UP) {
+                if (browseChIdx > 0) {
+                    focusRow(browseChIdx - 1);
+                }
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(e);
+    }
+
     @Override
     public boolean onKeyDown(int code, KeyEvent e) {
         if (code == KeyEvent.KEYCODE_BACK) {
@@ -1836,6 +1947,20 @@ public final class LivePlayerActivity extends Activity {
             }
             if (code == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 switchGroup(1);
+                return true;
+            }
+            // 虚拟化之后行是复用的，把上下键自己接管：改下标 → 重新落焦点，
+            // 既不依赖 ListView 的焦点搜索，也不会出现「滚一遍全被撑大」的残留。
+            if (code == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (drawerAdapter != null && browseChIdx < drawerAdapter.getCount() - 1) {
+                    focusRow(browseChIdx + 1);
+                }
+                return true;
+            }
+            if (code == KeyEvent.KEYCODE_DPAD_UP) {
+                if (browseChIdx > 0) {
+                    focusRow(browseChIdx - 1);
+                }
                 return true;
             }
             return super.onKeyDown(code, e);

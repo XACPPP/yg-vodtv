@@ -168,8 +168,18 @@ public final class Proxy {
             }
             fetch(s, target, hd, isPlaylist, head);
         } catch (Throwable t) {
-            // 单次请求失败不影响服务
-            Trace.err("proxy", "请求处理异常", t);
+            // 单次请求失败不影响服务。
+            // 但必须给播放器一个明确的失败响应：以前这里只关 socket，MediaPlayer
+            // 拿不到 HTTP 状态就只能干等自己的 12 秒超时 —— 公共源里那些早已失效的
+            // 地址就表现成「点了没反应」。502 能让 onError 立刻触发，马上换下一路。
+            String m = String.valueOf(t.getMessage());
+            if (m.contains("EPIPE") || m.contains("ECONNRESET") || m.contains("Socket closed")) {
+                // 客户端主动断开（换台/换源），属正常事件，不写进「异常」
+                Trace.add("proxy", "客户端断开，结束本次转发");
+            } else {
+                Trace.err("proxy", "请求处理异常", t);
+                sendPlain(s, 502, "upstream failed");
+            }
         } finally {
             try {
                 s.close();

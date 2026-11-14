@@ -237,30 +237,17 @@ public final class MainActivity extends Activity {
 
         bar.addView(Chrome.vDivider(this));
 
-        // 双板块：这是「影视」，实心琥珀；左边「电视」点一下去直播板块。
-        // 两个板块平级、各占一屏，不再把直播塞进这里当第 25 个频道 ——
-        // 那样频道条会更长，正是老板说的「拥挤小气」。
-        LinearLayout boards = Chrome.boardCapsule(this);
-        LinearLayout.LayoutParams blp2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        TextView tvOff = Chrome.boardPill(this, "电视", false);
-        tvOff.setOnClickListener(new View.OnClickListener() {
+        // v2.22：板块选择搬到首屏 GateActivity 那两块大卡上了，这里不再重复摆一对胶囊。
+        // 顶栏只留一个「← 首页」，回退到那两块卡，别让影视页继续兼任「App 总入口」。
+        TextView homeBtn = chip("← 首页", false);
+        homeBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // v2.8：点「电视」直接进播放页，恢复上次看的台。
-                // 旧的频道网格页（LiveActivity）已删掉 —— 电视直播就该开机即看，
-                // 要挑台用播放页里的右侧抽屉（OK 键呼出）。
-                startActivity(new Intent(MainActivity.this, LivePlayerActivity.class));
+                finish();
             }
         });
-        boards.addView(tvOff);
-
-        TextView mvOn = Chrome.boardPill(this, "影视", true);
-        LinearLayout.LayoutParams mvl = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        mvl.leftMargin = Ui.px(4);
-        boards.addView(mvOn, mvl);
-        bar.addView(boards, blp2);
+        bar.addView(homeBtn, hlp);
 
         View sp = new View(this);
         bar.addView(sp, new LinearLayout.LayoutParams(0, 1, 1f));
@@ -291,29 +278,6 @@ public final class MainActivity extends Activity {
         sblp.leftMargin = Ui.px(12);
         bar.addView(searchBtn, sblp);
 
-        TextView testBtn = chip("自检", false);
-        testBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SelfTestActivity.class));
-            }
-        });
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        tlp.leftMargin = Ui.px(12);
-        bar.addView(testBtn, tlp);
-
-        // 清缓存：海报磁盘缓存有 64MB 硬上限，正常不用手动清；
-        // 但万一某天缓存目录被别的东西撑满，这里能一键清干净（只删海报，不动播放记录）。
-        TextView clearBtn = chip("清缓存", false);
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                clearCacheConfirm();
-            }
-        });
-        LinearLayout.LayoutParams clp2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        clp2.leftMargin = Ui.px(12);
-        bar.addView(clearBtn, clp2);
 
         TextView ver = Ui.text(this, Ver.FULL, 16, Ui.FG_DIM);
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
@@ -321,18 +285,20 @@ public final class MainActivity extends Activity {
         vlp.leftMargin = Ui.px(16);
         bar.addView(ver, vlp);
 
-        // 更新按钮：有新版本时变成高亮的「有新版」
-        updateChip = chip("检查更新", false);
-        updateChip.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                checkUpdate(true);
-            }
-        });
-        LinearLayout.LayoutParams ulp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        ulp.leftMargin = Ui.px(12);
-        bar.addView(updateChip, ulp);
         col.addView(bar);
+
+        // v2.22：顶栏底下加一条左右渐隐的琥珀细线。
+        // 首屏 GateActivity 走的是「深底 + 琥珀」的电影感，影视页原来只有一片平顶栏，
+        // 两边气质断开；一条 1px 的渐隐线成本最低，接得上又不抢海报。
+        View hairline = new View(this);
+        hairline.setBackground(Ui.fade(false,
+                new int[] {0x00FFB300, 0x33FFB300, 0x33FFB300, 0x00FFB300},
+                new float[] {0f, 0.18f, 0.82f, 1f}));
+        LinearLayout.LayoutParams hairLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Ui.px(1));
+        hairLp.leftMargin = Ui.px(52);
+        hairLp.rightMargin = Ui.px(52);
+        col.addView(hairline, hairLp);
 
         // v2.11：删掉「影视大厅 + VOD·多源聚合 + 14 个采集源…」这一整行。
         //
@@ -498,6 +464,14 @@ public final class MainActivity extends Activity {
         buildUpdatePanel();
         // 开机静默查一次（失败只在 Trace 里留痕，不打扰看电视）
         checkUpdate(false);
+        // v2.22：首屏顶栏的「检查更新」点进来时，直接走一次手动检查（会弹窗给结论）
+        if (getIntent() != null && getIntent().getBooleanExtra("checkUpdate", false)) {
+            ui.postDelayed(new Runnable() {
+                public void run() {
+                    checkUpdate(true);
+                }
+            }, 500);
+        }
     }
 
     /**
@@ -1558,11 +1532,15 @@ public final class MainActivity extends Activity {
      *               开机自动查的：只有真的有新版本才弹，免得每次开机都打扰。
      */
     private void checkUpdate(final boolean manual) {
-        updateChip.setText("检查中…");
+        if (updateChip != null) {
+            updateChip.setText("检查中…");
+        }
         Update.check(this, new Update.Cb() {
             public void done(Update.Info info) {
                 if (!info.ok) {
-                    updateChip.setText(manual ? "检查失败" : "检查更新");
+                    if (updateChip != null) {
+                        updateChip.setText(manual ? "检查失败" : "检查更新");
+                    }
                     if (manual) {
                         upTitle.setText("检查更新失败");
                         upNotes.setText(info.error + "\n\n可以稍后再试；也能去 GitHub 手动下载 APK。");
@@ -1573,9 +1551,11 @@ public final class MainActivity extends Activity {
                     return;
                 }
                 boolean newer = info.version != null && info.version.length() > 0;
-                updateChip.setText(newer ? "有新版 " + info.version : "检查更新");
-                updateChip.setTextColor(newer ? Ui.BG : Ui.FG);
-                updateChip.setBackground(Ui.focusBg(newer ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
+                if (updateChip != null) {
+                    updateChip.setText(newer ? "有新版 " + info.version : "检查更新");
+                    updateChip.setTextColor(newer ? Ui.BG : Ui.FG);
+                    updateChip.setBackground(Ui.focusBg(newer ? Ui.ACCENT : Ui.BG_CARD, 8, Ui.ACCENT));
+                }
                 if (!newer) {
                     if (manual) {
                         upTitle.setText("已是最新版本");

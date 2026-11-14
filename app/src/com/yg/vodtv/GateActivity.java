@@ -40,6 +40,7 @@ public final class GateActivity extends Activity {
 
     private final Handler ui = new Handler();
     private TextView clock;
+    private TextView updateChip;
     private Card cardLive;
     private Card cardVod;
 
@@ -130,7 +131,52 @@ public final class GateActivity extends Activity {
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         clkLp.leftMargin = Ui.px(26);
         bar.addView(clock, clkLp);
+
+        // v2.22：更新检测是「整个 App 的事」，不该只藏在影视页顶栏。
+        // 放在首屏顶栏最右，从卡片行按 UP 就能到，OK 直接进影视页的更新弹窗。
+        updateChip = Ui.bold(this, "检查更新", 13, Ui.FG_DIM);
+        updateChip.setPadding(Ui.px(16), Ui.px(8), Ui.px(16), Ui.px(8));
+        updateChip.setBackground(Ui.focusBgGlow(0x14FFFFFF, 18, 0xB3FFB300));
+        updateChip.setFocusable(true);
+        updateChip.setClickable(true);
+        updateChip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(GateActivity.this, MainActivity.class);
+                i.putExtra("checkUpdate", true);
+                startActivity(i);
+            }
+        });
+        updateChip.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean has) {
+                updateChip.setAlpha(has ? 1f : 0.85f);
+            }
+        });
+        LinearLayout.LayoutParams ulp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ulp.leftMargin = Ui.px(22);
+        bar.addView(updateChip, ulp);
+        probeUpdate();
         return bar;
+    }
+
+    /** 静默查一次版本：有新版就把顶栏胶囊点亮成「有新版 vX.XX」。 */
+    private void probeUpdate() {
+        Update.check(this, new Update.Cb() {
+            @Override
+            public void done(Update.Info info) {
+                if (info == null || !info.ok || info.version == null || info.version.length() == 0) {
+                    return;
+                }
+                if (updateChip == null) {
+                    return;
+                }
+                updateChip.setText("有新版 " + info.version);
+                updateChip.setTextColor(Ui.BG);
+                updateChip.setBackground(Ui.focusBgGlow(Ui.ACCENT, 18, 0xCCFFB300));
+            }
+        });
     }
 
     private View dotPill(String s, int dotColor) {
@@ -442,6 +488,18 @@ public final class GateActivity extends Activity {
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 moveFocus(false);
                 return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if (updateChip != null) {
+                    updateChip.requestFocus();
+                    return true;
+                }
+                return super.onKeyDown(code, e);
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (updateChip != null && updateChip.hasFocus()) {
+                    cardLive.card.requestFocus();
+                    return true;
+                }
+                return super.onKeyDown(code, e);
             case KeyEvent.KEYCODE_PROG_RED:
                 startActivity(new Intent(this, SelfTestActivity.class));
                 return true;
