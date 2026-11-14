@@ -167,6 +167,7 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Trace.attach(this);
+        Crash.install(this);
         Ui.init(this);
         Store.init(this);
         Cache.init(this);

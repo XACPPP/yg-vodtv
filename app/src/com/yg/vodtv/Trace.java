@@ -47,18 +47,46 @@ public final class Trace {
         if (logFile != null || c == null) {
             return;
         }
+        // v2.21：先外部再用内部，而且真的写一次试探 —— 之前只 new File 就以为成了，
+        // 结果电视上两个位置都读不到日志，白等了一个版本。
+        java.io.File[] cands = new java.io.File[3];
         try {
-            java.io.File dir = c.getExternalFilesDir(null);
-            if (dir == null) {
-                dir = c.getFilesDir();
-            }
-            if (dir == null) {
-                return;
-            }
-            logFile = new java.io.File(dir, "ygtv.log");
-        } catch (Throwable t) {
-            logFile = null;
+            cands[0] = c.getExternalFilesDir(null);
+        } catch (Throwable ignored) {
         }
+        try {
+            // 这台电视的 /sdcard/Android/data/<pkg> 根本不存在，退到共享目录再试一把，
+            // 只要写进去了就能 adb shell cat，比内部目录方便得多
+            cands[1] = new java.io.File(
+                    android.os.Environment.getExternalStorageDirectory(), "YGTV");
+        } catch (Throwable ignored) {
+        }
+        try {
+            cands[2] = c.getFilesDir();
+        } catch (Throwable ignored) {
+        }
+        for (java.io.File dir : cands) {
+            if (dir == null) {
+                continue;
+            }
+            try {
+                if (!dir.exists() && !dir.mkdirs()) {
+                    continue;
+                }
+                java.io.File f = new java.io.File(dir, "ygtv.log");
+                java.io.FileOutputStream out = new java.io.FileOutputStream(f, true);
+                try {
+                    out.write(new byte[0]);
+                } finally {
+                    out.close();
+                }
+                logFile = f;
+                add("trace", "文件日志 " + f.getAbsolutePath());
+                return;
+            } catch (Throwable ignored) {
+            }
+        }
+        add("trace", "文件日志不可用，只剩内存环与 logcat");
     }
 
     private static void appendToFile(String s) {

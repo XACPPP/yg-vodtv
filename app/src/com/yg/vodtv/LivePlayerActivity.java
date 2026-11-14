@@ -239,6 +239,7 @@ public final class LivePlayerActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Trace.attach(this);
+        Crash.install(this);
         Ui.init(this);
         Store.init(this);
         LiveSync.init(this);
@@ -1347,6 +1348,7 @@ public final class LivePlayerActivity extends Activity {
 
         vv.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
+                try {
                 busy.setVisibility(View.GONE);
                 busyText.setVisibility(View.GONE);
                 bufAt = 0;
@@ -1376,7 +1378,7 @@ public final class LivePlayerActivity extends Activity {
                 if (ch != null) {
                     Store.saveLiveUrlIdx(ch.name, urlIdx);
                 }
-                Trace.add("live", "直播起播 " + ch.name + " 线路" + (urlIdx + 1)
+                Trace.add("live", "直播起播 " + (ch == null ? "?" : ch.name) + " 线路" + (urlIdx + 1)
                         + "/" + urls.size() + " 耗时" + (preparedAt - playAt) + "ms "
                         + describeVideo(mp));
                 // v2.19：把起播耗时也写到顶栏。电视上没有 adb 看日志时，
@@ -1385,10 +1387,14 @@ public final class LivePlayerActivity extends Activity {
                 updateInfo();
                 // v2.20：解码器刚重建完，正是固件把扬声器推满的时机 —— 立刻对齐一次
                 resyncVolume("起播");
+                } catch (Throwable t) {
+                    Trace.err("live", "onPrepared 异常", t);
+                }
             }
         });
         vv.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                try {
                 if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
                     busy.setVisibility(View.VISIBLE);
                     busyText.setVisibility(View.VISIBLE);
@@ -1426,6 +1432,10 @@ public final class LivePlayerActivity extends Activity {
                     resyncVolume("出画");
                 }
                 return false;
+                } catch (Throwable t) {
+                    Trace.err("live", "onInfo 异常", t);
+                    return false;
+                }
             }
         });
         vv.setOnErrorListener(new MediaPlayer.OnErrorListener() {
