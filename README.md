@@ -2088,7 +2088,8 @@ git tag v2.28 && git push origin master v2.28
 `.github/workflows/build.yml`（v2.28 起）：push tag `v*` 或手动触发 → 装 JDK 17 + Android SDK
 （platform 34 / build-tools 34.0.0）→ 从 Secret `KEYSTORE_B64` 还原 `app/yg.keystore` →
 **校验 tag 与 `app/build.gradle.kts` 的 `versionName` 一致** → `gradle :app:assembleRelease` →
-产物重命名成 `YG影视TV.apk` / `YGTV.apk` 上传 artifact → `softprops/action-gh-release` 发 Release。
+产物复制成 `YG影视TV.apk` / `YGTV.apk` 两个名字上传 artifact（Actions 里下载）；Release 只挂
+`YGTV.apk` 一个（GitHub 会把中文文件名改写成 `YG.TV.apk`，容易看花眼）→ `softprops/action-gh-release`。
 
 > 下面这几段是 v1.4–v2.26 Java 版的记录；`build.sh` / `build-ci.sh` 已随源码归档到 `legacy/java/`。
 
@@ -2196,8 +2197,8 @@ $G :app:assembleDebug    --no-daemon --console=plain   # 调试包（同样用 y
 
 ### 方式 A：U 盘（电视 ADB 没开时用这个，最稳）
 
-1. 把 `YG影视TV.apk` 拷到 U 盘根目录（**装不上或电视里看不到这个文件，就改用同目录的 `YGTV.apk`**，
-   纯 ASCII 文件名，内容完全一样）
+1. 把 `YGTV.apk` 拷到 U 盘根目录（本地/CI 产物也叫 `YG影视TV.apk`，两个名字内容完全一样；
+   装不上、或电视里看不到中文名文件，就用 `YGTV.apk`）
 2. U 盘插到电视 USB 口
 3. 电视「我的应用」→「U盘安装」/「媒体中心」→ 找到 APK 点击安装
 

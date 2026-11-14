@@ -90,9 +90,7 @@ jobs:
           body: |
             自动构建发布于 ${{ github.event.head_commit.timestamp }}。
 
-            电视/手机直接装 `YGTV.apk`（`YG影视TV.apk` 内容相同，只是文件名带中文，个别 U 盘安装器认不出）。
-            包名仍是 `com.yg.vodtv`、同一把签名，能从旧版原地覆盖升级。
+            电视/手机直接装 `YGTV.apk`。包名仍是 `com.yg.vodtv`、同一把签名，能从旧版原地覆盖升级。
           files: |
-            out/YG影视TV.apk
             out/YGTV.apk
           fail_on_unmatched_files: true
