@@ -1,6 +1,6 @@
 name: build
 
-# 打 tag（如 v1.4）就自动出包并发 Release；
+# 打 tag（如 v2.28）就自动出包并发 Release；
 # 也能在 Actions 页面手动点一次，只出包不发 Release。
 on:
   push:
@@ -24,10 +24,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: 装 Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
       - name: 装 Android SDK 组件
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-30 build-tools;30.0.3'
+          packages: 'platforms;android-34 build-tools;34.0.0'
 
       - name: 还原签名文件
         env:
@@ -40,27 +45,32 @@ jobs:
           echo "$KEYSTORE_B64" | base64 -d > app/yg.keystore
           ls -l app/yg.keystore
 
-      - name: 校验 tag 与 Ver.NAME 一致
+      - name: 校验 tag 与 versionName 一致
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          VER=$(grep -oP 'NAME\s*=\s*"\K[^"]+' app/src/com/yg/vodtv/Ver.java | head -1)
-          echo "tag=$TAG  Ver.NAME=$VER"
+          VER=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts | head -1)
+          echo "tag=$TAG  versionName=$VER"
           if [ "$TAG" != "$VER" ]; then
-            echo "::error::tag（$TAG）与 Ver.java 里的 NAME（$VER）不一致，请先改 Ver.java 再打 tag"
+            echo "::error::tag（$TAG）与 build.gradle.kts 里的 versionName（$VER）不一致，请先改 versionName 再打 tag"
             exit 1
           fi
 
-      - name: 构建 APK
-        run: bash app/build-ci.sh
+      - name: 构建 Release APK
+        run: gradle :app:assembleRelease --no-daemon --console=plain
 
-      - name: 记录产物信息
+      - name: 重命名产物并记录信息
         run: |
-          ls -l app/*.apk
-          md5sum app/YG影视TV.apk app/YGTV.apk
+          mkdir -p out
+          cp app/build/outputs/apk/release/app-release.apk "out/YG影视TV.apk"
+          cp app/build/outputs/apk/release/app-release.apk out/YGTV.apk
+          ls -l out/
+          md5sum "out/YG影视TV.apk"
+          # assets 里只该有两个 txt（py/logo/live.json/sources.json 被 ignoreAssetsPattern 挡掉了）
+          unzip -l out/YGTV.apk | grep 'assets/' || true
           echo "### 构建结果" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          md5sum app/YG影视TV.apk | sed 's/  / /' >> $GITHUB_STEP_SUMMARY
+          md5sum "out/YG影视TV.apk" | sed 's/  / /' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: 上传构建产物
@@ -68,8 +78,8 @@ jobs:
         with:
           name: YGTV-apk
           path: |
-            app/YG影视TV.apk
-            app/YGTV.apk
+            out/YG影视TV.apk
+            out/YGTV.apk
 
       - name: 发 Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -80,8 +90,9 @@ jobs:
           body: |
             自动构建发布于 ${{ github.event.head_commit.timestamp }}。
 
-            电视/手机上直接装 `YGTV.apk`；App 里点「检查更新」也能自己升级。
+            电视/手机直接装 `YGTV.apk`（`YG影视TV.apk` 内容相同，只是文件名带中文，个别 U 盘安装器认不出）。
+            包名仍是 `com.yg.vodtv`、同一把签名，能从旧版原地覆盖升级。
           files: |
-            app/YG影视TV.apk
-            app/YGTV.apk
+            out/YG影视TV.apk
+            out/YGTV.apk
           fail_on_unmatched_files: true

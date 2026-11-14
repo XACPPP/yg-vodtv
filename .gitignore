@@ -20,3 +20,14 @@ __pycache__/
 
 # 巡检脚本的预览产物（本地调参用，不发布）
 test/live_preview.json
+local.properties
+.gradle/
+
+# Gradle 根目录产物与 IDE
+build/
+.gradle/
+.idea/
+*.iml
+
+# 本地验收截图（不进仓库）
+_dsh-verify/

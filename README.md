@@ -1,50 +1,77 @@
 # YG影视TV
 
-自用的电视端 **影视 + 直播** 双板块 App，纯原生 Android（无 Gradle、无第三方库），专为海信
-VIDAA 电视（Android 5.1.1 / API 22，已 root）定制。点播片源来自 **14 个苹果CMS采集源聚合**，
-App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`，所以换源、加源不用改界面代码；
-直播源主要来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7 / v2.7.1 修好打包）；
-v2.11 起另内置一组**江西电信 IPTV 单播源**（运营商内网直连，22ms 首包、8.4Mbps 码率），排在最前面。
+自用的电视端 **影视 + 直播** 双板块 App。**v2.28 起整体重写为 Kotlin + Jetpack Compose + Media3**
+（标准 Gradle 工程），跑在海信 VIDAA 电视（Android 5.1.1 / API 22，1GB 内存）上。
+点播片源来自 **14 个苹果CMS采集源聚合**，直播内置 **165 台 / 174 路江西电信 IPTV 源**（5 组）。
+包名沿用 `com.yg.vodtv`，所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.26（versionCode 38）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
-源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
+当前版本：**v2.28（versionCode 41）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
+打 tag 自动出包并发 Release。
+
+> v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
+> 源码已整目录归档到 `legacy/java/`（不参与构建），历史章节保留作为参考。
 
 ## 一、它是什么
 
-一句话：**遥控器点开就能搜片、选集、播放的电视 App。**
+一句话：**遥控器点开就能搜片、看简介、选集、播放的电视 App。**
 
-- **卡片栏（Chrome 标签页）**（v2.26）：进 App 就是一个界面，顶栏左侧是 `YG 影视TV` 品牌块，
-  紧挨着两张浏览器式卡片栏「电视直播 / 影视点播」—— 上圆角、选中那张与内容区同色无缝相接、
-  带 `●` 标记与 2px 琥珀顶边，跟品牌块同一高度；顶栏右侧空余处是 `检查更新 / 清除缓存 / 自检`
-  三个 40% 降权的工具胶囊 + 时钟 + 版本。进软件默认落在上次用的那张卡片栏（`Store.section()`）。
-  选中「电视直播」= 直接进全屏播放画面（不经过任何中间页面）；选中「影视点播」= 影视首页。
-  返回键在内容区按一下回卡片栏，在卡片栏上再按一下才退出 App。
-- **干净观影**（v2.24）：直播与点播播放中，2 秒没有按键就把顶栏、底栏、HUD 全部淡出；
-  任意键先唤回界面（这一下不触发换台/暂停），再按才生效。缓冲中或报错卡片可见时不收界面，
-  免得「黑屏一片不知道在干什么」。
-- 首页：**24 个统一频道**（推荐、4K 电影、动作、喜剧、国产剧、动漫、综艺、悬疑剧……）海报墙，
-  每页最多 84 条、14 个源并行聚合去重，遥控器方向键浏览，点「加载更多」翻页；
-  **第一页列表落盘 + 相邻频道预取**，切频道不转圈，海报整屏一次出（v2.4）
-- **电视直播**（v2.6）：顶栏「电视 / 影视」双板块一键互跳。直播表来自 GitHub 两份公共 IPTV
-  清单（Guovin + vbskycn，约 2200 条），逐条实测 `200 + #EXTM3U`，**只留真能播的那 41%**，
-  同台最多留 3 条按首播毫秒排序。**卡了一下就换源**：菜单键呼出线路面板、左右键直接切、
-  遥控器 CH+/CH- 也行；一条挂了自动静默切下一条，三条全挂才提示。上下键在同组内换台
-- **源表热更**：源的定义是一份远端 JSON，GitHub Actions 每天自动巡检打分重排，
-  换源 / 加源 / 调优先级**不用发版**；远端出任何问题都自动退回内置表（v2.4）
-- 搜索：**一屏左右分栏**——左边键盘 + 最近搜过的词，右边实时结果；**停手 2 秒自动搜**，
-  不用再按「搜索」；中文关键词并发问 14 个源的 `wd=`，纯拼音改问各源的 `suggest`（实测比 `wd=` 准得多），
-  两路结果合并后按贴合度重排，再把「只是碰巧带这几个字」的噪声剪掉；
-  **拼音首字母也能搜到**（v2.5）——本地维护一份 14.5 万条片名的首字母表，`wddcz` 先翻成
-  「伟大的长征」再走 `wd=`；结果不再死等 10 秒，凑够一屏就走
-- 详情：海报 + **导演/主演/地区/语言 + 简介（点一下展开全文，缺失时自动跨源回填）** + 选集列表，每行 10 个选集按钮
-- 播放：全屏 HLS 播放，上下键选集、左右键快进快退 15 秒、OK 暂停、自动连播下一集；
-  画面比例**默认自动**（裁得少就铺满、裁得多就留黑），遥控器菜单键循环「自动 → 适应 → 铺满」
-- **续看**：每 5 秒记一次播放位置，退出/切集时再存一次；下次进详情页会自动把焦点落在上次看到的那一集上（该集按钮显示为金色），点进去从断开处接着播
-- **自检**：标题栏「自检」按钮，9 步串行验证片源链路（网络参数 → 代理端口 → 多源分类 → **海报下载** →
-  海报缓存 → 多源搜索 → 详情集数 → m3u8 首跳 → 分片首包），全绿就说明能看；下半屏直接显示环形错误日志
-- **检查更新**：标题栏「检查更新」按钮（开机也会静默查一次），有新版直接在 App 里下载并拉起系统安装器，不用再插 U 盘
+- **卡片栏**：一个界面搞定导航。顶栏两张浏览器式卡片「电视直播 / 影视点播」，左右键换卡片立即生效；
+  选中「电视直播」后 **2 秒无操作自动进全屏播放**；右侧空余处是「自检 / 清除缓存 / 检测更新」
+  三个工具胶囊 + 时钟 + 版本号。返回键按层级退：内容区 → 卡片栏 → 退出。
+- **电视直播**：165 台分 5 组（江西本地 / 央视 / 卫视 / 影视剧场 / 付费专业），同名台多线路自动并档；
+  播放中按 OK 弹出换台面板（左分组、右频道），选台立即切换；出错自动切同名台下一路源。
+- **影视点播**：分类条（推荐 / 电影 / 剧集 / 综艺 / 动漫 / 纪录 / 4K / 短剧）与搜索框同高同行，
+  下方 5 列海报墙，每类最多 120 部，14 个源并发聚合、按片名去重。
+- **详情页（v2.28 新增）**：海报 + 片名 + 年份/地区/评分 + 主演/导演 + 简介（最多 9 行，超出省略号）；
+  右侧「线路」切换（源站给了多条线路才出现）+ 选集网格（每行 6 集，进页自动滚到当前集）。
+  以前电视剧只能在海报墙上直接起播第一集，现在能先看简介、再挑第几集。
+- **播放**：Media3/ExoPlayer 全屏 HLS。OK 暂停/播放、左右键 ±10 秒、**上下键上一集/下一集（v2.28 新增）**；
+  起播前 HEAD 探路挑可用线路，失败换同名片的其他源；2 秒无操作自动收起 OSD。
+- **搜索**：一屏左右分栏，左边键盘、右边实时结果；停手 2 秒自动搜，结果凑够一屏就走。
+- **工具**：自检（真探直播 master + 14 个采集源，输出「直播 N 台 / 点播 X 好 Y 坏」）、
+  清除缓存（cacheDir + codeCacheDir + 图片/接口内存缓存）、检测更新（读 GitHub Release 最新 tag）。
+- **老 Android 兼容**：Android 5.1 的信任库过旧 → `Net.sslFactory` 全放行，并对 `HttpsURLConnection`
+  设全局默认 socket factory（ExoPlayer 的 `DefaultHttpDataSource` 不走 OkHttp，必须改全局）；
+  Coil 复用同一个宽松 OkHttp。字体缺 U+3000 与 emoji，界面文案已全部避开。
+- **日志**：该固件屏蔽三方 App 的 logcat，所以自己写 `files/diag.log`（128KB 滚动），
+  标签 `[img]` 海报、`[vod]` 点播/详情/换线、`[play]` 播放器状态与画面尺寸、`[key]` 按键与 Zone 变迁、`[tool]` 工具结果。
 
 ## 二、技术方案
+
+### v2.28：Java 版并入 Compose 版，点播补上详情页
+
+上一轮误把「源码迭代」做成了两个独立工程（`YG影视TV` 旧 Java 版 + `YG影视TV-Compose` 新 Compose 版，
+包名不同、能同时装）。v2.28 把两者合成**一个工程**：
+
+- **工程结构**：`YG影视TV/` 变成唯一 Gradle 工程，Compose 代码是唯一 App；
+  旧 Java 版源码（`app/src/com`、`app/res`、`AndroidManifest.xml`、`build.sh`、`build-ci.sh`）
+  用 `git mv` 整体搬到 `legacy/java/` 存档，不参与构建，也没删。
+- **包名/签名**：`namespace` 与 `applicationId` 都改成 `com.yg.vodtv`（沿用旧包名，未来能原地升级），
+  版本 `versionCode 41 / versionName "2.28"`；release 与 debug 都用 `app/yg.keystore` 签（debug 也签
+  才能 `run-as` 读 `diag.log`）。旧 res 只取 `ic_launcher` 六个密度的图标，manifest 补回
+  icon/banner/横屏/singleTask 与原主题。
+- **不误打包扫描资产**：`app/src/main/assets/` 里除 `live_jx.txt`、`src.txt` 外还有每日巡检产物
+  （`py/`、`logo/`、`live.json`、`sources.json`，共 5.5MB，只有旧 Java 版用）。Gradle 里用
+  `androidResources.ignoreAssetsPattern` 把它们挡在包外，源码与 `scan.yml` 保持原样，
+  构建后 `unzip -l` 确认 assets 只有两个 txt。
+- **详情页（新功能）**：点播海报墙/搜索结果按 OK 不再直接起播，先进详情页：
+  左边海报 + 片名 + `年 · 地区 · 评分` + 主演/导演 + 简介（9 行省略），右边线路胶囊 + 选集网格
+  （6 列，格高 40dp、集名最多 2 行省略，自动滚到当前集）；OK 播当前集，返回回原来的列表。
+  数据来自 `ac=detail&ids=<id>`；有些源不理 `ids`、直接吐整张列表，所以按 `id`（再退到片名）认领，
+  失败就用列表里已有的字段兜底，不会卡在空白页。
+- **选集解析**：`vod_play_from`/`vod_play_url` 按 `$$$` 分线路、`#` 分集，只收 `.m3u8`/`.mp4` 直链
+  （网页版 `/share/` 一律丢掉），空线路丢弃；线路名缺失时显示「线路N」。
+- **简介清洗**：去 HTML 标签、反转义 `&nbsp;` 等实体、折叠连续空白，再剪掉采集站转义残渣
+  （实测有的源简介末尾会拖一个 `rn`）。
+- **播放页补键位**：上下键切上一集/下一集，标题带集名（`明星制造   第07集`），提示条同步更新。
+- **版本比较**：`Update.versionOf("2.28") = 228`，只比数字大小，不再依赖 versionCode。
+- **CI 换成 Gradle**：`build.yml` 用 `gradle/actions/setup-gradle` + `:app:assembleRelease`，
+  tag 与 `app/build.gradle.kts` 里的 `versionName` 校验；产物重命名成 `YG影视TV.apk` / `YGTV.apk`
+  沿用原来的下载习惯。
+
+### 以下为 Java 版（v1.3–v2.26）的实现记录
+
+> 代码在 `legacy/java/`，仅作参考；下面章节里的文件名、类名、键位都是旧版的。
 
 ### 片源链路（v1.7 起是多源）
 
@@ -2048,20 +2075,22 @@ API 23 之后这段兼容逻辑被移除，所以「部分影片」才出问题�
 
 签名是同一把 key（见下），所以新包能原地覆盖升级，不用卸载。
 
-### GitHub 发布与自动出包（v1.4 新增）
+### GitHub 发布与自动出包（v1.4 新增，v2.28 换成 Gradle）
 
 仓库：<https://github.com/XACPPP/yg-vodtv>（公开，含源码）
 
 ```bash
-# 改完代码：改 Ver.NAME 与 AndroidManifest 的 versionCode/versionName，然后
-git add -A && git commit -m "v1.6：xxx"
-git tag v1.6 && git push origin master v1.6
+# 改完代码：先改 app/build.gradle.kts 里的 versionName，再
+git add -A && git commit -m "v2.28：xxx"
+git tag v2.28 && git push origin master v2.28
 ```
 
-`.github/workflows/build.yml` 在 push tag `v*` 时自动跑：装 JDK 17 + Android SDK（platform 30 /
-build-tools 30.0.3）→ 从 Secret `KEYSTORE_B64` 还原 `app/yg.keystore` → **校验 tag 与 `Ver.NAME` 一致**
-（不一致直接失败，防止发错版本号）→ `bash app/build-ci.sh` → 上传 artifact → `softprops/action-gh-release`
-发 Release，挂 `YG影视TV.apk` 与 `YGTV.apk` 两个文件。
+`.github/workflows/build.yml`（v2.28 起）：push tag `v*` 或手动触发 → 装 JDK 17 + Android SDK
+（platform 34 / build-tools 34.0.0）→ 从 Secret `KEYSTORE_B64` 还原 `app/yg.keystore` →
+**校验 tag 与 `app/build.gradle.kts` 的 `versionName` 一致** → `gradle :app:assembleRelease` →
+产物重命名成 `YG影视TV.apk` / `YGTV.apk` 上传 artifact → `softprops/action-gh-release` 发 Release。
+
+> 下面这几段是 v1.4–v2.26 Java 版的记录；`build.sh` / `build-ci.sh` 已随源码归档到 `legacy/java/`。
 
 `app/build-ci.sh` 是 `build.sh` 的 Linux 版：同样的 aapt2 → javac → d8 → 打包 → zipalign → apksigner 六步，
 只是工具路径来自 `ANDROID_HOME`、没有 `.exe` 后缀、用系统自带的 `javac`/`python3`。
@@ -2111,67 +2140,57 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 存储用 `SharedPreferences`（文件 `yg_vod`），key 形如 `p_<影片id>_<集号>`，值是毫秒。不需要任何权限，
 卸载即清。片头 5 秒内不记录，避免「刚点开就退出」把位置写成 0 又覆盖掉真正的进度。
 
-### 代码结构
+### 代码结构（v2.28，Kotlin + Compose）
+
+```
+YG影视TV/
+  settings.gradle.kts  build.gradle.kts  gradle.properties  local.properties(未跟踪)
+  app/build.gradle.kts                     包名/版本/签名/依赖
+  app/yg.keystore                          签名（未跟踪，CI 用 Secret KEYSTORE_B64 还原）
+  app/src/main/AndroidManifest.xml
+  app/src/main/res/{values/strings.xml, drawable-*/ic_launcher.png}
+  app/src/main/java/com/yg/vodtv/
+    Data.kt       配置/网络(OkHttp+宽松TLS)/直播表/采集源/VodRepo/详情/更新/自检
+    Live.kt       Media3 播放器控制器（单例复用、换台防抖、自动换源、直播与点播两用）
+    State.kt      一台状态机管全部按键（Zone: BAR/PLAY/PANEL/TABS/SEARCH/GRID/SEARCH_PAGE/RESULTS/DETAIL/VOD_PLAY）
+    Ui.kt         Compose 界面（TopBar 卡片栏、VodHome 海报墙、DetailScreen 详情页、ChannelPanel、SearchPage、播放页）
+    MainActivity.kt 入口（Diag 初始化、Coil 装载、全局 TLS 放宽、按键分发）
+    Diag.kt       文件日志 files/diag.log
+  app/src/main/assets/{live_jx.txt, src.txt}
+  legacy/java/                              旧 Java 版整目录存档（不参与构建）
+  test/                                     旧版巡检脚本与 JVM harness（仍被 scan.yml 使用）
+```
 
 | 文件 | 作用 |
 | --- | --- |
-| `app/src/com/yg/vodtv/MainActivity.java` | **影视板块**首页：双板块胶囊 + 定宽频道条（一屏 6.5 个）+ 海报墙 + 左右分栏搜索 |
-| `app/src/com/yg/vodtv/LiveActivity.java` | **v2.8 已删除**（原来是电视板块的频道墙首页，点两下才播，改成直达播放后整页多余） |
-| `app/src/com/yg/vodtv/LivePlayerActivity.java` | 直播播放 + 右侧频道抽屉：全屏 VideoView、顶部信息条（台名/清晰度/第几路源/正在直播/时钟）、音量 HUD、OK 呼出抽屉（↑↓ 选台 / ←→ 切分组 / OK 播放）、底部键帽条；看门狗四条判据自动切源 |
-| `app/src/com/yg/vodtv/Live.java` | **直播表**：`BUILTIN` 兜底 + `load(json)` 六层容错（含 IPv6 清洗）+ `groups()` 返快照 |
-| `app/src/com/yg/vodtv/LiveSync.java` | **直播表热更**：启动同步读缓存 → 后台拉远端 `live.json` → `Live.load`；`status()` 报「内置/当前/缓存时间」 |
-| `app/src/com/yg/vodtv/DetailActivity.java` | 详情页：海报 + meta + 选集网格 |
-| `app/src/com/yg/vodtv/PlayerActivity.java` | 播放页：VideoView + 自绘进度条 + 选集浮层 |
-| `app/src/com/yg/vodtv/SelfTestActivity.java` | 自检页：9 步链路检测（含海报下载、海报缓存）+ 错误日志面板 |
-| `app/src/com/yg/vodtv/Store.java` | 播放位置 + 最近观看 + **搜索历史 6 条**（都按「源_id」区分） |
-| `app/src/com/yg/vodtv/Proxy.java` | 本地 HLS 代理（见上） |
-| `app/src/com/yg/vodtv/Src.java` | **采集源定义**：`BUILTIN` 内置 14 个源的 base/Referer + 统一频道 → 各源 `type_id` 映射；`load(json)` 用远端表整体替换（六层容错）；`all()`/`byKey()` 返快照 |
-| `app/src/com/yg/vodtv/SrcSync.java` | **源表热更**：启动同步读缓存 → 后台拉远端 `sources.json` → `Src.load` 换表；`status()` 给自检页报「内置 / 当前 / 远端时间」 |
-| `app/src/com/yg/vodtv/Cache.java` | **列表 JSON 落盘**：`cacheDir/list/{ch}_{pg}.json`，16MB 上限 / 12MB 触发清理，tmp→rename 原子替换 |
-| `app/src/com/yg/vodtv/Prefetch.java` | **相邻频道预热**：单线程空闲预取 `cur±1` 的首页 JSON，间隔 400ms，`INFLIGHT` 去重 |
-| `app/src/com/yg/vodtv/PyIndex.java` | **拼音首字母表**：`lookup(wddcz)` → 按需下 `assets/py/w.txt`（走 raw）→ `pick` 两轮扫描（精确 key 优先，再收前缀）→ 候选中文片名 |
-| `app/src/com/yg/vodtv/Multi.java` | **多源聚合**：按频道并行取数、交织去重、搜索合并、简介跨源回填；`Result.raw` + `encode`/`decode` 供落盘；搜索侧 `awaitSearch` 三重判据（凑够 21 条 / 静默 1200ms 就走） |
-| `app/src/com/yg/vodtv/Api.java` | 单源接口封装（list / detail / wd / suggest）+ 搜索结果贴合度重排 |
-| `app/src/com/yg/vodtv/Vod.java` | 影片模型 + `vod_play_url` 选集解析 |
-| `app/src/com/yg/vodtv/Http.java` | HTTP 封装 + 信任全部证书的 SSLContext + 5xx 一次重试 |
-| `app/src/com/yg/vodtv/Trace.java` | 环形错误日志（120 条） |
-| `app/src/com/yg/vodtv/Ui.java` | 尺寸等比缩放、配色、圆角/渐变/焦点背景、海报三跳加载 + **惰性取图** + **`READY`/`FLUSH` 批量上屏** + LRU 缓存 + 首字色块兜底 |
-| `app/src/com/yg/vodtv/Cards.java` | 海报卡片：底部渐变压暗 + 片名压在图上 + 角标 + 焦点放大，支持惰性加载 |
-| `app/src/com/yg/vodtv/Ver.java` | 版本号与构建时间（首页右上角显示） |
-| `app/src/com/yg/vodtv/Store.java` | SharedPreferences 播放记忆：每剧每集看到哪儿、上次看到哪一集 |
-| `app/src/com/yg/vodtv/Update.java` | 应用内升级：查 GitHub Release、下载 APK、拉起系统安装器 |
-| `app/src/com/yg/vodtv/Ver.java` | 版本号与构建时间（标题栏显示） |
+| `Data.kt` | `Config`（更新地址、8 个分类 tab、LIMIT=120）、`Net`（宽松 TLS 的 OkHttp）、`LiveData`（165 台 5 组）、`Sources`（14 个采集源）、`VodRepo`（聚合/搜索/`parseLines` 线路解析/`detail` 详情/`firstPlayable` HEAD 探路）、`Update`、`SelfTest` |
+| `Live.kt` | 一个 ExoPlayer 复用于直播与点播：`switchTo` 300ms 防抖、`nextSource` 自动换源、`playVod(url, alts)` |
+| `State.kt` | `Zone` + `Rk` 键位映射；`openDetail` / `playEpisode` / `stepEpisode` 三个入口；详情页的线路与选集焦点（`dLine/dEp/dFocus`） |
+| `Ui.kt` | 主题色、`Cell` 可选多行、`Poster` 首字兜底、`VodHome`、`DetailScreen`、`SearchPage`、`VodPlayer`、`ChannelPanel` |
+| `Diag.kt` | `[img][vod][play][key][tool][probe]` 六类日志，128KB 滚动 |
 
 ## 三、构建
 
-不用 Gradle，直接用 aapt2 + javac + d8 + apksigner 手动打包（复用 `../海信电视刷机/toolchain/`）：
+标准 Gradle 工程（AGP 8.5.2 / Kotlin 1.9.24 / Compose BOM 2024.06.00 / Media3 1.4.1）。
 
 ```bash
-cd app
-env -u MSYS_NO_PATHCONV bash build.sh
+export JAVA_HOME="D:/Codexspace/做点小玩意/海信电视刷机/toolchain/jdk-17.0.21+9"
+G=~/.gradle/wrapper/dists/gradle-8.14.3-bin/*/gradle-8.14.3/bin/gradle
+$G :app:assembleRelease  --no-daemon --console=plain   # 正式包
+$G :app:assembleDebug    --no-daemon --console=plain   # 调试包（同样用 yg.keystore 签名）
 ```
 
-CI（Linux）用同一套步骤，工具路径换成 `ANDROID_HOME`：
-
-```bash
-ANDROID_HOME=/path/to/sdk bash app/build-ci.sh
-```
-
-产物：`app/YG影视TV.apk`（约 45 KB），`build.sh` 末尾会同时复制一份**纯 ASCII 文件名**的
-`app/YGTV.apk`（内容完全相同）—— 有些电视的 U 盘安装器认不出中文文件名，装不上时换这个。
-
-**必须带 `env -u MSYS_NO_PATHCONV`**，否则 Windows 上 aapt2.exe 收到 `/d/...` 形式的路径会报
-`failed to open APK: I/O error`。
-
-签名：`app/yg.keystore`，storepass/keypass 都是 `yg123456`，alias `yg`。
-
-APK 信息：`package=com.yg.vodtv`、`versionCode=21`、`versionName=2.9`、`minSdkVersion=21`、
-`targetSdkVersion=22`、`screenOrientation=landscape`、`usesCleartextTraffic=true`（海报和本地代理
-都是 http，必须开）。签名同时带 v1/v2/v3 —— **v1 是 Android 5.1 能装的前提**。
-
-`build.sh` 里有防假成功的检查：javac 之后逐个确认 **25 个 class** 都产出了（v1.7 补了 `Src`、`Multi`，
-v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`，v2.6 补了 `Live`、`LiveSync`、
-`LivePlayerActivity`，v2.7 补了 `Chrome`，v2.8 删了 `LiveActivity`），并比对 `MainActivity.class` 与源码时间戳，避免 javac 悄悄失败却打包了旧 class。
+- 产物：`app/build/outputs/apk/release/app-release.apk`、`.../debug/app-debug.apk`。
+- `local.properties` 里 `sdk.dir` 指向本机 SDK（`海信电视刷机/toolchain/android-sdk`），**不入库**；
+  `gradle.properties` 的 `android.overridePathCheck=true` 是为了绕开「项目路径含中文」的检查，别删。
+- 签名：`app/yg.keystore`（storepass/keypass `yg123456`，alias `yg`），debug 与 release 共用同一把 key，
+  所以新包都能原地覆盖升级；debug 也签名才能 `adb shell run-as com.yg.vodtv cat files/diag.log`。
+  Release 由 Gradle 自动带 v1/v2 签名 —— **v1 是 Android 5.1 能装的前提**。
+- APK 信息：`package=com.yg.vodtv`、`versionCode=41`、`versionName=2.28`、`minSdk=21`、`targetSdk=34`、
+  横屏、`usesCleartextTraffic=true`（海报与采集接口都是 http）。
+- assets 只打 `live_jx.txt` 与 `src.txt`；`py/`、`logo/`、`live.json`、`sources.json` 由
+  `androidResources.ignoreAssetsPattern` 挡在包外（它们只给旧 Java 版用，删了会让每日巡检白跑）。
+  验证：`unzip -l app/build/outputs/apk/release/app-release.apk | grep assets/`。
 
 ## 四、安装
 
@@ -2184,22 +2203,22 @@ v2.4 补了 `Cache`、`Prefetch`、`SrcSync`，v2.5 补了 `PyIndex`，v2.6 补�
 
 ### 方式 A+：手机/其他设备下载
 
-<https://github.com/XACPPP/yg-vodtv/releases/latest> 直接下 `YGTV.apk`（当前 Latest 是 v1.7，61905 字节）。
-**装过一次 v1.4 或更新版本之后就不用再手动装了** —— App 里点「检查更新」自己升级。
+<https://github.com/XACPPP/yg-vodtv/releases/latest> 直接下 `YGTV.apk`。
 
-电视端那条更新链路如果卡住（国内直连 GitHub 的 TLS 会被中间设备打断），从 v1.7 起元信息优先走
-`gh-proxy.com` 镜像，只有镜像也失败才回落到直连，所以正常情况下电视自己就能升级。
+装过一次之后同签名的新版本都能原地覆盖升级（包名还是 `com.yg.vodtv`），不用卸载。
+v2.28 起 App 内点「检测更新」只提示新版本号与下载地址，**不再自动拉起安装器**（见「已知限制」）。
 
 ### 方式 B：ADB（需要电视开启 ADB 调试）
 
 ```powershell
-D:\platform-tools\adb.exe connect 10.1.1.14:5555
-D:\platform-tools\adb.exe devices
-D:\platform-tools\adb.exe install -r "D:\Codexspace\做点小玩意\YG影视TV\app\YG影视TV.apk"
-D:\platform-tools\adb.exe shell am start -n com.yg.vodtv/.MainActivity
+D:\platform-toolsdb.exe connect 10.1.1.16:5555
+D:\platform-toolsdb.exe devices
+D:\platform-toolsdb.exe install -r "D:\Codexspace\做点小玩意\YG影视TVppuild\outputspk
+eleasepp-release.apk"
+D:\platform-toolsdb.exe shell am start -n com.yg.vodtv/.MainActivity
 ```
 
-装好后第一件事：点标题栏右侧的「自检」，9 项全绿就说明片源链路通；有红的，看下半屏错误日志。
+装好后第一件事：点顶栏「自检」，看「直播 N 台 / 点播 X 好 Y 坏」；点播正常就看得到数。
 
 ## 五、验证记录
 
@@ -2445,154 +2464,47 @@ ping -n 2 -S 192.168.1.9 10.1.1.14     # 绑 WiFi 网卡，结果 100% 丢包
 ```
 YG影视TV/
 ├── README.md
-├── .github/workflows/build.yml  # push tag v* 自动出包 + 发 Release
-├── .github/workflows/scan.yml   # v2.4 每天 02:00 巡检源表 → v2.5 加拼音索引 → v2.6 加直播源 → v2.7 加台标 PNG，一起自动 commit
-├── .gitignore                   # 排除 build/、*.apk、yg.keystore、__pycache__、test/live_preview.json
+├── settings.gradle.kts / build.gradle.kts / gradle.properties
+├── local.properties             # sdk.dir（不进仓库）
+├── .github/workflows/build.yml  # push tag v* → Gradle 出包 + 发 Release
+├── .github/workflows/scan.yml   # 每天巡检源表/拼音表/直播表/台标 → 自动 commit（产物给旧版与 raw 用）
+├── .gitignore                   # 排除 build/、*.apk、*.keystore、local.properties、.gradle/
 ├── app/
-│   ├── AndroidManifest.xml
-│   ├── build.sh                 # 六步构建脚本（Windows / MSYS）；v2.7 起 link 加 -A，只打 assets/logo
-│   ├── build-ci.sh              # 六步构建脚本（Linux / GitHub Actions）；-A 必须与 build.sh 同步改，v2.7.1 就是漏了这条
+│   ├── build.gradle.kts         # 包名/版本/签名/依赖/assets 过滤
 │   ├── yg.keystore              # 签名（yg123456）—— 不进仓库，CI 用 Secret 还原
-│   ├── res/values/strings.xml
-│   ├── res/drawable/ic_launcher.png          # 192px 兜底（电视 banner 复用）
-│   ├── res/drawable-{m,h,xh,xxh,xxxh}dpi/    # v2.3 机器人图标五档密度
-│   ├── src/main/assets/sources.json          # v2.4 源表（巡检自动重写；不打包进 APK，供 GitHub raw 与 CI）
-│   ├── src/main/assets/py/{a..z}.txt         # v2.5 拼音首字母表（23 桶 4.6MB，CI 每天重建；同样走 raw）
-│   ├── src/main/assets/live.json             # v2.6 直播表（428 台 669 条，CI 每天重建；同样走 raw）
-│   ├── src/main/assets/logo/*.png            # v2.7 台标（96×54，CI 巡检产出；v2.7 起随 APK 打包，不走 raw）
-│   ├── src/com/yg/vodtv/*.java  # 25 个源文件（v2.4 加 Cache/Prefetch/SrcSync，v2.5 加 PyIndex，v2.6 加 Live/LiveSync/LivePlayerActivity，v2.7 加 Chrome，v2.8 删 LiveActivity）
-│   ├── build/                   # 中间产物
-│   ├── YG影视TV.apk             # 成品
-│   └── YGTV.apk                 # 同一份的 ASCII 文件名副本（U 盘安装 / 更新下载都用它）
-└── test/
-    ├── harness/                 # JVM 端到端验证（跑真实源码）
-    │   ├── run.sh               # bash run.sh [wire|dump|tabs|rank|meta|upd|srctab|cachetab|pytab|livetab]
-    │   ├── Harness.java         # 16 项链路断言
-    │   ├── Wire.java            # 21 项线上字节格式断言（模拟 NuPlayer）
-    │   ├── Tabs.java            # 24 个统一频道逐项验证（多源聚合，有数据 + 有海报）
-    │   ├── Rank.java            # 搜索结果贴合度排序验证
-    │   ├── Meta.java            # 刮削字段 + 海报通道验证（9 项）
-    │   ├── Upd.java             # 版本号解析/比较 + 镜像顺序 + 真实 Release 下载（19 项）
-    │   ├── SrcTab.java          # v2.4 源表热更：Src.load() 六层容错 + 频道映射（23 项，不联网）
-    │   ├── CacheTab.java        # v2.4 列表缓存：Multi.encode/decode 往返 + Cache 落盘（34 项，不联网）
-    │   ├── PyTab.java           # v2.5 首字母索引：PyIndex.pick 精确优先/前缀兜底/脏行（24 项，不联网）
-    │   ├── LiveTab.java         # v2.6 直播表：Live.load() 六层容错 + IPv6 清洗 + 快照（40 项，不联网）
-    │   ├── Dump.java            # 打印改写后的播放列表
-    │   ├── android/*.java       # android.util/net/os/content 替身
-    │   └── org/json/*.java            # org.json 替身
-    ├── proxy_sim.py             # 早期 Python 复刻（已被 harness 取代）
-    ├── source_scan.py           # v2.4 源健康巡检 + 100 分制打分 → sources.json
-    ├── pinyin_index.py          # v2.5 从 bfzy 全库切首字母 → assets/py/*.txt（8584 页 / 5 分钟）
-    ├── live_scan.py             # v2.6 直播源采集+测速+分组 → assets/live.json（1757 条探 157 秒）；v2.7 加台标抓取（iptv-org + MANUAL_LOGO_IDS 硬映射 → assets/logo/*.png）+ TTFB≤3s + 实测吞吐≥40KB/s + 两轮复测
-    ├── sources_health.json      # 巡检结果（App 不直接读，供 CI/人看）
-    ├── sources_health.md        # 同上，人读表
-    ├── tvbox_cfg/               # v2.4 调研时下载的 TVBox 配置样本（type=1 抽取用）
-    ├── parse_codec.py           # 离线解析 TS 编码
-    ├── codec_survey.py          # 跨分类抽样探测编码
-    ├── fetch_sample.py          # 抓样本分片落盘
-    ├── probe_sources.py         # 采集源全量实测（241 候选 → 可用性/内容/分类/m3u8）
-    ├── candidate_pool.txt       # 候选 base 池（从 GitHub 各采集合集抽取去重）
-    ├── verify_final.py          # 入围站二次复核（列表/详情/分类/搜索/m3u8）
-    ├── check_suggest.py         # 各站 suggest 搜索链路验证
-    ├── make_final_table.py      # 汇总成 sources_recommended.md
-    ├── sources_report.txt       # 全量实测报告（UTF-8）
-    ├── sources_report.json      # 同上，结构化
-    ├── sources_final.txt        # 19 站二次复核明细
-    ├── sources_recommended.md   # 最终推荐表
-    ├── class_all.json           # 十源完整 class 表（JSON）
-    ├── class_wsyzy.json         # 仅 wsyzy 的 60 个分类
-    ├── class_view.txt           # 十源 `id=名称` 对照表（UTF-8，Src.BUILTIN 就是照它填的）
-    ├── make_icon_robot.py       # v2.3 图标生成器（Pillow 纯代码画，五档密度一起出）
-    ├── icon_candidates/         # 图标大图 + 七档尺寸对比图（验小尺寸可读性）
-    └── samples/                 # 已抓的 *.ts / *.m3u8
+│   ├── src/main/AndroidManifest.xml
+│   ├── src/main/res/values/strings.xml   # app_name = YG影视TV
+│   ├── src/main/res/drawable-*/ic_launcher.png   # 六档密度图标
+│   ├── src/main/java/com/yg/vodtv/*.kt   # 6 个 Kotlin 源文件（见「代码结构」）
+│   ├── src/main/assets/live_jx.txt       # 165 台直播表（组id|台名|url）
+│   ├── src/main/assets/src.txt           # 14 个采集源（key|接口|Referer|type_id 表）
+│   ├── src/main/assets/{live.json,sources.json,py/,logo/}  # 巡检产物，挡在包外，只给旧版/raw 用
+│   ├── build/                   # 中间产物与 APK
+│   └── yg.keystore
+├── legacy/java/                 # 旧 Java 版整目录存档（含 build.sh、build-ci.sh、res、25 个 .java）
+└── test/                        # 旧版巡检脚本（scan.yml 仍在跑 source_scan/pinyin_index/live_scan）
 ```
 
 ## 七、已知限制
 
-- 片源是第三方接口，上游改了域名或加了防盗链就得换源。**v2.4 起改
-  `app/src/main/assets/sources.json` 就够了**，推上去电视下次开机自动生效；只有当远端表整体
-  不可用时才需要动 `Src.java` 的 `BUILTIN` 数组（编译进 APK 的兜底表，格式同 JSON 的四个字段）
-- 各源仍可能单个分类返回空或非 JSON，`Api.parsePage()` 全 catch 容错，聚合时跳过该源
-- **直播源衰减比点播源快得多**：公共 IPTV 清单里 59% 是死的（实测 1757 条只有 721 条能播），
-  而且今天能播的明天可能就 403。所以 `live.json` 必须靠每天巡检重刷；如果哪天电视上大片频道
-  都放不出来，先看 GitHub Actions 的 `scan` 是否还在正常跑，别急着改代码
-- **内置的江西电信源只在电信家宽里能用**：`115.153.245.70` 是运营商内网单播地址，换到移动/联通网络、
-  或者出门用 4G 就会 302 到一个连不通的地址。而且每台只有 1 条线路（不像公共清单那样有 3 条备选），
-  IPTV 平台调整令牌后需要重新抓一遍。码率 8.4Mbps，2.4G WiFi 下若有别的设备抢带宽，
-  4K/高清电视仍可能缓冲——真遇到就把电视接到 5G 频段
-- **动画/少儿台目前是空的**（`kids` 组 0 个频道）：两个公共清单里动画那 54 条单探 40 条全挂，
-  多为 migu token 中转站和已停服的 freetv.fun。等找到可用源再放开 `live_scan.py` 的筛选规则
-- **直播表不打包进 APK**：`aapt2 link -A build/assets` 只挂了 `logo/` 一个目录
-  （`build.sh` / `build-ci.sh` 里都是 `cp -r src/main/assets/logo build/assets/logo`），
-  `live.json` 不进包，运行期走 `raw.githubusercontent.com`，编译期兜底是 `Live.BUILTIN`
-  （5 组 17 台占位台名）。这样每天巡检改表不用重发 APK
-- **`limit=` 各源都不认**，所以每页条数只能本地截断（当前 84 条）
-- 翻页上限写了 400 页（`curPage < 400`），再往后意义不大
-- 没有收藏、没有字幕切换（片源自带硬字幕）
-- 列表缓存只存**第一页**（`Cache.put` 只处理 `pg == 1`）：翻页是临时行为，存了基本用不上。
-  开机首屏走缓存，翻到第 2 页仍要发网络请求
-- 个别源偶尔超时，会把整页拖到 7 秒预算上限（结果仍是完整的，只是慢）；
-  真机上若觉得「推荐」开页慢，可以调小 `Multi.LIST_BUDGET`
-- 代理挑变体时上限 5 Mbps，片源若有更高码率也不会选；老芯片解不动比看不清更糟
-- **手机上只能用返回键**：没有触摸点击支持，全程是电视遥控器（DPAD）交互
-- **应用内更新依赖 GitHub 可达**：国内网络下 `api.github.com` 可能连不上，此时「检查更新」会提示失败并让你手动去 GitHub 下（下载走 `github.com` 的 Release CDN，通常比 API 好连）
-
-### 搜索能力限制（v1.7 变化）
-
-v1.7 起搜索结果来自两路，覆盖面比单源大得多：
-
-| 输入 | 走哪条路 | 实测结果 |
-| --- | --- | --- |
-| 中文（如「凡人修仙传」） | 14 个源并发 `?ac=detail&wd=`，按贴合度重排后**再剪掉噪声** | maoyan 2 条、ffzy 3、ysxq 20、bfzy 20、ikun 4、360zy 11、yhzy 3、cmov 7、modu 10（`wsyzy` 不支持 `wd=`，返回纯文本） |
-| 纯拼音/全拼（如 `xiaochengliangfang`） | v2.0 起改问各源的 `suggest`（`wd=` 对拼音实测全 0，拼音根本不进库） | 11 个源里 9 个能命中：「小城良方」「兰香如故」「南部档案」全部 1 条精确 |
-| 全拼（如 `fanhua`） | 额外一路 `wsyzy` 的 `suggest` | 20 条，首条「繁花错」 |
-| 首字母缩写（如 `wddcz`） | **v2.5 起先查本地首字母表翻成中文名，再走 14 源 `wd=`** | `wddcz` → 「伟大的长征」，11 个源命中 1 条精确 |
-
-`suggest` 单源那一路支持中文和**完整拼音**，但**不支持拼音首字母缩写**（这是服务端侧的限制，
-v2.5 用离线索引绕过它，见上文「### v2.5：拼音首字母能搜到了」）：
-
-| 输入 | 结果 |
-| --- | --- |
-| `fanhua` / `fanhu` / `fanh` / `fan` / `Fanhua` | 各 20 条 |
-| `繁花` | 20 条 |
-| `庆余年` | 8 条 |
-| `doupo` / `doupocangqiong` | 19 / 12 条 |
-| `qyn`（庆余年首字母） | **0 条**（走 `suggest` 时）；v2.5 起先查索引 |
-| `fh`（繁花首字母） | 1 条噪声 |
-
-搜索面板空结果文案 v2.5 起改成「没找到，换个中文名或全拼试试」——首字母已经能用了，
-旧文案里「（首字母缩写搜不到）」这句不再成立。
-
-### 搜索结果排序（v1.2 新增）
-
-`suggest` 是**子串模糊匹配**：搜 `fanhua` 会把一堆「万倍返**还**」（`fanhuan` 里正好含 `fanhuan`→`fanhua`）
-排在真《繁花》前面，原样展示第一屏全是噪声。
-
-`Api.rank()` 拿到结果后按贴合度重排（`Vod.en` 是 suggest 同时返回的拼音 slug，v1.2 起一并解析）：
-
-| 条件 | 分值 |
-| --- | --- |
-| 片名或拼音 slug 完全等于关键词 | 1000 |
-| 片名以关键词开头 | 800 |
-| 拼音 slug 以关键词开头 | 760 |
-| 片名包含关键词 | 500 |
-| 拼音 slug 包含关键词 | 300 |
-| 都没有（纯接口噪声） | 100 |
-
-再按片名长度加成（越短越可能是正主，最多 +60），长度相同时短的排前。重排只在内存里做，
-不改接口、不改请求次数。
-
-效果（`bash run.sh rank` 实测）：
-
-| 关键词 | 重排前首条 | 重排后前 3 条 |
-| --- | --- | --- |
-| `fanhua` | 吃我的饭，还想砸我的碗 | 繁花错 / 繁华落尽 / 繁花照春晚 |
-| `qingyunian` | 庆余年之风起沧州 | 庆余年第二季 / 庆余年第一季 / 庆余年之帝王业 |
-| `kuangbiao` | 狂飙之浴血玫瑰 | 狂飙1998 / 狂飙之浴血玫瑰 / 狂飙之绝地反击 |
-| `sanguo` | 三国第一部：争洛阳 | 三国假刘协 / 三国王道恋爱 / 三国演义3D |
-
-重排**不解决**首字母缩写问题（`qyn` 走 `suggest` 接口本来就返回 0 条）——那是 v2.5 用离线首字母索引解决的，
-见上文「### v2.5：拼音首字母能搜到了」。
+- **采集源会抽风**：14 个苹果CMS源里稳定可用的通常只有 4~10 个，源站自身域名失效/加防盗链都会掉；
+  「自检」里的「点播 X 好 Y 坏」就是实时统计，App 侧已做全是错容错（单源失败跳过、跨源换线）。
+- **简介/选集来自源站**：详情页的集数、线路、简介取决于该源 `ac=detail` 返回什么。
+  有些源不返回 `vod_content`，此时显示「这个源没提供简介。」；个别源只给网页播放页（`/share/`），
+  这种线路会被直接丢掉，如果全丢掉该片就不会出现在列表里。
+- **直播源是电信内网单播**：`115.153.245.70` 这类地址只在电信家宽能用，换移动/联通或 4G 就不通；
+  每台基本只有 1 条线路，IPTV 平台换令牌后需要重新抓表（`test/live_scan.py`）。
+- **不再自动安装更新**：旧 Java 版会下载 APK 并拉起系统安装器，新版本（v2.28）只显示新版本号与
+  Release 地址，需要手动下载安装。原因是 Android 5.1 上 `REQUEST_INSTALL_PACKAGES` 的拉起行为
+  在 VIDAA 固件上不稳定，且自动安装要额外维护下载/校验逻辑。
+- **没有收藏、没有字幕切换、没有倍速**（片源自带硬字幕）。
+- **画面截图抓不到**：这台电视 `adb screencap` 拍不到硬解视频层（紫绿噪点），
+  播放页只能靠 `files/diag.log`（`[play] 画面 1920x1080 / 开始播放`）验收。
+- **只支持遥控器**：没有触摸点击，全程 DPAD；手机装上能用但不好按。
+- **仓库里没有 gradle wrapper**：本机与 CI 都用已安装的 Gradle 8.x（本机 8.14.3），
+  换机器要先装 Gradle 或在 CI 里用 `gradle/actions/setup-gradle`。
+- **首次装包约 12.5MB、内存占用约 76MB**：Compose 在老电视上的代价，实测 API 22 / 1GB 可跑，
+  但比旧 Java 版（0.6MB）重不少。
 
 ## 附：江西电信单播源扩充实测（2026-11-14）
 
