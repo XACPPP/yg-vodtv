@@ -6,7 +6,7 @@ App 内部只认统一频道号，按源查表翻译成各站自己的 `type_id`
 直播源主要来自 GitHub 两份公共 IPTV 清单，逐条测速后只留真能播的，台标随表内置（v2.7 / v2.7.1 修好打包）；
 v2.11 起另内置一组**江西电信 IPTV 单播源**（运营商内网直连，22ms 首包、8.4Mbps 码率），排在最前面。
 
-当前版本：**v2.22（versionCode 34）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
+当前版本：**v2.23（versionCode 35）**，首页标题栏右侧会显示版本与构建时间，用来确认电视上跑的是哪一版。
 源码与成品都在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release，App 里能自己检查更新。
 
 ## 一、它是什么
@@ -218,6 +218,26 @@ Encrypt YE2、`wsyzy.cc` 用 Google Trust Services —— 这些根证书在 And
 - 相对路径解析是手写的（`resolve()` + `normalize()`），因为 `java.net.URI` 碰到 sign 参数里的特殊字符会抛异常
 - 代理故意不调 `disconnect()`，让底层连接回池复用
 - 支持 HEAD 请求（播放器探测元信息时会发）与 Range 请求（拖动进度条依赖它）
+
+### v2.23：焦点别乱跑（换分类闪到「← 首页」/ 换分组闪到第一个分组）
+
+v2.22 把抽屉换成 `ListView`、把「← 首页」摆到顶栏之后，冒出两个焦点问题：
+
+- 影视页换分类时，焦点会闪到顶栏「← 首页」上，这时候顺手按 OK 就直接退出页面；
+- 直播页换分组/换台时，焦点会闪到第一颗分组胶囊（第一个分组）上。
+
+机制是同一个：**带焦点的 View 被销毁时，Android 会自己找「下一个能聚焦的」**。
+
+- `renderPage()` 换分类先 `rows.removeAllViews()`，带焦点的海报卡被干掉 → 系统顺着视图树往上找，
+  顶栏第一个可聚焦控件现在是「← 首页」→ 焦点掉过去（旧版这里是「电视」胶囊，同样会掉，只是没人报）；
+- 直播抽屉 `groupStrip.removeAllViews()` 重建分组胶囊、`setAdapter()` 换行，同理掉到第一颗胶囊。
+
+修法不是加 `requestFocus` 抢救，而是**先给焦点一个落脚点**：
+
+- `MainActivity`：`rows` 容器自己 `setFocusable(true)` + `FOCUS_AFTER_DESCENDANTS`，
+  换分类时先把焦点压在网格上；渲染完成后第一张卡照旧接管。焦点全程没离开海报区。
+- `LivePlayerActivity.renderDrawer()`：`setAdapter()` 之后立刻 `drawerList.requestFocus()`（列表本身
+  没有视觉反馈），再 `post` 一次 `focusRow(browseChIdx)` 落到具体行。
 
 ### v2.22：公共源「一按就崩」的真凶是 17 秒主线程阻塞
 

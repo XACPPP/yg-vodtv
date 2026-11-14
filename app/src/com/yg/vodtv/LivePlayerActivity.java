@@ -1018,6 +1018,22 @@ public final class LivePlayerActivity extends Activity {
         drawerAdapter = new DrawerAdapter(g, browseGroupIdx);
         drawerList.setAdapter(drawerAdapter);
         Trace.add("live", "抽屉就绪 " + g.name + " " + g.chs.size() + " 台（按需建行）");
+        // v2.22.1：分组胶囊行是 removeAllViews 重建的，重建瞬间原来带焦点的那颗胶囊没了，
+        // 系统会自己找「下一个能聚焦的」，结果焦点闪到第一颗胶囊（第一分组）上，
+        // 遥控器连按时看起来就是「切频道总闪到第一个分组」。
+        // 这里立刻把焦点收进列表本身（列表不带视觉反馈），随后 focusRow 再落到具体行。
+        if (drawerVisible) {
+            drawerList.requestFocus();
+            final int back = Math.max(0, Math.min(browseChIdx,
+                    drawerAdapter.getCount() - 1));
+            drawerList.post(new Runnable() {
+                public void run() {
+                    if (drawerVisible) {
+                        focusRow(back);
+                    }
+                }
+            });
+        }
         } catch (Throwable t) {
             Trace.err("live", "分组渲染异常，保持原列表", t);
         }

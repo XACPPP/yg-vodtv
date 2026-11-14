@@ -420,6 +420,14 @@ public final class MainActivity extends Activity {
         scroll.setClipChildren(false);
         rows = new LinearLayout(this);
         rows.setOrientation(LinearLayout.VERTICAL);
+        // v2.22.1：海报行重建时（换分类）原来带焦点的卡片会被 removeAllViews 干掉，
+        // 系统就会自己找「下一个能聚焦的」—— 现在顶栏第一个可聚焦控件是「← 首页」，
+        // 于是焦点会闪过去，连按 OK 甚至会退出页面。
+        // 让容器自己也能接焦点：卡片消失的瞬间焦点落在它身上（无视觉反馈），
+        // 渲染完成后第一张卡再接管，焦点就不会离开海报区。
+        rows.setFocusable(true);
+        rows.setFocusableInTouchMode(true);
+        rows.setDescendantFocusability(android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS);
         rows.setClipChildren(false);
         rows.setPadding(Ui.px(56), Ui.px(8), Ui.px(56), Ui.px(36));
         scroll.addView(rows);
@@ -821,6 +829,8 @@ public final class MainActivity extends Activity {
         // 是渲染本身异步 —— 现在 load() 里缓存命中会同步铺满画面，
         // 清空和重建落在同一帧里，中间那个空白状态根本不会被画出来。
         scroll.scrollTo(0, 0);
+        // 先把焦点压在网格容器上，别让它掉到顶栏去
+        rows.requestFocus();
         load(TAB_TYPE[idx], 1, false);
         Prefetch.warm(TAB_TYPE, idx);
     }
