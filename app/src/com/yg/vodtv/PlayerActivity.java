@@ -2,6 +2,7 @@ package com.yg.vodtv;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -456,6 +457,10 @@ public final class PlayerActivity extends Activity {
                 }
                 applyScaling();
                 vv.start();
+                // v2.20：点播同样是「新解码器起音」的时刻，固件会把自己的扬声器增益推满，
+                // 而 Android 侧的音量 index 没变 → 听着像「声音自己飙到最大」。
+                // 这里按当前 index 回写一次，让固件重新对齐（音量值本身不变）。
+                resyncVolume();
                 // VideoView.onPrepared 是先回调我们、之后才把 mVideoWidth/mVideoHeight 赋上去的，
                 // 所以这里不能直接读尺寸。等这一轮消息走完再量一次，
                 // 否则 4:3/竖屏片子会一直停在「还没尺寸」时的铺满状态。
@@ -650,6 +655,28 @@ public final class PlayerActivity extends Activity {
     private void applyScaling() {
         if (vv instanceof FitVideoView) {
             ((FitVideoView) vv).setMode(scaleMode, MAX_AR_DEV);
+        }
+    }
+
+    /**
+     * v2.20 音量回写：把当前 STREAM_MUSIC 的音量 index 原样再写一遍。
+     *
+     * 这块海信固件在新解码器起音时会把扬声器增益自己推满，Android 侧的 index 却不跟着变，
+     * 耳朵里就是「声音飙到最大」，按一下音量键又好了（那次按键让固件按 index 重新对齐）。
+     * 这里在起播时替用户做这次对齐，音量值本身不变，也不会弹 OSD。
+     */
+    private void resyncVolume() {
+        try {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) {
+                return;
+            }
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, cur, 0);
+            Trace.add("play", "音量回写 " + cur + "/"
+                    + am.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        } catch (Throwable t) {
+            Trace.err("play", "音量回写失败", t);
         }
     }
 

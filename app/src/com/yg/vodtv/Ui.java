@@ -344,14 +344,13 @@ public final class Ui {
      * 底色统一用播放器的影院黑 #0E1116，不用纯黑，纯黑会把视频边缘咬掉一圈。
      */
     public static Drawable playerVeil() {
-        Drawable h = fade(false,
-                new int[] { 0xB80E1116, 0x4D0E1116, 0xD90E1116 },
-                new float[] { 0f, 0.45f, 1f });
+        // v2.20：旧版照设计稿叠了竖向 + 横向两层渐变，中间「最亮处」也被压掉约 44%，
+        // 到真电视上整幅画面像蒙了一层黑纱布（实拍 center 亮度只有 65/255）。
+        // 现在只留上下两条窄压边给顶栏/底栏过渡，中间 76% 完全透明，画面按原始亮度出。
         Drawable v = fade(true,
-                new int[] { 0xB30E1116, 0x330E1116, 0xBF0E1116 },
-                new float[] { 0f, 0.3f, 1f });
-        LayerDrawable ld = new LayerDrawable(new Drawable[] { v, h });
-        return ld;
+                new int[] { 0xA60E1116, 0x000E1116, 0x000E1116, 0xA60E1116 },
+                new float[] { 0f, 0.12f, 0.88f, 1f });
+        return v;
     }
 
     /** 焦点态背景：聚焦时琥珀色描边 + 提亮。 */

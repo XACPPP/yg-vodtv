@@ -129,6 +129,10 @@ public final class LivePlayerActivity extends Activity {
     private View hudBar;
     private TextView hudValue;
     private static final int HUD_BAR_W = 120;
+    /* 音量护栏（v2.20）：记住上一次的音量 index 和用户最近一次按音量键的时间 */
+    private int lastVol = -1;
+    private long lastVolAt = 0;
+    private long lastResyncAt = 0;
 
     /* 右侧频道抽屉 */
     private LinearLayout drawer;
@@ -301,6 +305,13 @@ public final class LivePlayerActivity extends Activity {
             } catch (Throwable t) {
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // v2.20：从别的应用切回来，固件可能已经把扬声器增益改过了，重新对齐一次
+        resyncVolume("回到前台");
     }
 
     @Override
@@ -557,19 +568,85 @@ public final class LivePlayerActivity extends Activity {
             return;
         }
         try {
+            lastVolAt = System.currentTimeMillis();
+            // v2.20：改成系统的相对步进（ADJUST_RAISE/LOWER）。旧版自己算 cur+delta 再
+            // setStreamVolume 绝对值写回，和电视固件自己的音量表（0~30 档）对不上，
+            // 会把固件扬声器拉到一个和 Android index 不一致的位置 —— 表现为「声音自己飙到最大」。
+            am.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                    delta > 0 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER, 0);
             int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
             int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-            int next = cur + delta;
-            if (next < 0) {
-                next = 0;
-            }
-            if (next > max) {
-                next = max;
-            }
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, next, 0);
-            showVolume(next, max);
+            showVolume(cur, max);
+            Trace.add("live", "调音量 " + (delta > 0 ? "+" : "-") + " 当前 " + cur + "/" + max);
         } catch (Throwable t) {
             Trace.err("live", "调音量失败", t);
+        }
+    }
+
+    /**
+     * v2.20：音量回写（治「声音经常自己飙到最大、按一下音量键又正常」）。
+     *
+     * 现象能复现的机制：媒体解码器重建（换台 / 自动换源 / Dolby↔PCM 切换）之后，
+     * 这块海信固件会把它自己的扬声器增益推满，而 Android 侧的 STREAM_MUSIC index
+     * 一个数都没变 —— 所以 App 这边看音量还是 13/100，耳朵里已经是最大声。
+     * 老板按一下音量键之所以「又恢复正常」，是因为那次按键触发了一次
+     * setStreamVolume，固件拿 index 重新对了一遍扬声器。
+     *
+     * 既然按键能纠正，就把这个动作在「解码器刚重建完」这个时间点主动做一次，
+     * 而且写的是**当前 index 本身**（音量值不变，只让固件重新对齐），
+     * 用户不会听到音量被改，也不会看到 OSD。
+     */
+    private void resyncVolume(String why) {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) {
+            return;
+        }
+        try {
+            int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, cur, 0);
+            lastVol = cur;
+            Trace.add("live", "音量回写 " + cur + "/" + max + "（" + why + "）");
+        } catch (Throwable t) {
+            Trace.err("live", "音量回写失败", t);
+        }
+    }
+
+    /**
+     * v2.20：音量护栏。看门狗每 2 秒顺手看一眼 index。
+     *
+     * 只要「没人按音量键」却出现一次大跳（往上 ≥1/8 满量程），就退回上一档并记日志；
+     * 往下的大跳只记日志不退（用户可能用电视自己的按键或手机 App 调过，别硬掰）。
+     * 这样即使固件在别的地方推满，最多也就响 2 秒，而且下次能从 ygtv.log 里
+     * 查到「几点几分、从多少跳到多少」，比只凭耳朵判断靠谱。
+     */
+    private void guardVolume() {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) {
+            return;
+        }
+        try {
+            int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            long now = System.currentTimeMillis();
+            if (lastVol < 0 || max <= 0) {
+                lastVol = cur;
+                return;
+            }
+            int jump = cur - lastVol;
+            boolean byUser = now - lastVolAt < 2500;
+            if (jump > 0 && jump >= Math.max(6, max / 8) && !byUser) {
+                Trace.add("live", "音量被顶上去了 " + lastVol + "→" + cur + "/" + max + "，回退");
+                am.setStreamVolume(AudioManager.STREAM_MUSIC, lastVol, 0);
+                showVolume(lastVol, max);
+                return;
+            }
+            if (jump < 0 && -jump >= Math.max(8, max / 4) && !byUser) {
+                Trace.add("live", "音量被外部调低 " + lastVol + "→" + cur + "/" + max);
+            }
+            lastVol = cur;
+        } catch (Throwable t) {
+            Trace.err("live", "音量护栏异常", t);
         }
     }
 
@@ -917,13 +994,16 @@ public final class LivePlayerActivity extends Activity {
         drawerCount.setText("共 " + g.chs.size() + " 台");
 
         drawerList.removeAllViews();
+        // v2.20：把「这一行属于哪个分组」一起传进去。旧代码在点击时用 groupIdx（正在播的组）
+        // 覆盖 browseGroupIdx，于是「抽屉里切到央视选集」会按央视列表里的行号去取江西组里的台
+        // ——老板实测：选 CCTV-1 播出来是江西少儿。分组下标必须取渲染时的快照。
         for (int i = 0; i < g.chs.size(); i++) {
-            drawerList.addView(drawerRow(g.chs.get(i), i));
+            drawerList.addView(drawerRow(g.chs.get(i), i, browseGroupIdx));
         }
     }
 
     /** 抽屉里的一行频道：指示条 + 台标 + 台名/别名 + 源数。 */
-    private View drawerRow(final Live.Ch c, final int idx) {
+    private View drawerRow(final Live.Ch c, final int idx, final int gi) {
         final LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -1041,7 +1121,8 @@ public final class LivePlayerActivity extends Activity {
         });
         row.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                browseGroupIdx = groupIdx;
+                // v2.20：用渲染时记下的分组 gi，不要用 groupIdx（那是「正在播」的组）
+                browseGroupIdx = gi;
                 selectChannel(idx);
             }
         });
@@ -1302,6 +1383,8 @@ public final class LivePlayerActivity extends Activity {
                 // 老板自己「这台怎么比刚才那台慢」只能靠感觉 —— 给个数字就有据可依。
                 startMs = preparedAt - playAt;
                 updateInfo();
+                // v2.20：解码器刚重建完，正是固件把扬声器推满的时机 —— 立刻对齐一次
+                resyncVolume("起播");
             }
         });
         vv.setOnInfoListener(new MediaPlayer.OnInfoListener() {
@@ -1339,6 +1422,8 @@ public final class LivePlayerActivity extends Activity {
                     busyText.setVisibility(View.GONE);
                     bufAt = 0;
                     vv.requestLayout();
+                    // v2.20：第一帧上屏时音轨才真正开始出音，这时再对齐一次音量
+                    resyncVolume("出画");
                 }
                 return false;
             }
@@ -1419,6 +1504,8 @@ public final class LivePlayerActivity extends Activity {
     };
 
     private void checkAlive() {
+        // 音量护栏跟播放状态无关：抽屉/面板开着、暂停着，固件一样会出问题，所以放最前面
+        guardVolume();
         if (dead || paused || urls.isEmpty() || panelVisible || drawerVisible) {
             return;
         }
@@ -1473,6 +1560,15 @@ public final class LivePlayerActivity extends Activity {
         if (stalls >= MAX_STALLS) {
             Trace.add("live", "线路" + (urlIdx + 1) + " 反复卡顿 " + stalls + " 次");
             autoNext("这一路老是在转圈，换下一路");
+            return;
+        }
+
+        // 6. 周期性音量回写：每 10 秒让固件按当前 index 重新对一次扬声器。
+        //    间隔不能再长 —— 老板反馈里「声音自己飙到最大」是随机的，响十几秒就够烦人了；
+        //    一次回写就是一次 setStreamVolume(同值)，不出 OSD、不改音量，代价可以忽略。
+        if (now - lastResyncAt > 10000) {
+            lastResyncAt = now;
+            resyncVolume("定时对齐");
         }
     }
 
