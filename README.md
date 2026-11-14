@@ -6,7 +6,7 @@
 公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
 所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.29（versionCode 42）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
+当前版本：**v2.30（versionCode 43）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
 打 tag 自动出包并发 Release。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
@@ -33,8 +33,9 @@
 - **播放**：Media3/ExoPlayer 全屏 HLS。OK 暂停/播放、左右键 ±10 秒、**上下键上一集/下一集（v2.28 新增）**；
   起播前 HEAD 探路挑可用线路，失败换同名片的其他源；2 秒无操作自动收起 OSD。
 - **搜索**：一屏左右分栏，左边键盘（A-Z + 0-9 + 删/清/结果）、右边实时结果，停手 0.6 秒自动搜。
-  遥控器打不出中文，所以**直接敲拼音首字母**：`qyn` 会先用内置拼音索引翻成「庆余年第二季」这类中文名
-  再去搜；纯字母查不出片名时才退回原文当关键词，忽略 `wd` 直接吐整库的源会被片名过滤挡掉。
+  遥控器打不出中文，所以**直接敲拼音首字母**：`qyn` 会先用内置拼音索引（已打进 APK，断网也能用）
+  翻成「庆余年第二季」这类中文名再去搜；纯字母查不出片名时才退回原文当关键词，
+  忽略 `wd` 直接吐整库的源会被片名过滤挡掉。
 - **工具**：自检（真探直播 master + 14 个采集源，输出「直播 N 台 / 点播 X 好 Y 坏」）、
   清除缓存（cacheDir + codeCacheDir + 图片/接口内存缓存）、检测更新（读 GitHub Release 最新 tag）。
 - **老 Android 兼容**：Android 5.1 的信任库过旧 → `Net.sslFactory` 全放行，并对 `HttpsURLConnection`
@@ -44,6 +45,26 @@
   标签 `[img]` 海报、`[vod]` 点播/详情/换线、`[play]` 播放器状态与画面尺寸、`[key]` 按键与 Zone 变迁、`[tool]` 工具结果。
 
 ## 二、技术方案
+
+### v2.30：搜索真的能出结果了（拼音索引进包 + 取消竞态）
+
+v2.29 发出去后按老板的要求在电视上复验，发现「打 qyn 提示没搜到」——同一个包在开发机上明明能搜。
+两个独立原因，一起修：
+
+- **拼音索引原来要联网要**：`PyIndex` 只从 GitHub raw 拉 `py/<首字母>.txt`，而 `raw.githubusercontent.com`
+  在国内经常连不上（这台电视就是时通时不通）。现在把巡检产出的 `py/`（4.8MB 文本，压缩后只多 2MB）
+  直接打进 APK，`assets` 优先、缓存次之、最后才走在线镜像；镜像链改成 **jsDelivr 优先、raw 兜底**，
+  公共源 `live.json` 的刷新也走同一条链（真机日志：`公共源已更新 52645B（cdn.jsdelivr.net）`）。
+- **搜索被自己取消掉了**：`doSearch()` 每敲一个字都会 `searchJob.cancel()` 重发，而里面用
+  `runCatching { VodRepo.search(...) }` 包住了 suspend 调用 —— `runCatching` 连
+  `CancellationException` 一起吞，被取消的那一轮返回空列表，还照样把 `results = 空` 和
+  「没搜到」写回界面，于是**最后一次真正跑完的结果被上一轮的空白覆盖**（日志里的
+  `JobCancellationException: StandaloneCoroutine was cancelled` 就是它）。
+  现在只吞普通异常、取消照常抛出，另外加了自增 `searchSeq` 令牌，晚到的旧结果直接丢弃。
+- 顺带把每个源的搜索命中写进 `[vod]` 日志（`搜索 bfzy 命中 5`），以后排查「某个源不参与搜索」有据可查。
+
+真机复验：`qyn` → `[py] 首字母 qyn → 8 个候选，首个「庆余年第二季」` → 9 个源命中 →
+界面「共 9 条 · 字母已按拼音首字母转换」，九张《庆余年》海报；进详情、起播 `ffm3u8 第01集`、返回正常。
 
 ### v2.29：直播接上公共源、点播分类改成「按源来」、搜索补上拼音首字母
 
@@ -2194,7 +2215,7 @@ YG影视TV/
     Ui.kt         Compose 界面（TopBar 卡片栏、VodHome 海报墙、DetailScreen 详情页、ChannelPanel、SearchPage、播放页）
     MainActivity.kt 入口（Diag 初始化、Coil 装载、全局 TLS 放宽、按键分发）
     Diag.kt       文件日志 files/diag.log
-  app/src/main/assets/{live_jx.txt, live.json, src.txt}
+  app/src/main/assets/{live_jx.txt, live.json, src.txt, py/}
   legacy/java/                              旧 Java 版整目录存档（不参与构建）
   test/                                     旧版巡检脚本与 JVM harness（仍被 scan.yml 使用）
 ```
@@ -2517,7 +2538,8 @@ YG影视TV/
 │   ├── src/main/assets/live_jx.txt       # 165 台江西电信直播表（组id|台名|url）
 │   ├── src/main/assets/live.json         # 382 台公共源（巡检产物，v2.29 起打进包 + 启动时在线刷新）
 │   ├── src/main/assets/src.txt           # 14 个采集源（key|接口|Referer|type_id 表）
-│   ├── src/main/assets/{sources.json,py/,logo/}  # 巡检产物，挡在包外；py/ 仍供在线拼音索引按桶拉取
+│   ├── src/main/assets/py/               # 拼音首字母索引 24 桶（v2.30 起打进包，断网也能搜）
+│   ├── src/main/assets/{sources.json,logo/}  # 巡检产物，挡在包外（台标只有旧版用）
 │   ├── build/                   # 中间产物与 APK
 │   └── yg.keystore
 ├── legacy/java/                 # 旧 Java 版整目录存档（含 build.sh、build-ci.sh、res、25 个 .java）
@@ -2536,6 +2558,7 @@ YG影视TV/
   IPTV 地址，抽查能连，但源站下线是常事 —— 靠每天 `scan.yml` 巡检和 App 启动时的在线刷新兜。
 - **拼音搜索只到首字母**：`qyn` → 庆余年没问题，但多音字、生僻字与港台译名可能翻不出想要的片名，
   兜底办法是敲完整的关键词英文串（部分源会按原文匹配）或换同义词再试。
+  索引是巡检产出的快照（打进包里那份），新片要等 `scan.yml` 更新后重新发版或在线拉镜像。
 - **不再自动安装更新**：旧 Java 版会下载 APK 并拉起系统安装器，新版本（v2.28）只显示新版本号与
   Release 地址，需要手动下载安装。原因是 Android 5.1 上 `REQUEST_INSTALL_PACKAGES` 的拉起行为
   在 VIDAA 固件上不稳定，且自动安装要额外维护下载/校验逻辑。

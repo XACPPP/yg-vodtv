@@ -1,6 +1,7 @@
 package com.yg.vodtv
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -28,10 +29,17 @@ object Config {
     const val UA = "Mozilla/5.0 (Linux; Android 5.1.1; VIDAA_TV) YGTV/1.0"
 
     /** 公共直播源（仓库里的 live.json，CI 每天重建后提交） */
-    const val LIVE_API = "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/live.json"
+    /** 公共源/拼音表：GitHub raw 在国内经常连不上，先走 jsDelivr 镜像，再退回 raw */
+    val LIVE_URLS = listOf(
+        "https://cdn.jsdelivr.net/gh/XACPPP/yg-vodtv@master/app/src/main/assets/live.json",
+        "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/live.json",
+    )
 
     /** 拼音首字母索引，客户端按需下单个字母桶 */
-    const val PY_BASE = "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/py/"
+    val PY_URLS = listOf(
+        "https://cdn.jsdelivr.net/gh/XACPPP/yg-vodtv@master/app/src/main/assets/py/",
+        "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/py/",
+    )
 
     /** 每个分类一次拉多少条（14 个源并发，去重后留这么多） */
     const val LIMIT = 120
@@ -221,18 +229,23 @@ object LiveData {
      * 拉不到就继续用包里那份，绝不阻塞界面。
      */
     suspend fun refresh(ctx: Context) = withContext(Dispatchers.IO) {
-        runCatching {
-            val body = Net.get(Config.LIVE_API)
-            if (body.length < 4096) return@runCatching
+        for (url in Config.LIVE_URLS) {
+            val body = runCatching { Net.get(url) }.getOrNull()
+            if (body == null || body.length < 4096) {
+                Diag.w("live", "公共源拉取失败 " + url.substringAfter("//").substringBefore("/"))
+                continue
+            }
             val old = fileBody(ctx) ?: ""
             // 内容没变就不写盘，省一次闪存
-            if (body == old) return@runCatching
+            if (body == old) return@withContext
             val f = java.io.File(ctx.filesDir, "live.json")
             val tmp = java.io.File(ctx.filesDir, "live.json.tmp")
             tmp.writeText(body)
             if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
-            Diag.w("live", "公共源已更新 " + body.length + "B")
-        }.onFailure { Diag.w("live", "公共源刷新失败 " + it) }
+            Diag.w("live", "公共源已更新 " + body.length + "B（" +
+                url.substringAfter("//").substringBefore("/") + "）")
+            return@withContext
+        }
         Unit
     }
 }
@@ -486,18 +499,28 @@ object PyIndex {
                 return t
             }
         }
-        val net = runCatching { Net.get(Config.PY_BASE + key + ".txt") }.getOrNull()
-        if (net == null || net.length < MIN_BYTES) {
-            Diag.w("py", "首字母表 " + key + " 拿不到，本次搜索直接查关键词")
-            return null
+        // 打进包里的那份最省事：不联网也能搜，只有巡检更新过才需要拉新的
+        val packed = runCatching {
+            ctx.assets.open("py/" + key + ".txt").use { String(it.readBytes(), Charsets.UTF_8) }
+        }.getOrNull()
+        if (packed != null && packed.length >= MIN_BYTES) {
+            synchronized(this) { lastL = key; lastBody = packed }
+            return packed
         }
-        runCatching {
-            val tmp = java.io.File(dir(ctx), key + ".txt.tmp")
-            tmp.writeText(net)
-            if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+        for (base in Config.PY_URLS) {
+            val net = runCatching { Net.get(base + key + ".txt") }.getOrNull()
+            if (net == null || net.length < MIN_BYTES) continue
+            runCatching {
+                val tmp = java.io.File(dir(ctx), key + ".txt.tmp")
+                tmp.writeText(net)
+                if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            }
+            Diag.w("py", "首字母表 " + key + " 在线取自 " + base.substringAfter("//").substringBefore("/"))
+            synchronized(this) { lastL = key; lastBody = net }
+            return net
         }
-        synchronized(this) { lastL = key; lastBody = net }
-        return net
+        Diag.w("py", "首字母表 " + key + " 拿不到，本次搜索直接查关键词")
+        return null
     }
 
     fun clear(ctx: Context) {
@@ -701,7 +724,22 @@ object VodRepo {
         val lists = coroutineScope {
             srcs.map { s ->
                 async {
-                    queries.flatMap { wd -> runCatching { fetch(s, 1, wd, "detail", filter = wd) }.getOrDefault(emptyList()) }
+                    val out = ArrayList<Vod>()
+                    for (wd in queries) {
+                        // 别用 runCatching 包 suspend：它会连 CancellationException 一起吞掉，
+                        // 上一个字的搜索被取消后还会把空结果写回界面
+                        val one = try {
+                            fetch(s, 1, wd, "detail", filter = wd)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (t: Throwable) {
+                            Diag.w("vod", "搜索 " + s.key + " 出错 " + t)
+                            emptyList()
+                        }
+                        out.addAll(one)
+                    }
+                    if (out.isNotEmpty()) Diag.w("vod", "搜索 " + s.key + " 命中 " + out.size)
+                    out
                 }
             }.awaitAll()
         }

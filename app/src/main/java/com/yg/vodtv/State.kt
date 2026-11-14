@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -120,13 +121,26 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         }
     }
 
+    private var searchSeq = 0
+
     private fun doSearch() {
         searchJob?.cancel()
         if (q.isEmpty()) { results = emptyList(); searchNote = ""; return }
         searchNote = "搜索中…"
+        val token = ++searchSeq
         searchJob = scope.launch {
             delay(600)   // 连着按字母时只在最后一个字上真正发请求
-            val r = runCatching { VodRepo.search(ctx, q) }.getOrDefault(emptyList())
+            if (token != searchSeq) return@launch
+            // 只吞普通异常：协程被取消时若也返回空列表，会把上一次的「没搜到」写回界面
+            val r = try {
+                VodRepo.search(ctx, q)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                Diag.w("vod", "搜索失败 " + t)
+                emptyList()
+            }
+            if (token != searchSeq) return@launch
             results = r
             rg = 0
             val ascii = q.all { it in 'a'..'z' || it in 'A'..'Z' }
