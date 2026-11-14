@@ -2668,6 +2668,7 @@ djttclfm	独家头条：初露锋芒
 djtzf	大家庭主妇
 djw	渡京雾
 djwclsy	渡京雾，蝉落深渊
+djwcydxd	顶级暗卫穿越到现代
 djwdyj	渡京雾第一季
 djwfcz	东京卍复仇者
 djwggnbt	渡京雾：乖乖女别逃
@@ -2733,6 +2734,7 @@ djywjjbt	电竞野王,姐姐别逃
 djywppsnl	调解员,我婆婆送你了
 djyxlhz	东江英雄刘黑仔
 djyyclzawr	代嫁哑颜：沉沦挚爱温柔
+djyysjsxsyqm	顶级育婴师,竟是小少爷亲妈
 djyyy	大酱园粤语
 djz	大决战
 djz	夺金战
@@ -3770,6 +3772,7 @@ dmxldyjs	夺命凶灵[电影解说]
 dmxn	刁蛮新娘
 dmxq	弹麦相庆
 dmxt	大马戏团
+dmxtjzgwnyqd	夺命系统,竟助攻我碾压情敌
 dmxwzjsyp	大冒险王之金丝玉盘
 dmxwzxyxl	大冒险王之西域寻龙
 dmxx	大漠雄心
@@ -3894,7 +3897,7 @@ dnfj	独女反击
 dnfmwznzdqc	嫡女焚梦：仵作娘子断前尘
 dnfqc	嫡女覆前尘
 dnfrh	嫡女覆荣华
-dnfsbgnclnpxt	帝女封神：本宫拿错了男频系统
+dnfsbgnclnpxt	帝女封神:本宫拿错了男频系统
 dnfshjl	等你分手很久了
 dng	嫡女归
 dngj	嫡女归京
@@ -4276,6 +4279,7 @@ dqdsj	大群第三季
 dqdsmdyj	地球大扫描第一季
 dqdsqgdsym	大乾毒士,千古第三阳谋!
 dqdsqgdsymdej	大乾毒士,千古第三阳谋!第二季
+dqdsqgdsymdsj	大乾毒士,千古第三阳谋!第三季
 dqdyd	大庆第一帝
 dqdyj	大群第一季
 dqdyjdyjs	大群 第一季[电影解说]
@@ -5147,6 +5151,7 @@ dsqnqlwmb	大叔，求你娶了我妈吧
 dsqs	屌丝骑士
 dsqs	都市枪手
 dsqsdyjs	单身骑士[电影解说]
+dsqxa	第三起凶案
 dsqxsltwxbd	大四穷学生：连通外星宝地
 dsqydyjs	都市情缘[电影解说]
 dsqyztywd	都市奇缘之天医问道
@@ -5411,6 +5416,7 @@ dszr	大弑之日
 dszs	赌神之神
 dszs	赌神之神2020
 dszseydxj	大叔转生恶役大小姐
+dszshce	大嫂之扫黑除恶
 dszsjxsmhwylfs	都市战神：救下双美后我一路封神
 dszsltx	都市之神临天下
 dszsnds	赌神3之少年赌神
@@ -5504,6 +5510,7 @@ dthg	第22条婚规
 dthjdytcnmd	大唐皇家第一团宠尼命哒
 dthjdytcnmd	大唐，皇家第一团宠尼命哒
 dthxw	大唐好贤王
+dthxzwjjstzfadj	大唐憨婿之我姐姐是太子妃AI短剧
 dthydj	单挑荒野第一季
 dthydj	单挑荒野第二季
 dthyjj	单挑荒野绝境
@@ -5656,6 +5663,7 @@ dts	对她说
 dts	电梯上
 dtsbtjjhwksbz	顶替双胞胎姐姐后我开始暴走
 dtscs	当天使沉睡
+dtscwykzdlpddlc	地摊神厨,我一开张大佬排队等撸串
 dtsdyjs	大逃杀 バトル・ロワイアル[电影解说]
 dtsdyjs	对她说[电影解说]
 dtsgdmyr	大图书馆的牧羊人
@@ -5750,6 +5758,7 @@ dtzfkhtzhmj	地铁站分开后，她追悔莫及！
 dtzx	电台之星
 dtzxd	敌特在行动
 dtzy	豆田战役
+dtzymxqql	大唐状元莫宣卿奇案录
 dtzzlqmdwj	大唐咒子来敲门第五季
 dw	冬雾
 dw	大卫
@@ -5874,6 +5883,7 @@ dwjq	断网假期
 dwjqdyjs	断网假期[电影解说]
 dwjs	动物僵尸
 dwjsqywzjsxbzj	帝王绝嗣却意外撞见缩小版自己
+dwjwpqnyzsety	第五季王牌前女友之树讷甜阳
 dwjxldsj	帝王觉醒录第三季
 dwjxzh	当我觉醒之后
 dwjz	赌王家族
@@ -6149,6 +6159,7 @@ dxdm	喋血丹盟
 dxdmm	大象的秘密
 dxdmwylswdgb	读心:大魔王原来是我的乖宝
 dxdne	大校的女儿
+dxdnjlgcgfj	读心嫡女捡了个吃瓜夫君
 dxdqybk	读心呆妻一百块
 dxds	地下地上
 dxdsj	毒枭第三季
@@ -6848,6 +6859,7 @@ dyhfhzlbn	钓鱼换饭，换走老板娘
 dyhglnzssmqdfdb	登月后，高冷女总师上门求带飞第2部
 dyhgy	大运河国语
 dyhjyg	大鱼3汉江鱼怪
+dyhkpwxfzadj	第一寰客:破妄寻父踪AI短剧
 dyhl	电影花轮
 dyhmcdgmrddyrtjdgqjdmsnczbf	电影《黄庙村·地宫美人》定档8月20日，太监地宫囚禁多名少女，惨遭报复！
 dyhqwgl	断义后拳王归来

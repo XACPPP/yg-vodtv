@@ -951,6 +951,7 @@ hdjj	海底军舰
 hdjjchfqlqcbzq	和嫡姐进错婚房，清冷权臣变忠犬
 hdjldej	海盗佳丽第二季
 hdjldyj	海盗佳丽第一季
+hdjltxsdyj	蝴蝶降临他心上第一季
 hdjm	海岛巨蟒
 hdjrzq	回到救人之前
 hdjsdjmrj	咁大件事点解冇人讲
@@ -1082,6 +1083,7 @@ hdqs	荒岛求生
 hdqsbhsj	荒岛求生2背后杀机
 hdqsqdej	海盗旗升起第二季
 hdqsqdyj	海盗旗升起第一季
+hdqsyjjxj	荒岛求生:依姐觉醒记
 hdqszjslx	荒岛求生之巨兽来袭
 hdqwbgdn	皇帝求我别关电脑
 hdqwl	荒岛情未了
@@ -1650,6 +1652,7 @@ hgdej	黑鸽 第二季
 hgdgtdyjs	后宫的规条[电影解说]
 hgdjnysyqw	海归的假女友是野蔷薇
 hgdmdztwgd	后宫的猫都在替我宫斗
+hgdsdwk	回归都市当纨绔
 hgdsgt	韩国都市怪谈
 hgdsgtgsdyjs	韩国都市怪谈：诡手[电影解说]
 hgdtzpsnpj	回国当天，撞破三年骗局
@@ -1673,6 +1676,7 @@ hgfysb	黑寡妇(原声版)
 hgg	函谷关
 hgg	好狗狗
 hggdsdtlah	和哥哥的死对头恋爱后
+hgglwbsednpytg	好感归零我必死,恶毒女配要通关
 hggs	护工故事
 hggs	海龟故事
 hggy	回归2022国语
@@ -3511,6 +3515,7 @@ hlsjjlx	婚礼上拒绝陋习
 hlsjt	花落时嫁他
 hlsjyfj	花落时节又逢君
 hlsl	幻乐森林
+hlslgdqmjxppzbzl	婚礼上老公的青梅加戏,婆婆坐不住了
 hlslpjzqs	哈拉上路2：啤酒桌球赛
 hlsm	火辣师妹
 hlsmctyqwldns	红楼：什么朝廷鹰犬，我来当逆神
@@ -4108,6 +4113,7 @@ hmymys	90后妈又美又飒
 hmyrssh	侯门一入深似海
 hmyry	好梦一日游
 hmyrydyjs	好梦一日游[电影解说]
+hmys	黑猫御史
 hmyswcnzwysh	荒庙遇神，我成南泽唯一神后
 hmysybxxclqjbyg	豪门月嫂，一不小心成了全家白月光2
 hmysybxxclqjdbyg	豪门月嫂，一不小心成了全家的白月光
@@ -4577,6 +4583,8 @@ hqgj	黑枪高举
 hqgjbblx	婚情告急宝贝来袭
 hqgl	黄泉归来
 hqgld	祸起高利贷
+hqgljjqjs	悍妻归来,将军请接生
+hqgljjqjz	悍妻归来2,将军请接招
 hqgls	侯阙归来时
 hqglsc	花钱攻略手册
 hqgs	婚前故事
@@ -7159,6 +7167,7 @@ hyly	胡言乱语
 hylyxqygs	回忆录：异形起源故事
 hylz	混元灵珠
 hylz	荒野浪子
+hylzfszswszcxhthl	侯爷临终扶庶子上位,圣旨赐下后他慌了
 hylzk	欢迎来做客
 hylzwlse	红月亮之武陵山歌
 hym	红颜谋

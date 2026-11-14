@@ -22,6 +22,7 @@ taldbsw	他暗恋的不是我
 talgdmy	探案录骨笛魔音
 talsdtdwhgzbb	天啊噜，死对头对我好感值爆表
 talwcyzbzks	他暗恋我，从一张壁纸开始
+tamj	她那么骄
 tapddej	探案拍档第二季
 tapddsj	探案拍档第三季
 tapddsj	探案拍档第四季
@@ -224,6 +225,7 @@ tbxyzsxfgy	泰版下一站是幸福国语
 tbxyzsxfty	泰版下一站是幸福泰语
 tbxz	特别小组
 tbxzdyjdyjs	特别小组 第一季[电影解说]
+tbydcmqwxd	他白月的成名曲,我写的
 tbyggyy	她比月光更耀眼
 tbygsknzl	替白月光撕开那张脸
 tbyhcl	她比烟花灿烂
@@ -988,6 +990,7 @@ tdsxs	塔杜施先生
 tdsy	她的盛宴
 tdsy	她的盛焰
 tdsybh	她的双眼背后
+tdsybyg	他的山野白月光
 tdsyclh	她的神眼超厉害
 tdsydxj	甜点师与大小姐
 tdsyhpxammjz	听懂兽语，还怕凶案没目击者
@@ -1443,6 +1446,7 @@ tghndqjzf	特工悍娘带全家致富
 tgj	田耕纪
 tgjdblk	特工杰德‧布莱克
 tgjddxjbnl	特工驾到大小姐别闹了
+tgjh	甜港京婚2
 tgjhkqndcskjs	通古今：横跨千年的超时空救赎
 tgjhwyclwljx	通古今后我养成了未来奸相
 tgjhywbsytf	堂哥结婚，要我白送一套房
@@ -1900,6 +1904,7 @@ thwjgdsj	头号外交官 第四季
 thwjgdsj	头号外交官第三季
 thwjgdyj	头号外交官第一季
 thwjhdmd	他和我结婚的目的
+thwjtwjbrr	他毁我家庭我绝不容忍
 thwkfz	桃花坞开放中
 thwkfzdsj	桃花坞开放中 第三季
 thwkfzdsj	桃花坞开放中第三季
@@ -3984,6 +3989,7 @@ ts	逃山
 ts	逃杀2020
 ts	逃生
 ts	逃鲨
+ts	通杀
 tsa	天使A
 tsadyjs	天使A[电影解说]
 tsagjdyjs	天使爱过界[电影解说]
@@ -4927,6 +4933,7 @@ tttg	天堂糖果
 tttlh	太太太厉害
 tttq	天天天晴
 tttqgy	天天天晴国语
+tttqmzmzds	糖糖糖青梅竹马正当时
 tttqyy	天天天晴粤语
 tttt	他她他她
 ttttwlxt	跳跳跳台湾旅行团
@@ -5509,6 +5516,7 @@ txqyy	叹息桥粤语
 txrhjdngzs	剃须。然后捡到女高中生。
 txrj	天下人家
 txrmwrxb	桃香入眠,温柔相伴
+txrmwrxb	桃香入眠,温柔相伴!
 txrmwrxb	桃香入眠温柔相伴
 txrmwrxbtzydzxc	桃香入眠温柔相伴,太子爷的掌心宠
 txrmwrxbytcmdej	桃香入眠温柔相伴:予她成眠第二季
@@ -5944,6 +5952,7 @@ tysf	褪羽时分
 tysgn	田园时光暖
 tysj	太阳市集
 tysjx	庭院深几许
+tysljjfp	他御神龙绝境翻盘
 tyslxshjz	他一声令下四海皆震
 tysmwr	她以声名为刃
 tysmx	跳跃生命线
@@ -5966,6 +5975,7 @@ tysw	逃狱三王
 tyswdyjs	逃狱三王[电影解说]
 tysy	桃运圣医
 tysydj	天羽寿元第二季
+tysyplzf	她于深渊破笼!绽放!
 tyszzdyjs	太阳神诅咒[电影解说]
 tyt	她与他
 tytdfj	她与她的反击
@@ -6159,6 +6169,7 @@ tzcdbj	胎珠传第八季
 tzcdsej	胎珠传第十二季
 tzcdsj	胎珠传第十季
 tzcdslj	胎珠传第十六季
+tzcdsqj	胎珠传第十七季
 tzcdssj	胎珠传第十三季
 tzcdssj	胎珠传第十四季
 tzcdswj	胎珠传第十五季
@@ -6225,6 +6236,7 @@ tzdyjs	套装[电影解说]
 tzdyjs	挑战[电影解说]
 tzdyjs	痛症[电影解说]
 tzdyjs	逃组[电影解说]
+tzdzcxjjszmdyj	太子的专宠小娇娇是只猫第一季
 tzdzsfdz	太子的专属饭搭子
 tzdzwgl	铁宅道子、2万公里
 tzdzwgl	铁宅道子，2万公里
@@ -6247,6 +6259,7 @@ tzfsyznkthmydf	太子妃是养猪女，可她好命又多福
 tzfszj	太子妃升职记
 tzftbctt	太子妃她不成体统
 tzftbcttlmyzyl	太子妃她不成体统 （李木扬 邹漪琳）
+tzftbkeyxadj	太子妃他不可能有喜AI短剧
 tzftcnd	太子妃她超能打
 tzftjspll	太子妃她假死跑路了
 tzftldqj	太子妃她略懂拳脚
@@ -6410,6 +6423,7 @@ tzshdyjs	它在身后[电影解说]
 tzsj	天真时间
 tzsjdgs	挑战世界的怪兽
 tzsjwhkjqjtjsa	太子是九尾狐，可假千金她近视啊
+tzsjwsswyxtdgadj	太子算计我,杀神王爷掀他东宫AI短剧
 tzslbjlswl	太子傻了吧唧，赖上我了
 tzsmxqs	她走时暮雪千山
 tzsmzlsjt	特种使命之绿色军团

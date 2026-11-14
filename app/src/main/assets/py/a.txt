@@ -513,6 +513,7 @@ afldmw	阿法隆的迷雾
 afldyjs	爱疯了[电影解说]
 aflxq	啊，父老乡亲
 afly	奥菲莉娅
+afmc	暗访明察
 afmm	暗房秘密
 afny	阿丰尼亚
 afqs	爱逢其时
@@ -613,6 +614,7 @@ ahh	爱火花
 ahhbwdrsyrfz	爱换换吧！我的人生易如反掌
 ahhd	暗黑蝴蝶
 ahj	阿胡贾
+ahjclxycy	爱恨皆沉沦:小源沉渝
 ahjd	爱很简单
 ahjdyjs	爱·回家 집으로...[电影解说]
 ahjdyjs	爱·回家[电影解说]
@@ -1385,6 +1387,7 @@ apfy	暗牌风云
 aphy	爱拼会赢
 apkzmt	爱，偏开在迷途
 aplsz	阿帕鲁萨镇
+apnzbxt	阿飘娘子别想逃
 apsj	阿丕书记
 apyhq	啊朋友还钱
 aq	暗渠
@@ -1896,12 +1899,14 @@ askbdyj	昂首阔步第一季
 askddsczldyjs	艾斯卡达的三次葬礼[电影解说]
 askdmgm	奥斯卡的美国梦
 askdyj	阿索卡第一季
+askmmxgl	奥斯卡：猛犸象归来
 askpyj	爱上库珀一家
 askq	爱是亏欠
 asksyy	奥斯卡十一月
 askszs	埃塞克斯之蛇
 asktedys	奥斯卡探戈地狱水
 askx	傲世狂枭
+askxxmcrhswd	傲世狂枭,玄门传人横扫无敌
 askyljdgzshhzkdljss	艾斯卡与罗吉的工作室～黄昏之空的炼金术士～
 askylxd	奥斯卡与露辛达
 asl	奥斯陆

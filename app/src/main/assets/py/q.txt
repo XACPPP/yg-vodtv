@@ -23,6 +23,7 @@ qabxgy	情爱保险国语
 qacy	囚爱成瘾
 qad	亲爱的
 qadadh	亲爱的爱德华
+qadajsaq	亲爱的,那就是爱情
 qadals	亲爱的爱丽丝
 qadb	亲爱的，别！
 qadbb	亲爱的宝贝
@@ -482,6 +483,7 @@ qcjm	情仇姐妹
 qcjmhwzsqxbsd	全村拒卖后，我转身签下八十吨
 qcjp	青春节拍
 qcjqrrybasysws	倾城娇妻人如玉，保安少爷世无双
+qcjqxwkyec	前尘尽弃,许我快意恩仇
 qcjs	青春警事
 qcjshxl	权臣竟是黑心莲
 qcjszrcb	权臣竟是粘人醋包
@@ -1037,6 +1039,7 @@ qfqc	弃妃倾城
 qfqfhwzsjqr	前夫求复合,我转身嫁前任
 qfqkblzfrsft	前夫请靠边，厉总夫人飒翻天
 qfqlbwysgfr	前夫请留步，我已是顾夫人
+qfqqslhxy	前夫,请签收离婚协议
 qfqs	情逢棋手
 qfqzz	前夫请自重
 qfrrqfh	前夫日日求复合
@@ -1564,9 +1567,11 @@ qjcyjhnyjzfffl	全家穿越饥荒年养家致富方法论
 qjcymg	全家穿越民国
 qjcyxrgbyhwywtw	全家穿越小人国不要慌,我有汪投喂
 qjcyzllws	全家穿越之六零往事
+qjcyzyjskqfddyj	全家穿越之一家三口齐奋斗第一季
 qjczz	奇迹创造者（1962）
 qjdcx	鼩鼱的巢穴
 qjdcxdyjs	鼩鼱的巢穴[电影解说]
+qjdcydj	倾家荡产养妲己
 qjddc	弃旧，得独宠
 qjddl	骑警杜德雷
 qjddzcgdxzqjbll	全家带凳子吃瓜读心真千金爆料啦
@@ -1647,6 +1652,7 @@ qjglcjly	千金归来错嫁良缘
 qjgldswynsgz	千金归来，爹是王爷娘是公主
 qjglgmktwmg	千金归来：闺蜜开团我秒跟
 qjglhmegcbt	千金归来豪门哥哥宠不停
+qjgljjmwlh	千金归来舅舅们我来护
 qjgljsxhhwqj	千金归来，精神小伙护我全家
 qjglmzzzwbf	千金归来：墨总追着我不放
 qjglnfyrh	千金归来，暖风拥入怀
@@ -1689,6 +1695,7 @@ qjjb	崎寂酒吧
 qjjclsdbbjc	千金娇宠，厉少的百般纠缠
 qjjcxhsgzpf	倾尽家产，校花是个诈骗犯
 qjjd	千金驾到1998
+qjjdjjqzy	千金嫁到,将军请折腰
 qjjdprsssk	千金驾到旁人速速闪开
 qjjj	全境警戒
 qjjjdfc	千金姐姐的复仇
@@ -1727,6 +1734,7 @@ qjn	强奸男7
 qjndlgsjj	千金，你的老公是将军
 qjngzsdyjs	清洁女工之死[电影解说]
 qjnmllq	千金难买邻里情
+qjnmnkxnwxzjtk	千金难买你开心,那我选择仅退款
 qjnmyht	千金难买一回头
 qjnmyjq	千金能买一家亲
 qjnsbql	千金难饲薄情郎
@@ -3092,6 +3100,7 @@ qqcc	缱绻成尘
 qqch	青雀成凰
 qqcjss	鹊桥词今世书
 qqcjzjsl	前妻出嫁重金随礼
+qqcmx	拳拳慈母心
 qqcrh	卿卿宠入怀
 qqcx	卿卿宸心
 qqcydtn	全球厨艺倒退3000年
@@ -3301,6 +3310,7 @@ qqsgmyxdjcz	七骑士：革命-英雄的继承者-
 qqsh	恰恰丝滑
 qqshdyjs	恰恰丝滑[电影解说]
 qqshzfzsyqdqj	前妻死后，丈夫转身迎娶恶毒千金
+qqsjthqzy	全球杀机:天黑请睁眼
 qqsjx	卿卿锁君心
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试2
@@ -3725,6 +3735,7 @@ qsgmxlgx	奇石改命血路归乡
 qsgnzrnbylswqqjz	前生给你尊荣你不要,来世我去娶郡主
 qsgnzrnbylswqqjzdej	前生给你尊荣你不要,来世我去娶郡主第二季
 qsgrl	恰似故人来
+qsgsnjfqdhhxrzadj	清水故事:农家夫妻的红火小日子AI短剧
 qsgsw	轻声告诉我
 qsgx	亲属关系
 qsgy	枪神国语
@@ -5039,6 +5050,7 @@ qyphlgsmyjjcs	全员炮灰,灵龟师妹一剑祭长生4
 qyphlgsmyjjcs	全员炮灰,灵龟师妹一剑祭长生5
 qyphlgsmyjjcs	全员炮灰，灵龟师妹一剑祭长生
 qyphlgsmyjjcsdej	全员炮灰，灵龟师妹一剑祭长生第二季
+qyphlgsmyjjcsdqj	全员炮灰,灵龟师妹一剑祭长生第七季
 qyphlgsmyjjcsdsj	全员炮灰，灵龟师妹一剑祭长生第三季
 qypj	囚羽破茧
 qyplw	千亿破烂王
@@ -5074,6 +5086,7 @@ qysbxgy	情越双白线国语
 qysbxyy	情越双白线粤语
 qysd	七月圣诞
 qysd	旗扬！兽道
+qysdgh	秦医生,搭个伙
 qysg	情欲失格
 qysh	权御山河
 qyshglxsttqzz	契约闪婚,高冷先生天天求转正
@@ -5167,6 +5180,7 @@ qyxqlxj	千亿贤妻来相见
 qyxrk	千眼向日葵
 qyxs	契约新生
 qyxtbwwnblgr	契约系统绑万物你绑了个人
+qyxy	权野逍遥
 qyxybccphwksdjfxzj	全员显眼包：穿成炮灰我靠沙雕卷翻修真界
 qyxyr	全员嫌疑人
 qyxyrdyjs	全员嫌疑人[电影解说]
