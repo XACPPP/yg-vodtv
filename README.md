@@ -2,10 +2,11 @@
 
 自用的电视端 **影视 + 直播** 双板块 App。**v2.28 起整体重写为 Kotlin + Jetpack Compose + Media3**
 （标准 Gradle 工程），跑在海信 VIDAA 电视（Android 5.1.1 / API 22，1GB 内存）上。
-点播片源来自 **14 个苹果CMS采集源聚合**，直播内置 **165 台 / 174 路江西电信 IPTV 源**（5 组）。
-包名沿用 `com.yg.vodtv`，所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
+点播片源来自 **14 个苹果CMS采集源聚合**；直播 **514 台 / 10 组**，由江西电信内网 165 台与
+公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
+所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.28（versionCode 41）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
+当前版本：**v2.29（versionCode 42）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
 打 tag 自动出包并发 Release。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
@@ -18,16 +19,22 @@
 - **卡片栏**：一个界面搞定导航。顶栏两张浏览器式卡片「电视直播 / 影视点播」，左右键换卡片立即生效；
   选中「电视直播」后 **2 秒无操作自动进全屏播放**；右侧空余处是「自检 / 清除缓存 / 检测更新」
   三个工具胶囊 + 时钟 + 版本号。返回键按层级退：内容区 → 卡片栏 → 退出。
-- **电视直播**：165 台分 5 组（江西本地 / 央视 / 卫视 / 影视剧场 / 付费专业），同名台多线路自动并档；
+- **电视直播**：514 台分 10 组（江西本地 / 央视 / 卫视 / 地方 / 体育 / 电影 / 港澳台 / 其它 / 影视 / 付费）。
+  v2.29 起把仓库里的公共源表 `live.json`（382 台）和江西电信 165 台内网源合成一张表，同名台多线路自动并档；
+  公共源每天由 `scan.yml` 巡检更新，App 启动时再从 GitHub raw 拉一次（有变化才写盘，拉到就留着离线用）；
   播放中按 OK 弹出换台面板（左分组、右频道），选台立即切换；出错自动切同名台下一路源。
-- **影视点播**：分类条（推荐 / 电影 / 剧集 / 综艺 / 动漫 / 纪录 / 4K / 短剧）与搜索框同高同行，
+- **影视点播**：分类条与搜索框同高同行，**分类不再写死**：v2.29 起把 14 个采集源的 `class` 表实时汇总、
+  同义归并，得到 24 档（推荐 / 电影 / 剧集 / 综艺 / 动漫 / 纪录 / 短剧 / 体育 / 伦理 / 动作 / 喜剧 / 爱情 /
+  科幻 / 恐怖 / 剧情 / 战争 / 悬疑 / 犯罪 / 灾难 / 动画 / 国产剧 / 欧美剧 / 韩剧 / 日剧），
   下方 5 列海报墙，每类最多 120 部，14 个源并发聚合、按片名去重。
 - **详情页（v2.28 新增）**：海报 + 片名 + 年份/地区/评分 + 主演/导演 + 简介（最多 9 行，超出省略号）；
   右侧「线路」切换（源站给了多条线路才出现）+ 选集网格（每行 6 集，进页自动滚到当前集）。
   以前电视剧只能在海报墙上直接起播第一集，现在能先看简介、再挑第几集。
 - **播放**：Media3/ExoPlayer 全屏 HLS。OK 暂停/播放、左右键 ±10 秒、**上下键上一集/下一集（v2.28 新增）**；
   起播前 HEAD 探路挑可用线路，失败换同名片的其他源；2 秒无操作自动收起 OSD。
-- **搜索**：一屏左右分栏，左边键盘、右边实时结果；停手 2 秒自动搜，结果凑够一屏就走。
+- **搜索**：一屏左右分栏，左边键盘（A-Z + 0-9 + 删/清/结果）、右边实时结果，停手 0.6 秒自动搜。
+  遥控器打不出中文，所以**直接敲拼音首字母**：`qyn` 会先用内置拼音索引翻成「庆余年第二季」这类中文名
+  再去搜；纯字母查不出片名时才退回原文当关键词，忽略 `wd` 直接吐整库的源会被片名过滤挡掉。
 - **工具**：自检（真探直播 master + 14 个采集源，输出「直播 N 台 / 点播 X 好 Y 坏」）、
   清除缓存（cacheDir + codeCacheDir + 图片/接口内存缓存）、检测更新（读 GitHub Release 最新 tag）。
 - **老 Android 兼容**：Android 5.1 的信任库过旧 → `Net.sslFactory` 全放行，并对 `HttpsURLConnection`
@@ -37,6 +44,36 @@
   标签 `[img]` 海报、`[vod]` 点播/详情/换线、`[play]` 播放器状态与画面尺寸、`[key]` 按键与 Zone 变迁、`[tool]` 工具结果。
 
 ## 二、技术方案
+
+### v2.29：直播接上公共源、点播分类改成「按源来」、搜索补上拼音首字母
+
+三处都是「用起来才发现」的问题：
+
+- **直播只剩江西电信那 165 台**：Compose 版当初只读 `live_jx.txt`，仓库里每天巡检出来的
+  `live.json`（382 台 7 组）被 `ignoreAssetsPattern` 挡在包外，代码里也没有任何地方解析它。
+  现在过滤表去掉 `live.json`（4.8MB 的 `py/` 与 628KB 的 `logo/` 继续挡），`LiveData` 把公共源七组
+  （cctv / sat / sports / movie / hkmotw / local / other）与江西电信五组一起读，同名台并成多线路，
+  按「江西本地 / 央视 / 卫视 / 地方 / 体育 / 电影 / 港澳台 / 其它 / 影视 / 付费」排，真机 **514 台**。
+  启动时再从 GitHub raw 拉一次 `live.json`，内容有变化才写盘，源站更新后不用等发版。
+- **分类串台**：旧实现拿内部频道号（0/1/2/3/4/19/28/27）去索引 `src.txt` 第四段那张 type_id 表，
+  可各源 type_id 语义完全不同（`ffzy` 电影片=1、`bfzy` 电影片=20、`jszyapi` 电影=2、`uku` 电影=1、
+  `modu` 电影=7），位置一对不上，「电影」里就混进别的类型。
+  实测 14 个源里**只有 `bfzy` 认 `&t=<type_id>` 过滤**，其余给 `t=` 一律返回空，于是改成：
+  不带 `t` 拉每个源最新几页，按条目自带的 `type_name`（基本都是叶子分类：剧情片 / 恐怖片 / 国产剧 / 日剧…）
+  在本地归一后认领。`Cats.norm()` 是约 70 条同义表（电影片→电影、连续剧→剧集、记录片→纪录、
+  香港剧→港剧…），一级分类（电影 / 剧集 / 综艺 / 动漫 / 纪录 / 短剧 / 体育 / 伦理）要子树命中才上条。
+  真机结果是 24 档，`电影(23 源) / 剧集(19 源) / 动漫(11 源)…`，每档下面挂的确实是那类片子。
+- **搜索点了没反应**：两个原因叠在一起。① 键盘只有 A-Z + 0-9，遥控器根本打不出中文片名；
+  ② 搜索走 `ac=detail&wd=`，而 `bfzy`、`zuidazy` 这类源**忽略 `wd` 直接吐整库**（实测 1631 条 /
+  125897 条），120 条上限被噪声占满，真结果反而被挤掉。现在键盘加了「结果」键；纯字母查询先用
+  `PyIndex` 把 `qyn` 翻成候选中文名（两轮扫描 + 按标点/长度排序，取前 8 个，最多 3 个去搜），
+  每个源的结果再过一道片名 contains 过滤，最后按候选顺序把最像的排前面；页面顶部会写
+  「共 N 条 · 字母已按拼音首字母转换」。拼音索引按首字母分桶（`py/a.txt`…），用到哪桶拉哪桶，
+  首次联网取 4KB 左右，之后走 `cacheDir`。
+- **顺带两处**：清缓存后自动重拉当前分类（以前会一直停在「加载中」）；`LinkedHashMap.putIfAbsent`
+  在 Android 5.1 上不存在（`NoSuchMethodError` 被 `runCatching` 吞掉，分类表整张为空、只剩「推荐」），
+  改成 `containsKey` 判断。**minSdk 21 上别用 Java 8 的集合默认方法**
+  （`putIfAbsent` / `getOrDefault` / `computeIfAbsent` / `removeIf`），这个工程没有 core library desugaring。
 
 ### v2.28：Java 版并入 Compose 版，点播补上详情页
 
@@ -2141,7 +2178,7 @@ GitHub 重新注册 workflow，`git tag v1.4 && git push origin v1.4` 之后立�
 存储用 `SharedPreferences`（文件 `yg_vod`），key 形如 `p_<影片id>_<集号>`，值是毫秒。不需要任何权限，
 卸载即清。片头 5 秒内不记录，避免「刚点开就退出」把位置写成 0 又覆盖掉真正的进度。
 
-### 代码结构（v2.28，Kotlin + Compose）
+### 代码结构（v2.29，Kotlin + Compose）
 
 ```
 YG影视TV/
@@ -2151,20 +2188,20 @@ YG影视TV/
   app/src/main/AndroidManifest.xml
   app/src/main/res/{values/strings.xml, drawable-*/ic_launcher.png}
   app/src/main/java/com/yg/vodtv/
-    Data.kt       配置/网络(OkHttp+宽松TLS)/直播表/采集源/VodRepo/详情/更新/自检
+    Data.kt       配置/网络(OkHttp+宽松TLS)/直播表(514台)/动态分类(Cats)/拼音索引(PyIndex)/VodRepo/详情/更新/自检
     Live.kt       Media3 播放器控制器（单例复用、换台防抖、自动换源、直播与点播两用）
     State.kt      一台状态机管全部按键（Zone: BAR/PLAY/PANEL/TABS/SEARCH/GRID/SEARCH_PAGE/RESULTS/DETAIL/VOD_PLAY）
     Ui.kt         Compose 界面（TopBar 卡片栏、VodHome 海报墙、DetailScreen 详情页、ChannelPanel、SearchPage、播放页）
     MainActivity.kt 入口（Diag 初始化、Coil 装载、全局 TLS 放宽、按键分发）
     Diag.kt       文件日志 files/diag.log
-  app/src/main/assets/{live_jx.txt, src.txt}
+  app/src/main/assets/{live_jx.txt, live.json, src.txt}
   legacy/java/                              旧 Java 版整目录存档（不参与构建）
   test/                                     旧版巡检脚本与 JVM harness（仍被 scan.yml 使用）
 ```
 
 | 文件 | 作用 |
 | --- | --- |
-| `Data.kt` | `Config`（更新地址、8 个分类 tab、LIMIT=120）、`Net`（宽松 TLS 的 OkHttp）、`LiveData`（165 台 5 组）、`Sources`（14 个采集源）、`VodRepo`（聚合/搜索/`parseLines` 线路解析/`detail` 详情/`firstPlayable` HEAD 探路）、`Update`、`SelfTest` |
+| `Data.kt` | `Config`（更新地址、GitHub raw 的直播/拼音表地址、LIMIT=120）、`Net`（宽松 TLS 的 OkHttp）、`LiveData`（514 台 10 组，含在线刷新）、`Sources`（14 个采集源）、`Cats`（`?ac=list` 汇总 + 同义归并出 24 档）、`PyIndex`（拼音首字母 → 中文片名）、`VodRepo`（分类聚合/搜索/`parseLines` 线路解析/`detail` 详情/`firstPlayable` HEAD 探路）、`Update`、`SelfTest` |
 | `Live.kt` | 一个 ExoPlayer 复用于直播与点播：`switchTo` 300ms 防抖、`nextSource` 自动换源、`playVod(url, alts)` |
 | `State.kt` | `Zone` + `Rk` 键位映射；`openDetail` / `playEpisode` / `stepEpisode` 三个入口；详情页的线路与选集焦点（`dLine/dEp/dFocus`） |
 | `Ui.kt` | 主题色、`Cell` 可选多行、`Poster` 首字兜底、`VodHome`、`DetailScreen`、`SearchPage`、`VodPlayer`、`ChannelPanel` |
@@ -2477,9 +2514,10 @@ YG影视TV/
 │   ├── src/main/res/values/strings.xml   # app_name = YG影视TV
 │   ├── src/main/res/drawable-*/ic_launcher.png   # 六档密度图标
 │   ├── src/main/java/com/yg/vodtv/*.kt   # 6 个 Kotlin 源文件（见「代码结构」）
-│   ├── src/main/assets/live_jx.txt       # 165 台直播表（组id|台名|url）
+│   ├── src/main/assets/live_jx.txt       # 165 台江西电信直播表（组id|台名|url）
+│   ├── src/main/assets/live.json         # 382 台公共源（巡检产物，v2.29 起打进包 + 启动时在线刷新）
 │   ├── src/main/assets/src.txt           # 14 个采集源（key|接口|Referer|type_id 表）
-│   ├── src/main/assets/{live.json,sources.json,py/,logo/}  # 巡检产物，挡在包外，只给旧版/raw 用
+│   ├── src/main/assets/{sources.json,py/,logo/}  # 巡检产物，挡在包外；py/ 仍供在线拼音索引按桶拉取
 │   ├── build/                   # 中间产物与 APK
 │   └── yg.keystore
 ├── legacy/java/                 # 旧 Java 版整目录存档（含 build.sh、build-ci.sh、res、25 个 .java）
@@ -2493,8 +2531,11 @@ YG影视TV/
 - **简介/选集来自源站**：详情页的集数、线路、简介取决于该源 `ac=detail` 返回什么。
   有些源不返回 `vod_content`，此时显示「这个源没提供简介。」；个别源只给网页播放页（`/share/`），
   这种线路会被直接丢掉，如果全丢掉该片就不会出现在列表里。
-- **直播源是电信内网单播**：`115.153.245.70` 这类地址只在电信家宽能用，换移动/联通或 4G 就不通；
-  每台基本只有 1 条线路，IPTV 平台换令牌后需要重新抓表（`test/live_scan.py`）。
+- **直播源两条腿都有时限**：江西本地那批是电信内网单播（`115.153.245.70` 这类地址只在电信家宽能用，
+  换移动/联通或 4G 就不通，IPTV 换令牌后要重新抓表 `test/live_scan.py`）；公共源那批是网上公开的
+  IPTV 地址，抽查能连，但源站下线是常事 —— 靠每天 `scan.yml` 巡检和 App 启动时的在线刷新兜。
+- **拼音搜索只到首字母**：`qyn` → 庆余年没问题，但多音字、生僻字与港台译名可能翻不出想要的片名，
+  兜底办法是敲完整的关键词英文串（部分源会按原文匹配）或换同义词再试。
 - **不再自动安装更新**：旧 Java 版会下载 APK 并拉起系统安装器，新版本（v2.28）只显示新版本号与
   Release 地址，需要手动下载安装。原因是 Android 5.1 上 `REQUEST_INSTALL_PACKAGES` 的拉起行为
   在 VIDAA 固件上不稳定，且自动安装要额外维护下载/校验逻辑。

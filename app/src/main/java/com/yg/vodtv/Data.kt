@@ -14,31 +14,30 @@ import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 /**
- * 数据层：把 Java 版（YG影视TV）跑了两年的两张真表搬过来用，不再有 example.com。
+ * 数据层：把 Java 版（YG影视TV）跑了两年的真表搬过来用，不再有 example.com。
  *
- * - 直播：app/src/main/assets/live_jx.txt 「组id|台名|url」，同名台的多条线路并成一个台的多源
- * - 点播：app/src/main/assets/src.txt 「key|接口前缀|Referer|29 个频道号各自的 type_id」
- *   频道号是 App 内部口径（0 推荐 / 1 电影 / 2 剧集 …），取数据时按源查表，0 表示该源没这个分类
+ * - 直播：app/src/main/assets/live_jx.txt「组id|台名|url」（江西电信单播）+
+ *   app/src/main/assets/live.json（公共源，CI 每天重建），同名台的多条线路并成一个台的多源
+ * - 点播：app/src/main/assets/src.txt「key|接口前缀|Referer|29 个 type_id」（type_id 已不用，分类改成按源的分类表动态取），
+ *   分类不再写死：启动时问各源 `?ac=list` 拿它自己的分类表（见 Cats）
+ * - 搜索：苹果CMS 服务端只认中文/全拼，首字母要靠本地的 py/ 索引翻译（见 PyIndex）
  */
 object Config {
     /** GitHub 最新 release，用来做「检测更新」 */
     const val UPDATE_API = "https://api.github.com/repos/XACPPP/yg-vodtv/releases/latest"
     const val UA = "Mozilla/5.0 (Linux; Android 5.1.1; VIDAA_TV) YGTV/1.0"
 
-    /** 界面分类：名称 → App 内部频道号（与 src.txt 里的位置对应） */
-    val TABS = listOf(
-        "推荐" to 0,
-        "电影" to 1,
-        "剧集" to 2,
-        "综艺" to 3,
-        "动漫" to 4,
-        "纪录" to 19,
-        "4K" to 28,
-        "短剧" to 27,
-    )
+    /** 公共直播源（仓库里的 live.json，CI 每天重建后提交） */
+    const val LIVE_API = "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/live.json"
+
+    /** 拼音首字母索引，客户端按需下单个字母桶 */
+    const val PY_BASE = "https://raw.githubusercontent.com/XACPPP/yg-vodtv/master/app/src/main/assets/py/"
 
     /** 每个分类一次拉多少条（14 个源并发，去重后留这么多） */
     const val LIMIT = 120
+
+    /** 分类条最多几档（含「推荐」）：遥控器左右滑的极限 */
+    const val MAX_CATS = 24
 }
 
 data class Channel(val name: String, val group: String, val urls: List<String>)
@@ -65,6 +64,8 @@ data class Vod(
     val score: String = "",
     val actor: String = "",
     val director: String = "",
+    /** 条目自己的分类名（采集站给的原话，如「国产剧」「恐怖片」），浏览分类时就靠它认领 */
+    val typeName: String = "",
 ) {
     /** 详情页副标题「2021 · 大陆 · 评分 8.2」，空项自动省略 */
     val meta: String
@@ -132,14 +133,24 @@ object Net {
 /* ============================ 直播表 ============================ */
 
 object LiveData {
-    /** 组顺序就是界面上的先后：本地频道放最前 */
-    private val GROUPS = listOf(
+    /**
+     * 组顺序：本地（江西电信单播，内网最稳）最前，然后是公共源。
+     * 公共源 live.json 的组名与电信的「央视/卫视」是同一批台，合并到同一组里，
+     * 台名相同就并成多线路——一个台挂了还能换下一路。
+     */
+    private val JX = listOf(
         "jxitv" to "江西本地",
         "jxcctv" to "央视",
         "jxws" to "卫视",
-        "jxfilm" to "影视剧场",
-        "jxmore" to "付费专业",
+        "jxfilm" to "影视",
+        "jxmore" to "付费",
     )
+    private val PUB = mapOf(
+        "cctv" to "央视", "sat" to "卫视", "sports" to "体育", "movie" to "电影",
+        "hkmotw" to "港澳台", "local" to "地方", "other" to "其它",
+    )
+    /** 界面上的组顺序（只列真存在的组） */
+    private val ORDER = listOf("江西本地", "央视", "卫视", "地方", "体育", "电影", "港澳台", "其它", "影视", "付费")
 
     @Volatile
     private var cache: List<Channel>? = null
@@ -149,37 +160,86 @@ object LiveData {
     }
 
     private fun load(ctx: Context): List<Channel> {
+        // 组 → 台名 → 地址表；LinkedHashMap 保序：台序就是表里的书写顺序
+        val byGroup = LinkedHashMap<String, LinkedHashMap<String, MutableList<String>>>()
+
+        fun put(group: String, name: String, url: String) {
+            if (name.isEmpty()) return
+            if (!url.startsWith("http://") && !url.startsWith("https://")) return
+            val bucket = byGroup.getOrPut(group) { LinkedHashMap() }.getOrPut(name) { ArrayList(2) }
+            if (!bucket.contains(url)) bucket.add(url)
+        }
+
+        // 1) 电信单播
         val raw = runCatching {
             ctx.assets.open("live_jx.txt").bufferedReader().use { it.readLines() }
         }.getOrDefault(emptyList())
-
-        val out = ArrayList<Channel>(raw.size)
-        for ((gid, gname) in GROUPS) {
-            // LinkedHashMap 保序：台序就是表里的书写顺序；同名台的备用线路并成多源
-            val byName = LinkedHashMap<String, MutableList<String>>()
-            for (line in raw) {
-                val p = line.trim().split("|")
-                if (p.size < 3 || p[0] != gid) continue
-                val name = p[1].trim()
-                val url = p[2].trim()
-                if (name.isEmpty()) continue
-                if (!url.startsWith("http://") && !url.startsWith("https://")) continue
-                val bucket = byName.getOrPut(name) { ArrayList(2) }
-                if (!bucket.contains(url)) bucket.add(url)
-            }
-            for ((name, urls) in byName) out.add(Channel(name, gname, urls))
+        val jxName = JX.toMap()
+        for (line in raw) {
+            val p = line.trim().split("|")
+            if (p.size < 3) continue
+            val g = jxName[p[0]] ?: continue
+            put(g, p[1].trim(), p[2].trim())
         }
+
+        // 2) 公共源：优先用缓存下来的新版本（上一轮刷新过的），没有就用包里那份
+        val pub = fileBody(ctx) ?: runCatching {
+            ctx.assets.open("live.json").bufferedReader().use { it.readText() }
+        }.getOrNull()
+        if (pub != null) runCatching {
+            val arr = JSONObject(pub).optJSONArray("groups") ?: return@runCatching
+            for (i in 0 until arr.length()) {
+                val g = arr.optJSONObject(i) ?: continue
+                val gname = PUB[g.optString("id")] ?: continue
+                val chs = g.optJSONArray("chs") ?: continue
+                for (j in 0 until chs.length()) {
+                    val c = chs.optJSONObject(j) ?: continue
+                    val urls = c.optJSONArray("urls") ?: continue
+                    for (k in 0 until urls.length()) {
+                        put(gname, c.optString("name").trim(), urls.optString(k).trim())
+                    }
+                }
+            }
+        }.onFailure { Diag.w("live", "公共源解析失败 " + it) }
+
+        val out = ArrayList<Channel>(512)
+        for (g in ORDER) {
+            val chs = byGroup[g] ?: continue
+            for ((name, urls) in chs) out.add(Channel(name, g, urls))
+        }
+        Diag.w("live", "频道表 " + out.size + " 台 组=" + out.map { it.group }.distinct().joinToString("/"))
         return out
+    }
+
+    private fun fileBody(ctx: Context): String? = runCatching {
+        val f = java.io.File(ctx.filesDir, "live.json")
+        if (f.exists() && f.length() > 4096) f.readText() else null
+    }.getOrNull()
+
+    /**
+     * 后台刷新公共源：GitHub raw 拉最新 live.json 存到 filesDir/live.json，下次启动生效。
+     * 拉不到就继续用包里那份，绝不阻塞界面。
+     */
+    suspend fun refresh(ctx: Context) = withContext(Dispatchers.IO) {
+        runCatching {
+            val body = Net.get(Config.LIVE_API)
+            if (body.length < 4096) return@runCatching
+            val old = fileBody(ctx) ?: ""
+            // 内容没变就不写盘，省一次闪存
+            if (body == old) return@runCatching
+            val f = java.io.File(ctx.filesDir, "live.json")
+            val tmp = java.io.File(ctx.filesDir, "live.json.tmp")
+            tmp.writeText(body)
+            if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            Diag.w("live", "公共源已更新 " + body.length + "B")
+        }.onFailure { Diag.w("live", "公共源刷新失败 " + it) }
+        Unit
     }
 }
 
 /* ============================ 采集源 ============================ */
 
-data class Src(val key: String, val api: String, val referer: String, val types: List<Int>) {
-    /** 频道号 → 该站 type_id；0 表示这个源没有该分类 */
-    fun typeOf(ch: Int): Int =
-        if (ch in 1..types.size) types[ch - 1] else 0
-}
+data class Src(val key: String, val api: String, val referer: String, val types: List<Int>)
 
 object Sources {
     @Volatile
@@ -199,6 +259,251 @@ object Sources {
             }
         }
     }.getOrDefault(emptyList())
+}
+
+/**
+ * 一个分类档：归一后的显示名 + 各源里能归到它的原始分类名。
+ * aliases 为空 = 「推荐」：不筛分类，各源按最新更新倒序给。
+ */
+data class Cat(
+    val name: String,
+    /** 各源里归到这一档的原始分类名（只用于统计/日志） */
+    val aliases: Set<String>,
+    /** 条目级分类名（归一后）落在这个集合里的，就算这一档的内容 */
+    val accepts: Set<String>,
+) {
+    /** 有多少个原始分类名归到这一档 */
+    val count: Int get() = aliases.size
+    /** 「推荐」不筛分类 */
+    val isAll: Boolean get() = accepts.isEmpty()
+    fun match(typeName: String): Boolean = isAll || accepts.contains(Cats.norm(typeName))
+}
+
+/**
+ * 动态分类：各源的分类名与 type_id 互不相同（ffzy 电影=1、bfzy 电影=20、jszyapi 电影=2…），
+ * 以前拿一张「内部频道号 → 位置」的死表去套，位置一错分类内容就串了。
+ * 现在直接问每个源 `?ac=list` 要它自己的 class 表，归一分类名后并成分类条；
+ * 列表内容再按条目自己的 type_name 认领（不让源按 t= 过滤：绝大多数源不认这个参数）。
+ */
+object Cats {
+    /** 采集站的同义分类名先归一，否则分类条会冒出「电影/电影片/电影片儿」三档 */
+    private val ALIAS = mapOf(
+        "电影片" to "电影", "电影" to "电影",
+        "连续剧" to "剧集", "电视剧" to "剧集", "剧集" to "剧集",
+        "综艺片" to "综艺", "综艺" to "综艺",
+        "动漫片" to "动漫", "动漫" to "动漫",
+        "纪录片" to "纪录", "记录片" to "纪录", "记录" to "纪录",
+        "短剧大全" to "短剧", "爽文短剧" to "短剧", "短剧" to "短剧",
+        "体育赛事" to "体育", "体育" to "体育",
+        "伦理片" to "伦理", "伦理" to "伦理", "港台三级" to "伦理", "理论片" to "伦理",
+        "动画片" to "动画", "动画电影" to "动画",
+        "动作片" to "动作", "喜剧片" to "喜剧", "爱情片" to "爱情", "科幻片" to "科幻",
+        "恐怖片" to "恐怖", "剧情片" to "剧情", "战争片" to "战争", "悬疑片" to "悬疑",
+        "犯罪片" to "犯罪", "灾难片" to "灾难", "惊悚片" to "惊悚", "奇幻片" to "奇幻",
+        "古装片" to "古装", "历史片" to "历史", "家庭片" to "家庭", "家庭篇" to "家庭",
+        "冒险片" to "冒险", "文艺片" to "文艺", "歌舞片" to "歌舞", "其他片" to "其他片", "短片" to "短片",
+        "国产剧" to "国产剧", "大陆剧" to "国产剧", "内地剧" to "国产剧",
+        "欧美剧" to "欧美剧", "香港剧" to "港剧", "港剧" to "港剧",
+        "韩国剧" to "韩剧", "韩剧" to "韩剧", "日本剧" to "日剧", "日剧" to "日剧",
+        "台湾剧" to "台剧", "台剧" to "台剧", "泰国剧" to "泰剧", "泰剧" to "泰剧",
+        "海外剧" to "海外剧", "马泰剧" to "海外剧",
+        "大陆综艺" to "大陆综艺", "国内综艺" to "大陆综艺",
+        "港台综艺" to "港台综艺", "日韩综艺" to "日韩综艺", "日本综艺" to "日韩综艺",
+        "欧美综艺" to "欧美综艺",
+        "国产动漫" to "国产动漫", "大陆动漫" to "国产动漫",
+        "日韩动漫" to "日韩动漫", "日本动漫" to "日韩动漫",
+        "欧美动漫" to "欧美动漫", "港台动漫" to "港台动漫", "海外动漫" to "海外动漫",
+    )
+
+    /**
+     * 一级分类 → 它的子分类。采集站列表里条目的 type_name 基本是叶子
+     * （电影一律写成「动作片/恐怖片…」，剧一律写成「国产剧/日剧…」），
+     * 所以「电影」这一档必须把整棵子树都算进来，否则点进去是空的。
+     */
+    private val GROUP = mapOf(
+        "电影" to setOf(
+            "电影", "动作", "喜剧", "爱情", "科幻", "恐怖", "剧情", "战争", "悬疑", "犯罪",
+            "灾难", "惊悚", "奇幻", "古装", "历史", "家庭", "冒险", "文艺", "歌舞", "其他片", "短片",
+        ),
+        "剧集" to setOf("剧集", "国产剧", "欧美剧", "港剧", "韩剧", "日剧", "台剧", "泰剧", "海外剧"),
+        "综艺" to setOf("综艺", "大陆综艺", "港台综艺", "日韩综艺", "欧美综艺"),
+        "动漫" to setOf("动漫", "动画", "国产动漫", "日韩动漫", "欧美动漫", "港台动漫", "海外动漫"),
+        "纪录" to setOf("纪录"),
+        "短剧" to setOf("短剧"),
+        "体育" to setOf("体育"),
+        "伦理" to setOf("伦理"),
+    )
+
+    /** 分类条顺序：一级分类在前，后面是常看的二级；表外的分类丢弃（源站噪声太多） */
+    private val ORDER = listOf(
+        "电影", "剧集", "综艺", "动漫", "纪录", "短剧", "体育", "伦理",
+        "动作", "喜剧", "爱情", "科幻", "恐怖", "剧情", "战争", "悬疑", "犯罪", "灾难",
+        "动画", "国产剧", "欧美剧", "韩剧", "日剧", "港剧", "台剧", "泰剧",
+        "大陆综艺", "港台综艺", "日韩综艺", "欧美综艺", "国产动漫", "日韩动漫", "港台动漫", "海外剧",
+    )
+
+    /** 原始分类名 → 归一后的显示名；表外的名字原样返回（分类表和条目必须用同一套映射） */
+    fun norm(raw: String): String = ALIAS[raw.trim()] ?: raw.trim()
+
+    @Volatile
+    private var cache: List<Cat>? = null
+
+    /** 拉各源的分类表并归并；失败/空就只剩「推荐」，界面照样能用 */
+    suspend fun load(ctx: Context, fresh: Boolean = false): List<Cat> = withContext(Dispatchers.IO) {
+        cache?.takeIf { !fresh }?.let { return@withContext it }
+        val srcs = Sources.all(ctx)
+        val per = coroutineScope {
+            srcs.map { s ->
+                async {
+                    runCatching { classesOf(s) }.onFailure { Diag.w("vod", "分类失败 " + s.key + " " + it) }
+                        .getOrDefault(emptyMap())
+                }
+            }.awaitAll()
+        }
+        val merged = LinkedHashMap<String, LinkedHashSet<String>>()
+        srcs.forEachIndexed { i, _ -> for ((nm, raw) in per[i]) merged.getOrPut(nm) { LinkedHashSet() }.addAll(raw) }
+
+        val out = ArrayList<Cat>(Config.MAX_CATS)
+        out.add(Cat("推荐", emptySet(), emptySet()))
+        for (nm in ORDER) {
+            val kids = GROUP[nm]
+            if (kids == null) {
+                val m = merged[nm] ?: continue
+                out.add(Cat(nm, m, setOf(nm)))
+            } else {
+                val hit = kids.filter { merged.containsKey(it) }
+                if (hit.isEmpty()) continue
+                val raw = LinkedHashSet<String>()
+                for (k in hit) raw.addAll(merged[k] ?: emptySet())
+                out.add(Cat(nm, raw, hit.toSet()))
+            }
+            if (out.size >= Config.MAX_CATS) break
+        }
+        Diag.w("vod", "分类 " + out.size + " 档：" + out.joinToString(" ") { it.name + "(" + it.count + ")" })
+        cache = out
+        out
+    }
+
+    /** 一个源的分类表：归一后的名字 → 该源用过的原始分类名 */
+    private suspend fun classesOf(s: Src): Map<String, Set<String>> {
+        val js = Net.get(s.api + "?ac=list", s.referer)
+        val arr = JSONObject(js).optJSONArray("class")
+        if (arr == null) { Diag.w("vod", "分类原文无 class " + s.key + " " + js.take(160)); return emptyMap() }
+        val out = LinkedHashMap<String, LinkedHashSet<String>>()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            val nm = o.optString("type_name").trim()
+            if (nm.isEmpty()) continue
+            out.getOrPut(norm(nm)) { LinkedHashSet() }.add(nm)
+        }
+        return out
+    }
+
+    fun clear() { cache = null }
+}
+
+/**
+ * 拼音首字母索引（移植自 Java 版 PyIndex）。
+ *
+ * 为什么要有：14 个采集源都是苹果CMS，服务端只给中文和全拼建了索引 ——
+ * `wd=qyn` 在 14 个源上只会吐噪声（而且 bfzy/zuidazy 干脆忽略 wd 返回整库），
+ * 同一个源 `wd=庆余年` 立刻命中。电视遥控器又打不了中文，所以必须本地把
+ * 「首字母」翻成「中文片名」这一步补上。
+ *
+ * 索引形态（仓库 app/src/main/assets/py/，CI 每天重建）：{a..z}.txt，
+ * 每行「首字母<TAB>片名」，按需下单个桶（最大 260KB）缓存到 cacheDir/py/。
+ * 不打包进 APK 的原因：4.8MB 会白占电视存储，而且索引天天变，包内那份第二天就旧了。
+ */
+object PyIndex {
+    private const val MIN_BYTES = 200
+    private const val MAX_NAMES = 8
+
+    private var lastL = ""
+    private var lastBody: String? = null
+
+    private fun dir(ctx: Context) = java.io.File(ctx.cacheDir, "py").apply { mkdirs() }
+
+    /** 首字母缩写 → 候选中文片名（最多 8 个，第一个最贴） */
+    suspend fun names(ctx: Context, kw: String): List<String> = withContext(Dispatchers.IO) {
+        val q = kw.trim().lowercase()
+        if (q.length < 2 || q.length > 24 || q.any { it !in 'a'..'z' }) return@withContext emptyList()
+        val body = bucket(ctx, q[0]) ?: return@withContext emptyList()
+        pick(body, q, MAX_NAMES).also {
+            Diag.w("py", "首字母 " + q + " → " + it.size + " 个候选" + if (it.isEmpty()) "" else "，首个「" + it[0] + "」")
+        }
+    }
+
+    /** 标点/括号/方括号越多，越像「A,B」这种合并条目，排到后面去 */
+    private fun junk(s: String): Int {
+        var n = 0
+        for (c in s) if (c in ",，、;；:：[]【】()（）·.|") n++
+        return n
+    }
+
+    /**
+     * 纯函数：两轮扫描（先收首字母完全相同的，再收「以它开头」的），
+     * 然后按「标点少 → 名字短」重排：用户打 qyn 想要的是《庆余年》，不是某个长串合集。
+     */
+    fun pick(body: String, prefix: String, cap: Int = MAX_NAMES): List<String> {
+        val q = prefix.trim().lowercase()
+        if (q.isEmpty()) return emptyList()
+        val lines = body.split("\n")
+        val out = ArrayList<String>(64)
+        for (ln in lines) {
+            if (out.size >= 64) break
+            if (q == keyOf(ln)) addName(out, ln)
+        }
+        for (ln in lines) {
+            if (out.size >= 64) break
+            val k = keyOf(ln) ?: continue
+            if (k.length > q.length && k.startsWith(q)) addName(out, ln)
+        }
+        return out.sortedWith(compareBy({ junk(it) }, { it.length })).take(cap)
+    }
+
+    private fun keyOf(ln: String): String? {
+        val tab = ln.indexOf('\t')
+        if (tab <= 0) return null
+        return ln.substring(0, tab).trim().lowercase()
+    }
+
+    private fun addName(out: MutableList<String>, ln: String) {
+        val tab = ln.indexOf('\t')
+        if (tab <= 0 || tab + 1 >= ln.length) return
+        val name = ln.substring(tab + 1).trim()
+        if (name.isNotEmpty() && !out.contains(name)) out.add(name)
+    }
+
+    /** 取一个字母的桶：本地有就读盘，没有就下（下载失败返回 null，搜索退回直接查） */
+    private suspend fun bucket(ctx: Context, L: Char): String? {
+        val key = L.toString()
+        synchronized(this) { if (key == lastL) lastBody?.let { return it } }
+        val f = java.io.File(dir(ctx), key + ".txt")
+        if (f.exists() && f.length() >= MIN_BYTES) {
+            val t = runCatching { f.readText() }.getOrNull()
+            if (t != null && t.length >= MIN_BYTES) {
+                synchronized(this) { lastL = key; lastBody = t }
+                return t
+            }
+        }
+        val net = runCatching { Net.get(Config.PY_BASE + key + ".txt") }.getOrNull()
+        if (net == null || net.length < MIN_BYTES) {
+            Diag.w("py", "首字母表 " + key + " 拿不到，本次搜索直接查关键词")
+            return null
+        }
+        runCatching {
+            val tmp = java.io.File(dir(ctx), key + ".txt.tmp")
+            tmp.writeText(net)
+            if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+        }
+        synchronized(this) { lastL = key; lastBody = net }
+        return net
+    }
+
+    fun clear(ctx: Context) {
+        synchronized(this) { lastL = ""; lastBody = null }
+        runCatching { dir(ctx).listFiles()?.forEach { it.delete() } }
+    }
 }
 
 object VodRepo {
@@ -277,23 +582,27 @@ object VodRepo {
                     score = o.optString("vod_score").trim(),
                     actor = clean(o.optString("vod_actor")),
                     director = clean(o.optString("vod_director")),
+                    typeName = o.optString("type_name").trim(),
                 )
             )
         }
         return out
     }
 
-    private suspend fun fetch(s: Src, ch: Int, page: Int, wd: String, ac: String): List<Vod> {
+    /**
+     * 打一个源的接口：不带分类参数，按最新更新倒序取一页（分类由调用方按 type_name 筛）；
+     * wd 非空走搜索；filter 非空会把结果按片名再筛一遍 ——
+     * bfzy/zuidazy 这类源压根不认 wd，直接把 17 万条片库吐回来，不筛就全是噪声。
+     */
+    private suspend fun fetch(s: Src, page: Int, wd: String, ac: String, filter: String = ""): List<Vod> {
         val sb = StringBuilder(s.api)
         sb.append("?ac=").append(ac)
-        if (wd.isNotEmpty()) {
-            sb.append("&wd=").append(URLEncoder.encode(wd, "UTF-8"))
-        } else {
-            val t = s.typeOf(ch)
-            if (t > 0) sb.append("&t=").append(t)
-            sb.append("&pg=").append(page)
-        }
-        return parse(Net.get(sb.toString(), s.referer), s.key)
+        if (wd.isNotEmpty()) sb.append("&wd=").append(URLEncoder.encode(wd, "UTF-8"))
+        sb.append("&pg=").append(page)
+        val list = parse(Net.get(sb.toString(), s.referer), s.key)
+        if (filter.isEmpty()) return list
+        val f = filter.lowercase()
+        return list.filter { it.name.lowercase().contains(f) }
     }
 
     /** 同一片名多源时只留第一条，源顺序即优先级（src.txt 的书写顺序）；其余留作备选 */
@@ -341,33 +650,69 @@ object VodRepo {
         null
     }
 
-    suspend fun list(ctx: Context, ch: Int, page: Int = 1, fresh: Boolean = false): List<Vod> {
-        val key = "c$ch-$page"
+    suspend fun list(ctx: Context, cat: Cat, page: Int = 1, fresh: Boolean = false): List<Vod> {
+        val key = "c:" + cat.name + "-" + page
         if (!fresh) cache[key]?.let { return it }
         return withContext(Dispatchers.IO) {
-            val srcs = Sources.all(ctx).filter { ch == 0 || it.typeOf(ch) > 0 }
+            val srcs = Sources.all(ctx)
+            // 分类靠条目自己的 type_name 认领：实测 14 个源里只有 bfzy 认 t= 过滤，其余给 t= 一律返回空
+            val pages = if (cat.isAll) 1 else 4
             val lists = coroutineScope {
-                srcs.map { s -> async { runCatching { fetch(s, ch, page, "", "detail") }.getOrDefault(emptyList()) } }
-                    .awaitAll()
+                srcs.map { s ->
+                    async {
+                        val acc = ArrayList<Vod>(64)
+                        for (p in page until page + pages) {
+                            val got = runCatching { fetch(s, p, "", "detail") }.getOrDefault(emptyList())
+                            if (got.isEmpty()) break
+                            for (v in got) if (cat.match(v.typeName)) acc.add(v)
+                            if (!cat.isAll && acc.size >= 40) break
+                        }
+                        acc
+                    }
+                }.awaitAll()
             }
             merge(lists, Config.LIMIT).also {
                 if (it.isNotEmpty()) cache[key] = it
                 val f = it.firstOrNull()
-                Diag.w("vod", "ch=$ch 源=" + srcs.size + " 拿到=" + it.size + " 首条=" +
-                    (f?.name ?: "-") + " pic=" + (f?.pic ?: "-") + " url=" + (f?.url ?: "-"))
+                Diag.w("vod", cat.name + " 源=" + srcs.size + " 拿到=" + it.size + " 首条=" +
+                    (f?.name ?: "-") + "(" + (f?.typeName ?: "-") + ") url=" + (f?.url ?: "-"))
             }
         }
     }
 
+    /**
+     * 搜索。电视遥控器打不了中文，所以：
+     * 1) 输入全是字母 → 先查本地拼音首字母索引（py/q.txt 这类桶），把「qyn」翻成「庆余年」；
+     *    苹果CMS 服务端只认中文和全拼，直接拿首字母去问只会得到一堆噪声。
+     * 2) 拿到中文片名（最多 3 个候选）后，逐名去问每个源，再把每源结果按片名筛一遍。
+     * 3) 全是数字/中文就直接当关键词问（有些源也吃数字片名）。
+     */
     suspend fun search(ctx: Context, q: String): List<Vod> = withContext(Dispatchers.IO) {
-        if (q.isBlank()) return@withContext emptyList()
+        val key = q.trim()
+        if (key.isEmpty()) return@withContext emptyList()
+        val lower = key.lowercase()
+        val ascii = lower.all { it in 'a'..'z' }
+        val names = if (ascii) PyIndex.names(ctx, lower) else emptyList()
+        val queries = (names.ifEmpty { listOf(key) }).take(3)
+        Diag.w("vod", "搜索「" + key + "」" + (if (names.isEmpty()) "" else " 首字母→" + names.joinToString("/")) +
+            " 查询词=" + queries.joinToString("/"))
+
         val srcs = Sources.all(ctx)
         val lists = coroutineScope {
-            srcs.map { s -> async { runCatching { fetch(s, 0, 1, q, "detail") }.getOrDefault(emptyList()) } }
-                .awaitAll()
+            srcs.map { s ->
+                async {
+                    queries.flatMap { wd -> runCatching { fetch(s, 1, wd, "detail", filter = wd) }.getOrDefault(emptyList()) }
+                }
+            }.awaitAll()
         }
-        merge(lists, Config.LIMIT)
+        val merged = merge(lists, Config.LIMIT)
+        // 首字母命中的候选片名排前面：用户打全了首字母，最贴的那部应该在第一屏
+        if (names.isEmpty()) merged else merged.sortedBy { v -> names.indexOfFirst { it.equals(v.name, true) }.let { if (it < 0) names.size else it } }
     }
+
+    /** 点播封面墙用「推荐」时没有类型参数 */
+    suspend fun list(ctx: Context, ch: Int, page: Int = 1, fresh: Boolean = false): List<Vod> =
+        list(ctx, Cat("推荐", emptySet(), emptySet()), page, fresh)
 
     /**
      * 详情页用：列表接口的 vod_content 经常是空的，单独打一次 ac=detail&ids= 补简介/
@@ -383,8 +728,8 @@ object VodRepo {
         }.onFailure { Diag.w("vod", "详情失败 " + v.name + " " + it) }.getOrNull()
     }
 
-    fun clearCache() {
-        cache.clear(); alts.clear()
+    fun clearCache(ctx: Context) {
+        cache.clear(); alts.clear(); Cats.clear(); PyIndex.clear(ctx)
     }
 }
 
@@ -430,7 +775,9 @@ object SelfTest {
     suspend fun run(ctx: Context): Report = withContext(Dispatchers.IO) {
         val channels = runCatching { LiveData.table(ctx) }.getOrDefault(emptyList())
         val srcCount = Sources.all(ctx).size
-        val got = runCatching { VodRepo.list(ctx, 1, 1, fresh = true) }.getOrDefault(emptyList())
+        val cats = runCatching { Cats.load(ctx) }.getOrDefault(emptyList())
+        val ch = cats.firstOrNull { it.name == "电影" } ?: cats.firstOrNull() ?: Cat("推荐", emptySet(), emptySet())
+        val got = runCatching { VodRepo.list(ctx, ch, 1, fresh = true) }.getOrDefault(emptyList())
         val ok = if (got.isEmpty()) 0 else got.map { it.src }.distinct().size
         Report(channels.isNotEmpty(), channels.size, ok, (srcCount - ok).coerceAtLeast(0))
     }

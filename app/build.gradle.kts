@@ -13,8 +13,8 @@ android {
         applicationId = "com.yg.vodtv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 41
-        versionName = "2.28"
+        versionCode = 42
+        versionName = "2.29"
     }
 
     signingConfigs {
@@ -50,7 +50,7 @@ android {
     // sources.json、live.json、py/（拼音索引）、logo/（台标），合计 5MB+。
     // 这些只给 CI 扫描和旧 Java 版用，新版不读，别打进 APK。
     androidResources {
-        ignoreAssetsPattern = "py:logo:live.json:sources.json:" +
+        ignoreAssetsPattern = "py:logo:sources.json:" +
             "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
     }
 

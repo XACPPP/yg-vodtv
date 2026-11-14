@@ -15,7 +15,7 @@ import org.json.JSONObject
 enum class Zone { BAR, PLAY, PANEL, TABS, SEARCH, GRID, SEARCH_PAGE, RESULTS, DETAIL, VOD_PLAY }
 enum class Rk { L, R, U, D, OK, B }
 
-val KB = ('A'..'Z').map { it.toString() } + ('0'..'9').map { it.toString() } + listOf("删", "清")
+val KB = ('A'..'Z').map { it.toString() } + ('0'..'9').map { it.toString() } + listOf("删", "清", "结果")
 
 /** 全部按键逻辑集中在这里（与 HTML 原型一一对应），界面只负责按状态画焦点。 */
 class UiState(private val ctx: Context, private val scope: CoroutineScope, private val onExit: () -> Unit) {
@@ -29,6 +29,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     var tab by mutableIntStateOf(0); var g by mutableIntStateOf(0)
     var kb by mutableIntStateOf(0); var rg by mutableIntStateOf(0)
     var q by mutableStateOf("")
+    /** 点播分类条：0 号恒为「推荐」，其余是各源分类表归并后的结果（异步到手后替换） */
+    var cats by mutableStateOf<List<Cat>>(listOf(Cat("推荐", emptySet(), emptySet())))
+    /** 搜索框下面那行状态：正在搜什么、首字母翻成了什么、一共几条 */
+    var searchNote by mutableStateOf("")
     var items by mutableStateOf<List<Vod>>(emptyList())
     var results by mutableStateOf<List<Vod>>(emptyList())
     var playing by mutableStateOf<Vod?>(null)
@@ -58,9 +62,24 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
 
     init {
         live.onVodFail = { msg -> toast(msg, 3000) }
-        scope.launch { live.load(); if (mode == "live") live.startCurrent() }
-        tab = Prefs.tab(ctx).coerceIn(0, Config.TABS.size - 1)
+        scope.launch {
+            live.load()
+            if (mode == "live") live.startCurrent()
+            // 公共直播源后台刷新，拉到的新版本下次启动生效（拉不到就继续用包里那份）
+            LiveData.refresh(ctx)
+        }
+        tab = Prefs.tab(ctx).coerceIn(0, cats.size - 1)
         if (mode == "vod") loadTab(tab)
+        // 分类表要连 14 个源，异步到手后替换分类条；当前选中的分类按名字续上
+        scope.launch {
+            val c = runCatching { Cats.load(ctx) }.getOrDefault(cats)
+            if (c.size <= cats.size) return@launch
+            val cur = cats.getOrNull(tab)?.name ?: "推荐"
+            cats = c
+            val i = c.indexOfFirst { it.name == cur }.coerceAtLeast(0)
+            tab = i; Prefs.setTab(ctx, i)
+            if (mode == "vod") loadTab(i)
+        }
         arm()
     }
 
@@ -93,22 +112,26 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     private fun loadTab(i: Int) {
         tabJob?.cancel(); items = emptyList(); g = 0
         Prefs.setTab(ctx, i)
-        val ch = Config.TABS[i].second
+        val cat = cats.getOrNull(i) ?: Cat("推荐", emptySet(), emptySet())
         tabJob = scope.launch {
             delay(120)   // 连按左右键时只在最后一档真正发请求
-            items = runCatching { VodRepo.list(ctx, ch) }.getOrDefault(emptyList())
-            if (items.isEmpty()) toast("这个分类暂时取不到片子，稍后再试")
+            items = runCatching { VodRepo.list(ctx, cat) }.getOrDefault(emptyList())
+            if (items.isEmpty()) toast("「" + cat.name + "」暂时取不到片子，稍后再试")
         }
     }
 
     private fun doSearch() {
         searchJob?.cancel()
-        if (q.isEmpty()) { results = emptyList(); return }
+        if (q.isEmpty()) { results = emptyList(); searchNote = ""; return }
+        searchNote = "搜索中…"
         searchJob = scope.launch {
-            delay(300)
-            results = runCatching { VodRepo.search(ctx, q) }.getOrDefault(emptyList())
+            delay(600)   // 连着按字母时只在最后一个字上真正发请求
+            val r = runCatching { VodRepo.search(ctx, q) }.getOrDefault(emptyList())
+            results = r
             rg = 0
-            if (results.isEmpty()) toast("没搜到\"$q\"的片子")
+            val ascii = q.all { it in 'a'..'z' || it in 'A'..'Z' }
+            searchNote = if (r.isNotEmpty()) "共 " + r.size + " 条" + (if (ascii) " · 字母已按拼音首字母转换" else "")
+                         else "没搜到「$q」" + (if (ascii) "，可以少打几个字母试试" else "")
         }
     }
 
@@ -196,9 +219,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                     ctx.codeCacheDir.walkBottomUp().filter { it.isFile }.sumOf { it.length() }
                 ctx.cacheDir.listFiles()?.forEach { it.deleteRecursively() }
                 ctx.codeCacheDir.listFiles()?.forEach { it.deleteRecursively() }
-                VodRepo.clearCache()
+                VodRepo.clearCache(ctx)
                 Diag.w("tool", "清缓存 " + (n / 1024 / 1024) + "MB")
                 toast("已清除缓存 " + (n / 1024 / 1024) + " MB")
+                loadTab(tab)   // 清完把当前这档重拉，别让海报墙一直挂在「加载中」
             }
             4 -> scope.launch {
                 toast("检查更新中…", 8000)
@@ -218,6 +242,12 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     }
 
     private fun selectTab(i: Int) { tab = i; loadTab(i) }
+
+    /** 进搜索结果页：没结果就提示，别让用户对着空网格按方向键 */
+    private fun goResults() {
+        if (results.isEmpty()) { toast("还没搜到结果，先输入片名"); return }
+        zone = Zone.RESULTS; rg = 0
+    }
 
     fun onKey(k: Rk) {
         if (k != Rk.B) exitPending = false
@@ -254,14 +284,15 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             }
             Zone.TABS -> when (k) {
                 Rk.L -> if (tab > 0) selectTab(tab - 1)
-                Rk.R -> if (tab < Config.TABS.size - 1) selectTab(tab + 1) else zone = Zone.SEARCH
+                Rk.R -> if (tab < cats.size - 1) selectTab(tab + 1) else zone = Zone.SEARCH
                 Rk.D -> if (items.isNotEmpty()) { zone = Zone.GRID; g = minOf(tab, items.size - 1) }
                 Rk.U -> { zone = Zone.BAR; bar = 1 }
+                Rk.OK -> zone = Zone.SEARCH   // 分类多，按 OK 直接跳到搜索框，不用一路按右键
                 Rk.B -> zone = Zone.SEARCH
                 else -> {}
             }
             Zone.SEARCH -> when (k) {
-                Rk.L -> { zone = Zone.TABS; tab = Config.TABS.size - 1 }
+                Rk.L -> { zone = Zone.TABS; tab = cats.size - 1 }
                 Rk.D -> if (items.isNotEmpty()) { zone = Zone.GRID; g = minOf(COLS - 1, items.size - 1) }
                 Rk.U, Rk.B -> { zone = Zone.BAR; bar = 1 }
                 Rk.OK -> { zone = Zone.SEARCH_PAGE; kb = 0 }
@@ -282,12 +313,21 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                 val n = KB.size
                 when (k) {
                     Rk.L -> if (kb % 10 > 0) kb--
-                    Rk.R -> if (kb % 10 < 9 && kb < n - 1) kb++ else if (results.isNotEmpty()) { zone = Zone.RESULTS; rg = 0 }
+                    Rk.R -> if (kb % 10 < 9 && kb < n - 1) kb++ else goResults()
                     Rk.U -> if (kb >= 10) kb -= 10
-                    Rk.D -> kb = minOf(n - 1, kb + 10)
+                    Rk.D -> if (kb + 10 < n) kb += 10 else goResults()
                     Rk.OK -> {
-                        when (val x = KB[kb]) { "删" -> q = q.dropLast(1); "清" -> q = ""; else -> if (q.length < 12) q += x }
-                        doSearch()
+                        val x = KB[kb]
+                        if (x == "结果") {
+                            if (results.isEmpty()) toast("先输入片名，拼音首字母也行（如 qyn）") else goResults()
+                        } else {
+                            when (x) {
+                                "删" -> q = q.dropLast(1)
+                                "清" -> q = ""
+                                else -> if (q.length < 12) q += x
+                            }
+                            doSearch()
+                        }
                     }
                     Rk.B -> zone = Zone.SEARCH
                 }

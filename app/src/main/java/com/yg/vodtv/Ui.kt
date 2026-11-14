@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -182,12 +183,17 @@ fun Poster(v: Vod, focused: Boolean, h: Dp) {
 @Composable
 fun VodHome(s: UiState) {
     Column(Modifier.fillMaxSize().padding(top = 74.dp, start = 28.dp, end = 28.dp)) {
-        // 频道标签与搜索：各占一半宽度，同高
+        // 频道标签与搜索：各占一半宽度，同高。分类条按源的分类表动态生成，装不下就左右滑
         Row(Modifier.fillMaxWidth().height(48.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Config.TABS.forEachIndexed { i, t -> Cell(t.first, s.zone == Zone.TABS && s.tab == i, s.tab == i, Modifier.weight(1f).fillMaxHeight(), 15) }
+            val ts = rememberLazyListState()
+            LaunchedEffect(s.tab) { ts.animateScrollToItem((s.tab - 2).coerceAtLeast(0)) }
+            LazyRow(Modifier.weight(1f), state = ts, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                itemsIndexed(s.cats) { i, c ->
+                    Cell(c.name, s.zone == Zone.TABS && s.tab == i, s.tab == i,
+                        Modifier.width(if (c.name.length >= 3) 104.dp else 74.dp).fillMaxHeight(), 15)
+                }
             }
-            Cell("搜索片名", s.zone == Zone.SEARCH, false, Modifier.width(340.dp).fillMaxHeight(), 15)
+            Cell("搜索片名", s.zone == Zone.SEARCH, false, Modifier.width(300.dp).fillMaxHeight(), 15)
         }
         Spacer(Modifier.height(14.dp))
         val gs = rememberLazyGridState()
@@ -205,14 +211,22 @@ fun SearchPage(s: UiState) {
     Row(Modifier.fillMaxSize().background(Bg).padding(top = 74.dp, start = 28.dp, end = 28.dp), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Box(Modifier.width(494.dp).height(44.dp).clip(RoundedCornerShape(9.dp)).background(Panel).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
-                Text(s.q.ifEmpty { "输入片名" }, color = if (s.q.isEmpty()) Muted else Color.White, fontSize = 20.sp)
+                Text(s.q.ifEmpty { "输入片名或拼音首字母" }, color = if (s.q.isEmpty()) Muted else Color.White, fontSize = 20.sp)
             }
-            Spacer(Modifier.height(6.dp))
+            Text(
+                s.searchNote.ifEmpty { "打字母就行：qyn 就是《庆余年》，不用切中文输入法" },
+                color = if (s.searchNote.startsWith("没搜到")) Accent else Muted, fontSize = 13.sp,
+                modifier = Modifier.width(494.dp)
+            )
+            Spacer(Modifier.height(4.dp))
             KB.chunked(10).forEachIndexed { r, row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    row.forEachIndexed { c, k -> Cell(k, s.zone == Zone.SEARCH_PAGE && s.kb == r * 10 + c, false, Modifier.size(44.dp), 16) }
+                    row.forEachIndexed { c, k -> Cell(k, s.zone == Zone.SEARCH_PAGE && s.kb == r * 10 + c, false,
+                        Modifier.size(if (k.length > 1) 52.dp else 44.dp), if (k.length > 1) 13 else 16) }
                 }
             }
+            Spacer(Modifier.height(2.dp))
+            Text("▲▼◀▶ 选字   OK 输入   「结果」或最右/最下 进片单   返回 收起", color = Muted, fontSize = 12.sp, modifier = Modifier.width(494.dp))
         }
         LazyVerticalGrid(GridCells.Fixed(3), Modifier.weight(1f), contentPadding = PaddingValues(8.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
