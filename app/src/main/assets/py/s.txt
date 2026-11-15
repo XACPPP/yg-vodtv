@@ -5577,6 +5577,7 @@ smgjzsdnqqhm	随母改嫁,重生嫡女权倾侯门
 smgl	山脉公路
 smgl	神魔归璃
 smglpfb	山门归来平风波
+smgm	索命鬼妈
 smgpkqwdwzrs	三亩瓜棚,开启我的王炸人生
 smgr	神秘感染
 smgrdejd	神秘感染：第二阶段
@@ -13273,6 +13274,7 @@ swkd	死亡快递
 swkdastl	孙悟空大闹狮驼岭
 swkdastldyjs	孙悟空大闹狮驼岭[电影解说]
 swkdzpsd	孙悟空大战盘丝洞
+swkhrml	十万狂花入梦来
 swkj	思维空间
 swkjdyjs	思维空间[电影解说]
 swkjlfdjlbw	手握空间,流放囤金两不误

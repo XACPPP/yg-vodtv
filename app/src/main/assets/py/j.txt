@@ -5097,6 +5097,7 @@ jr	假人
 jr	姬芮
 jr	家人
 jr	巨人
+jr	巨人2025
 jr	渐染
 jr	禁燃
 jr	节日
@@ -7078,6 +7079,7 @@ jxd	激辛道
 jxda	夹心蛋糕
 jxdf	吉祥赌坊
 jxdhczxtcgdksdgd	觉醒大话成真系统，从工地开始当股东
+jxdlj	拣选 第六季
 jxdm	艰辛的米
 jxdnjhqyfjbhr	九霄嫡女惊华：契约夫君不好惹
 jxdp	惊心动魄

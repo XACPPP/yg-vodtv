@@ -2182,6 +2182,7 @@ bjhjtsy	报君黄金台上意
 bjhlagrrzydhzstbtx	北见绘里-那个让人在意的孩子，是同班同学
 bjhpdygj	不进花瓶的洋甘菊
 bjhwyqfm	弊家伙！我要去祓魔
+bjhyywjz	弊家伙！有嘢唔见咗！
 bjhzrca	冰肌何曾惹尘埃
 bjj	不见君
 bjj	八角街
@@ -5077,6 +5078,7 @@ bsxl	不死心灵
 bsxnzykknts	冰属性男子与酷酷女同事
 bsxq	不是血亲
 bsxql	半生寻亲路
+bsxr	冰释雪融
 bsxs	白事先生
 bsxs	白兽相守
 bsxsbst	半生心酸半生甜
@@ -6242,6 +6244,7 @@ bxzsttsknll	不肖子孙统统闪开，娘来了
 bxzw	靶心之外
 bxzwkkgl	陛下这纨绔开挂了
 bxzx	榜下捉婿
+bxzx	补形追凶
 bxzy	笔仙咒怨
 bxzyjdsszzq	不幸职业【鉴定士】实则最强
 bxzys	本心知余生

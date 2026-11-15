@@ -1005,6 +1005,7 @@ cddts	彩蛋大屠杀
 cddyjs	菜单[电影解说]
 cddyjs	赤道[电影解说]
 cddyjs	车道[电影解说]
+cddys	扯淡电影史
 cddys	操蛋的永生
 cddzx	迟到的真相
 cddzxdej	颤抖的真相第二季
