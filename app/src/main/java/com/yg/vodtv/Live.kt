@@ -2,6 +2,7 @@ package com.yg.vodtv
 
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,6 +29,10 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
     var failed by mutableStateOf(false); private set
     /** 当前是不是点播放的东西：点播出错要提示，不能自动滚到下一个频道 */
     var vod = false
+    /** 视频原始尺寸与像素宽高比：画面比例「自动」档靠它和屏幕比算，必须参与重组 */
+    var vw by mutableIntStateOf(0); private set
+    var vh by mutableIntStateOf(0); private set
+    var par by mutableFloatStateOf(1f); private set
     /** 点播失败时给界面报个信（参数是提示文案） */
     var onVodFail: ((String) -> Unit)? = null
     private var vodAlts: List<String> = emptyList()
@@ -55,7 +60,9 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
             }
 
             override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
-                Diag.w("play", "画面 " + videoSize.width + "x" + videoSize.height)
+                vw = videoSize.width; vh = videoSize.height
+                par = if (videoSize.pixelWidthHeightRatio > 0f) videoSize.pixelWidthHeightRatio else 1f
+                Diag.w("play", "画面 " + videoSize.width + "x" + videoSize.height + " par=" + par)
             }
 
             override fun onPlayerError(error: PlaybackException) {

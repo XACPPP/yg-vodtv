@@ -5,13 +5,19 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 /**
@@ -95,6 +101,9 @@ object Prefs {
     fun setChannel(c: Context, n: String) = sp(c).edit().putString("ch", n).apply()
     fun tab(c: Context) = sp(c).getInt("tab", 0)
     fun setTab(c: Context, i: Int) = sp(c).edit().putInt("tab", i).apply()
+    /** 画面比例：0 自动 / 1 适应 / 2 铺满（与旧 Java 版 MODE_AUTO/FIT/FILL 同序） */
+    fun scale(c: Context) = sp(c).getInt("scale", 0).coerceIn(0, 2)
+    fun setScale(c: Context, v: Int) = sp(c).edit().putInt("scale", v).apply()
 }
 
 object Net {
@@ -128,10 +137,28 @@ object Net {
         }
         .build()
 
+    /**
+     * 搜索专用客户端：超时砍短。
+     * 搜索是 14 个源并发抢答，宁可让慢源掉队，也不能让用户对着「搜索中…」等 12 秒。
+     */
+    val quick: OkHttpClient = ok.newBuilder()
+        .connectTimeout(4, TimeUnit.SECONDS)
+        .readTimeout(6, TimeUnit.SECONDS)
+        .build()
+
     suspend fun get(url: String, referer: String? = null): String = withContext(Dispatchers.IO) {
         val b = Request.Builder().url(url).header("User-Agent", Config.UA)
         if (!referer.isNullOrBlank()) b.header("Referer", referer)
         ok.newCall(b.build()).execute().use {
+            if (!it.isSuccessful) error("HTTP ${it.code}")
+            it.body?.string() ?: error("empty body")
+        }
+    }
+
+    suspend fun getQuick(url: String, referer: String? = null): String = withContext(Dispatchers.IO) {
+        val b = Request.Builder().url(url).header("User-Agent", Config.UA)
+        if (!referer.isNullOrBlank()) b.header("Referer", referer)
+        quick.newCall(b.build()).execute().use {
             if (!it.isSuccessful) error("HTTP ${it.code}")
             it.body?.string() ?: error("empty body")
         }
@@ -394,7 +421,38 @@ object Cats {
         }
         Diag.w("vod", "分类 " + out.size + " 档：" + out.joinToString(" ") { it.name + "(" + it.count + ")" })
         cache = out
+        saveDisk(ctx, out)
         out
+    }
+
+    /** 上次落盘的分类表：启动先用它秒出分类条，再后台刷新（没有或损坏就返回 null） */
+    fun cached(ctx: Context): List<Cat>? {
+        val f = java.io.File(ctx.cacheDir, "vodcats.json")
+        if (!f.exists()) return null
+        return runCatching {
+            val arr = JSONArray(f.readText())
+            List(arr.length()) { i ->
+                val o = arr.getJSONObject(i)
+                Cat(o.getString("name"), jsonSet(o.getJSONArray("aliases")), jsonSet(o.getJSONArray("accepts")))
+            }
+        }.getOrNull()?.takeIf { it.size > 1 }
+    }
+
+    private fun jsonSet(a: JSONArray): Set<String> = List(a.length()) { a.getString(it) }.toSet()
+
+    private fun saveDisk(ctx: Context, out: List<Cat>) {
+        if (out.size <= 1) return
+        runCatching {
+            val arr = JSONArray()
+            for (c in out) {
+                arr.put(
+                    JSONObject().put("name", c.name)
+                        .put("aliases", JSONArray(c.aliases.toList()))
+                        .put("accepts", JSONArray(c.accepts.toList()))
+                )
+            }
+            java.io.File(ctx.cacheDir, "vodcats.json").writeText(arr.toString())
+        }.onFailure { Diag.w("vod", "分类表落盘失败 " + it) }
     }
 
     /** 一个源的分类表：归一后的名字 → 该源用过的原始分类名 */
@@ -454,36 +512,62 @@ object PyIndex {
     }
 
     /**
-     * 纯函数：两轮扫描（先收首字母完全相同的，再收「以它开头」的），
-     * 然后按「标点少 → 名字短」重排：用户打 qyn 想要的是《庆余年》，不是某个长串合集。
+     * 纯函数：单遍扫描整张字母表，边扫边把「首字母完全相同」和「以它开头」分两桶，
+     * 再按「标点少 → 名字短」重排：用户打 qyn 想要的是《庆余年》，不是某个长串合集。
+     * 不用 body.split("\n")：一张表 8 万行，split 会当场分配 8 万个字符串，
+     * 老电视（1GB 内存）光这一步就要卡好几秒。
      */
     fun pick(body: String, prefix: String, cap: Int = MAX_NAMES): List<String> {
         val q = prefix.trim().lowercase()
         if (q.isEmpty()) return emptyList()
-        val lines = body.split("\n")
-        val out = ArrayList<String>(64)
-        for (ln in lines) {
-            if (out.size >= 64) break
-            if (q == keyOf(ln)) addName(out, ln)
+        val exact = ArrayList<String>(64)
+        val pref = ArrayList<String>(128)
+        val n = body.length
+        var start = 0
+        while (start < n) {
+            var end = body.indexOf('\n', start)
+            if (end < 0) end = n
+            val tab = body.indexOf('\t', start)
+            if (tab in start until end) {
+                var ks = start
+                while (ks < tab && body[ks] == ' ') ks++
+                var ke = tab
+                while (ke > ks && body[ke - 1] == ' ') ke--
+                if (ke > ks) {
+                    if (eqKey(body, ks, ke, q)) {
+                        if (exact.size < 64) addName(exact, body, tab + 1, end)
+                    } else if (startsKey(body, ks, ke, q)) {
+                        if (pref.size < 128) addName(pref, body, tab + 1, end)
+                    }
+                }
+            }
+            start = end + 1
         }
-        for (ln in lines) {
-            if (out.size >= 64) break
-            val k = keyOf(ln) ?: continue
-            if (k.length > q.length && k.startsWith(q)) addName(out, ln)
-        }
-        return out.sortedWith(compareBy({ junk(it) }, { it.length })).take(cap)
+        exact.addAll(pref)
+        return exact.sortedWith(compareBy({ junk(it) }, { it.length })).take(cap)
     }
 
-    private fun keyOf(ln: String): String? {
-        val tab = ln.indexOf('\t')
-        if (tab <= 0) return null
-        return ln.substring(0, tab).trim().lowercase()
+    /** key 段和 q 逐字符比，大小写不敏感，不构造中间子串 */
+    private fun eqKey(b: String, from: Int, to: Int, q: String): Boolean {
+        if (to - from != q.length) return false
+        for (i in q.indices) if (b[from + i].lowercaseChar() != q[i]) return false
+        return true
     }
 
-    private fun addName(out: MutableList<String>, ln: String) {
-        val tab = ln.indexOf('\t')
-        if (tab <= 0 || tab + 1 >= ln.length) return
-        val name = ln.substring(tab + 1).trim()
+    private fun startsKey(b: String, from: Int, to: Int, q: String): Boolean {
+        if (to - from <= q.length) return false
+        for (i in q.indices) if (b[from + i].lowercaseChar() != q[i]) return false
+        return true
+    }
+
+    /** 只对候选行（极少）才做 substring，主体扫描全程零分配 */
+    private fun addName(out: MutableList<String>, b: String, from: Int, to: Int) {
+        var s = from
+        var e = to
+        while (s < e && (b[s] == ' ' || b[s] == '\r')) s++
+        while (e > s && (b[e - 1] == ' ' || b[e - 1] == '\r')) e--
+        if (e <= s) return
+        val name = b.substring(s, e)
         if (name.isNotEmpty() && !out.contains(name)) out.add(name)
     }
 
@@ -530,9 +614,22 @@ object PyIndex {
 }
 
 object VodRepo {
-    private val cache = HashMap<String, List<Vod>>()
+    /** 预取线程和界面线程会同时读写，所以用并发 Map */
+    private val cache = java.util.concurrent.ConcurrentHashMap<String, List<Vod>>()
     /** 片名 → 各源的同名候选（第一个是列表里显示的那条），播放失败时按序换 */
-    private val alts = HashMap<String, MutableList<Vod>>()
+    private val alts = java.util.concurrent.ConcurrentHashMap<String, MutableList<Vod>>()
+    /** 分类列表落盘预算：超了按修改时间从旧到新删（与 Coil 海报盘缓存 60MB 合计 ≤100MB） */
+    private const val LIST_BUDGET = 40L * 1024 * 1024
+    /** 落盘列表 12 小时内直接用；过期再拉网，拉不到就用过期的兜底 */
+    private const val LIST_TTL = 12L * 3600 * 1000
+    /** 用户主动加载的次数：预取看到它 >0 就让路，不抢网络 */
+    private val userLoads = java.util.concurrent.atomic.AtomicInteger(0)
+    /** 一个关键词最多认领多少条命中：源站整库回吐时靠它兜底，别把电视内存吃光 */
+    private const val MAX_HIT = 400
+    /** 搜索命中缓存（LRU 24 词）：遥控器删字重打很常见，同一个词再搜应该是瞬时的 */
+    private val hits = object : LinkedHashMap<String, List<Vod>>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<Vod>>) = size > 24
+    }
 
     fun alternates(name: String): List<Vod> = alts[name.lowercase()] ?: emptyList()
 
@@ -583,17 +680,27 @@ object VodRepo {
             .trim()
     }
 
-    private fun parse(js: String, key: String): List<Vod> {
+    /**
+     * 拆 JSON。
+     * [nameHit] 非空时先只比片名，命中才去 parseLines —— 这一步是搜索提速的关键：
+     * bfzy/zuidazy 这类源不认 wd，直接把 12 万条整库吐回来，先筛后拆能省掉十几万次字符串操作。
+     */
+    private fun parse(js: String, key: String, nameHit: String? = null): List<Vod> {
         val arr = jsonArray(js) ?: return emptyList()
-        val out = ArrayList<Vod>(arr.length())
+        val hit = nameHit?.lowercase()
+        val out = ArrayList<Vod>(if (hit == null) arr.length() else 32)
         for (i in 0 until arr.length()) {
             val o = arr.optJSONObject(i) ?: continue
+            val name = o.optString("vod_name").trim()
+            if (name.isEmpty()) continue
+            if (hit != null && !name.lowercase().contains(hit)) continue
+            if (out.size >= MAX_HIT) break
             val lines = parseLines(o.optString("vod_play_from"), o.optString("vod_play_url"))
             val first = lines.firstOrNull()?.eps?.firstOrNull()?.url ?: continue
             out.add(
                 Vod(
                     id = o.optLong("vod_id"),
-                    name = o.optString("vod_name").trim(),
+                    name = name,
                     pic = o.optString("vod_pic").trim(),
                     url = first,
                     remark = o.optString("vod_remarks").trim(),
@@ -617,18 +724,20 @@ object VodRepo {
      * wd 非空走搜索；filter 非空会把结果按片名再筛一遍 ——
      * bfzy/zuidazy 这类源压根不认 wd，直接把 17 万条片库吐回来，不筛就全是噪声。
      */
-    private suspend fun fetch(s: Src, page: Int, wd: String, ac: String, filter: String = ""): List<Vod> {
+    private suspend fun fetch(
+        s: Src, page: Int, wd: String, ac: String, filter: String = "", quick: Boolean = false
+    ): List<Vod> {
         val sb = StringBuilder(s.api)
         sb.append("?ac=").append(ac)
         if (wd.isNotEmpty()) sb.append("&wd=").append(URLEncoder.encode(wd, "UTF-8"))
         sb.append("&pg=").append(page)
-        val list = parse(Net.get(sb.toString(), s.referer), s.key)
-        if (filter.isEmpty()) return list
-        val f = filter.lowercase()
-        return list.filter { it.name.lowercase().contains(f) }
+        val url = sb.toString()
+        val body = if (quick) Net.getQuick(url, s.referer) else Net.get(url, s.referer)
+        return parse(body, s.key, filter.ifEmpty { null })
     }
 
     /** 同一片名多源时只留第一条，源顺序即优先级（src.txt 的书写顺序）；其余留作备选 */
+    @Synchronized
     private fun merge(lists: List<List<Vod>>, limit: Int): List<Vod> {
         // 第一趟：把所有源的同名候选都收进 alts（备选要全，不能因为凑够条数就停）
         for (list in lists) {
@@ -673,10 +782,25 @@ object VodRepo {
         null
     }
 
-    suspend fun list(ctx: Context, cat: Cat, page: Int = 1, fresh: Boolean = false): List<Vod> {
+    suspend fun list(ctx: Context, cat: Cat, page: Int = 1, fresh: Boolean = false, bg: Boolean = false): List<Vod> {
         val key = "c:" + cat.name + "-" + page
         if (!fresh) cache[key]?.let { return it }
+        if (!bg) userLoads.incrementAndGet()
+        try {
+            return fetchList(ctx, cat, page, key, fresh)
+        } finally {
+            if (!bg) userLoads.decrementAndGet()
+        }
+    }
+
+    /** 先读盘（12 小时内直接用，切分类秒出）；过期或没有再打网；网络整档为空时才退回过期的盘 */
+    private suspend fun fetchList(ctx: Context, cat: Cat, page: Int, key: String, fresh: Boolean): List<Vod> {
         return withContext(Dispatchers.IO) {
+            val stale = if (fresh) null else readDisk(ctx, key)
+            if (stale != null && System.currentTimeMillis() - stale.second < LIST_TTL) {
+                Diag.w("vod", cat.name + " 读盘 " + stale.first.size + " 源")
+                return@withContext merge(stale.first, Config.LIMIT).also { if (it.isNotEmpty()) cache[key] = it }
+            }
             val srcs = Sources.all(ctx)
             // 分类靠条目自己的 type_name 认领：实测 14 个源里只有 bfzy 认 t= 过滤，其余给 t= 一律返回空
             val pages = if (cat.isAll) 1 else 4
@@ -694,8 +818,10 @@ object VodRepo {
                     }
                 }.awaitAll()
             }
-            merge(lists, Config.LIMIT).also {
-                if (it.isNotEmpty()) cache[key] = it
+            var out = merge(lists, Config.LIMIT)
+            if (out.isNotEmpty()) { cache[key] = out; writeDisk(ctx, key, lists) }
+            else if (stale != null) { out = merge(stale.first, Config.LIMIT); if (out.isNotEmpty()) cache[key] = out }
+            out.also {
                 val f = it.firstOrNull()
                 Diag.w("vod", cat.name + " 源=" + srcs.size + " 拿到=" + it.size + " 首条=" +
                     (f?.name ?: "-") + "(" + (f?.typeName ?: "-") + ") url=" + (f?.url ?: "-"))
@@ -704,49 +830,161 @@ object VodRepo {
     }
 
     /**
+     * 后台预取：界面出分类后调用。前 3 档无间隔连拉（用户最可能先点的），其余每档隔 1.5 秒；
+     * 用户正在主动加载时让路，不抢网络。拉下来的每档落盘并进内存，切过去就不卡。
+     */
+    suspend fun prefetch(ctx: Context, cats: List<Cat>, paused: () -> Boolean) {
+        delay(2000)   // 让直播先起播，别在开机瞬间和直播抢带宽
+        for ((i, c) in cats.withIndex()) {
+            if (i < 3) {
+                while (userLoads.get() > 0) delay(400)
+            } else {
+                // 其余的只在点播页里陆续缓存：直播播放时不抢带宽
+                while (paused() || userLoads.get() > 0) delay(400)
+                delay(1500)
+            }
+            runCatching { list(ctx, c, 1, bg = true) }
+                .onFailure { Diag.w("vod", "预取失败 " + c.name + " " + it) }
+        }
+        Diag.w("vod", "预取完成 " + cats.size + " 档")
+    }
+
+    private fun listDir(ctx: Context) = java.io.File(ctx.cacheDir, "vodlist").apply { mkdirs() }
+    private fun listFile(ctx: Context, key: String) =
+        java.io.File(listDir(ctx), URLEncoder.encode(key, "UTF-8") + ".json")
+
+    /** 盘上的一档：每个源的分类结果（保留原始分组，merge 时才能重建备选表）+ 落盘时间 */
+    private fun readDisk(ctx: Context, key: String): Pair<List<List<Vod>>, Long>? {
+        val f = listFile(ctx, key)
+        if (!f.exists()) return null
+        return runCatching {
+            val o = JSONObject(f.readText())
+            val arr = o.getJSONArray("lists")
+            val lists = List(arr.length()) { i ->
+                val a = arr.getJSONArray(i)
+                List(a.length()) { j -> vodFromJson(a.getJSONObject(j)) }
+            }
+            lists to o.optLong("ts", 0L)
+        }.getOrNull()
+    }
+
+    private fun writeDisk(ctx: Context, key: String, lists: List<List<Vod>>) {
+        runCatching {
+            val arr = JSONArray()
+            for (l in lists) {
+                val a = JSONArray()
+                for (v in l) a.put(vodToJson(v))
+                arr.put(a)
+            }
+            val o = JSONObject().put("ts", System.currentTimeMillis()).put("lists", arr)
+            val f = listFile(ctx, key)
+            val tmp = java.io.File(f.parentFile, f.name + ".tmp")
+            tmp.writeText(o.toString())
+            if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            trimDisk(ctx)
+        }.onFailure { Diag.w("vod", "列表落盘失败 " + it) }
+    }
+
+    /** 列表盘超预算：按修改时间从旧到新删，保证 ≤ LIST_BUDGET */
+    private fun trimDisk(ctx: Context) {
+        val files = listDir(ctx).listFiles()?.filter { it.isFile } ?: return
+        var total = files.sumOf { it.length() }
+        if (total <= LIST_BUDGET) return
+        for (f in files.sortedBy { it.lastModified() }) {
+            if (total <= LIST_BUDGET) break
+            total -= f.length()
+            f.delete()
+        }
+    }
+
+    private fun vodToJson(v: Vod): JSONObject {
+        val lines = JSONArray()
+        for (l in v.lines) {
+            val eps = JSONArray()
+            for (e in l.eps) eps.put(JSONObject().put("n", e.name).put("u", e.url))
+            lines.put(JSONObject().put("n", l.name).put("e", eps))
+        }
+        return JSONObject()
+            .put("id", v.id).put("name", v.name).put("pic", v.pic).put("url", v.url)
+            .put("remark", v.remark).put("src", v.src).put("lines", lines)
+            .put("content", v.content).put("year", v.year).put("area", v.area)
+            .put("score", v.score).put("actor", v.actor).put("director", v.director)
+            .put("typeName", v.typeName)
+    }
+
+    private fun vodFromJson(o: JSONObject): Vod {
+        val la = o.optJSONArray("lines") ?: JSONArray()
+        val lines = List(la.length()) { i ->
+            val l = la.getJSONObject(i)
+            val ea = l.getJSONArray("e")
+            PlayLine(l.getString("n"), List(ea.length()) { j ->
+                val e = ea.getJSONObject(j)
+                Episode(e.getString("n"), e.getString("u"))
+            })
+        }
+        return Vod(
+            id = o.optLong("id"), name = o.optString("name"), pic = o.optString("pic"),
+            url = o.optString("url"), remark = o.optString("remark"), src = o.optString("src"),
+            lines = lines, content = o.optString("content"), year = o.optString("year"),
+            area = o.optString("area"), score = o.optString("score"), actor = o.optString("actor"),
+            director = o.optString("director"), typeName = o.optString("typeName"),
+        )
+    }
+
+    /**
      * 搜索。电视遥控器打不了中文，所以：
      * 1) 输入全是字母 → 先查本地拼音首字母索引（py/q.txt 这类桶），把「qyn」翻成「庆余年」；
      *    苹果CMS 服务端只认中文和全拼，直接拿首字母去问只会得到一堆噪声。
-     * 2) 拿到中文片名（最多 3 个候选）后，逐名去问每个源，再把每源结果按片名筛一遍。
-     * 3) 全是数字/中文就直接当关键词问（有些源也吃数字片名）。
+     * 2) 拿到中文片名（最多 3 个候选）后，逐名去问每个源；某个候选一命中就不再往下试。
+     * 3) 返回 Flow：哪个源先到就先发一版，界面边到边画，不再等最慢的那个源。
      */
-    suspend fun search(ctx: Context, q: String): List<Vod> = withContext(Dispatchers.IO) {
+    fun search(ctx: Context, q: String): Flow<List<Vod>> = channelFlow {
         val key = q.trim()
-        if (key.isEmpty()) return@withContext emptyList()
+        if (key.isEmpty()) { send(emptyList()); return@channelFlow }
         val lower = key.lowercase()
+        synchronized(hits) { hits[lower] }?.let { send(it); return@channelFlow }
         val ascii = lower.all { it in 'a'..'z' }
         val names = if (ascii) PyIndex.names(ctx, lower) else emptyList()
         val queries = (names.ifEmpty { listOf(key) }).take(3)
-        Diag.w("vod", "搜索「" + key + "」" + (if (names.isEmpty()) "" else " 首字母→" + names.joinToString("/")) +
-            " 查询词=" + queries.joinToString("/"))
+        Diag.w(
+            "vod", "搜索「" + key + "」" + (if (names.isEmpty()) "" else " 首字母→" + names.joinToString("/")) +
+                " 查询词=" + queries.joinToString("/")
+        )
 
         val srcs = Sources.all(ctx)
-        val lists = coroutineScope {
-            srcs.map { s ->
-                async {
-                    val out = ArrayList<Vod>()
+        val acc = Collections.synchronizedList(ArrayList<Vod>(64))
+        coroutineScope {
+            srcs.forEach { s ->
+                launch(Dispatchers.IO) {
+                    var got: List<Vod> = emptyList()
                     for (wd in queries) {
-                        // 别用 runCatching 包 suspend：它会连 CancellationException 一起吞掉，
-                        // 上一个字的搜索被取消后还会把空结果写回界面
-                        val one = try {
-                            fetch(s, 1, wd, "detail", filter = wd)
+                        got = try {
+                            fetch(s, 1, wd, "detail", filter = wd, quick = true)
                         } catch (e: CancellationException) {
                             throw e
                         } catch (t: Throwable) {
                             Diag.w("vod", "搜索 " + s.key + " 出错 " + t)
                             emptyList()
                         }
-                        out.addAll(one)
+                        if (got.isNotEmpty()) break
                     }
-                    if (out.isNotEmpty()) Diag.w("vod", "搜索 " + s.key + " 命中 " + out.size)
-                    out
+                    if (got.isEmpty()) return@launch
+                    Diag.w("vod", "搜索 " + s.key + " 命中 " + got.size)
+                    val snap = synchronized(acc) { acc.addAll(got); acc.toList() }
+                    send(rank(merge(listOf(snap), Config.LIMIT), names))
                 }
-            }.awaitAll()
+            }
         }
-        val merged = merge(lists, Config.LIMIT)
-        // 首字母命中的候选片名排前面：用户打全了首字母，最贴的那部应该在第一屏
-        if (names.isEmpty()) merged else merged.sortedBy { v -> names.indexOfFirst { it.equals(v.name, true) }.let { if (it < 0) names.size else it } }
+        val all = synchronized(acc) { acc.toList() }
+        val merged = rank(merge(listOf(all), Config.LIMIT), names)
+        if (merged.isNotEmpty()) synchronized(hits) { hits[lower] = merged }
+        Diag.w("vod", "搜索「" + key + "」收尾 共 " + merged.size + " 条")
     }
+
+    /** 首字母命中的候选片名排前面：用户打全了首字母，最贴的那部应该在第一屏 */
+    private fun rank(list: List<Vod>, names: List<String>): List<Vod> =
+        if (names.isEmpty()) list
+        else list.sortedBy { v -> names.indexOfFirst { it.equals(v.name, true) }.let { if (it < 0) names.size else it } }
 
     /** 点播封面墙用「推荐」时没有类型参数 */
     suspend fun list(ctx: Context, ch: Int, page: Int = 1, fresh: Boolean = false): List<Vod> =
@@ -768,6 +1006,8 @@ object VodRepo {
 
     fun clearCache(ctx: Context) {
         cache.clear(); alts.clear(); Cats.clear(); PyIndex.clear(ctx)
+        runCatching { listDir(ctx).listFiles()?.forEach { it.delete() } }
+        runCatching { java.io.File(ctx.cacheDir, "vodcats.json").delete() }
     }
 }
 

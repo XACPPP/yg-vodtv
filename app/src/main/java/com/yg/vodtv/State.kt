@@ -10,13 +10,25 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 enum class Zone { BAR, PLAY, PANEL, TABS, SEARCH, GRID, SEARCH_PAGE, RESULTS, DETAIL, VOD_PLAY }
-enum class Rk { L, R, U, D, OK, B }
+enum class Rk { L, R, U, D, OK, B, M }
 
 val KB = ('A'..'Z').map { it.toString() } + ('0'..'9').map { it.toString() } + listOf("删", "清", "结果")
+
+/**
+ * 画面比例三档，语义与旧 Java 版 PlayerActivity 的 MODE_AUTO / MODE_FIT / MODE_FILL 完全一致：
+ * 自动=按视频与屏幕宽高比差 ≤4% 就铺满否则适应；适应=完整显示两侧留黑；铺满=等比放大裁掉超出。
+ */
+val SCALE_SHORT = arrayOf("自动", "适应", "铺满")
+val SCALE_FULL = arrayOf(
+    "自动（按视频比例判断）",
+    "适应（完整显示，两侧留黑）",
+    "铺满（超出部分裁掉）",
+)
 
 /** 全部按键逻辑集中在这里（与 HTML 原型一一对应），界面只负责按状态画焦点。 */
 class UiState(private val ctx: Context, private val scope: CoroutineScope, private val onExit: () -> Unit) {
@@ -31,13 +43,18 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     var kb by mutableIntStateOf(0); var rg by mutableIntStateOf(0)
     var q by mutableStateOf("")
     /** 点播分类条：0 号恒为「推荐」，其余是各源分类表归并后的结果（异步到手后替换） */
-    var cats by mutableStateOf<List<Cat>>(listOf(Cat("推荐", emptySet(), emptySet())))
+    var cats by mutableStateOf<List<Cat>>(Cats.cached(ctx) ?: listOf(Cat("推荐", emptySet(), emptySet())))
     /** 搜索框下面那行状态：正在搜什么、首字母翻成了什么、一共几条 */
     var searchNote by mutableStateOf("")
     var items by mutableStateOf<List<Vod>>(emptyList())
     var results by mutableStateOf<List<Vod>>(emptyList())
     var playing by mutableStateOf<Vod?>(null)
     var toast by mutableStateOf("")
+
+    /** 画面比例：菜单键循环三档，记到下一次开机（旧 Java 版是按频道记，这里全局一份更省事） */
+    var scaleMode by mutableIntStateOf(Prefs.scale(ctx))
+    /** 右上角状态胶囊：网络通不通，15 秒刷一次，换网不用重启 */
+    var online by mutableStateOf(true)
 
     /* 详情页：detail 是列表那条，进来后再异步补简介与完整线路 */
     var detail by mutableStateOf<Vod?>(null)
@@ -71,17 +88,35 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         }
         tab = Prefs.tab(ctx).coerceIn(0, cats.size - 1)
         if (mode == "vod") loadTab(tab)
-        // 分类表要连 14 个源，异步到手后替换分类条；当前选中的分类按名字续上
+        // 分类表要连 14 个源：先用盘上的分类表秒出分类条，后台刷新到手后替换；当前分类按名字续上
         scope.launch {
             val c = runCatching { Cats.load(ctx) }.getOrDefault(cats)
-            if (c.size <= cats.size) return@launch
-            val cur = cats.getOrNull(tab)?.name ?: "推荐"
-            cats = c
-            val i = c.indexOfFirst { it.name == cur }.coerceAtLeast(0)
-            tab = i; Prefs.setTab(ctx, i)
-            if (mode == "vod") loadTab(i)
+            if (c.size > 1) {
+                val cur = cats.getOrNull(tab)?.name ?: "推荐"
+                cats = c
+                val i = c.indexOfFirst { it.name == cur }.coerceAtLeast(0)
+                tab = i; Prefs.setTab(ctx, i)
+                if (mode == "vod") loadTab(i)
+            }
+            // 分类到齐后后台预取：前 3 档先热，其余陆续缓存（直播播放时自动暂停）
+            VodRepo.prefetch(ctx, cats) { mode == "live" }
         }
         arm()
+        scope.launch { while (true) { online = netOn(); delay(15_000) } }
+    }
+
+    private fun netOn(): Boolean = runCatching {
+        val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        @Suppress("DEPRECATION")
+        cm.activeNetworkInfo?.isConnected == true
+    }.getOrDefault(true)
+
+    /** 菜单键：自动 → 适应 → 铺满 → 自动（直播和点播共用一份设置） */
+    fun cycleScale() {
+        scaleMode = (scaleMode + 1) % 3
+        Prefs.setScale(ctx, scaleMode)
+        Diag.w("play", "画面切到 " + SCALE_FULL[scaleMode])
+        toast("画面：" + SCALE_FULL[scaleMode], 2200)
     }
 
     fun toast(t: String, ms: Long = 2000) {
@@ -127,24 +162,29 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         searchJob?.cancel()
         if (q.isEmpty()) { results = emptyList(); searchNote = ""; return }
         searchNote = "搜索中…"
+        results = emptyList(); rg = 0
         val token = ++searchSeq
+        val ascii = q.all { it in 'a'..'z' || it in 'A'..'Z' }
         searchJob = scope.launch {
-            delay(600)   // 连着按字母时只在最后一个字上真正发请求
+            delay(500)   // 连着按字母时只在最后一个字上真正发请求
             if (token != searchSeq) return@launch
-            // 只吞普通异常：协程被取消时若也返回空列表，会把上一次的「没搜到」写回界面
-            val r = try {
-                VodRepo.search(ctx, q)
+            var last = emptyList<Vod>()
+            // 边到边显示：每个源一有命中就重画，不用等最慢的那个源
+            try {
+                VodRepo.search(ctx, q).collect { r ->
+                    if (token != searchSeq) return@collect
+                    last = r
+                    results = r
+                    searchNote = "已找到 ${r.size} 条…"
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (t: Throwable) {
                 Diag.w("vod", "搜索失败 " + t)
-                emptyList()
             }
             if (token != searchSeq) return@launch
-            results = r
             rg = 0
-            val ascii = q.all { it in 'a'..'z' || it in 'A'..'Z' }
-            searchNote = if (r.isNotEmpty()) "共 " + r.size + " 条" + (if (ascii) " · 字母已按拼音首字母转换" else "")
+            searchNote = if (last.isNotEmpty()) "共 " + last.size + " 条" + (if (ascii) " · 字母已按拼音首字母转换" else "")
                          else "没搜到「$q」" + (if (ascii) "，可以少打几个字母试试" else "")
         }
     }
@@ -281,6 +321,7 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             Zone.PLAY -> when (k) {
                 Rk.U -> { live.switchTo(live.cur - 1); osd = true }
                 Rk.D -> { live.switchTo(live.cur + 1); osd = true }
+                Rk.M -> { cycleScale(); osd = true }
                 Rk.L, Rk.R -> { zone = Zone.BAR; bar = if (k == Rk.R) 1 else 0; auto = false; barShow = true; if (k == Rk.R) applyMode("vod") }
                 Rk.OK -> { val p = live.locate(); pc = p.first; pi = p.second; col = 1; zone = Zone.PANEL }
                 Rk.B -> { zone = Zone.BAR; bar = 0; auto = false }
@@ -295,18 +336,18 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                 Rk.R -> col = 1
                 Rk.OK -> if (col == 0) col = 1 else { live.switchTo(live.globalIndex(pc, pi), immediate = true); zone = Zone.PLAY; osd = true; barShow = false }
                 Rk.B -> { zone = Zone.PLAY; barShow = false }
+                else -> {}
             }
             Zone.TABS -> when (k) {
-                Rk.L -> if (tab > 0) selectTab(tab - 1)
-                Rk.R -> if (tab < cats.size - 1) selectTab(tab + 1) else zone = Zone.SEARCH
+                Rk.L -> if (tab > 0) selectTab(tab - 1) else zone = Zone.SEARCH   // 搜索框在分类条左边：到头往左进搜索
+                Rk.R -> if (tab < cats.size - 1) selectTab(tab + 1)
                 Rk.D -> if (items.isNotEmpty()) { zone = Zone.GRID; g = minOf(tab, items.size - 1) }
                 Rk.U -> { zone = Zone.BAR; bar = 1 }
-                Rk.OK -> zone = Zone.SEARCH   // 分类多，按 OK 直接跳到搜索框，不用一路按右键
-                Rk.B -> zone = Zone.SEARCH
+                Rk.OK, Rk.B -> zone = Zone.SEARCH
                 else -> {}
             }
             Zone.SEARCH -> when (k) {
-                Rk.L -> { zone = Zone.TABS; tab = cats.size - 1 }
+                Rk.R -> zone = Zone.TABS   // 搜索在左，往右回到当前分类
                 Rk.D -> if (items.isNotEmpty()) { zone = Zone.GRID; g = minOf(COLS - 1, items.size - 1) }
                 Rk.U, Rk.B -> { zone = Zone.BAR; bar = 1 }
                 Rk.OK -> { zone = Zone.SEARCH_PAGE; kb = 0 }
@@ -321,15 +362,16 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                     Rk.U -> if (g >= COLS) g -= COLS else zone = Zone.TABS
                     Rk.OK -> items.getOrNull(g)?.let { openDetail(it, Zone.GRID) }
                     Rk.B -> zone = Zone.SEARCH
+                    else -> {}
                 }
             }
             Zone.SEARCH_PAGE -> {
                 val n = KB.size
                 when (k) {
-                    Rk.L -> if (kb % 10 > 0) kb--
-                    Rk.R -> if (kb % 10 < 9 && kb < n - 1) kb++ else goResults()
-                    Rk.U -> if (kb >= 10) kb -= 10
-                    Rk.D -> if (kb + 10 < n) kb += 10 else goResults()
+                    Rk.L -> if (kb % KbCols > 0) kb--
+                    Rk.R -> if (kb % KbCols < KbCols - 1 && kb < n - 1) kb++ else goResults()
+                    Rk.U -> if (kb >= KbCols) kb -= KbCols
+                    Rk.D -> if (kb + KbCols < n) kb += KbCols else goResults()
                     Rk.OK -> {
                         val x = KB[kb]
                         if (x == "结果") {
@@ -344,17 +386,19 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                         }
                     }
                     Rk.B -> zone = Zone.SEARCH
+                    else -> {}
                 }
             }
             Zone.RESULTS -> {
                 val n = results.size
                 when (k) {
-                    Rk.L -> if (rg % 3 > 0) rg-- else zone = Zone.SEARCH_PAGE
-                    Rk.R -> if (rg % 3 < 2 && rg < n - 1) rg++
-                    Rk.U -> if (rg >= 3) rg -= 3
-                    Rk.D -> if (rg + 3 < n) rg += 3
+                    Rk.L -> if (rg % ResCols > 0) rg-- else zone = Zone.SEARCH_PAGE
+                    Rk.R -> if (rg % ResCols < ResCols - 1 && rg < n - 1) rg++
+                    Rk.U -> if (rg >= ResCols) rg -= ResCols
+                    Rk.D -> if (rg + ResCols < n) rg += ResCols
                     Rk.OK -> results.getOrNull(rg)?.let { openDetail(it, Zone.RESULTS) }
                     Rk.B -> zone = Zone.SEARCH_PAGE
+                    else -> {}
                 }
             }
             Zone.DETAIL -> {
@@ -389,6 +433,7 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                     }
                     Rk.OK -> if (dFocus) dFocus = false
                             else if (d != null && eps.isNotEmpty()) playEpisode(d, dLine, dEp, Zone.DETAIL)
+                    else -> {}
                 }
             }
             Zone.VOD_PLAY -> {
@@ -396,6 +441,7 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                 when (k) {
                     Rk.B -> { p.stop(); live.vod = false; zone = vodBack }
                     Rk.OK -> p.playWhenReady = !p.playWhenReady
+                    Rk.M -> cycleScale()
                     Rk.L -> p.seekTo((p.currentPosition - 10_000).coerceAtLeast(0))
                     Rk.R -> p.seekTo(p.currentPosition + 10_000)
                     Rk.U -> stepEpisode(-1)

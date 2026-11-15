@@ -37,6 +37,13 @@ class MainActivity : ComponentActivity() {
             coil.Coil.setImageLoader(
                 coil.ImageLoader.Builder(this)
                     .okHttpClient { Net.ok }
+                    // 海报盘缓存 60MB + 分类列表盘 40MB（VodRepo.LIST_BUDGET）= 总计 ≤100MB
+                    .diskCache {
+                        coil.disk.DiskCache.Builder()
+                            .directory(java.io.File(cacheDir, "coil"))
+                            .maxSizeBytes(60L * 1024 * 1024)
+                            .build()
+                    }
                     .build()
             )
         }
@@ -56,6 +63,8 @@ class MainActivity : ComponentActivity() {
                         Key.DirectionDown, Key.ChannelDown -> Rk.D
                         Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> Rk.OK
                         Key.Escape, Key.Backspace -> Rk.B
+                        // 遥控器「菜单」键循环画面比例（自动/适应/铺满），与旧 Java 版一致
+                        Key.Menu -> Rk.M
                         else -> null
                     }
                     if (k == null) false else { if (e.type == KeyEventType.KeyDown) s.onKey(k); true }
