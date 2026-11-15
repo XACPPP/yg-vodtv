@@ -1,6 +1,7 @@
 package com.yg.vodtv
 
 import android.content.Context
+import android.media.AudioManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,6 +42,22 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
     private var job: Job? = null
     val groups: List<String> get() = channels.map { it.group }.distinct()
 
+    /**
+     * 音量回写（移植自旧版 v2.20）：海信固件在解码器起音时会把扬声器增益推满，
+     * Android 侧 index 不变；按一下音量键即可对齐。这里在就绪/出画时把当前 index
+     * 原样再写一遍——音量值不变、不弹 OSD，相当于替用户做这次对齐。
+     */
+    private fun resyncVolume(why: String) {
+        try {
+            val am = ctx.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+            val cur = am.getStreamVolume(AudioManager.STREAM_MUSIC)
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, cur, 0)
+            Diag.w("play", "音量回写 " + cur + "/" + am.getStreamMaxVolume(AudioManager.STREAM_MUSIC) + "（" + why + "）")
+        } catch (t: Throwable) {
+            Diag.w("play", "音量回写失败 " + t.message)
+        }
+    }
+
     init {
         player.addListener(object : Player.Listener {
             /** 老电视上 screencap 抓不到硬解画面，只能靠日志判断到底出没出画 */
@@ -48,7 +65,7 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
                 val name = when (state) {
                     Player.STATE_IDLE -> "IDLE"
                     Player.STATE_BUFFERING -> "缓冲中"
-                    Player.STATE_READY -> "就绪"
+                    Player.STATE_READY -> { resyncVolume("就绪"); "就绪" }
                     Player.STATE_ENDED -> "播完"
                     else -> state.toString()
                 }
@@ -58,6 +75,8 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 Diag.w("play", if (isPlaying) "开始播放" else "暂停/停住")
             }
+
+            override fun onRenderedFirstFrame() { resyncVolume("出画") }
 
             override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
                 vw = videoSize.width; vh = videoSize.height

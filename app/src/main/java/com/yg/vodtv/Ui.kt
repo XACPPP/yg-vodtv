@@ -66,6 +66,9 @@ const val ResCols = 4
 val TopH = 92.dp
 val HintH = 46.dp
 val PosterH = 170.dp
+/** 海报解码尺寸（像素）：960x540dp 画布在 1920 宽屏上是 2 倍密度，格子约 286x340，取略大一点不发虚 */
+const val PostW = 320
+const val PostH = 380
 
 /** 详情页选集列数：电视剧 6 列；电影/短剧（≤3 集）用 3 列大格子好看也更省地方 */
 fun dcolsOf(n: Int) = if (n <= 3) 3 else DCOLS
@@ -447,6 +450,13 @@ fun Poster(v: Vod, focused: Boolean, h: Dp) {
     val sc by animateFloatAsState(if (focused) 1.05f else 1f, tween(160), label = "poster")
     val shape = RoundedCornerShape(12.dp)
     val scoreOn = v.score.toFloatOrNull()?.let { it > 0f } == true
+    // 海报按固定小尺寸解码：源站动辄 300x400 以上，12 张一起解在这台老电视上要两三秒；
+    // 固定成 PostW x PostH 后解码量降到一成，切分类首屏基本跟手（尺寸要和 warmImages 一致才共用缓存 key）
+    val ctx = LocalContext.current
+    val req = remember(v.pic) {
+        if (v.pic.isEmpty()) null
+        else coil.request.ImageRequest.Builder(ctx).data(v.pic).size(PostW, PostH).build()
+    }
     Box(
         Modifier.fillMaxWidth().height(h).graphicsLayer { scaleX = sc; scaleY = sc }
             .aurora(Accent, if (focused) 0.36f else 0f, 16.dp, 12.dp)
@@ -458,7 +468,7 @@ fun Poster(v: Vod, focused: Boolean, h: Dp) {
             Text(v.name.take(2), color = Color(0x2EFFFFFF), fontSize = 30.sp, fontWeight = FontWeight.Bold)
         }
         AsyncImage(
-            model = v.pic.ifEmpty { null },
+            model = req,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,

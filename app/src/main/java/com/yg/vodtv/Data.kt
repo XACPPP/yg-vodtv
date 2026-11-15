@@ -782,6 +782,9 @@ object VodRepo {
         null
     }
 
+    /** 只在内存里找这一档，找到就同步返回：切分类时先铺旧的，别闪骨架 */
+    fun peek(cat: Cat, page: Int = 1): List<Vod>? = cache["c:" + cat.name + "-" + page]
+
     suspend fun list(ctx: Context, cat: Cat, page: Int = 1, fresh: Boolean = false, bg: Boolean = false): List<Vod> {
         val key = "c:" + cat.name + "-" + page
         if (!fresh) cache[key]?.let { return it }
@@ -843,10 +846,33 @@ object VodRepo {
                 while (paused() || userLoads.get() > 0) delay(400)
                 delay(1500)
             }
-            runCatching { list(ctx, c, 1, bg = true) }
+            val got = runCatching { list(ctx, c, 1, bg = true) }
                 .onFailure { Diag.w("vod", "预取失败 " + c.name + " " + it) }
+                .getOrDefault(emptyList())
+            // 片单到手后把首屏海报一起解码进内存：切过去直接出图，不再等 3 秒
+            warmImages(ctx, got, if (i < 3) COLS * 2 else COLS)
         }
         Diag.w("vod", "预取完成 " + cats.size + " 档")
+    }
+
+    /**
+     * 预热海报：把首屏那几张先下到 Coil 的盘缓存里（60MB 那份），
+     * 之后切分类只剩本地解码，不再等图床。关掉内存缓存，别把当前这一档的图挤出去。
+     */
+    private fun warmImages(ctx: Context, list: List<Vod>, n: Int) {
+        val loader = runCatching { coil.Coil.imageLoader(ctx) }.getOrNull() ?: return
+        for (v in list.take(n)) {
+            if (v.pic.isEmpty()) continue
+            runCatching {
+                loader.enqueue(
+                    coil.request.ImageRequest.Builder(ctx)
+                        .data(v.pic)
+                        .size(PostW, PostH)
+                        .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
+                        .build()
+                )
+            }
+        }
     }
 
     private fun listDir(ctx: Context) = java.io.File(ctx.cacheDir, "vodlist").apply { mkdirs() }

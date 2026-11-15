@@ -146,13 +146,17 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     }
 
     private fun loadTab(i: Int) {
-        tabJob?.cancel(); items = emptyList(); g = 0
+        tabJob?.cancel(); g = 0
         Prefs.setTab(ctx, i)
         val cat = cats.getOrNull(i) ?: Cat("推荐", emptySet(), emptySet())
+        // 这一档在内存里就有：立刻铺上，别让用户先对着骨架等三秒
+        val mem = VodRepo.peek(cat)
+        items = mem ?: emptyList()
         tabJob = scope.launch {
-            delay(120)   // 连按左右键时只在最后一档真正发请求
-            items = runCatching { VodRepo.list(ctx, cat) }.getOrDefault(emptyList())
-            if (items.isEmpty()) toast("「" + cat.name + "」暂时取不到片子，稍后再试")
+            if (mem == null) delay(120)   // 连按左右键时只在最后一档真正发请求
+            val got = runCatching { VodRepo.list(ctx, cat) }.getOrDefault(emptyList())
+            if (got.isNotEmpty()) items = got
+            else if (items.isEmpty()) toast("「" + cat.name + "」暂时取不到片子，稍后再试")
         }
     }
 
