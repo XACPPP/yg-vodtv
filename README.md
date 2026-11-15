@@ -79,6 +79,17 @@ v2.31 把「切分类要等 14 源×4 页」的列表请求解决了，但真机
 | 内存 | `dumpsys meminfo` TOTAL Pss 152MB，Dalvik Heap 113MB/Free 23MB，1GB 机型安全 |
 | 缓存体积 | 列表盘靠 `trimDisk()` 的 40MB 上限约束，Coil 盘 60MB，合计 ≤100MB（release 包读不到私有 cacheDir，无法直接统计，只能靠代码上限保证） |
 
+**「检测更新永远是最新版」这一项本轮结清**（此前 v2.31 时线上最新也是 v2.31，所以提示「最新」本来是对的，
+但没法证明「有新版时会提示」）。这一轮有了 v2.32，直接做了对照实验：
+
+| 电视上装的版本 | 点「更新」的结果 |
+| --- | --- |
+| v2.32（线上最新） | toast「已是最新版本（v2.32）」 |
+| 降级装回 v2.31 | toast「发现新版本 v2.32：https://github.com/XACPPP/yg-vodtv/releases/download/v2.32/YGTV.apk」 |
+
+比的是 `Update.versionOf(versionName)`（`"2.31"` → 231）与 Release tag 换算出的数字，逻辑没问题。
+以后每次发版只要把 `app/build.gradle.kts` 的 `versionCode`/`versionName` 加一，老版本就会收到提示。
+
 ### v2.31：补回设计质感 + 画面调整 + 搜索提速与布局重排
 
 **同轮并入（点播分类加载 + 搜索位置）**
