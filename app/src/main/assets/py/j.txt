@@ -341,6 +341,7 @@ jbxpljpdsj	聚宝仙盆灵界篇第三季
 jbxpljpdsj	聚宝仙盆灵界篇第四季
 jbxpljpdwj	聚宝仙盆灵界篇第五季
 jbxpljpdyj	聚宝仙盆灵界篇第一季
+jbxpxjpdqj	聚宝仙盆仙界篇第七季
 jbxqs	惊爆星期四
 jbxs	囧爸喜事2023
 jbxsj	禁闭洗手间
@@ -1212,6 +1213,7 @@ jdxjjhsdjdsj	九殿下究竟何时登基第三季
 jdxm	简单西蒙
 jdxmdyjs	简单西蒙[电影解说]
 jdxs	极道咸湿
+jdxs	绝对小沈
 jdxsdej	极道鲜师第二季
 jdxsdsj	极道鲜师第三季
 jdxsdyb	极道鲜师电影版
@@ -1428,6 +1430,7 @@ jemnhdwj	吉尔莫女孩第五季
 jemnhdyj	吉尔莫女孩第一季
 jemnhsmzdyn	吉尔莫女孩：生命中的一年
 jemrydfj	捡个美人鱼当夫君
+jemrydfjdsj	捡个美人鱼当夫君第三季
 jemzdlg	捡个魔尊当老公
 jemzlyl	捡个魔尊来养老
 jemzzfj	捡个盟主做夫君
@@ -2281,6 +2284,7 @@ jhsszgy	惊慌失色之诡寓
 jhstwbgmnsbh	酒后上头，我被国民女神逼婚
 jhstx	惊魂双头溪
 jhswsszhdwr	聚会上，我撕碎最后的温柔
+jhsybw	惊鸿:桑榆不晚
 jhsyfjhhqc	惊鸿盛宴,夫君黑化权臣
 jhsygbs	镜花水月共白首
 jhsyjcrwcfbs	捡回失忆继承人,我错付半生
@@ -2359,6 +2363,7 @@ jhyjq	警花与警犬
 jhyjxdd	将婚姻进行到底
 jhykstycwgxzdsj	捡回一块石头，养成万古仙族第三季
 jhyl	娇哄月亮
+jhylcsdzqsc	娇哄月亮:程少的追妻手册
 jhymsqh	江湖一梦是清欢
 jhyp	惊鸿一瞥
 jhyr	京婚有染
@@ -2404,6 +2409,7 @@ jhzfyzq	江湖之风云再起
 jhzhygdl	江湖最后一个大佬
 jhzhygdldyjs	江湖最后一个大佬[电影解说]
 jhzjjhsdj	九皇子究竟何时登基
+jhzjjhsdj	九皇子究竟何时登基!
 jhzl	极寒之蓝
 jhzls	劫后诊疗室
 jhzlzdxsbd	禁婚在路总的心上蹦迪
@@ -2776,6 +2782,7 @@ jjhzxl	假结婚，真香了
 jjjb	绝酒惊变
 jjjbfqdjml	卷卷卷,把福气都卷没了
 jjjbwstyrs	嫁将军卑微时躺赢人生
+jjjbwstyrsdsj	嫁将军卑微时躺赢人生第三季
 jjjc	将计就宠
 jjjdcdzs	姐姐家的产地直送
 jjjdcdzs	姐姐家的产地直送2
@@ -2798,6 +2805,7 @@ jjjj	寂静尖叫
 jjjj	将计就计
 jjjjmys	家教姐姐美又飒
 jjjjy	姐姐解解压
+jjjjydx	姜计就计演大戏
 jjjl	紧急降落
 jjjlq	结局降落前
 jjjlqjksnbjq	姐姐降临全家开始脑补剧情
@@ -2862,6 +2870,7 @@ jjlr	金甲恋人
 jjlsxcn	将军赖上小厨娘
 jjlwdgg	进击了，我的高歌
 jjlwhj	姐姐，领我回家
+jjlwl	姐姐来晚了
 jjlxky	爵迹2：冷血狂宴
 jjlzlzjdnzqk	将军令之老祖驾到扭转乾坤
 jjm	京剧猫
@@ -3691,6 +3700,7 @@ jlphb	吉隆坡黑帮
 jlphb	吉隆坡黑帮2
 jlpj	见龙披甲
 jlpjzsh	金鳞破局掌商海
+jlpzswgwgxd	捡老婆这事,我跟我哥学的。
 jlq	绝路桥
 jlq	锦笼囚
 jlqc	击浪青春
@@ -4501,6 +4511,7 @@ jnsy	江南思雨
 jntj	贱男特警
 jnts	妓女天使
 jntszj	将你吞噬之际
+jntzfsdbcld	江南太子妃是东北穿来滴
 jnw	极恶女王
 jnwdmjngxds	叫你卧底，没叫你关心大嫂
 jnwmysda	纪念我们遗失的爱
@@ -5950,6 +5961,7 @@ jssjdzdyjs	僵尸世界大战[电影解说]
 jssjwbhhnhhs	绝色师姐，我不祸害你祸害谁
 jssjwclldfw	僵尸世界，我成了雷电法王
 jssjwclqxwz	九师授技，我成了全系武者
+jssjwsgydg	惊悚世界:我是诡异大哥!
 jssjwsjsjbq	僵尸世界我收僵尸就变强
 jssjwxcp	加速世界：无限超频
 jssjzzc	极速世界之战车
@@ -6241,6 +6253,11 @@ jsyrwndmzjzrab	749局守夜人？我乃道门真君！真人AI版
 jsys	九死一生
 jsys	僵尸医生
 jsys	极速一生
+jsysadj	金身野神AI短剧
+jsysdejadj	金身野神第二季AI短剧
+jsysdsjadj	金身野神第三季AI短剧
+jsysdsjadj	金身野神第四季AI短剧
+jsysdwjadj	金身野神第五季AI短剧
 jsysdyc	今生也是第一次
 jsysdyjs	僵尸医生[电影解说]
 jsyss	家事也是事
@@ -6596,6 +6613,8 @@ jtstyy	今天是太阳雨
 jtsxs	家庭私小说
 jtsyhnrbw	精通兽语后年入百万3
 jtsyllfc	九天神域灵落凡尘
+jtsywjhscldwy	精通兽语,我家后山成了动物园
+jtsywjhscldwydej	精通兽语,我家后山成了动物园第二季
 jtsywzgdnrbw	精通兽语，我在古代年入百万
 jtsyzbsycj	精通兽语之百兽养成记4
 jtsyzbsycj	精通兽语之百兽养成记5
@@ -7560,6 +7579,7 @@ jxzfgllgtfpzg	觉醒追夫，高冷老公他夫凭子贵
 jxzh	假戏真婚
 jxzhfjstf	君心纵火夫君是太傅
 jxzhnptxfjb	觉醒之后，女配她掀翻剧本
+jxzhqcwwzy	君心纵火权臣为我折腰
 jxzhrtf	君心纵火:惹太傅
 jxzhsbfp	觉醒之后，恕不奉陪
 jxzhtfxsl	君心纵火,太傅心上怜!
@@ -7952,6 +7972,7 @@ jymtyy	金玉满堂粤语
 jymtzywbly	金玉满堂之一网不捞鱼
 jymwse	家有萌娃三个
 jymwsedej	家有萌娃三个第二季
+jymwseqj	家有萌娃三个全季
 jymwzwwlmsf	家宴没我座位,我亮明身份
 jymxtdyjs	鲸鱼马戏团[电影解说]
 jymyznjnyc	剧院魅影：25周年纪念演出
@@ -8354,6 +8375,7 @@ jzcmhwjxlwsq	家族除名后，我觉醒了武神躯
 jzcmyjzjjshm	家族除名夜，姐自己就是豪门
 jzcn	极致宠溺
 jzcs	决战厨神
+jzcscjwkwy	锦帐春深:错嫁纨绔王爷
 jzcszkrzhswna	矫诏赐死，这可让朕好生为难啊
 jzcwdmy	纠正错位的命运
 jzcx	金枝辞雪
@@ -8411,6 +8433,7 @@ jzdwmzf	镜中的完美丈夫
 jzdxs	家族的形式
 jzdxs	郡主读心术
 jzdxsj	教宗的洗手间
+jzdxswbnwynwctc	郡主读心术:五百年唯一女娃成团宠
 jzdxx	家族的肖像
 jzdyb	激战电影版
 jzdyj	君主第一季
@@ -8600,6 +8623,7 @@ jzlmjssbqsmm	捡只灵猫,竟是双宝亲生妈咪
 jzlms	兼职罗曼史
 jzlms	酒醉罗曼史
 jzlnwhay	简助理你为何那样
+jzlnwhaydej	简助理你为何那样第二季
 jzls	金装律师2
 jzlschdntszdk	锦昭两世，春花嫡女她是真的狂
 jzlschdntszdkdej	锦昭两世，春花嫡女她是真的狂第二季
@@ -8896,6 +8920,7 @@ jzxqt	决战星期天
 jzxs	家族性史
 jzxs	箭在弦上
 jzxsdjq	教主下山当娇妻
+jzxsmwjdytcjtdpf	剑宗小师妹五界第一,天才见她都破防
 jzxwm	决战玄武门
 jzxwmgy	决战玄武门国语
 jzxwmyy	决战玄武门粤语

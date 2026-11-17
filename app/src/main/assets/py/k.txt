@@ -91,6 +91,7 @@ kbdsdyj	恐怖大师第一季
 kbdtzdyjs	恐怖地铁站[电影解说]
 kbdwg	狂暴大蜈蚣
 kbdwn	狂飙的蜗牛
+kbdxj	刻薄大小姐
 kbdxz	卡巴迪小子
 kbdyjs	狂暴[电影解说]
 kbdyjs	狂飙[电影解说]
@@ -811,6 +812,7 @@ kjdktelwchfl	开局对抗推恩令，我成皇夫了
 kjdlmssswqf	空降的冷面上司，是我前夫
 kjdlmssswqfdej	空降的冷面上司,是我前夫第二季
 kjdlmssswqfdsj	空降的冷面上司,是我前夫第三季
+kjdlmssswqfdsj	空降的冷面上司,是我前夫第四季
 kjdmhsdtbwdcqz	看见弹幕后，死对头被我钓成翘嘴
 kjdmsbyghgl	看见弹幕时白月光回国了
 kjdmxxwclhgtc	开局带猫选秀，我成了后宫团宠
@@ -1015,6 +1017,7 @@ kjsseskwsbqf	开局三十二岁看我收编全府
 kjssjswqf	空降上司竟是我前夫
 kjssjswqf	空降上司，竟是我前夫
 kjstxlsbfh	开局圣体:修炼十倍返还
+kjswbmlajb	开局手握爸妈恋爱剧本
 kjswmfhxsj	跨界送外卖俘获仙师姐
 kjswzhwc	开局神威，召唤万虫
 kjsyseljmm	1976，开局收养三个邻家妹妹
@@ -2020,6 +2023,7 @@ ktblgsj	坎特伯雷故事集
 ktblsj	空投柏林(上集)
 ktbqjdxfzbbzl	咳，她被全家读心傅总绷不住了
 ktca	卡廷惨案
+ktdwylxsl	快逃,大王又来巡山啦!
 ktdwyrj	凯特的外遇日记
 ktdyjs	凯特[电影解说]
 ktfzxq	昆塔：反转星球
@@ -2337,6 +2341,7 @@ kydyjs	恐雨[电影解说]
 kydyjs	枯叶[电影解说]
 kydzr	狂野大自然
 kyfc	狂野飞车
+kyfh	坤仪风华
 kyfst	狂野分手团
 kyfx	狂医废婿
 kygc	堀与宫村

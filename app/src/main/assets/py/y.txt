@@ -722,6 +722,7 @@ yclslzlnssn	英超联赛：利兹联VS阿森纳20260131
 yclsmlnsfd	英超联赛 曼联VS埃弗顿 20241201
 yclsmlnsfd	英超联赛 曼联VS埃弗顿 20251125
 yclsmlnssdwl	英超联赛 曼联VS阿斯顿维拉 20250525
+yclsmlnssdwl	英超联赛:曼联VS阿斯顿维拉20261109
 yclsmlnssdwl	英超联赛：曼联VS阿斯顿维拉20260315
 yclsmlnssn	英超联赛 曼联VS阿森纳 20240512
 yclsmlnssn	英超联赛 曼联VS阿森纳 20250310
@@ -803,6 +804,7 @@ ycrmhxs	一朝入梦换新生
 ycrrl	于春日热恋
 ycrw	隐藏人物
 ycryygsdejadj	一村人养一个神第二季Ai短剧
+ycryygsdsj	一村人养一个神第三季
 ycryygsdyj	一村人养一个神第一季
 ycsdqkd	一朝身登乾坤顶
 ycsjqc	夜车司机：全程
@@ -1531,6 +1533,7 @@ yffs	一饭封神
 yffs	一饭封神2026
 yffssysc	野风拂穗肆意生长
 yfg	迎凤归
+yfghrxbjtskl	妖妃蛊惑人心,暴君他失控了
 yfghrxbjtskl	妖妃蛊惑人心，暴君他失控了
 yfgltqhhl	隐凤归来，他却后悔了
 yfgm	夜访古墓
@@ -2286,6 +2289,8 @@ ygxzstsgmnahewzr	亚冠小组赛 塔什干棉农3.0阿哈尔 20231024（王子�
 ygy	玉观音
 ygy	玉骨遥
 ygybzl	月光永不坠落
+ygycrzr	野骨也成绕指柔
+ygycrzrdej	野骨也成绕指柔第二季
 ygycs	月光诱春色
 ygydyjs	玉观音[电影解说]
 ygyfr	雨果亦凡人
@@ -4108,6 +4113,7 @@ ylnxwkkxtzyj	一路逆袭，我靠科学统治异界
 ylny	幽灵女友
 ylnysjqj	原来你也是假千金
 ylnyxhw	原来你也喜欢我
+ylnyxhw	原来你也喜欢我2
 ylnyyzsaw	原来你也一直深爱我
 ylnz	御灵娘子
 ylnzwsb	原来你在我身边
@@ -6118,6 +6124,7 @@ ysfhc	玉碎凤还巢
 ysfhdqsw	亚瑟复活的骑士王
 ysfmeldxs	约瑟夫·门格勒的消失
 ysfpawmnjzwzz	异世翻盘,高危美男尽在我掌中
+ysfptfytt	阴湿反派他非要贴贴
 ysfqbsa	一世夫妻百事哀
 ysfqbsdzz	约瑟夫·钱伯斯的正直
 ysfqc	幽思缚情长
@@ -6327,6 +6334,7 @@ yslfzxcqjdl	隐世龙凤之相错亲嫁对郎
 yslgbhr	隐身老公不好惹
 yslggdntfhladj	异世伶歌:古代男团风华录AI短剧
 yslh	原始轮回
+yslhdyj	夜色留痕(第一季)
 yslhyht	一树梨花压海棠
 yslhyhtdyjs	一树梨花压海棠[电影解说]
 yslhyqz	一树梨花一轻舟
@@ -7027,6 +7035,7 @@ ytsndyjs	窈窕淑女[电影解说]
 ytsngy	窈窕淑女国语1998
 ytsngy	窈窕熟女国语
 ytsnhphzdjdlm	窈窕淑女后篇：花之东京大浪漫
+ytsnjzhq	窈窕淑女,君总好逑
 ytsnkkcghdqg	隐退十年，开口唱歌轰动全国
 ytsnqphxhyds	窈窕淑女前篇：红绪，花样的17岁
 ytsnyy	窈窕熟女粤语
@@ -7171,6 +7180,7 @@ ywchhzhyqtt	一吻成婚霍总红眼求贴贴
 ywclsdyc	因为初恋是第一次2
 ywclsdycdj	因为初恋是第一次第一季
 ywclsdycdj	因为初恋是第一次第二季
+ywclwnphhnt	妖王成了我奴仆,狠狠虐他
 ywcmnlwysadj	一碗炒面,暖了我一生AI短剧
 ywcnhnca	以我痴年，换你长安
 ywcp	意外触碰
@@ -7908,6 +7918,7 @@ yxlsbnmqy	英雄利沙比：农民起义
 yxlt	月下琉陶
 yxltj	夜行楼梯间
 yxlwwznyyb	月薪两万,我只能用一百
+yxlysl	夜香郎异事录
 yxm	殷雪梅
 yxmdgjxyndsh	英雄们：当国家需要你的时候
 yxmg	异形魔怪
@@ -8514,6 +8525,7 @@ yyfqw	一夜夫妻120蚊
 yyfs	烟雨浮生
 yyfss	阴阳风水师
 yyfwjykjxzsnhwjzfl	爷爷分我家一口旧箱子，三年后我家赚疯了
+yyfy	阴阳法医
 yyfycjj	医院风云：出埃及记
 yyfz	愉悦法则
 yyfzmqsyq	以岳父之名，清算一切
@@ -8531,6 +8543,7 @@ yygmdsj	医院革命第三季
 yygmdsj	医院革命第四季
 yygmdwj	医院革命第五季
 yygmdyj	医院革命第一季
+yygnycfsnqldcs	悠悠闺女言出法随,娘亲立地成神
 yygrq	悠悠故人情
 yygs	月圆孤声
 yygsr	阴阳赶尸人

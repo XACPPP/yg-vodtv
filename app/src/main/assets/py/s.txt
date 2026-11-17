@@ -2024,6 +2024,7 @@ sgcsdyjs	深宫春色[电影解说]
 sgct	四个春天
 sgctdyjs	四个春天[电影解说]
 sgcxsalzmh	书稿藏心事，暗恋撞满怀
+sgcyyzgctcyndqsmx	深闺藏玉映珠光!吃透穿越女的奇思妙想
 sgczc	时光出租车
 sgd	神龟岛
 sgdakxcdyjs	傻瓜大闹科学城[电影解说]
@@ -2412,6 +2413,7 @@ sgytqszh	时光与他，恰是正好
 sgyw	四个愿望
 sgyw	神鬼愿望
 sgywdyjs	神鬼愿望[电影解说]
+sgywwfdyc	拾光遇芜,晚风渡聿辞
 sgywzd	时光遗忘之地
 sgyxlm	十国英雄联盟
 sgyy	三国演义
@@ -2884,6 +2886,8 @@ shj	生活家
 shjbfq	扫黑·决不放弃
 shjbfqdyjs	扫黑·决不放弃[电影解说]
 shjbfqygp	扫黑·决不放弃[预告片]
+shjbgflc	山河尽罢,共赴良辰
+shjbgflcdej	山河尽罢,共赴良辰第二季
 shjc	生活即此
 shjcjywtzhbdc	收回家产嫁燕王，太子悔不当初
 shjcjywtzhbdcdej	收回家产嫁燕王，太子悔不当初第二季
@@ -3275,6 +3279,7 @@ shwkfrqdx	闪婚纨绔：夫人轻点驯
 shwll	山海万灵录
 shwlldej	山海万灵录第二季
 shwlldlj	山海万灵录第六季
+shwlldqjadj	山海万灵录第七季AI短剧
 shwlldsj	山海万灵录第三季
 shwlldsj	山海万灵录第四季
 shwlldwj	山海万灵录第五季
@@ -4402,6 +4407,7 @@ sjza	世界之爱2023
 sjza	食君之爱
 sjzayc	算计着爱一场
 sjzc	四季之春
+sjzcrzr	算计终成绕指柔
 sjzcxtwdzcdxwkmadj	神级早餐系统:我的早餐店下午开门AI短剧
 sjzd	尸家重地
 sjzddyjs	尸家重地[电影解说]
@@ -4461,6 +4467,7 @@ sjzxdyjs	师姐撞邪[电影解说]
 sjzy	世纪之约
 sjzy	世纪之缘
 sjzy	水晶之焰
+sjzycjx	守剑杂役成剑仙
 sjzydyjs	暑假作业[电影解说]
 sjzz	时间之子
 sjzz	烧酒战争
@@ -4608,6 +4615,7 @@ skshr	时空送货人
 sksl	圣凯瑟琳
 skslzzgxxjclwrm	社恐上恋综只顾学习,竟成了万人迷
 skslzzgxxjclwrmdej	社恐上恋综只顾学习,竟成了万人迷第二季
+sksnmmxtbwkzcd	社恐少女猫猫系统逼我开早餐店
 skssxs	斯科塞斯先生
 skst	时空使徒
 skstgyb	时空使徒 国语版
@@ -5852,7 +5860,10 @@ smtsaswlg	傻萌替身爱上我老公
 smtsf	索命停尸房
 smtsfdyjs	索命停尸房[电影解说]
 smtw	生命逃亡
+smtw	鼠脉天网
 smtwandyjs	杀马特我爱你[电影解说]
+smtwdej	鼠脉天网第二季
+smtwdsj	鼠脉天网第三季
 smtx	双面甜心
 smty	沙漠驼影
 smtydyjs	沙漠驼影[电影解说]
@@ -11504,6 +11515,7 @@ sshckdsj	十三号仓库第三季
 sshckdsj	十三号仓库第四季
 sshckdwj	十三号仓库第五季
 sshckdyj	十三号仓库第一季
+sshcpzdlqrm	盛世婚宠:偏执大佬请饶命
 sshddxsr	谁是皇帝的心上人
 sshdej	杀手猴第二季
 sshdgxy	是闪婚的关系呀
@@ -12309,6 +12321,7 @@ ssxjlbqjntgm	神算小锦鲤，帮全家逆天改命
 ssxjy	善蛇衔金缘
 ssxjy	生死新纪元
 ssxjydyjs	生死新纪元[电影解说]
+ssxlcfpjzdcw	兽世修罗场:反派家族独宠我
 ssxlcqnmrlfl	兽世修罗场：全能美人撩疯了
 ssxlcsdmdxglw	兽世修罗场，宿敌们都想攻略我
 ssxlsjnxszbf	深山修炼十几年下山镇八方
@@ -13304,6 +13317,7 @@ swlw	死亡论文
 swlwdyjs	死亡论文[电影解说]
 swlwzs	死亡令我重生
 swlx	1927，三湾来信
+swlx	上位沦陷
 swlx	死亡录像
 swlx	死亡录像2
 swlxcsjdyjs	死亡录像3：创世纪[电影解说]

@@ -473,6 +473,7 @@ tcldar	谈彩礼的男人
 tclf	探长来访
 tclfy	逃出立法院
 tclfydyjs	逃出立法院[电影解说]
+tclgjxqztctwhldyj	团宠灵根觉醒:全族天才听我号令第一季
 tclh	逃出轮回
 tclhzwbsxst	逃出轮回之我不是小神童
 tcljdyjs	天赐灵机[电影解说]
@@ -2135,7 +2136,9 @@ tjfxzxcmwadj	天降福星之乡村萌娃AI短剧
 tjfxzxcmwdej	天降福星之乡村萌娃第二季
 tjfxzxcmwdejadj	天降福星之乡村萌娃第二季AI短剧
 tjfxzxcmwdsj	天降福星之乡村萌娃第三季
+tjfxzxcmwdsj	天降福星之乡村萌娃第四季
 tjfxzxcmwdsjadj	天降福星之乡村萌娃第三季AI短剧
+tjfxzxcmwdwj	天降福星之乡村萌娃第五季
 tjfzhzdxshfpdtlsll	听见腹中孩子的心声后，反派的套路失灵了
 tjfzxshsxjbcst	听见腹中心声后，沈小姐被宠上天
 tjg	淘金谷
@@ -2198,6 +2201,7 @@ tjhwhlgbts	替嫁后，我和老公不太熟
 tjhwkbxtcnnfhwy	替嫁后，我靠爆笑吐槽拿捏腹黑王爷
 tjhwyrsbl	替嫁后王爷人设崩了
 tjhwzpjzsrsdf	替嫁后，我在婆家走上人生巅峰
+tjhwzyllmxg	替嫁后我治愈了冷面相公
 tjhy	天降好运
 tjhy	替嫁红颜
 tjhyjlcf	天降好运，锦鲤赐福
@@ -2963,6 +2967,7 @@ tlldll	天灵灵地灵灵
 tlldlldyjs	天灵灵地灵灵[电影解说]
 tlldzywl	天啦噜大周要亡啦
 tllg	铁路劳工
+tllkpbrgxttyl	她来了快跑别惹蛊修她太阴了
 tllmt	铁路浪漫谭
 tllmtdej	铁路浪漫谭第二季
 tllnjhll	天亮了，你就回来了
@@ -4918,6 +4923,8 @@ ttsmfsn	太太是魔法少女
 ttsnxshwfnzdjj	偷听庶女心声后，王妃扭转大结局
 ttst	通天神偷
 ttsy	通天书院
+ttsywzdstsh	饕餮盛宴:我在都市吞山海
+ttsywzdstshdej	饕餮盛宴:我在都市吞山海第二季
 ttsz	藤田嗣治
 ttt	通天塔
 ttt	通天塔2006
@@ -5564,6 +5571,7 @@ txtx	天下同心
 txtzc	太玄胎珠传
 txtzcdbj	太玄胎珠传第八季
 txtzcdej	太玄胎珠传第二季
+txtzcdjj	太玄胎珠传第九季
 txtzcdlj	太玄胎珠传第六季
 txtzcdqj	太玄胎珠传第七季
 txtzcdsj	太玄胎珠传第三季
@@ -6519,6 +6527,7 @@ tzyrwbjckwylga	太子爷让我别纠缠可我有老公啊
 tzyscyh	痛症医师车耀汉
 tzysd	天真与闪电
 tzysryglbskhj	太子又双叒要挂了，百兽快护驾
+tzytzrwdbz	太子爷太粘人,我顶不住
 tzytzzzg	太子爷他总在助攻
 tzyxb	特战英雄榜
 tzyy	天真有牙

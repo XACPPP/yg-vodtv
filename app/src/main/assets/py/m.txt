@@ -4187,6 +4187,7 @@ mqsjlwzsshysn	母亲是巨龙我咋是山海异兽呢
 mqsjlwzsshysndej	母亲是巨龙我咋是山海异兽呢第二季
 mqsjlwzsshysndsj	母亲是巨龙我咋是山海异兽呢第三季
 mqsjlwzsshysndsj	母亲是巨龙我咋是山海异兽呢第四季
+mqsjlwzsshysndwj	母亲是巨龙我咋是山海异兽呢第五季
 mqskjcd	迷情时空交叉点
 mqsndej	魔奇少年第二季
 mqsndyj	魔奇少年第一季
@@ -4244,6 +4245,7 @@ mraq	末日爱情
 mraq	盲人阿清
 mrb	美人邦
 mrbc	末日病宠
+mrbcssqrlswl	末日病宠:丧尸前任赖上我了
 mrbd	末日病毒
 mrbddyjs	末日病毒[电影解说]
 mrbfjjmqkm	末日冰封姐姐们求开门
@@ -4299,6 +4301,7 @@ mrfgjjs	墨染凤冠烬江山
 mrfgzqmzmrbq	美人疯骨之权谋主母惹不起
 mrfgzyfdd	美人疯骨之一疯到底
 mrfgzyfdddej	美人疯骨之一疯到底第二季
+mrfgzyfdddsj	美人疯骨之一疯到底第三季
 mrfh	墨染芳华
 mrfs	明日赴死
 mrfz	末日方舟
@@ -4734,6 +4737,7 @@ msdx	谋杀大厦
 msdx	迷失的心
 msdxd	迷失的兄弟
 msdxdlm	盲少的心动辣妹
+msdxhdxs	末世地下皇帝:醒狮
 msdxj	谋杀大小姐
 msdxlb	谋杀地下老板
 msdyj	名姝第一季
@@ -5312,6 +5316,7 @@ mtcmqzy	萌探出没请注意
 mtcss	蜜桃成熟时
 mtcsszmtxz	蜜桃成熟时3之蜜桃仙子
 mtcsyjh	满庭春色予君欢
+mtcztcfh	明棠传之团宠风华
 mtdej	码头第二季
 mtdhzcdzdy	每天都和总裁斗智斗勇
 mtdjd	码头大决斗
@@ -7016,6 +7021,7 @@ mzzhs	末栈之黑水
 mzzkl	芒着种快乐
 mzzl	民主之澜
 mzzsnwllg	妈,这真是你未来老公
+mzzswzdstxwd	魔主重生:我在都市天下无敌2
 mzzswzdstxwd	魔主重生：我在都市天下无敌
 mzzszgxhslcq	萌祖在上：这个小孩实力超强
 mzzwkzynxsstc	萌猪猪:我靠治愈逆袭兽世团宠

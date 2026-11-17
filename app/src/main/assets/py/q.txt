@@ -209,6 +209,7 @@ qayy	奇爱疑云
 qayz	亲爱一族
 qaz	乞爱者
 qaz	求爱者
+qazs	浅爱至深
 qb	奇兵
 qb	拳霸
 qb	拳霸2
@@ -638,6 +639,7 @@ qcwydyjs	齐丑无艳[电影解说]
 qcwyscb	请赐我一双翅膀
 qcwyzpjzy	齐丑无艳之破镜重圆
 qcwyzwm	青春未央之舞·梦
+qcxcyfdggsjbw	全城寻宠:要饭的狗狗身价百万
 qcxehdfxs	权臣寻恩护豆腐西施
 qcxhfyczw	清纯校花非要缠着我
 qcxl	青春旋律
@@ -2508,6 +2510,7 @@ qmjcqmjcdyjs	驱魔警察 驅魔警察[电影解说]
 qmjdw	情满九道弯
 qmjfydbqzjcw	全面揭发：印度板球造假丑闻
 qmjgj	奇门机关卷
+qmjgwzfjbgktmj	全民军工:我纸飞机爆改空天母舰
 qmjhsmzfdzj	清明祭谎，双面丈夫的终局
 qmjhzgmyhjsf	清明惊魂，只怪没有回家上坟
 qmjj	清明酒家
@@ -2589,6 +2592,8 @@ qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第三季
 qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第四季
 qmqswdjeyyddddwj	全民求生:我的技能有亿点点多第五季
 qmqswkqdjbs	全民求生:我靠签到建别墅
+qmqswkqdjbsdej	全民求生:我靠签到建别墅第二季
+qmqswkqdjbsdj	全民求生:我靠签到建别墅AI短剧
 qmqszywnkjycts	全民求生:只有我能看见隐藏提示
 qmqszywnkjyctsdej	全民求生:只有我能看见隐藏提示第二季
 qmqw	千密千危
@@ -2828,6 +2833,7 @@ qnjbdyjs	全能囧爸[电影解说]
 qnjc	青年警察
 qnjh	青年π计划
 qnjhzccy	七年假婚，真宠成瘾
+qnjywjg	千年旧约为君归
 qnjzw	请你记住我
 qnkk	强尼凯克
 qnkzzylr	七年空舟终遇良人
@@ -3241,6 +3247,7 @@ qqlwyhlg	求求了！我要回冷宫
 qqly	奇犬良缘
 qqly	群青领域
 qqlyzxs	七情六欲终消散
+qqlzbxzzsl	求求了朕不想再重生了
 qqmdyjs	敲敲门[电影解说]
 qqmfzyl	弃青梅，逢状元郎
 qqmln	亲亲米莱娜
@@ -3316,6 +3323,7 @@ qqsjthqzy	全球杀机:天黑请睁眼
 qqsjx	卿卿锁君心
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试2
+qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试?
 qqskgxxcnrwqksdyj	全球死考:刚下刑场你让我去考试第一季
 qqsnc	清清十年错
 qqsnx	拳拳少女心
@@ -3658,6 +3666,7 @@ qscrzmwwc	禽兽超人之迷雾围城
 qscs	拳神传说
 qscs	枪神传说
 qscswrlzsljqtwcq	前世惨死无人怜，重生厉家全听我差遣
+qscswrlzsljqtwcqab	前世惨死无人怜,重生厉家全听我差遣AI版
 qscswrlzsljqtwcqdej	前世惨死无人怜，重生厉家全听我差遣第二季
 qscswrlzsljqtwcqdsj	前世惨死无人怜,重生厉家全听我差遣第三季
 qscswrlzsljqtwcqdsj	前世惨死无人怜,重生厉家全听我差遣第四季
@@ -4294,6 +4303,7 @@ qwbhj	千万别回家
 qwblbxzqcq	球王贝利：巴西足球传奇
 qwblk	前往并离开
 qwbrgkzy	千万别惹高考状元
+qwbrttlpbjjhxyb	千万别惹他,他老婆比禁忌还凶亿倍
 qwbss	千万别松手
 qwbssdyjs	千万别松手[电影解说]
 qwbszdyjs	千万别睡着[电影解说]

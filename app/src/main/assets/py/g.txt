@@ -756,6 +756,7 @@ gfl	戈弗雷
 gflft	功夫乐翻天
 gflm	功夫联盟
 gflxr	蛊缚两心人
+gflxt	跟风旅行团
 gflxzjq	功夫龙虾之崛起
 gfm	功夫梦
 gfmb	功夫萌宝

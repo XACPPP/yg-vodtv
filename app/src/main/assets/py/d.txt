@@ -1728,6 +1728,7 @@ dgtx	东宫特训
 dgtxzyt	独孤天下之异瞳
 dgtxzyy	独孤天下之预言
 dgtyzyq	督公他又争又抢
+dgtzddx	赌个同桌当对象
 dgw	打鬼王
 dgwdyjs	打鬼王[电影解说]
 dgwgcsylr	东宫无归处，鞍上有良人
@@ -3241,6 +3242,7 @@ dlr	独立日1996
 dlr	登陆日
 dlr	第六日
 dlrcla	第零人称恋爱
+dlrcla	第零人称恋爱2
 dlrddy	独立日大电影
 dlrdyjs	独立日[电影解说]
 dlrdyjs	第六日[电影解说]
@@ -3796,6 +3798,7 @@ dmyjlgtcyz	弹幕预警,老公偷藏玉镯
 dmyjlsfj	弹幕预警,落水逢君
 dmyjt	夺命异教徒
 dmyjwzxlszw	弹幕预警,我重选了摄政王
+dmyjzxzqjwzxlc	弹幕预警!装瞎真千金玩转修罗场
 dmym	夺命影迷
 dmymdyjs	夺命影迷[电影解说]
 dmysjbl	蒂姆与时间悖论
@@ -4685,6 +4688,7 @@ dsbjdgtztxhl	带三宝嫁东宫,太子他想活了
 dsbjdsjjdyhbjbjdltbjm	第十八届 第十九届电影华表奖颁奖典礼特别节目
 dsbjl	大叔不经撩
 dsbnyldc	多少不能原谅的错
+dsbyjbrmzdbwmzt	大四毕业季,别人忙着答辩我忙着吐!
 dsbzxymdhn	独守镖宅携哑妹度荒年
 dsbzxymdhndej	独守镖宅：携哑妹度荒年第二季
 dsc	大搜查
@@ -6406,6 +6410,7 @@ dxmbjsdl	读心萌宝竟是大佬
 dxmbqjc	读心萌宝全家宠
 dxmbynzmdsfbsldej	大学没毕业，你怎么登上福布斯了第二季
 dxmbynzmdsfbsldsj	大学没毕业,你怎么登上福布斯了第三季
+dxmbynzmdsfbsldsj	大学没毕业,你怎么登上福布斯了第四季
 dxmcq	大熊猫传奇
 dxmhl	赌侠马华力
 dxmllazdsg	大下麻里-恋爱中的傻瓜
@@ -6464,6 +6469,7 @@ dxqsg	大侠请上功
 dxqthwgnrwdhdxftx	大夏七天后亡国，你让我当皇帝掀翻天下
 dxqtj	喋血钱塘江
 dxqw	大夏拳王
+dxqwgal	大夏奇闻诡案录
 dxqxj	地心抢险记
 dxqxjdyjs	地心抢险记[电影解说]
 dxqxysq	殿下请许以深情
@@ -6625,6 +6631,7 @@ dxyhyhml	读心影后$隐婚蜜恋
 dxyj	地心游记
 dxyj	地心营救
 dxyjdyjs	地心游记[电影解说]
+dxyjr	多喜一家人
 dxyjw	12点，需要接吻
 dxyl	地心引力
 dxyld	黛西与乐队

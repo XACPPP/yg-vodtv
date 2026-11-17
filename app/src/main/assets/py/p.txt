@@ -19,6 +19,7 @@ padtw	骗爱大逃亡
 padwj	皮囊第五季
 padyj	皮囊第一季
 pae	皮埃尔
+pafnmsdej	偏爱非你莫属第二季
 pafnmsdyj	偏爱非你莫属第一季
 pafz	偏爱法则
 pagzggcs	平安谷之诡谷传说
@@ -1305,6 +1306,7 @@ ptsx	菩提树下
 ptsyw	披头四与我
 pttc	骗徒通吃
 pttrrrsyfcl	裴太太柔弱人设又翻车了
+ptttbpll	裴太太她不跑路了
 ptxf	拼贴幸福
 ptxsgxntthyl	匹田先生，恭喜你太太怀孕了
 ptydc	葡萄牙队长
@@ -1639,6 +1641,7 @@ pzrg	偏执入骨
 pzs	破咒师
 pzscdyj	胖者生存第一季
 pzscx	碰撞搜查线
+pzscxdej	碰撞搜查线 第二季
 pzsdgs	牌桌上的高手
 pzsn	泡澡少女！
 pztjxzz	裴总他假戏真做
