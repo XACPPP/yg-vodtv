@@ -258,6 +258,7 @@ gcdznqxx	鬼吹灯之怒晴湘西
 gcdzwxgs	鬼吹灯之巫峡棺山
 gcdzxlj	鬼吹灯之寻龙诀
 gcdzxxmc	鬼吹灯之湘西密藏
+gcfyzhdjzm	港城风云之黑大姐卓玛
 gcgcdyj	逛吃逛吃第一季
 gcghyly	甘城光辉游乐园
 gcghylyjdrxxjc	甘城光辉游乐园：激动人心小剧场
@@ -3223,6 +3224,7 @@ gsycl	更上一层楼
 gsycq	观世音传奇
 gsydqsylbz	顾少要夺妻谁也拦不住
 gsyfpsy	故山犹负平生月
+gsyg	高声摇滚
 gsygy	观世音国语
 gsyh	丐世英豪
 gsynh	怪兽与女孩

@@ -287,6 +287,7 @@ qbsnhz	前辈是男孩子
 qbsq	奇兵神犬
 qbsqmyjs	千博士驱魔研究所
 qbsqmyjsdyjs	千博士驱魔研究所[电影解说]
+qbswz	请别送我走
 qbszhyjsq	乔布斯：最后一件事情
 qbt	丘比特2
 qbtdqt	丘比特的圈套
@@ -412,6 +413,7 @@ qcdshwktlrx	全村断水后我看透了人心
 qcdshyh	权臣的烧火丫鬟
 qcdswlptmr	全村都说我老婆太迷人
 qcdt	权臣夺她
+qcdtdxswwswbgf	取车当天,弟媳收我五十万保管费
 qcdwdswdxr	全城动物都是我的线人
 qcdwpcwpsczwjg	全村等我破产，我凭收菜站稳脚跟
 qcdxwfxl	全村的希望返乡了
@@ -3530,6 +3532,7 @@ qrs	情人石
 qrsc	七日蛇缠2
 qrscgsxgp	潜入搜查官松下洸平
 qrslbj	七日狩猎笔记
+qrsq	情染双囚
 qrss	前任杀神
 qrssygp	前任杀神[预告片]
 qrsyfsfkwbejbq	前任索要分手费，可我被讹就变强
@@ -5341,6 +5344,7 @@ qzdtj	妻子的通奸2
 qzdw	妻子的网
 qzdw	栖镇·等我
 qzdwox	妻子的玩偶熊
+qzdwrbdj	妻子的温柔,不对劲
 qzdwz	妻子的伪装
 qzdxcs	强者的新传说
 qzdxs	妻子的心事

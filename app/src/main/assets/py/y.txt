@@ -360,6 +360,7 @@ ybxsddbygp	永不消逝的电波[预告片]
 ybxtfxw	尤巴县突发新闻
 ybxtfxwdyjs	尤巴县突发新闻[电影解说]
 ybxxasn	一不小心爱上你
+ybxxbdjzjlxl	一不小心把督军作进了心里
 ybxxbsyzjljc	一不小心把生意做进了京城
 ybxxcdn	一不小心吃定你
 ybxxcltdxjc	一不小心成了他的心尖宠
@@ -887,6 +888,7 @@ ycxlazndyj	养成系恋爱指南第一季
 ycxlyc	燕赤霞猎妖传
 ycxn	夜叉新娘
 ycxqddszzwdr	一场相亲，读懂数字之外的人
+ycxs	原创新声2026
 ycxsjyl	一寸相思寄玉兰
 ycxsm	养成系神明
 ycxsw	御赐小侍卫
@@ -2832,7 +2834,9 @@ yhwgyy	以和为贵粤语
 yhwhatebsdgs	养虎为患：安特尔博士的故事
 yhwhdej	养虎为患第二季
 yhwhdyj	养虎为患第一季
+yhwjr	烟火误佳人
 yhwnjack	隐婚五年，旧爱成空
+yhwq	以婚为囚
 yhwq	养花为妻
 yhwq	咬痕为契
 yhwxc	野火吻星辰
@@ -2865,6 +2869,7 @@ yhxxc	烟火向星辰
 yhxxgn	诱惑乡下姑娘
 yhxy	幽魂学怨
 yhxydyjs	幽魂学怨[电影解说]
+yhxyzwn	一怀星月只为你
 yhy	云赫谣
 yhy	宇航员
 yhy	永航员
@@ -2997,6 +3002,7 @@ yj	遗迹
 yj	银娇
 yj	银驹
 yj	预见
+yja	予君安
 yjagj	远嫁难归家
 yjal	又见阿郎
 yjan	愿君安宁
@@ -3972,6 +3978,7 @@ ylhjths	雨落寒阶听悔声
 ylhk	缘来花开
 ylhlzy	牙狼：红莲之月
 ylhm	月落侯门
+ylhmszzjl	玉落侯门,深宅掌家路
 ylhnbhh	要离婚你别后悔
 ylhqqs	原来婚浅情深
 ylhsahq	牙狼：红色安魂曲
@@ -4215,6 +4222,7 @@ ylsf	一路顺疯
 ylsf	一路顺风
 ylsfbzxf	雨落时分别再相逢
 ylsfclbl	一路顺风，查理布朗
+ylsfrj	隐龙送凡人间
 ylsfylsfdyjs	一路顺风 一路順風[电影解说]
 ylsg	月老神龟
 ylsg	盂兰神功
@@ -4380,6 +4388,7 @@ ylxzylwt	夜郎侠之一路危途
 yly	一乐也
 yly	一乐也 1973
 yly	游乐园
+ylyawddblp	“粤”来越爱我的东北“老”婆
 ylyb	幽灵异变
 ylybtx	音乐永不停歇
 ylybyt	燕翎义薄云天
@@ -5376,6 +5385,7 @@ yptztqbj	玉蒲团之偷情宝鉴
 yptzynxj	玉蒲团之玉女心经
 ypwdt	有品位的她
 ypwkwkdszztx	一品纨绔，我靠毒舌执宰天下
+ypwqywys	玉佩为契,予我余生
 ypwzcgcq	延平王郑成功传奇
 ypxn	赝品新娘
 ypygc	与朋友共餐
@@ -5695,6 +5705,7 @@ yqwmg	野犬吻玫瑰
 yqwqhjcy	以情为契，换君长忆
 yqwqzd	孕期完全指导
 yqwr	一腔温柔
+yqwrdj	一腔温柔第二季
 yqwspzdxzjwcs	以前我是骗子但现在叫我厨神
 yqwwydxdjsjqdxj	一起玩网游的兄弟竟是京圈大小姐
 yqwydjxs	野蔷薇与多金先生
@@ -5717,6 +5728,7 @@ yqycb	一起用餐吧3
 yqyjg	愈穷愈见鬼
 yqyklxy	一起又看流星雨
 yqyl	月球陨落
+yqyl	野犬与铃
 yqylb	一起音乐吧
 yqyldyjs	月球陨落[电影解说]
 yqylzys	缘起缘落终有时
@@ -5765,6 +5777,7 @@ yran	依然，爱你
 yrar	月染爱人
 yrbs	遇人不熟
 yrbsdyjs	遇人不熟[电影解说]
+yrbxrwzj	有人不想让我住进1102
 yrc	愚人船
 yrca	隐入尘埃
 yrcd	亚人1：冲动
@@ -5857,6 +5870,7 @@ yrtlqklxzzcsm	欲染甜梨全靠梨香治总裁失眠
 yrtm	欲染荼靡
 yrttazn	有人偷偷爱着你
 yrwnglysjs	隐忍五年，归来已是军神
+yrwnqqczwssjdl	隐忍五年,前妻才知我是商界大佬
 yrwqdck	一入无情道成空
 yrws	一日为师
 yrxc	月染星辰
@@ -7432,6 +7446,7 @@ ywrx	欲望热线
 ywrxjry	愿我如星君如月
 ywrxjrydej	愿我如星君如月第二季
 ywrxqry	愿我如星卿如月
+ywry	一吻如意
 ywrycxmda	一碗肉引出泄密大案
 ywrydxqx	一万日元的小确幸
 yws	愿望树

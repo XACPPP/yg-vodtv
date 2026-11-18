@@ -82,6 +82,7 @@ tbdyjs	同步[电影解说]
 tbdyjs	蜕变[电影解说]
 tbf	徒步7分
 tbfgnpqn	泰版富贵男贫穷女
+tbfgr	她并非故人
 tbfq	她本风情
 tbfydxx	泰版放羊的星星
 tbfydxxgy	泰版放羊的星星国语
@@ -534,6 +535,7 @@ tcmmmqytwxs	团宠猫妹妹，全员听我心声
 tcmnjt	太初脉逆九天
 tcms	贴错门神
 tcmsc	逃出盲山村
+tcmsf	天才谋杀法
 tcmsggsc	天赐萌孙乖乖受宠
 tcmss	天才魔术师
 tcmsyy	贴错门神粤语
@@ -1264,6 +1266,7 @@ tezhmj	天恩至侯门尽
 tezx	铤而走险
 tezxdjb	铤而走险 短剧版
 tf	313套房
+tf	听风
 tf	天罚
 tf	天罚2
 tf	头发
@@ -1960,6 +1963,7 @@ thyy	天虹粤语
 thyyjsz	桃花夭夭诀师尊
 thz	棠花灼
 thzb	头号主播
+thzcfwsaszdr	退婚遭嘲讽,我是傲世掌舵人
 thzdej	童话镇第二季
 thzdhsz	头号战队豪兽者
 thzdlj	童话镇第六季
@@ -2499,6 +2503,7 @@ tjwgsjhr	天降外挂式监护人
 tjwl	特警威龙
 tjwlxp	天降未来芯片
 tjwnzygys	替嫁,为你折腰共余生
+tjwpxswssqzttjb	听见物品心声,我撕碎全职太太剧本
 tjwqwclwmzqks	替嫁危情：我成了我妈最强靠山
 tjwsxscw	2024天津卫视相声春晚
 tjwsxscw	天津卫视相声春晚 2022
@@ -2598,6 +2603,7 @@ tjyndyj	替嫁医女第一季
 tjynhymgh	替嫁哑女寒夜觅归鸿
 tjynsztzbpqf	替嫁医女：世子他装病骗全府
 tjys	天劫余生
+tjys	天机俑士
 tjysdyjs	天劫余生[电影解说]
 tjysdzj	同居一室的助教
 tjyth	提剑映桃花
@@ -3378,6 +3384,7 @@ tmsyydyjs	甜蜜十一月[电影解说]
 tmtm	他们她们
 tmwh	天命为凰
 tmwhdwcbwl	天命武凰带娃称霸武林
+tmwk	天命纨绔
 tmwkwdndlpcbzl	天命纨绔:我的女帝老婆藏不住了
 tmwnkdyjs	退魔：巫女窟[电影解说]
 tmwqdxzjclwfr	天渺：无情道仙尊竟成了我夫人

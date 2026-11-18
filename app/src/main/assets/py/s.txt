@@ -1872,6 +1872,7 @@ sfrhgzsfjry	少夫人回归，重塑傅家荣耀
 sfrjtyhk	少夫人今天也很酷
 sfrlzdb	少夫人来自东北
 sfrlzdb	少夫人来自东北2
+sfrlzdb	少夫人来自东北3
 sfrlzhfz	少夫人来自黑风寨
 sfrmtdzzgq	盛夫人每天都在装乖巧
 sfrnbtll	桑夫人你被套路了
@@ -4285,6 +4286,7 @@ sjtzxtcjqsbdnffp	神级投资系统：从借钱失败到逆风翻盘
 sjw	摔角王
 sjwc	市井温茶
 sjwcl	世界微尘里
+sjwdjyzcyck	算计我弟家业终成一场空
 sjwdyjs	摔角王[电影解说]
 sjwj	赎金危机
 sjwjdgs	世界屋脊的歌声
@@ -4409,6 +4411,7 @@ sjzayc	算计着爱一场
 sjzc	四季之春
 sjzcrzr	算计终成绕指柔
 sjzcxtwdzcdxwkmadj	神级早餐系统:我的早餐店下午开门AI短剧
+sjzcxtwkxwyyzcd	神级早餐系统,我开下午营业早餐店
 sjzd	尸家重地
 sjzddyjs	尸家重地[电影解说]
 sjzdyjs	设计者[电影解说]
@@ -7180,6 +7183,7 @@ snkglmdtblhjs	斯诺克 格雷姆·多特4-2巴里·霍金斯  20231003
 snkglmdtlympl	斯诺克 格雷姆·多特4-5利亚姆·普伦 20230920
 snkglmdtxzh	斯诺克 格雷姆·多特1-4邢子豪 20231023
 snkglmdtzadlz	斯诺克 格雷姆·多特3-4张安达 20230816（李照）
+snkgzgklwexnslkt	斯诺克冠中冠:凯伦·威尔逊VS阿里·卡特
 snkhdphaefbd	斯诺克 海顿·平海4-5阿尔菲·伯顿 20230727
 snkhgqgy	斯诺克 贺国强4-2高阳 20230519
 snkhgqhsywf	斯诺克 贺国强2-5侯赛因·瓦菲 20230929
@@ -10200,6 +10204,7 @@ snypbygwqjqgznks	是你要陪白月光，我娶京圈公主你哭啥
 snypwry	十年一品温如言
 snyq	少年与犬
 snyr	淑女与髯
+snyrycxz	三年隐忍,一朝掀桌
 snys	四年一生
 snysf	傻女有傻福
 snysf	剩女约瑟芬
@@ -11491,6 +11496,7 @@ ssgqn	岁岁共清宁
 ssgqs	射杀钢琴师
 ssgrl	似是故人来
 ssgrldyjs	似是故人来[电影解说]
+ssgry	岁岁更如意
 ssgs	杀手公司2018
 ssgs	杀死冈瑟
 ssgsdyjs	杀手公司[电影解说]
@@ -12407,6 +12413,7 @@ ssyghdfmslsdfyb	树上有个好地方2：美术老师的放羊班
 ssygkhzj	杀死一个科幻作家
 ssygy	沈胜衣1979国语
 ssyh	杀手一号
+ssyhbtff	手手一挥,病痛飞飞
 ssyhsks	世上樱花盛开时
 ssyj	宿世冤家
 ssyj	少数意见
@@ -14421,6 +14428,7 @@ syfryskl	少爷夫人又刷卡了
 syfsjsnnkbgz	少爷发神经，少奶奶可不惯着
 syfy	失忆风云
 syfy	岁月风云
+syfy	是也非也
 syfyg	兽语翻译官
 syfygy	岁月风云国语
 syfyyy	岁月风云粤语
@@ -14858,6 +14866,7 @@ sytgb	上瘾(泰国版)
 sytjdyjs	四眼天鸡[电影解说]
 sytlsfjfrtzzbf	少爷他老是犯贱，夫人她专治不服
 sytlsfjfrtzzbfdej	少|爷他老是犯|jian,夫人她专治不fu!第二季
+sytpgbwdd	寿宴摊牌,告别无底洞
 sytqdxbzsl	少爷他去大西北种树了
 sytsjcy	三爷他撒娇成瘾
 sytswhykh	室友偷刷我会员卡后
@@ -15448,6 +15457,7 @@ szphsc	世子陪护手册
 szpj	守正破局
 szplgrzszhyars	守着破烂过日子，谁知慧眼改人生
 szpxrqyjr	四只螃蟹认清一家人
+szpz	双重偏执
 szpzc	谁知盘中餐
 szq	手足情
 szq	手足情1988

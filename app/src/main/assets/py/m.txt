@@ -2707,6 +2707,7 @@ mlgk	猛龙怪客3
 mlgkzy	猛龙怪客4：镇压
 mlgldtzwzshyfbz	冒领功劳的她,在我重生后一分不值
 mlgldzzjxd	魔力果乐岛之拯救行动
+mlglzzbf	猛龙归来,专治不服
 mlgpty	摩洛哥1-0葡萄牙
 mlgs	苗岭诡事
 mlgxs	魔力歌先生
@@ -4032,6 +4033,7 @@ mpylj	冒牌音乐剧
 mpys	冒牌医生
 mpzgblmzccst	母凭子贵，被冷面总裁宠上天
 mpzghbhjcst	母凭子贵后被皇家宠上天
+mpzghbhjcst	母凭子贵后被皇家宠上天3
 mpzghbhjcstdej	母凭子贵后被皇家宠上天第二季
 mpzghblbqjcst	母凭子贵后被老板全家宠上天
 mpzghbtqscst	母凭子贵后被他强势宠上天

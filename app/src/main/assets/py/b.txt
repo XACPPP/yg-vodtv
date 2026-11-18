@@ -719,6 +719,7 @@ bcth	保持通话
 bcthdyjs	保持通话[电影解说]
 bcthhjdym	被辞退后回家当渔民
 bcthzxx	被辞退后真相现
+bctljbqwzyyq	不出天牢就变强我镇压一切
 bctntwdzlgsmm	被辞退那天，我带走了公司命脉
 bctsj	别吵她睡觉
 bcwfwdyyxbjllfhsxsydhxq	被称为废物的原英雄、被家里流放后随心所欲地活下去
@@ -1539,6 +1540,7 @@ bgcjmhwkhjtrjdj	被赶出家门后，我靠黄金瞳日进斗金
 bgcjmhwxtjhl	被赶出家门后，我系统激活了
 bgcjmhwzhsscdjyw	被赶出家门后，我重回深山成顶级药王
 bgcjmhwzlqwcp	被赶出家门后，我中了千万彩票
+bgcjmlttfscz	被赶出家门,林太太反手撤资
 bgcjmwblgcst	被赶出家门我被老公宠上天
 bgckchwjcldsxk	被赶出矿场后，我继承了东山血矿
 bgcmdqwfw	被赶出门的千万富翁
@@ -1641,6 +1643,7 @@ bgmjcyxjdfl	报告慕机长叶小姐单飞了
 bgmmbbyccl	报告妈咪爸比又吃醋了
 bgmmdmtyw	不管妈妈多么讨厌我
 bgmmwhddslr	报告妈咪：我和爹地是狼人
+bgmndygl	被拐魔女,地狱归来
 bgmzdjtdndlfx	报告魔尊：帝君他对你动了凡心
 bgn	怖谷鸟
 bgndyjs	怖谷鸟[电影解说]
@@ -3439,6 +3442,7 @@ blydyjs	白鹿原[电影解说]
 blyfr	巴黎一妇人
 blyfsc	八零御夫手册
 blygp	堡垒[预告片]
+blyhysq	八零烟火遇深情
 blyj	冰路营救
 blyj	冰路营救2
 blyjdyjs	冰路营救[电影解说]
@@ -4292,6 +4296,7 @@ bragyftcszpq	别惹那个孕妇她才是正牌妻
 bragysadr	别惹那个要上岸的人
 bragzgdddg	别惹那个攒功德的道姑
 brandrdtj	别让爱你的人等太久
+braqgtbslftl	别惹那乞丐,他被神龙附体了
 braqzwl	别让爱情走弯路
 braxjtmsds	别惹安小姐，她妈是大嫂
 braxztsqmkl	别惹那小子，他是千面狂龙
@@ -4566,6 +4571,7 @@ brzddtyxt	别惹种地的，她有系统
 brzgh	把日子过好
 brzgwmythlywn	别惹这个外卖员，他活了一万年
 brzgwmythlywnhzpd	别惹这个外卖员，他活了一万年还在跑单
+brzgwmytsxxdl	别惹这个外卖员,他是修仙大佬
 brzgxlgtytsy	别惹这个修理工,他有透视眼
 brzgztqjdhd	别惹掌公主，她全家都护短
 brzgztscjnen	别惹掌公主，她是超级女儿奴
@@ -6195,6 +6201,7 @@ bxxyqgy	碧血洗银枪国语
 bxxyqyy	碧血洗银枪粤语
 bxxyx	伴溪向云行
 bxy	冰雪谣
+bxy	白仙怨
 bxy	白仙缘
 bxycxdanzdz	陛下与丞相的囡囡争夺战
 bxygr	不想一个人
