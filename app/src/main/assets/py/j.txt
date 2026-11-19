@@ -279,6 +279,7 @@ jbsh	酒吧神画
 jbsjwmzm	剧本世界：无免之门
 jbsjwmzmdej	剧本世界：无免之门第二季
 jbsjwmzmdsj	剧本世界：无免之门第三季
+jbsnsptrlxbxdyj	姐,别说你是普通人了行不行第一季
 jbssetzoyqtyydb	九百三十二条择偶要求，他样样达标
 jbssqnmrsfl	惊爆兽世！全能美人飒疯了
 jbsst	惊爆十三天
@@ -3620,6 +3621,7 @@ jljxsdsj	纪录进行时第四季
 jljxsdyj	纪录进行时第一季
 jljybmfsnht	尽量加油吧！魔法少女胡桃
 jljybmfsnhtdej	尽量加油吧!魔法少女胡桃第二季
+jljyzts	加良酱与紫桃桑
 jlkdqbm	九龙挎刀去白马
 jlkj	极乐空间
 jlkjdyjs	极乐空间[电影解说]
@@ -3777,6 +3779,7 @@ jlwj	距离危机
 jlws	金陵往事
 jlwscjlhwh	2024吉林卫视春节联欢晚会
 jlwscjwh	2026吉林卫视春节晚会
+jlwth	惊雷吻桃花
 jlwxj	降临我心尖
 jlwz	精灵王座
 jlx	九里香
@@ -4913,6 +4916,7 @@ jqjzfydt	假千金追夫有点甜
 jqjzhmkdmj	假千金在豪门狂掉马甲
 jqjzjcwzzqzd	假千金争家产，我争着去种地
 jqjzshctcl	假千金重生后成团宠了
+jqjzshctcldej	假千金重生后成团宠了第二季
 jqjzshdwyqcg	假千金重生后，带我一起吃瓜
 jqjztz	假千金真替罪
 jqjztzdej	假千金真替罪第二季
@@ -6776,6 +6780,7 @@ jtzyzzjjygwddjj	九天镇压之主角就应该无敌第九季
 jtzyzzjjygwddlj	九天镇压之主角就应该无敌第六季
 jtzyzzjjygwddqj	九天镇压之主角就应该无敌第七季
 jtzyzzjjygwddsj	九天镇压之主角就应该无敌第三季
+jtzyzzjjygwddsj	九天镇压之主角就应该无敌第十季
 jtzyzzjjygwddsj	九天镇压之主角就应该无敌第四季
 jtzyzzjjygwddwj	九天镇压之主角就应该无敌第五季
 jtzyzzmswkymdcs	九天镇压之镇魔司我靠妖魔点成神
@@ -7169,6 +7174,7 @@ jxgf	剑心归凤
 jxgl	剑仙归来
 jxgl	锦绣攻略
 jxgldej	剑仙归来第二季
+jxgldlj	剑仙归来第六季
 jxgldsj	剑仙归来第三季
 jxgldsj	剑仙归来第四季
 jxgldwj	剑仙归来第五季
@@ -8203,6 +8209,7 @@ jyxo	家有仙狗
 jyxq	家有仙妻
 jyxq	家有仙妻1991
 jyxq	家有仙妻2
+jyxqbsjs	家有贤妻,百事皆顺
 jyxqzcygg	家有仙妻之财运滚滚
 jyxqzqjqwhq	家有仙妻之全家求我花钱
 jyxr	今夜星染

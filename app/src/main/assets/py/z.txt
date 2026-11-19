@@ -1377,6 +1377,7 @@ zelzdxgq	竹内凉真的休工期
 zemd	罪恶名单2024
 zemsdl	周二谋杀定律
 zepg	罪恶判官
+zept	罪恶拼图
 zeptawfpjb	真恶仆她拿稳反派剧本
 zeqcg	罪恶清除工
 zesj	罪恶赎金
@@ -1861,6 +1862,7 @@ zgcdyjs	中国城[电影解说]
 zgcfwxjbblx	装乖臣服，温小姐步步沦陷
 zgcg	贞观长歌
 zgcj	中国唱将
+zgcj	中国唱将2026
 zgckydd	这个刺客有点癫
 zgclgmzd	中国出了个毛泽东
 zgclymldsj	这个丑陋又美丽的世界
@@ -2099,6 +2101,7 @@ zgmmydk	这个妈妈有点酷
 zgmmydx	这个妈咪有点凶
 zgmmzmjhl	糟糕，妹妹怎么结婚了
 zgmnxfsc	装乖魔女训夫手册
+zgmnxfscdej	装乖魔女训夫手册第二季
 zgmrbhr	这个美人不好惹
 zgmrblmlbqjcst	子贵母荣被冷面老板全家宠上天
 zgmsbywt	这个美术部有问题！
@@ -4197,6 +4200,7 @@ zjzlj	拯救侏罗纪
 zjzlmzhnwkxtfs	震惊值拉满，灾荒年我靠系统翻身
 zjzlncm	曾将真龙拟草蟒
 zjzly	再见，朱莉娅
+zjzmzdszyyadj	咱家宗门主打散装营业AI短剧
 zjzq	再见钟情
 zjzs	作家之殇
 zjzs	终极追杀
@@ -5649,6 +5653,7 @@ zqcjfqtmjdl	重拳出击肥妻她马甲掉了
 zqcjrs	重启财经人生
 zqcjrs	重启超级人生
 zqcm	最强车模
+zqcsmy	重启厨手妙音
 zqcylnhzzl	致青春·原来你还在这里
 zqdadbj	最强大脑第八季
 zqdadej	最强大脑第二季
@@ -5753,6 +5758,7 @@ zqjglbqbqfl	真千金归来，被清北抢疯了
 zqjglh	真千金归来后
 zqjglhwclrsyj	真千金归来后，我成了人生赢家
 zqjgljqjtbzl	真千金归来假千金她不装了
+zqjglmrgzblh	真千金归来:没人惯着白莲花
 zqjglqjwwdg	真千金归来全家为我打工
 zqjglsc	真千金攻略手册
 zqjglspnzmjdyg	真千金归来，竖屏女主每集都演过
@@ -6145,6 +6151,7 @@ zrdyjs	证人[电影解说]
 zrdyy	周日的忧郁
 zrejcl	昨日恩今朝泪
 zrfczjg	坠入凡尘助君归
+zrfgs	证人翻供时
 zrfh	昨日芳华
 zrfjmmzqll	重燃反击妹妹站起来了
 zrfs	择日飞升
@@ -7229,6 +7236,7 @@ zsjxsbfxqqnksm	重生觉醒十倍返现，前妻你哭什么
 zsjxzcwbzlan	重生觉醒，这次我不做恋爱脑
 zsjxzcwbzlandbj	重生觉醒,这次我不做恋爱脑第八季
 zsjxzcwbzlandej	重生觉醒，这次我不做恋爱脑第二季
+zsjxzcwbzlandjj	重生觉醒,这次我不做恋爱脑第九季
 zsjxzcwbzlandlj	重生觉醒,这次我不做恋爱脑第六季
 zsjxzcwbzlandsj	重生觉醒,这次我不做恋爱脑第三季
 zsjxzcwbzlandsj	重生觉醒,这次我不做恋爱脑第四季
@@ -7717,6 +7725,7 @@ zswp	钻石王牌
 zswpdej	钻石王牌第二季
 zswpdsj	钻石王牌 第四季
 zswpdsj	钻石王牌第三季
+zswqcdjldn	朱砂吻:青春答卷里的你
 zswqmha	最是无情蛮荒爱
 zswqsnsgftycyz	重生亡妻少年时,鳏夫他又茶又装
 zswqsnsgftycyz	重生亡妻少年时,鳏夫他又茶又装!
@@ -7963,6 +7972,7 @@ zszdyjs	罪生咒[电影解说]
 zszdyjs	追随者[电影解说]
 zszdzchh	重生职大再创辉煌
 zszdzchh	重生职大，再创辉煌
+zszf	罪兽之法
 zszf	至上之法
 zszfclm	重生之翡翠辣妈
 zszfcrs	重生之飞驰人生2004
@@ -9250,6 +9260,7 @@ zyfsqzq	赵野反手娶知青
 zyfsswbdlg	职业风水师，我暴打厉鬼
 zyfxzkqys	状元负心终困囚一生
 zyfy	昨夜风雨
+zyfyzywmx	杂役房养着一窝魔修
 zyg	在异国
 zyg	子夜归
 zyg	朱颜骨

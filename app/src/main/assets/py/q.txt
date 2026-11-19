@@ -2360,6 +2360,7 @@ qlzl	情侣治疗
 qlzm	青龙镇谜案
 qlzmh	清梨撞满怀
 qlzscbjcgqxf	七零重生：村霸娇宠乖巧媳妇
+qlzsdcwdyjadj	清冷尊上独宠我第一季AI短剧
 qlzsxbjjmxkhl	七零重生洗白姐姐们笑开花了
 qlzsxjgybxk	七零重生携家耕耘奔小康
 qlztg	秦岭镇天棺
@@ -3351,6 +3352,7 @@ qqtyngxqjkhyqcdj	青青田园暖,归乡千金开荒养全村第5季
 qqtyngxqjkhyqcdj	青青田园暖,归乡千金开荒养全村第6季
 qqtyngxqjkhyqcdj	青青田园暖,归乡千金开荒养全村第7季
 qqtyngxqjkhyqcdj	青青田园暖,归乡千金开荒养全村第8季
+qqtyngxqjkhyqcdj	青青田园暖,归乡千金开荒养全村第9季
 qqtyngxqjkhyqcdsj	青青田园暖，归乡千金开荒养全村第三季
 qqtzzfj	强娶太子做夫君
 qqw	亲亲我
@@ -4831,6 +4833,7 @@ qyclnzfhrmgs	岂有此理 ～茑重繁华如梦故事～
 qyclnzfhrmgs	岂有此理～茑重繁华如梦故事～
 qycp	清颜茶铺
 qycq	青衣传奇
+qycqnsnrtgmzqycdj	乔影传奇:你说你惹她干嘛之乔影传第一季
 qycsfmp	芊叶长笙伏魔篇
 qycswysgdlsf	青云出山，我有四个大佬师父
 qycwjp	犬夜叉：完结篇
@@ -5444,6 +5447,7 @@ qzjx	庆州纪行
 qzjz	全资进组
 qzjz	全资进组2
 qzjz	全资进组2026
+qzjzzytywszcyadj	全资进组,只有他以为是真穿越AI短剧
 qzkgzdldzmddz	全宗开挂之大佬到宗门当弟子
 qzkwn	青竹刻万年
 qzkxegqshlj	妻子凯旋而归，却身怀六甲
@@ -5512,6 +5516,7 @@ qzsskwpphfs	欠债三十块，我凭破壶翻身
 qzssq	青簪锁三千
 qzssqzssdyjs	全职杀手 全職殺手[电影解说]
 qzsyfjq	七载岁月负佳期
+qzsykkbbhqw	全职神医,靠看病爆红全网
 qzsz	钱之所在
 qztcbzl	秦总他藏不住了
 qztdzhxwqd	情债太多,只好修无情道

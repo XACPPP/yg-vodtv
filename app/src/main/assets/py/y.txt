@@ -2851,6 +2851,7 @@ yhxc	烟火星辰
 yhxd	圆环行动
 yhxdehyy	银河系第二好医院
 yhxdpd	银河系大排档
+yhxhgwbxjzsddmkl	硬核小护工,误把星际战神当大猫狂撸
 yhxhmd	萤火小幻梦大
 yhxj	妖惑心计
 yhxldfxs	烟火巷里的傅先生
@@ -3327,6 +3328,7 @@ yjnsfht	遇见你时风好甜
 yjnsfht	遇见你时风很甜
 yjnsmzzd	遇见你是命中注定
 yjnssyxxdll	遇见你时所有星星都亮了
+yjnw	越界溺吻
 yjnwf	又见女王蜂
 yjnwl	缘尽孽未了
 yjnxd	越界女兄弟
@@ -6444,6 +6446,7 @@ ysqg	一世牵挂
 ysqg	云上情歌
 ysqg	意式情歌
 ysqh	一世清欢
+ysqhsdydzql	叶三秋横扫大院,谍战七零
 ysqjcszdl	元帅千金才是真大佬
 ysqndzj	余生请你多指教
 ysqq	一生倾情
@@ -6659,6 +6662,7 @@ ysy	宇杀员
 ysy	有兽焉
 ysy	永生羊
 ysy	野山鹰
+ysybytbczdjhlx	御兽异变:一条不存在的进化路线
 ysydej	有兽焉第二季
 ysydlj	有兽焉 第六季
 ysydsj	有兽焉第三季
@@ -7847,6 +7851,7 @@ yxhh	浴血火海
 yxhh	英雄好汉
 yxhhdej	尹心坏坏第二季
 yxhhdlj	尹心坏坏第六季
+yxhhdqj	尹心坏坏第七季
 yxhhdwj	尹心坏坏第五季
 yxhhdyjs	英雄好汉[电影解说]
 yxhhzsbbwfphlqkdsj	尹心坏坏之少逼逼歪，反派火力全开第三季
@@ -8296,6 +8301,7 @@ yyaqmgr	甬忆南侨梦归人
 yyasldky	野欲！爱是利多卡因
 yyazbhhndqll	阴郁男主别黑化,你的强来了
 yybcl	柚柚别吃了
+yybcysar	一遇北辰,一世安然
 yybez	游泳吧！儿子
 yybfh	野鸭变凤凰
 yybfhdyj	野鸭变凤凰第一季

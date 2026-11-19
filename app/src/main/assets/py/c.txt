@@ -185,6 +185,7 @@ cbby	臣本布衣
 cbbywhbwcd	臣本布衣，为何逼我称帝
 cbd	春不渡
 cbdbdgl	错把豆包当干粮
+cbddal	触不到的爱恋
 cbddjf	触不到的肌肤
 cbddlr	触不到的恋人
 cbddlr	触不到的恋人2000
@@ -411,6 +412,7 @@ cccqlztcxglzfpqg	穿成丑妻来种田$丑媳攻略之夫凭妻贵
 cccwsctt	闯闯闯！我是闯堂兔！
 cccxasn	初次尝|鲜爱|上你
 cccxnnzhdsh	穿成冲喜农女,昭禾定山河
+cccxwfwdfjrrbnzl	穿成冲喜王妃:我的夫君柔弱不能自理
 cccyfsx	从此辞言赴盛夏
 cccyw	迟迟春欲晚
 ccczbzc	从此城主不早朝
@@ -937,6 +939,7 @@ cczhgqqhbqjtc	穿成指挥官前妻后被全家团宠
 cczhq	抽搐症候群
 cczjhwfxzf	穿成作精后，我反向追夫
 cczjnphttwhlgdx	穿成作精女配后天天挽回老公的心
+cczjnpwfxnnlnz	穿成作精女配,我反向拿捏了男主
 cczjtzs	菜菜子解体诊书
 cczm	春蚕织梦
 cczmssmwkcgnx	穿成宗门傻师妹，我靠吃瓜逆袭
@@ -2951,6 +2954,7 @@ clsqschdej	迟来深情烧成灰第二季
 clsxcc	初恋，稍显粗糙
 clsxdqb	从流水线到清北
 clsxdqzss	从流水线到敲钟上市
+clsyadj	尘笼双玉AI短剧
 clsyh	擦亮双眼后
 clsyswxfztcyl	差了十一升，我掀翻整条产业链
 clsyszlnal	宠灵实验室之狸奴艾莉
@@ -3232,6 +3236,8 @@ cmjzdej	楚木交枝第二季
 cmjzdyj	楚木交枝第一季
 cmjzwflch	楚木交枝:晚风落楚怀
 cmjzxdrh	楚木交枝心动入怀
+cmjzxdrhdej	楚木交枝心动入怀第二季
+cmjzytrh	楚木交枝:拥她入怀
 cmkb	策马狂奔
 cmkr	橙迷狂热
 cmkr	橙迷狂熱2
@@ -3833,6 +3839,7 @@ cqsqllybcx	从前说：七零良缘伴朝夕
 cqssxbszzqwdccrs	藏起身世相伴三载，重启我的璀璨人生
 cqswgq	潮起时问归期
 cqsxy	潮起时相拥
+cqtdfgm	成全他的富贵命
 cqtf	超强台风
 cqttqsjsjzndyj	此去踏天阙双骄升级指南第一季
 cqttqsjxtj	此去踏天阙_双骄掀天局
@@ -5102,6 +5109,7 @@ csnxl	村傻逆袭录
 csnxsffyzz	穿书逆袭收服封印尊主
 csnxzsrglszzjx	厨神逆袭：掌勺人归来，三载铸匠心
 csny	厨师男友
+csnzwdmnwlz	穿书女尊:我的美男我来罩
 cspahhfp	穿书偏爱黑化反派
 csphfedzjzn	穿书炮灰富二代自救指南
 csphkbmzyqqdej	穿书炮灰:哭包魔尊要亲亲第二季
@@ -5144,6 +5152,7 @@ csqqg	春时恰恰归
 csqqywy	尘霜浅浅叶未央
 csqs	厕所骑士
 csqsndcgqzdzwxy	穿书七十年代吃瓜群众的自我修养
+csqsndcgqzdzwxydsj	穿书七十年代,吃瓜群众的自我修养第三季
 csqwnwcbxzdcd	长生千万年，我才不想证道成帝
 csqxxjdcfl	厨神,全修仙界都馋疯了
 csqy	缞神契约
@@ -5471,6 +5480,7 @@ cszwx	此生知我心
 cszwxwdjm	传颂之物 虚伪的假面
 cszwxwdjm	传颂之物虚伪的假面
 cszwzgdkfg	穿书之我在古代开饭馆
+cszxnfyjt	此生只向你_风月皆甜!
 cszxwyshydxxg	传说在下午,有时会遇到吸血鬼.
 cszyezxwc	穿书之异能者小婉传
 cszytt	此生只与他甜
@@ -5824,6 +5834,7 @@ cwxh	错位星河
 cwxhy	错位新婚夜
 cwxm	成为休曼
 cwxmhfzqjycjcdyj	川味小妹:侯府真千金勇闯京城第一季
+cwxmwdcrdksadj	成为邪魔外道从认爹开始AI短剧
 cwxn	99次吻向你
 cwxqygytjwr	错位相亲，月光与他皆温柔
 cwxqygytjwrdej	错位相亲，月光与他皆温柔第二季
@@ -6333,6 +6344,7 @@ cycnamfjlddmar	擦一擦你那满腹经纶的道貌岸然
 cycnjfdswdlddf	穿越成农家妇，带三娃囤粮登巅峰
 cycnmxhbztl	穿越成女明星和霸总谈恋
 cycnzjy	穿越厨娘掌家业
+cycphwkffgxjb	穿越成炮灰,我靠发疯改写剧本
 cycpzfwywygdtx	穿越成陪葬妃,我与王爷共夺天下
 cycq	炽野缠情
 cycq	草原晨曲
@@ -6957,6 +6969,7 @@ cyxjwklzty	穿越星际：我靠灵植躺赢
 cyxjwydszcx	穿越星际：我养的蛇崽超凶
 cyxjwydszcxdsj	穿越星际:我养的蛇崽超凶第三季
 cyxjwydszcxdsj	穿越星际:我养的蛇崽超凶第四季
+cyxjwydszcxdwj	穿越星际:我养的蛇崽超凶第五季
 cyxjxcnjcwlmsl	穿越星际，小厨娘竟成为联盟首领
 cyxjzxnlhxq	穿越星际,只想努力活下去
 cyxl	沧月星澜

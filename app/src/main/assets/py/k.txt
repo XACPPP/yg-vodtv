@@ -365,6 +365,7 @@ kcqr	空乘情人
 kcrdqy	看车人的七月
 kcrdqydyjs	看车人的七月[电影解说]
 kcsc	快穿盛宠
+kcscdndsh	70快穿:苏茶的年代生活
 kcscdndsh	快穿:苏茶的年代生活
 kcsfcbjks	亏成首富，从败家开始
 kcsfcyxks	亏成首富从游戏开始
@@ -814,6 +815,7 @@ kjdlmssswqfdej	空降的冷面上司,是我前夫第二季
 kjdlmssswqfdsj	空降的冷面上司,是我前夫第三季
 kjdlmssswqfdsj	空降的冷面上司,是我前夫第四季
 kjdmhsdtbwdcqz	看见弹幕后，死对头被我钓成翘嘴
+kjdmjdgcqngsydyj	空间囤满家底,古朝弃女搞实业第一季
 kjdmsbyghgl	看见弹幕时白月光回国了
 kjdmxxwclhgtc	开局带猫选秀，我成了后宫团宠
 kjds	空家大声
@@ -2394,6 +2396,7 @@ kysjlan	跨越时间来爱你
 kysjljn	跨越世界来见你
 kyskdal	跨越时空的爱恋
 kyskdxlczqcdg	跨越时空的旋律-“唱着青春的歌”
+kyskljn	跨越时空来见你
 kyskqan	跨越时空去爱你
 kyssddtm	快意十三刀·动态漫
 kysw	旷野失吻
@@ -2416,6 +2419,7 @@ kyzhdyjs	狂野之河[电影解说]
 kyzl	跨越栅栏
 kyzs	狂医战神
 kyzx	困于掌心
+kyzx	旷野之夏
 kyzxnswdry	旷野之下2：你是我的荣耀
 kyzxxwxz	旷野之夏：许我夏至
 kyzz	狂野追踪

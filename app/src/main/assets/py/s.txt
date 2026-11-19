@@ -77,6 +77,7 @@ sazl	失爱招领
 sazr	所爱之人
 sazr	所爱之人2026
 sazwcjlzhbqwdej	上岸斩我？参加恋综火爆全网！第二季
+sazwcjlzhbqwdsj	上岸斩我?参加恋综火爆全网!第三季
 sb	哨兵
 sb	塞班
 sb	尸变
@@ -422,6 +423,7 @@ scddt	束草的冬天
 scddtdyjs	束草的冬天[电影解说]
 scdedsled	社长的耳朵是驴耳朵
 scdfdj	说唱巅峰对决2026
+scdfw	商场大富翁
 scdg	奢侈的骨
 scdqfslwjdej	双穿大秦:扶苏来我家第二季
 scdqfslwjdyj	双穿大秦：扶苏来我家第一季
@@ -2093,6 +2095,7 @@ sgfbjqs	时光缝补旧情书
 sgfdksj	三寡妇对抗世界
 sgfj	四个房间
 sgfjdyjs	四个房间[电影解说]
+sgfjtymzcjtyzwtxenl	沈贵妃今天也没争宠,今天也在为退休而努力
 sgfldjs	时光缝里的救赎
 sgfndh	涉过愤怒的海
 sgfndhdyjs	涉过愤怒的海[电影解说]
@@ -2694,6 +2697,7 @@ shdyzfjnzmstz	说好的压寨夫君，你怎么是太子
 shdz	山河独酌
 shdzc	上海的早晨
 shdzdej	山河独酌第二季
+shdzdlj	山河独酌第六季
 shdzdsj	山河独酌第三季
 shdzdsj	山河独酌第四季
 shdzdwj	山河独酌第五季
@@ -3107,6 +3111,7 @@ shqjsfl	失婚千金杀疯了
 shql	深海囚恋
 shql	深海潜龙
 shqlbdlgtnrl	闪婚七零:霸道老公太黏人了
+shqlbdlgtnrldej	闪婚七零:霸道老公太黏人了第二季
 shqldej	深海囚恋第二季
 shqldsj	深海囚恋第三季
 shqllydfys	身怀麒麟力，引得凤影随
@@ -3302,6 +3307,7 @@ shwx	社会威胁
 shwxf	山海未相逢
 shwydwx	山河无恙刀未锈
 shwz	山河为证
+shx	守护星
 shx	死画像
 shx	生活秀
 shx	颂欢喜
@@ -10210,6 +10216,7 @@ snysf	傻女有傻福
 snysf	剩女约瑟芬
 snysf	剩女约瑟芬2
 snysq	少年与水球
+snyt	思念予她
 snyt	深念于她
 snytgwmbgkaebfchybmdlg	圣女因太过完美不够可爱而被废除婚约并卖到邻国
 snythztlnksm	是你要退婚，真退了你哭什么
@@ -11276,6 +11283,7 @@ sscymjnfzzbfdyj	杀手穿越满级农妇，专治不服第一季
 sscysbcchnj	丧尸穿越丧彪楚迟后娘记
 sscywhgmplg	双姝穿越，我和闺蜜盘冷宫
 sscyy	搜神传粤语
+ssczbnzs	谁说陈卓不能斩神
 ssd	手术刀
 ssd	摄氏32度
 ssd	摄氏度
@@ -12983,6 +12991,7 @@ sttztgz	手天童子 鉄鬼の章
 stw	四天王
 stw	四天王2
 stwbfhmxdzjdd	授徒万倍返还，门下弟子皆大帝
+stwbnzywnwsywadj	时停五百年,只有我能为所欲为AI短剧
 stwfb	三体 网飞版
 stwj	圣堂危机
 stwkzwxddcghgldydjq	三糖!我靠着无限读档成功活过了第一段剧情
@@ -13405,6 +13414,7 @@ swsn	死亡十年
 swsqy	送我上青云
 swsqydyjs	送我上青云[电影解说]
 swsrj	杀无赦I入局
+swsrqsdysxhqm	树屋双人求生:队友是校花青梅
 swssdyjs	死亡寿司[电影解说]
 swssdyjs	死亡诗社[电影解说]
 swsswssqbxtw	手握三十万死士，请陛下退位
@@ -13886,6 +13896,7 @@ sxns	实习女生
 sxnx	兽性难驯
 sxnxdyjs	兽性难驯[电影解说]
 sxnxgl	少侠逆袭攻略
+sxny	盛夏柠言
 sxnydej	蛇蝎女佣第二季
 sxnydsj	蛇蝎女佣第三季
 sxnydsj	蛇蝎女佣第四季
@@ -14393,6 +14404,7 @@ sydyjs	森冤[电影解说]
 sydyjs	素媛[电影解说]
 sydyjs	蛇眼[电影解说]
 sydyjs	试验[电影解说]
+sydytwdlgzcnyadj	失忆第一天,我多了个总裁男友AI短剧
 sydzgy	失忆大状国语
 sydzgyb	死有对证国语版
 sydzsrt	肆爷的专属软糖
@@ -15222,6 +15234,7 @@ szdtsbbhhrszcyyldgj	沈总的贴身保镖  互换人生总裁也要来打工（1
 szdwffytkhy	死在帝王封妃夜，他哭红眼
 szdwlgwhsjlfxgl	师尊夺我灵根，我化身剑灵扶兮归来
 szdwrhwcltdzxj	世子夺我入怀我成了他的掌心娇
+szdwzxz	师尊带我炸修真
 szdxs	衰仔斗邪神
 szdxstqp	师尊的心声太奇葩
 szdxtw	世子的小甜卫
@@ -15772,6 +15785,7 @@ szyyct	衰仔也有春天
 szyydyjs	双重预约[电影解说]
 szyyybzzl	师尊又又又被抓走了
 szyz	生在幼子
+szyzhwwzzmjpgl	上综艺整活,网文作者马甲曝光了
 szyzm	深宅胭脂谋
 szyzq	神尊要追妻
 szz	十宗罪
@@ -15818,6 +15832,7 @@ szzy	伸张正义
 szzynyl	书中自有男友力
 szzysws	庶子杂役是武神
 szzyxsfl	世子嘴硬，心声疯了
+szzzal	兽之奏者艾琳
 szzzdej	逝者之证第二季
 szzzdsj	逝者之证第三季
 szzzdyj	逝者之证第一季

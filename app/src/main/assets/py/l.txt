@@ -482,6 +482,7 @@ lbqc	落榜权臣
 lbqdaln	了不起的埃莉诺
 lbqdbgq	了不起的薄伽丘
 lbqdbqq	了不起的白芊芊
+lbqdcxl	了不起的程秀兰
 lbqdcxx	了不起的曹萱萱
 lbqdddnn	了不起的大盗奶奶
 lbqdekys	了不起的儿科医生
@@ -1970,6 +1971,7 @@ lhhdxjzylqsfl	离婚后，大小姐在娱乐圈杀疯了
 lhhdzsfcbzl	离婚后，道祖身份藏不住了
 lhhfxzjswrm	离婚后发现自己是万人迷
 lhhfzhbdc	离婚后父子悔不当初
+lhhfzhhlkydltbshl	离婚后傅总后悔了科研大佬她不伺候了
 lhhg	狼皇回归
 lhhgaqqhhzs	离婚后高傲前妻悔恨终生
 lhhggmswsgam	离婚后，哥哥们送我十个男模
@@ -3398,6 +3400,7 @@ lmdjdz	浪漫的绝对值
 lmdkxws	罗曼蒂克消亡史
 lmdkxwsdyjs	罗曼蒂克消亡史[电影解说]
 lmdkzxs	罗曼蒂克振兴史
+lmdlbpczfryzdzn	冷面大佬别跑,迟总夫人又在倒追你
 lmdldayt	1987：黎明到来的那一天
 lmdls	浪漫的蓝色
 lmdqfcldzz	浪漫岛前夫初恋大作战
@@ -3720,6 +3723,7 @@ lncjlhwh	辽宁春节联欢晚会2026
 lncq	狼女传奇
 lncrz	岭南春日早
 lncwslyzshxb	龙女赐我神龙眼之深海寻宝
+lncx	落难缠心
 lnczlshg	龙女传之乱世凰歌
 lnda	龙年档案
 lndgs	伦尼的故事
@@ -6292,6 +6296,8 @@ lyyx	龙隐于雪
 lyyy	猎鹰粤语
 lyyyct	绿叶也有春天
 lyyydyjs	灵异医院[电影解说]
+lyyywdtzlyy	林与呦呦:我的同桌兰呦呦
+lyyywdtzlyydej	林与呦呦:我的同桌兰呦呦第二季
 lyyyyrxdsej	鲁豫有约一日行 第十二季
 lyyyyrxdsej	鲁豫有约一日行第十二季
 lyyyyrxdsyj	鲁豫有约一日行第十一季

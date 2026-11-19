@@ -754,6 +754,8 @@ tcyylgl	她从谣言里归来
 tcyz	天才一族
 tczj	天才之击
 tczjdyjs	天才之击[电影解说]
+tczjjxfxjd	团宠之蒋家小福星驾到!
+tczjjxfxjddej	团宠之蒋家小福星驾到第二季
 tczjjxnhxf	团宠之蒋家小女会仙法
 tczjqydetjwxs	团宠作精：全员都能听见我心声
 tczjs	天才：总决赛
@@ -2650,6 +2652,7 @@ tjzwjcbyydwdnl	天降之物剧场版：永远的我的鸟笼
 tjzxsfx	天降灾星是福星
 tjzy	挺进中原
 tjzy	脱缰者也
+tjzyeynksm	痛觉转移而已你哭什么
 tjzysz	太极之异兽冢
 tjzz	太极至尊
 tjzzhwcldl	替嫁质子后我成了大佬
@@ -3446,6 +3449,7 @@ tmyy	逃命鸳鸯
 tmyzdyjs	天魔异种[电影解说]
 tmz	投名状
 tmza	天眸之爱
+tmzbgrmzlwj	天幕直播:古人每周来我家
 tmzcgyb	铁马战车国语版
 tmzcyy	铁马战车粤语
 tmzd	特命战队
@@ -3569,6 +3573,7 @@ tpbb	脱皮爸爸
 tpbd	她跑不掉
 tpbwzw	逃跑吧！乌贼王
 tpbygcgsnwbytl	他陪白月光出国三年,我不要他了
+tpbyzgjshbadj	天蓬不养猪,改教兽化班AI短剧
 tpc	托皮村
 tpdxl	逃跑的新郎
 tpdy	坦帕地狱
@@ -4238,6 +4243,7 @@ tshwdazahlxc	她死后我大闹渣男婚礼现场
 tshwjhlrs	同事和我交换了人生
 tshwjss	唐山虎威歼杀手
 tshwkjbcbgwj	透视后，我靠鉴宝称霸古玩界
+tshwtxmyj	贴身护卫他蓄谋已久
 tshyjqtzyhl	天生好孕京圈太子有后了
 tshyzgdhdswdyc	透视海洋：整个大海都是我的渔场
 tshyzgdhdswdycdej	透视海洋：整个大海都是我的渔场第二季
@@ -4779,6 +4785,7 @@ ttfck	甜甜风刺客
 ttfht	亭亭凤凰台
 ttfjrzl	饕餮夫君入赘来
 ttfjz	太太反击战
+ttfphssyxlwsttlsplw	天庭废品回收上一休六我是天庭临时破烂王
 ttfpnw	天庭废品女王
 ttfycqs	替她赴一场情深
 ttfz	天堂90分钟
@@ -5434,6 +5441,7 @@ txjhtzdfwjzhthl	同学聚会他装大方，我结账后他慌了
 txjj	铁血将军
 txjj	铁血将军2016
 txjq	铁线蕨青
+txjs	甜心教授
 txjthhm	同学今天很和睦
 txjw	铁血娇娃
 txjwtphqqqjhl	退休金5000？我摊牌后前妻全家慌了
@@ -5991,6 +5999,7 @@ tysw	逃狱三王
 tyswdyjs	逃狱三王[电影解说]
 tysy	桃运圣医
 tysydj	天羽寿元第二季
+tysydjadj	天羽寿元第三季AI短剧
 tysyplzf	她于深渊破笼!绽放!
 tyszzdyjs	太阳神诅咒[电影解说]
 tyt	她与他
@@ -6056,6 +6065,7 @@ tyxzmdyjs	童养媳之谜[电影解说]
 tyy	天有眼
 tyya	天意有爱
 tyybll	太阳与波莱罗
+tyyc	天遇因辞
 tyydtbrwjjm	团圆夜，电梯不让我进家门
 tyyfk	天意也疯狂
 tyyjdbjjyjx	太爷爷驾到：败家就有惊喜
@@ -6100,9 +6110,10 @@ tyzn	天涯织女
 tyzn	太阳之女
 tyzs	铁鹰战士
 tyzsdxsqqtyn	田野之上的新生，青青田园暖
-tyzsdxsqqtyndej	田野之上的新生，青青田园暖第二季
+tyzsdxsqqtyndej	田野之上的新生,青青田园暖第二季
 tyzsdxsqqtyndsj	田野之上的新生,青青田园暖第三季
 tyzsdxsqqtyndsj	田野之上的新生,青青田园暖第四季
+tyzsdxsqqtyndwj	田野之上的新生,青青田园暖第五季
 tyztnmr	天月梓-汤女美人
 tyzttxhw	她一直偷偷喜欢我
 tyzwrhc	他要拽我入红尘
@@ -6559,6 +6570,7 @@ tzzdyjs	挑战者[电影解说]
 tzzgdbm	她站在光的背面
 tzzh	天作之婚
 tzzhzhdfx	挑战者号：最后的飞行
+tzzj	特种专家
 tzzl	她在这里
 tzzlm	挑战者联盟
 tzzmwzm	太子装忙，我装盲

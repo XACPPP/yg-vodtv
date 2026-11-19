@@ -284,6 +284,8 @@ pe	珀尔
 pedl	佩尔德利
 pedyjs	珀尔[电影解说]
 pegewg	盼儿归儿未归
+pehjqxx	拼个好家去修仙
+pehjqxxdej	拼个好家去修仙第二季
 pem	帕尔默
 pemxdydyjs	帕尔马修道院[电影解说]
 pesx	派恩少校
@@ -1267,6 +1269,7 @@ ptkj	劈腿困境
 ptl	佩特拉
 ptljdhh	佩特雷加的花环
 ptlk	帕特里克
+ptlsjchd	菩提临世:金蝉护道
 ptmbdej	叛徒(美版)第二季
 ptngzsyzddox	普通女高中生要做当地偶像
 ptnhjlbdej	普通男孩俱乐部第二季

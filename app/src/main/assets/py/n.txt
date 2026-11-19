@@ -948,6 +948,7 @@ ngzjng	南国再见，南国
 ngzjngdyjs	南国再见，南国[电影解说]
 ngzjngngzjngdyjs	南国再见，南国 南國再見，南國[电影解说]
 ngzjzxsfjdwfl	你管这叫灾星首富家都旺翻了!
+ngzjzxsfjdwfldej	你管这叫灾星首富家都旺翻了!第二季
 ngzl	逆光之恋
 ngzm	逆光之名
 ngzmsnpljqalbt	哪个宗门圣女漂亮，就去哪里摆摊
@@ -2258,6 +2259,7 @@ nqdxyztl	年轻的小姨子：贪恋
 nqdyd	年轻的亚当
 nqdyd	年青的一代
 nqdyddyjs	年轻的亚当[电影解说]
+nqdyh	南乔渡夜寒
 nqdzc	年轻的战场
 nqdzczthxl	年轻的战场之太好“校”了
 nqdzf	年轻的丈夫
