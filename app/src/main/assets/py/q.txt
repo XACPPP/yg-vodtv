@@ -1479,6 +1479,7 @@ qhzh	漆黑之海
 qhzjwgt	倩狐之京卫怪谈
 qhzmdyjs	卿何遵命[电影解说]
 qhzsf	妻好终生福
+qhzwclt	球魂助我闯篮坛
 qhzydwlab	请和这样的我恋爱吧
 qhzygbdsztknwh	启航2024—中央广播电视总台跨年晚会
 qhzylqh	倩狐之妖乱青华
@@ -2202,6 +2203,8 @@ qlnbztjtyh	青莲农宝之土鸡吞妖皇
 qlnbzwdjqssgxs	青莲农宝之我的家禽是上古凶兽
 qlncdhwjwtdxsj	七零农村大旱我家挖通地下世界
 qlndcfpldyjr	七零年代，乘风破浪的一家人
+qlndcfpldyjrdejadj	七零年代,乘风破浪的一家人第二季AI短剧
+qlndcfpldyjrdyj	七零年代,乘风破浪的一家人第一季
 qlnddsn	七零年代独生女
 qlnddzhkqxx	七零年代，带着户口去下乡
 qlndjcdwrsyx	七零年代机长对我日思夜想
@@ -2823,6 +2826,7 @@ qnhdyjs	千年狐[电影解说]
 qnhhdb	枪、女孩和赌博
 qnhjk	青年黑杰克
 qnhmbgqj	全能后妈，爆改全家
+qnhmdfqj	全能后妈,带飞全家
 qnhsd	青年华盛顿
 qnhwyjan	千年后我依旧爱你
 qnhxn	牵牛和仙女
@@ -3693,6 +3697,7 @@ qsdptdslddsrnhbqsdyqprybbycdwyesyfbqsms	千岁-对普通大叔冷淡的素人女
 qsdrdcl	千岁大人的初恋
 qsdrdxxn	千岁大人的小新娘
 qsdrdygw	千岁大人的月光吻
+qsdrdzxc	千岁大人的掌心宠
 qsdrnwblcll	千岁大人你尾巴露出来啦
 qsdry	骑士的荣誉
 qsdshmlmsfqc	七十大寿，豪门老妈飒翻全场
@@ -4736,6 +4741,7 @@ qxz	潜行者2019
 qxz	潜行者2023
 qxzazxknk	七夕之爱在心口难开
 qxzbdjb	全县最棒的煎饼
+qxzc	裙下之臣
 qxzd	奇袭60阵地
 qxzd	期许之地
 qxzdgt	清醒者的归途
@@ -5018,6 +5024,7 @@ qylrwdlydxlx	契约恋人:我的联姻对象沦陷
 qyls	千元律师
 qylw	群莺乱舞
 qylws	秋叶落无声
+qylx	清有灵犀
 qylxc	清野落星辰
 qylxz	情义两心知
 qyly	棋遇良缘

@@ -1346,6 +1346,7 @@ lflsbtcddrzwzf	流放路上被团宠,爹爹入赘我致富
 lflsgldsqzdxd	流放路上，各路大神抢着当小弟
 lflskzfcyftwydyj	流放路上：开着房车养废腿王爷第一季
 lflsnzws	流放路上，娘子无双
+lflsssdwdqjcxhladj	流放路上,丧尸大王带全家吃香喝辣AI短剧
 lflstjfbwqj	流放路上天降福宝旺全家
 lflswdqjxfc	流放路上,我带全家炫房车
 lflswdzsdddcr	流放路上我带着傻爹顿顿吃肉
@@ -1476,6 +1477,7 @@ lgbngqxfzhj	狼狗变奶狗，俏媳妇真会教
 lgbpwdrybt	老公别怕！我打人又不疼
 lgbtnpcb	老公，拜托你破产吧
 lgbwwfwltbndls	老公病危,我翻完了他八年的流水
+lgbxzjxfgxgzl	老公别凶,作精媳妇改邪归正了
 lgc	冷宫传
 lgc	鸾归传
 lgcdj	鸾归传第二季
@@ -2517,6 +2519,7 @@ ljahq	临界2：安魂曲
 ljatezglwyzyxk	离家那天,儿子给了我一张银行卡
 ljb	拉荆芭
 ljbb	劣迹斑斑
+ljbhdqt	礼金背后的圈套
 ljbls	了解布鲁斯
 ljbqc	里见八犬传
 ljbqcdyjs	里见八犬传[电影解说]
@@ -4761,6 +4764,7 @@ lsmtdyj	灵书妙探第一季
 lsmtl	蓝色马蹄莲
 lsmxjjwbl	蓝色梦想：进军温布利
 lsmxr	恋上喵星人
+lsmy	孪生魅影
 lsmzlx	六扇门之沦陷
 lsmzxcm	六扇门之血虫谜案
 lsmzxsqt	六扇门之血手奇谭
@@ -4967,6 +4971,7 @@ lsxcnzsmls	临水小厨娘之食满临水
 lsxcy	龙神小村医
 lsxd	两世心动
 lsxd	孪生兄弟
+lsxd	狼蛇行动
 lsxd	猎鲨行动1987
 lsxd	镭射小队
 lsxd	镭射小队2
@@ -5670,6 +5675,7 @@ lxrt	郎心如铁
 lxrym	旅行任意门
 lxs	陆行鲨
 lxs	龙先生
+lxsbrxts	路先生别入戏太深
 lxscdyj	良心省查第一季
 lxscqwx	历先生宠妻无限
 lxsd	恋性世代
@@ -6893,6 +6899,7 @@ lzxdzyy	廉政行动组粤语
 lzxfnsxd	恋综相逢年少心动
 lzxfp	聊斋·席方平
 lzxfx	龙族小福星
+lzxjdt	来自仙界的她
 lzxjxl	聊斋喜剧系列
 lzxjxss	凛子小姐想试试
 lzxldpz	来自心灵的碰撞

@@ -1697,6 +1697,7 @@ dgqcj	大哥请赐教
 dgqy	刀光枪影
 dgqz	东宫弃子
 dgrdzqsf	打工人的最强身份
+dgrgs	打更人诡事
 dgrgt	打更人怪谈
 dgrgtdyjs	打更人怪谈[电影解说]
 dgrjxplhhj	打工人觉醒：破烂换黄金
@@ -2006,6 +2007,7 @@ dhqytnyqszl	订婚前一天，男友却失踪了
 dhqyzyzg	大汉情缘之云中歌
 dhr	蛋黄人
 dhrjxwgqs	订婚日记:携娃归情深
+dhrnerqwmwfsshyq	大婚日女儿认妾为母,我反手收回一切
 dhrshblmnpcf	夺回人生后，被冷面男配宠翻
 dhrsmqjzywzsjtz	大婚日庶妹抢嫁状元，我转身嫁太子
 dhrxlnqwnjzm	大婚日，新郎纳妾我怒嫁竹马
@@ -2712,6 +2714,7 @@ djxw	独家新闻
 djxw	独家新闻2016
 djxwdcn	独家新闻的雏鸟
 djxwdyjs	独家新闻[电影解说]
+djxx	第九行星
 djxxczbj	刀剑笑新传之宝鉴
 djxxczhk	刀剑笑新传之花魁
 djxxczjz	刀剑笑新传之决战
@@ -3612,6 +3615,7 @@ dmld	夺命来电
 dmlddyjs	夺命来电[电影解说]
 dmlgbzlfryjxdl	呆萌老公别装了,夫人已经心动了
 dmlh	顶门立户
+dmljjswclqny	对门邻居竟是我初恋前男友
 dmljldbyrs	大明，李景隆的别样人生
 dmljldbyrsdlj	大明,李景隆的别样人生第六季
 dmljldbyrsdsj	大明，李景隆的别样人生第三季
@@ -5058,6 +5062,7 @@ dsm	大市民
 dsm	大甩卖
 dsmbygwyzjzdy	当什么白月光,我要做九州第一!
 dsmbygwyzjzdy	当什么白月光，我要做九州第一
+dsmbygwyzjzdydj	当什么白月光,我要做九州第一!第一季
 dsmdyjs	大甩卖[电影解说]
 dsmjzdmgy	赌神秘笈之赌魔国语
 dsmksdsqjzxaw	当生命开始倒数，全家重新爱我

@@ -56,6 +56,7 @@ rbqdszfr	惹不起的世子夫人
 rbqdtdj	惹不起的她短剧
 rbqdwxj	惹不起的温小姐
 rbqdyjs	日本桥[电影解说]
+rbqzgarssxcr	惹不起,这个男人是神仙传人
 rbrg	人不如故
 rbsg	日本三国
 rbsgdyjs	2077日本锁国[电影解说]
@@ -936,6 +937,7 @@ rnfdcqbncwpfxy	让你复读冲清北，你成王牌飞行员
 rngsznmnrzcsll	让你公司做牛马你让总裁生了俩
 rngzxxdsnqpdxj	让你贵族学校读书，你去泡大小姐
 rnhlnbgbyms	让你护林，你把国宝养满山
+rnhlnbgbymsdejadj	让你护林,你把国宝养满山第二季AI短剧
 rnhlnqelszhpz	让你护林,你请二郎神抓黄皮子?
 rnhqmrndqczf	让你花钱，没让你带全村致富
 rnjbdsnzmpstsf	让你假扮道士你怎么披上天师服
