@@ -1129,6 +1129,7 @@ sdqcbrxzslbx	谁的青春不热血之深流不息
 sdqfwzdlnz	甩掉前夫我做顶流女主
 sdqj	闪电奇迹
 sdqjdyjs	闪电奇迹[电影解说]
+sdqjh	山毒气计划
 sdqk	食定乾坤
 sdqmgs	圣诞奇妙公司
 sdqmy	圣殿奇妙夜
@@ -1667,6 +1668,7 @@ sexqsexq	社内相亲 社內相親
 sexqyy	社内相亲粤语
 sexy	三个夏夜
 sexybyedyt	生恩小于边养恩大于天
+sexzlasy	十二星座恋爱实验
 sexzlqsj	十二星座离奇事件
 sexzzwabp	十二星座之为爱奔跑
 sey	三个月
@@ -2392,6 +2394,7 @@ sgyc	时光钥匙
 sgydgs	苏过晏的故事
 sgygc	神鬼也高潮
 sgygr	拾光遇故人
+sgyhdh	涉过遗憾的海
 sgyhmmf	时光遗憾密密缝
 sgyj	时光邮局
 sgyl	深宫怨灵
@@ -3182,6 +3185,7 @@ shsy	尚红书院
 shsy	山海三言
 shsyl	山海拾妖录
 shsymma	闪婚室友慢慢爱
+shsymmamgrw	闪婚室友慢慢爱,玫瑰入瓮
 shszbxdcgy	守护神之保险调查国语
 shszbxdcyy	守护神之保险调查粤语
 shszhblgcst	闪婚生子后被老公宠上天
@@ -5281,6 +5285,7 @@ slxzdyjs	少林小子[电影解说]
 slxzfsy	少林小子方世玉
 sly	势利眼
 sly	失乐园2020
+sly	失乐园2026
 sly	水龙吟
 slyasl	散了,也安生了
 slycwddtbmf	善良有尺，我的电梯不免费
@@ -5645,6 +5650,7 @@ smjw	双面君王
 smjw	双面君王2012
 smjwdyyqlhyhzdxj	什么叫我都元婴期了还要哄着大小姐
 smjwdyyqlhyhzdxjdej	什么叫我都元婴期了还要哄着大小姐第二季
+smjwdyyqlhyhzdxjdsj	什么叫我都元婴期了还要哄着大小姐第三季
 smjwqyfptmdjs	神明敬我:全员反派团灭倒计时
 smjwtmdjsdyj	神明敬我：团灭倒计时第一季
 smjx	榫卯匠心
@@ -11203,6 +11209,7 @@ ssbxhlj	声生不息·华流季
 ssbxj	岁岁不相见
 ssbxjnh	声生不息·家年华
 ssbxm	岁岁伴星眠
+ssbxtygcs	声生不息·天涯共此时
 ssbxwtcxb	声生不息 舞台纯享版
 ssbxych	生生不息演唱会
 ssbxzthgl	声生不息之天后归来
@@ -11936,6 +11943,7 @@ ssndltdj	杀死你的旅途第二季
 ssndyjs	伞少女[电影解说]
 ssndyjs	蛇少女[电影解说]
 ssnebhr	飒爽女儿不好惹
+ssnebpqbzjrjxl	丧尸女儿暴脾气,包子家人觉醒了
 ssnfrsbl	少帅，你夫人飒爆了
 ssnfrydmjl	少帅，您夫人又掉马甲了
 ssnh	寿司女孩
@@ -12339,6 +12347,7 @@ ssxjy	生死新纪元
 ssxjydyjs	生死新纪元[电影解说]
 ssxlcfpjzdcw	兽世修罗场:反派家族独宠我
 ssxlcqnmrlfl	兽世修罗场：全能美人撩疯了
+ssxlcqnmrsfl	兽世修罗场:全能美人飒疯了
 ssxlcsdmdxglw	兽世修罗场，宿敌们都想攻略我
 ssxlsjnxszbf	深山修炼十几年下山镇八方
 ssxly	生死夏令营
@@ -14440,6 +14449,7 @@ syfrlhdm	神医夫人离婚独美
 syfrmys	神医夫人美又飒
 syfrydy	神医夫人有点野
 syfryskl	少爷夫人又刷卡了
+syfs	守语浮生
 syfsjsnnkbgz	少爷发神经，少奶奶可不惯着
 syfy	失忆风云
 syfy	岁月风云
@@ -14865,6 +14875,7 @@ syszfbqjcst	神医世子妃被全家宠上天
 syszlt	四月三周两天
 syszltdyjs	四月三周两天[电影解说]
 syszmz	山月锁坠明珠
+syszsshzyslzxwdt	上一世葬身深海,这一世留住洗碗的他
 syszxz	善养三只小崽
 syt	失忆30天
 syt	弑云台
@@ -15052,6 +15063,7 @@ syywdlms	少爷与我的罗曼史
 syywdzpwlwjjjj	舍友用我的照片网恋，我将计就计
 syywg	深渊有微光
 syywm	霜月夜未眠
+syywzpwlh	室友用我照片网恋后
 syyx	四叶游戏
 syyx	深渊游戏
 syyy	山雨云野
@@ -15152,6 +15164,7 @@ sz	赎罪2024
 sz	赦罪
 sz	逝者2025
 sz	速战
+sz	锁住418
 sz	锁战
 sz	锁簪
 szah	深坠爱河

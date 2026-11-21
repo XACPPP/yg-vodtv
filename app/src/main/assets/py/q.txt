@@ -1173,6 +1173,7 @@ qghydyjs	七个会议[电影解说]
 qghzdyjs	七个盒子[电影解说]
 qghzkjqdldsxxw	乾国皇子开局签到陆地神仙修为
 qghzkjqdldsxxwdej	乾国皇子开局签到陆地神仙修为,第二季
+qghzkjqdldsxxwdsjgzj	乾国皇子开局签到陆地神仙修为,第三季(更至46集)
 qgj	清宫计
 qgjc	千古玦尘
 qgjdbxfl	全诡界都被洗服了
@@ -1251,6 +1252,7 @@ qgxardej	七个小矮人第二季
 qgxd	旗鼓相当
 qgxgxwdqccczfl	弃高薪归乡，我带全村闯出致富路
 qgxj	七根心简
+qgxnldhndyj	抢个新娘来当后娘第一季
 qgxss	囚宫相守时
 qgxsygm	七个学生一个妈
 qgxzx	情归新泽西
@@ -3640,6 +3642,7 @@ qsbh	情深必悔
 qsbh	枪声背后
 qsbhrwnmdzz	弃少不好惹，我乃魔道至尊
 qsbhzanw	情深不悔，再爱难为
+qsbjx	情深不觉晓
 qsbm	七尸八命
 qsbm	青山不墨
 qsbndyjs	求死不能[电影解说]
@@ -4866,6 +4869,7 @@ qydlms	奇异的罗曼史
 qydnl	埼玉的牛郎
 qydptmzzqslldyj	气运当铺,天命之子全是老赖第一季
 qydqhpznzxhh	契约到期后，偏执男主心慌慌
+qydqtssxytfzsdyj	契约到期,脱身失效遇棠方知涉第一季
 qydqwclgtt	契约到期我成了顾太太
 qydqwdcjlgdzx	契约到期我对错嫁老公动真心
 qydqwdxdny	契约到期:我的限定男友

@@ -1770,6 +1770,7 @@ thjffyj	桃花烬2芳菲余烬
 thjglr	桃花笺归良人
 thjh	通话惊魂
 thjhsc	天后进化手册
+thjjm	童话继姐妹
 thjlcsddhfky	逃婚记：凌晨三点的婚房考验
 thjmhxdcst	逃婚姐妹花，兄弟宠上天
 thjmhzcjhywgl	逃婚姐妹花之错嫁活阎王攻略
@@ -4489,6 +4490,7 @@ tswne	她是我女儿
 tswnkcdp	透视：我能看穿底牌
 tswq	铁手无情
 tswshclfpbygdej	听说我死后成了反派白月光第二季
+tswshclfpbygdsj	听说我死后成了反派白月光第四季
 tswshclfpbygdyj	听说我死后成了反派白月光第一季
 tswshclhmqfbyg	听说我死后成了豪门前夫白月光
 tswsj	太上武神诀
@@ -4896,6 +4898,7 @@ ttmsygpyccqjmwed	体坛秘史：英国篇：英超传奇杰米·瓦尔迪
 ttmy	天堂陌影
 ttmydyjs	天堂陌影[电影解说]
 ttmyyw	天堂没有遗忘
+ttmzkxm	贴贴魔尊可续命
 ttmzt	田田忙种田
 ttmztdej	田田忙种田第二季
 ttmztdsj	田田忙种田第三季
@@ -6014,6 +6017,7 @@ tyt	她与他
 tytdfj	她与她的反击
 tytdpxh	她与她的平行海
 tytdpxskdtmh	他与她的平行时空 动态漫画
+tytgmfzsm	退役特工:麻烦找上门
 tytjcglndkswd	推演天机：从攻略女帝开始问道
 tytphlly	天元突破红莲螺岩
 tytpjcbhlp	天元突破剧场版：红莲篇

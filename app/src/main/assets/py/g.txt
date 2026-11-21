@@ -383,6 +383,7 @@ gdbwdljrs	滚蛋吧！我的垃圾人生
 gdbxcl	滚动吧小齿轮
 gdbxqxdnlzcj	冠定本心:清醒嫡女另择储君
 gdbxtzrmbytzc	滚蛋吧系统,做人没必要太正常
+gdbxtzrmbytzcdej	滚蛋吧系统,做人没必要太正常第二季
 gdbxzhsmsnd	诡道镖行之护送灭世女帝
 gdbyjdbj	戈德堡一家第八季
 gdbyjdej	戈德堡一家第二季
@@ -1030,6 +1031,7 @@ ggld	光杆乐队
 gglddgszmnhdmt	故宫里的大怪兽之莫奈何的谜题
 ggldmz	刮刮乐的魔咒
 gglfc	果戈里·复仇
+gglgdftzrjgtswd	雇个老公对付投资人,结果他是卧底
 gglgdyjs	狗狗旅馆[电影解说]
 ggljdyjs	盖棺了结[电影解说]
 ggll	光怪陆离
@@ -1129,6 +1131,7 @@ ggxd	共感心动
 ggxj	公关小姐
 ggxjz	鬼谷小郡主
 ggxjzdej	鬼谷小郡主第二季
+ggxjzdsj	鬼谷小郡主第三季
 ggxllsw	乖乖小狼赖上我
 ggxs	故宫新事
 ggxswywgwhq	鬼谷下山，我有五个未婚妻

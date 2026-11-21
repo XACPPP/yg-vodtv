@@ -1952,6 +1952,7 @@ jhbbrjy	镜花不比人间月
 jhbdw	江海不渡我
 jhbf	极寒冰封
 jhbhwfsj	集合，保护我方市集
+jhbkspwdqckhzf	饥荒不啃树皮,我带全村开荒致富
 jhbm	匠魂不灭
 jhbnhjgn	结婚八年回家过年
 jhbps	结婚白皮书
@@ -2183,6 +2184,7 @@ jhnwctjqhcjylx	假皇女误闯天家，全皇朝惊艳沦陷
 jhnwdej	军火女王第二季
 jhnwdhylggdny	饥荒年我囤货养了个古代男友
 jhnwdqjcrzyllwdqjddkpg	饥荒年我带全家吃肉＆睁眼六零：我带全家顿顿啃排骨
+jhnwdxgttcr	饥荒年,我带相公天天吃肉
 jhnwdybnqsscw	饥荒年，我带一百女囚上山称王
 jhnwdyj	军火女王第一季
 jhnwjljdqjcr	饥荒年我捡垃圾带全家吃肉
@@ -2851,6 +2853,7 @@ jjjyznmwj	狙击精英之纳米危机
 jjjyzzsz	狙击精英：重装上阵
 jjkjwkkjfdc	绝境开局：我靠空间发大财
 jjkmcbj	基建狂魔穿北境
+jjkpfrtldwqdej	将军快跑,夫人她力大无穷第二季
 jjkpfrtldwqdyj	将军快跑，夫人她力大无穷第一季
 jjksnydj	将军扛水泥养大军
 jjkxx	姐姐快醒醒
@@ -4110,6 +4113,7 @@ jmllljcchzzj	救命！冷脸邻居处处护着自己
 jmlm	将门六妹
 jmlm	将门六妹2
 jmlmdyj	将门六妹第一季
+jmlmmzhldyjxnm	九命灵猫,魔尊怀里的预警小奶猫
 jmlmszwnxsgsz	救命！冷面摄政王内心是个死宅
 jmlr	假面恋人
 jmlr	假面良人
@@ -7429,6 +7433,7 @@ jxshthlrwzhggjldz	尽心伺候瘫痪老人,我做护工规矩立得住
 jxshxtywglxhss	觉醒神豪系统，意外攻略校花宿舍
 jxsj	君心似疾
 jxsjfxs	君心似剑负相思
+jxslhkl	季先生,离婚快乐
 jxsn	九霄神女
 jxsn	惊喜少年
 jxsn	极限少女
@@ -7530,6 +7535,7 @@ jxwldyjs	机械威龙[电影解说]
 jxwlsya	家兄温良岁月安
 jxwqtxrh	锦绣为棋，天下入怀
 jxwssmqwwzws	觉醒伪神:神明弃我我自为神
+jxwssmqwwzws	觉醒伪神神明弃我我自为神4
 jxwssmqwwzwsadj	觉醒伪神:神明弃我我自为神3AI短剧
 jxwwxd	九霄  我为仙帝
 jxwx	今夕往昔
@@ -8987,6 +8993,7 @@ jzynyy	金枝欲孽粤语
 jzyqg	家族与情感
 jzyqtgy	建筑有情天国语
 jzyqtyy	建筑有情天粤语
+jzyshytszb	镜中影:神豪与替身主播
 jzysj	决战异世界
 jzysk	郡主要升咖
 jzyssh	机智医生生活
@@ -9067,6 +9074,7 @@ jzzx	急转直下
 jzzxdyjs	急转直下[电影解说]
 jzzylxksgj	假装在月亮心口撒个娇
 jzzylxksgjdej	假装在月亮心口撒个娇第二季
+jzzylxksgjdlj	假装在月亮心口撒个娇第六季
 jzzylxksgjdsj	假装在月亮心口撒个娇第三季
 jzzylxksgjdsj	假装在月亮心口撒个娇第四季
 jzzyyssh	机智住院医生生活

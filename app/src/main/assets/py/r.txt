@@ -910,6 +910,7 @@ rndbqxfnzfnd	让你当兵娶媳妇，你征服女帝
 rnddjpnzblbql	让你当挡箭牌，你真把老板娶了
 rnddynbrdgdql	让你当导游，你把人带古代去了
 rndem	让娜·迪尔曼
+rndgnnrbjgcyb	让你当宫女,你让暴君跪搓衣板
 rndgnqmrncd	让你代管女囚，没让你称帝啊
 rndhgsrnwdl	让你打黑工，谁让你无敌了
 rndjsnjrqlnszc	让你当技师，你竟然娶了女神总裁
@@ -1173,6 +1174,7 @@ rrxhmbmjnw	柔弱小花秒变满级女王
 rrxlhcywywtjtzx	人人嫌猎户粗野，唯有我听见他真心
 rrxlhcywywtjtzxcq	人人嫌猎户粗野，唯有我听见他真心藏情
 rrxlhcywywtjtzxdej	人人嫌猎户粗野,唯有我听见他真心第二季
+rrxlhcywywtjtzxdsj	人人嫌猎户粗野,唯有我听见他真心第三季
 rrzxdhy	让人窒息的婚姻
 rs	人生
 rs	人生1984
@@ -1541,6 +1543,7 @@ rwljrqf	扔完垃圾扔前夫
 rwlqhhwq	若我离去，后会无期
 rwltadgs	让我聆听爱的歌声
 rwlznsb	让我留在你身边
+rwmcfpl	让我们乘风破浪
 rwmghsy	热吻玫瑰会上瘾
 rwmhxq	让我们活下去
 rwmsj	如我们所见

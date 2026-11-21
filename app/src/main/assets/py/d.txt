@@ -429,6 +429,7 @@ dbsdyjs	大白鲨3[电影解说]
 dbsdyjs	大白鲨4[电影解说]
 dbsfc	大白鲨4：复仇
 dbsmyyl	当悲伤没有眼泪
+dbsn	短兵少年
 dbsqs	东北神枪手1946
 dbsxfzzpjwnq	东北飒媳妇,专治婆家窝囊气
 dbsyzzgdwsls	东北少爷之这嘎达我嗦了算
@@ -2168,6 +2169,7 @@ dhzz	谍海追踪
 dhzzdyjs	大海作证[电影解说]
 dj	东京！
 dj	代价2024
+dj	冻劫
 dj	刀尖
 dj	刀尖2023
 dj	刀惧
@@ -2257,6 +2259,7 @@ djdfd	东京大饭店
 djdfdtbp	东京大饭店特别篇
 djdg	大家的歌
 djdgdyjs	大家的歌[电影解说]
+djdgwwdwgtbxzj	嫡姐夺骨我为帝,万鬼同悲血作祭
 djdh	大江大河
 djdh	大江大河2
 djdhy	杜鹃的婚约
@@ -4311,6 +4314,7 @@ dqfysbyg	当前夫遇上白月光
 dqg	大清官
 dqgbzn	地球改变之年
 dqghh	第七个黄昏
+dqglg	第七根肋骨
 dqgs	东区故事
 dqgtxz	第七个同行者
 dqgxar	第七个小矮人
@@ -4456,6 +4460,7 @@ dqwcdej	大器晚成第二季
 dqwcdsj	大器晚成第三季
 dqwcdyj	大器晚成第一季
 dqwcdyjdyjs	大器晚成 第一季[电影解说]
+dqwg	大秦文公
 dqwskjwccyzdg	大秦汪事开局我穿成嬴政的狗
 dqwsnsn	地球外少年少女
 dqwy	大墙无言
@@ -7600,6 +7605,7 @@ dzf	大镇反
 dzf	斗阵60分
 dzfbqtt	带着法宝去投胎
 dzfdyjs	大丈夫[电影解说]
+dzfjhxm	带只肥橘回仙门
 dzfrj	大丈夫日记
 dzfrjdyjs	大丈夫日记[电影解说]
 dzfs	独自赴死
@@ -7671,6 +7677,7 @@ dzlkjcsjmytx	大周令：开局抄诗就名扬天下
 dzlmxcsnfshtkl	倒追冷漠校草四年，分手后他哭了
 dzlmxcsnfshtkl	倒追冷漠校草四年，分手后他哭了2
 dzlphzcr	带着老婆孩子吃肉
+dzltqcy	带着论坛去穿越
 dzltrh	督主揽她入怀
 dzlwkscspwj	大周令：文科生抄诗破万军
 dzlxsrfxb	蝶之力学 杀人分析班

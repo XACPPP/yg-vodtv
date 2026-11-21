@@ -2413,6 +2413,7 @@ bjwskn	2025北京卫视跨年
 bjwsknwh	2024北京卫视跨年晚会
 bjwsknwh	2026北京卫视跨年晚会
 bjwsknzy	2023北京卫视跨年之夜
+bjwsmwgdytcjwxtd	别叫我什么万古第一天才,叫我新天道
 bjwsyst	北京卫视养生堂
 bjwxd	别叫我兄弟
 bjwy	稗记舞咏
@@ -3383,6 +3384,7 @@ blxf	八零媳妇
 blxf	暴力先锋
 blxfbwntcjb	八零小福宝，稳拿团宠剧本
 blxfqwfcgjks	八零小福妻,旺夫从改嫁开始
+blxfwtgxschfs	八零小福汪,听狗心声厂花翻身
 blxfydlzrzydszm	八零媳妇有点辣之阮紫依的书中梦
 blxgntdl	八零小闺女提刀了
 blxh	不良笑花
@@ -4956,6 +4958,7 @@ bsoxgz	变身！偶像公主
 bsp	比斯平
 bsphnpsgmlm	不是炮灰女配是闺蜜联盟
 bsq	半生签
+bsq	半衰期
 bsqbmetxcjwxhg	八岁清北卖鹅腿校长叫我小孩哥
 bsqbmetxcjwxhg	八岁清北卖鹅腿，校长叫我小孩哥
 bsqc	冰上轻驰

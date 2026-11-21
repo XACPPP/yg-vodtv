@@ -7704,6 +7704,9 @@ xxwcbyglngfp	昔安行:我才不要攻略那个反派!
 xxwcdej	心许晚辞第二季
 xxwdctnkg	修仙:我的词条能开挂
 xxwdctnkgdej	修仙:我的词条能开挂第二季
+xxwdctnkgdsj	修仙:我的词条能开挂第三季
+xxwdctnkgdsj	修仙:我的词条能开挂第四季
+xxwdctnkgdwj	修仙:我的词条能开挂第五季
 xxwdyjs	猩猩王[电影解说]
 xxwfnhqlwyrrlx	玄学王妃难哄，清冷王爷日日沦陷
 xxwfsgl	玄学王妃算卦灵
@@ -7875,6 +7878,7 @@ xxzy	喧嚣之音
 xxzy	小仙之瑶
 xxzy	血腥之夜
 xxzy	象限之眼
+xxzydnxyb	小鞋子（印度尼西亚版）
 xxzydtmeyb	小鞋子（印度泰米尔语版）
 xxzypqb	小小状元脾气爆
 xxzzhgjdjzp	新选组镇魂歌 京都决战篇
@@ -7925,6 +7929,7 @@ xyaljb	校园暗恋警报
 xyar	嫌疑爱人
 xyay	夏夜暗涌
 xyaz	嫌疑男子
+xyaz	闲鱼难做
 xyazm	新：以爱之名
 xyba	下一步·爱
 xybbb	幸运搬搬搬
@@ -8609,6 +8614,7 @@ xyxwy	逍遥小王爷
 xyxxgcwtsl	逍遥小相公$朝为田舍郎
 xyxxlwzbcdzss	逍遥小县令，我在边陲打造盛世
 xyxxs	悬崖下72小时
+xyxy	星语心愿
 xyxy	湘音湘韵
 xyxydck	小英雄与大刺客
 xyxydyjs	星愿 星願[电影解说]
