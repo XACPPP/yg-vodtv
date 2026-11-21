@@ -1939,6 +1939,7 @@ mhmsn	魔幻美少女
 mhmy	秘河密友
 mhnc	梦幻农场
 mhncdej	梦幻农场第二季
+mhncdsj	梦幻农场第三季
 mhnhyxs	美好年华研习社
 mhnl	迷幻牛郎
 mhnzs	迷糊女战士
@@ -3213,6 +3214,7 @@ mmdlgg	卯卯的陆公馆
 mmdlms	妈妈的罗曼史
 mmdlr	妈妈的恋人2
 mmdlx	明明动了心
+mmdlxxswnnrwdwrxnp	麦麦大佬修仙三万年,你让我当万人嫌女配
 mmdmjqy	蒙萌的梦境奇缘
 mmdmyrsbbzl	妹妹的名媛人设绷不住了
 mmdne	妈妈的女儿
@@ -5274,6 +5276,7 @@ mszswblwlmcygy	末世重生我把烂尾楼卖出一个亿
 mszswbzsm	末世重生：我不做圣母
 mszswdcssjdaqq	末世重生：我的超市是绝对安全区
 mszswfkdwznxdl	末世重生我疯狂囤物资逆袭大佬
+mszswfkdwznxdldej	末世重生我疯狂囤物资逆袭大佬第二季
 mszszmjpawdyj	灭世灾煞怎么就偏爱我第一季
 mszszmjpawtswsbygdej	灭世灾煞怎么就偏爱我他说我是白月光第二季
 mszszmjpawtswsbygdsj	灭世灾煞怎么就偏爱我他说我是白月光第三季
@@ -6113,6 +6116,7 @@ mycdffj	莫言春度芳菲尽
 mycdg	明月辞东宫
 mycdtl	名媛从大唐来
 mycfbsf	满眼春风百事非
+mycfdwg	牧野春风渡我归
 myckhxl	摸鱼刺客浑县令
 mycps	命运操盘手
 mycq	妙药春情

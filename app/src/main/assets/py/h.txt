@@ -1597,6 +1597,7 @@ hfxdnx	婚房下的逆袭
 hfxjyct	花府小姐要出逃
 hfxqj	侯府小千金
 hfxxbhr	侯府笑笑不好惹
+hfygbgj	侯府有个八卦精
 hfyjxjj	何妨与君相决绝
 hfym	花繁叶茂
 hfyqz	虎父有犬子
@@ -4010,6 +4011,7 @@ hmmx	豪门暮晓
 hmmy	狐墓迷影
 hmmyqtla	和妈妈一起谈恋爱
 hmn	胡媚娘
+hmnczgbyzdwc	荒漠农场之戈壁有座动物城
 hmnd	后母难当
 hmngj	寒门女冠军
 hmnl	壕门虐恋
@@ -4603,6 +4605,7 @@ hqgl	黄泉归来
 hqgld	祸起高利贷
 hqgljjqjs	悍妻归来,将军请接生
 hqgljjqjz	悍妻归来2,将军请接招
+hqgljjqjzadj	悍妻归来2,将军请接招AI短剧
 hqgls	侯阙归来时
 hqglsc	花钱攻略手册
 hqgs	婚前故事
@@ -6028,6 +6031,7 @@ hwjdtq	虎王家的兔妻
 hwjh	换屋惊魂
 hwjhb	和我结婚吧！
 hwjm	捍卫机密
+hwjmysmdsxjs	狐王缄默,与宿命的双向救赎
 hwjq	换屋假期
 hwjqdyjs	换屋假期[电影解说]
 hwjs	还我今生
@@ -6291,6 +6295,7 @@ hxhnh	火星坏女孩
 hxhnzyq	好想和你在一起
 hxhnzyq	很想和你在一起
 hxhsw	魂兮何所往
+hxhwcltc	化形后我成了团宠
 hxhwpdjfs	回乡后我拍短剧封神
 hxhx	花心红杏
 hxhxasn	好想好想爱上你
@@ -7216,6 +7221,7 @@ hyn	韩玉娘
 hyn	鸿运女
 hyndaec	欢迎你到阿尔村
 hyndxmadl	霍爷你的小棉袄掉啦
+hyndxqmylznl	霍爷,您的小青梅又来治你了
 hyndxqmylznl	霍爷，您的小青梅又来治你了
 hyneh	花腰女儿红
 hynf	鸿雁南飞

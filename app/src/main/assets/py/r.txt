@@ -256,6 +256,7 @@ rfrz	如父如子
 rfrzdyjs	如父如子[电影解说]
 rfrzfdyjs	如父如子 そして父になる[电影解说]
 rfwbwzhfzsj	入府为婢:我在侯府攒身家
+rfwbwzhfzsjll	入府为婢:我在侯府攒身家来了
 rfwccw	软饭，我吃成王
 rfwfyjjhwwm	入府为妃，冤家皆呼我为母
 rfxxcj	若逢新雪初霁
@@ -1297,6 +1298,7 @@ rskglwksqtjljgj	人生开挂了！我靠神奇铜镜链接古今
 rskmh	人生开门红
 rsktj	燃烧肯塔基
 rskxzht	人生可许再回头
+rskywznwdble	人设可以伪造那我的病例呢
 rslbs	人生路不熟
 rslbsdyjs	人生路不熟[电影解说]
 rsldx	惹上冷殿下

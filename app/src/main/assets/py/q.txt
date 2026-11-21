@@ -334,6 +334,7 @@ qbzm	清白之名
 qbzntpyyxfs	七步之内他偏要以下犯上
 qbzs	秋白之死
 qbzsfzh	亲不在时方知悔
+qbzsqdyj	晴不知所起第一季
 qbzssjhzz	情报在手商界横着走
 qc	亲传
 qc	倾城
@@ -715,6 +716,7 @@ qczldej	青春之旅第二季
 qczldyj	青春之旅第一季
 qczldyjs	倾城之恋[电影解说]
 qczlhlhnjxtsgrzdej	清穿之猎户猎户女就想踏实过日子第二季
+qczlhlhnjxtsgrzdj	清穿之猎户猎户女就想踏实过日子第三季
 qczlhlhnjxtsgrzgsy	清穿之猎户猎户女就想踏实过日子搞事业
 qczlzrb	青春之旅真人版
 qczm	青春之门
@@ -1795,6 +1797,7 @@ qjsdyjs	七金尸[电影解说]
 qjsh	情剑山河
 qjsjgh	祁教授,结个婚
 qjsjgh	祁教授，借个婚
+qjsjghdej	祁教授,结个婚第二季
 qjsjghdyj	祁教授，结个婚第一季
 qjsjhfl	千金散尽还复来
 qjsjx	千金锁君心
@@ -1832,6 +1835,7 @@ qjttwxshjqjhl	全家偷听我心声后，假千金慌了
 qjttwxsswjbsfl	全家偷听我心声手握剧本杀疯了
 qjttwxswfzcn	全家偷听我心声我负责吃奶
 qjttwxswfzjq	全家偷听我心声，我负责捡钱
+qjttwxszsjqjctcl	全家偷听我心声,作死假千金成团宠了
 qjttyzxszshwxl	全家偷听养子心声，重生后我笑了
 qjtwxshqyhh	全家听我心声后全员黑化
 qjtwxsjxlwty	全家听我心声觉醒了，我躺赢
@@ -3214,6 +3218,7 @@ qqhw	茜茜和我
 qqhwdgzstl	亲亲后我对顾总上头了
 qqhx	浅浅欢喜
 qqhy	青青狐吟
+qqhzwkxcdzhsbldyj	全球洪灾_我靠修船打造海上堡垒第一季
 qqj	奇情记
 qqjbqqkwhsbm	娶妻就变强：且看我横扫北蛮
 qqjc	穷亲进城
@@ -3332,6 +3337,7 @@ qqsjthqzy	全球杀机:天黑请睁眼
 qqsjx	卿卿锁君心
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试2
+qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试3
 qqskgxxcnrwqks	全球死考:刚下刑场你让我去考试?
 qqskgxxcnrwqksdyj	全球死考:刚下刑场你让我去考试第一季
 qqsnc	清清十年错
@@ -3349,6 +3355,7 @@ qqsyzmcx	前妻说养猪没出息
 qqt	七囚徒
 qqt	欺妻49天
 qqtk	窃取天空
+qqtpwkbbszd	乔乔摊牌:我刻薄不是装的
 qqts	清清特殊
 qqtxzshhbhr	权倾天下：重生皇后不好惹
 qqtyn	青青田园暖

@@ -759,6 +759,7 @@ fedlgdyj	弗尔蒂旅馆 第一季
 fedsbj	富二代上班记
 fekjg	法尔孔警官
 fektlc	法内狂徒林辰
+fektlcdej	法内狂徒林辰第二季
 fel	菲尔兰
 felcfdbj	菲尔来蹭饭第八季
 felcfdej	菲尔来蹭饭第二季
@@ -1223,6 +1224,7 @@ fhjq	风禾尽起
 fhjsagw	父皇，江山该归我
 fhjt	凤凰娇探
 fhjt	烽火尽头
+fhjtyycfsl	废后今天又言出法随了
 fhjx	绯红结系
 fhjyt	反话绝缘体
 fhjyzrjyq	飞虎精英之人间有情
@@ -2290,6 +2292,7 @@ fmstyy	方谬神探粤语
 fmszq	浮梦试真情
 fmt	飞毛腿
 fmtc	蜂蜜甜橙
+fmtddyj	封魔天帝第一季
 fmtgsls	飞毛腿冈萨雷斯
 fmtk	放牧天空
 fmtx	疯谋天下

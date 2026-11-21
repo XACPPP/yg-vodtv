@@ -663,6 +663,7 @@ xcdh	星辰大海
 xcdhplrwttbt	兄长大婚跑路，让我替他拜堂？
 xcdhz	幸存的孩子
 xcdj	乡村度假
+xcdj	乡村度假2
 xcdjzqjyy	新春大吉之琼浆玉液
 xcdjzxycs	新春大吉之喜迎财神
 xcdmt	香草的每天
@@ -2048,6 +2049,7 @@ xgftgy	薛刚反唐国语
 xgfw	小鬼富翁
 xgfy	下狗风云
 xgfym	星光赴幽冥
+xggdmrcgrj	夏瓜瓜的末日吃瓜日记
 xggdmx	雄狗狗大冒险
 xggdy	香港25个第一
 xggld	膝盖骨乐队
@@ -2467,6 +2469,7 @@ xhfjy	星河赴旧约
 xhfkzshwwdl	玄幻：疯狂作死后，我无敌了
 xhfl	心慌方·零
 xhfpwjsdz	玄幻反派：我竟是道祖
+xhfqadj	星河赴契AI短剧
 xhfs	西环浮尸
 xhft	血海翻天
 xhfytalwbn	星河赴宴,他暗恋我八年
@@ -6328,6 +6331,7 @@ xsyyyzr	下山缘遇意中人
 xsyyzl	心声予意知澜
 xsyz	小事一桩
 xsyzh	香山叶正红
+xsyzwnkcyqdyj	小神医之我能看穿一切第一季
 xsyzyy	新宿野战医院
 xsyzzbfzwrzcqfttgyd	小神医专治不服，植物人总裁求封太太乖一点
 xsz	相似者
@@ -6791,6 +6795,7 @@ xw	响舞
 xw	夏娃
 xw	小伟
 xw	小婉
+xw	峡湾
 xw	希望
 xw	希望2026
 xw	希瓦
@@ -8892,6 +8897,7 @@ xzblwy	许总别来无恙
 xzblwyj	许总别来无恙50集
 xzbn	小主别闹
 xzbns	嘘这不能说
+xzbppwsdjc	仙尊别跑,陪我生蛋交差
 xzbscgdwt	现在不是出轨的问题
 xzbshzxjjs	仙子不说话,只想嫁僵尸
 xzbt	西装暴徒
