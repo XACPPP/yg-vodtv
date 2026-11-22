@@ -839,6 +839,8 @@ object VodRepo {
     suspend fun prefetch(ctx: Context, cats: List<Cat>, paused: () -> Boolean) {
         delay(2000)   // 让直播先起播，别在开机瞬间和直播抢带宽
         for ((i, c) in cats.withIndex()) {
+            // 「继续观看」是本地虚拟档，列表在 History 里，别拿它去问源站
+            if (c.name == UiState.CONTINUE) continue
             if (i < 3) {
                 while (userLoads.get() > 0) delay(400)
             } else {
@@ -1034,6 +1036,35 @@ object VodRepo {
         cache.clear(); alts.clear(); Cats.clear(); PyIndex.clear(ctx)
         runCatching { listDir(ctx).listFiles()?.forEach { it.delete() } }
         runCatching { java.io.File(ctx.cacheDir, "vodcats.json").delete() }
+    }
+
+    /**
+     * 续播用：只拿片名，把完整的分集线路捞回来（历史里只存了一条直链，选集/换线得靠它）。
+     * 查法跟搜索一样逐源打 `wd=`，先认片名完全一致的，没有再退而求其次收包含命中的。
+     * 三源内没捞到就返回 null，界面用记录里的直链兜底——别为了一个续播把 23 个源全问一遍。
+     */
+    suspend fun byName(ctx: Context, name: String): Vod? = withContext(Dispatchers.IO) {
+        val key = name.trim()
+        if (key.isEmpty()) return@withContext null
+        // 内存里已经有这条片子的同名候选时直接用，省一次网络
+        alts[key.lowercase()]?.firstOrNull { it.lines.isNotEmpty() }?.let { return@withContext it }
+        val lower = key.lowercase()
+        var loose: Vod? = null
+        var tried = 0
+        for (s in Sources.all(ctx)) {
+            if (tried >= 3) break
+            tried++
+            val got = runCatching { fetch(s, 1, key, "detail", filter = key, quick = true) }
+                .onFailure { Diag.w("vod", "续播回源 " + s.key + " 失败 " + it) }
+                .getOrDefault(emptyList())
+            val exact = got.firstOrNull { it.name.equals(key, true) && it.lines.isNotEmpty() }
+            if (exact != null) {
+                Diag.w("vod", "续播回源命中 " + s.key + "《" + exact.name + "》线路=" + exact.lines.size)
+                return@withContext exact
+            }
+            if (loose == null) loose = got.firstOrNull { it.name.lowercase().contains(lower) && it.lines.isNotEmpty() }
+        }
+        loose
     }
 }
 

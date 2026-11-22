@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -44,6 +45,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     var q by mutableStateOf("")
     /** 点播分类条：0 号恒为「推荐」，其余是各源分类表归并后的结果（异步到手后替换） */
     var cats by mutableStateOf<List<Cat>>(Cats.cached(ctx) ?: listOf(Cat("推荐", emptySet(), emptySet())))
+    /** 各源的真实分类（不含本地虚拟出来的「继续观看」），刷新分类表后从这里重建分类条 */
+    private var realCats: List<Cat> = listOf(Cat("推荐", emptySet(), emptySet()))
+    /** 网格空着时的提示语：空数组画骨架屏，有这句话就画提示，别让「继续观看」没记录时一直转圈 */
+    var emptyMsg by mutableStateOf("")
     /** 搜索框下面那行状态：正在搜什么、首字母翻成了什么、一共几条 */
     var searchNote by mutableStateOf("")
     var items by mutableStateOf<List<Vod>>(emptyList())
@@ -81,6 +86,8 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     private var vodBack = Zone.GRID
     private var idle: Job? = null; private var toastJob: Job? = null
     private var tabJob: Job? = null; private var searchJob: Job? = null
+    /** 点播播放期间每 5 秒写一次进度，退出/切后台各补一次 */
+    private var vodTick: Job? = null
 
     init {
         live.onVodFail = { msg -> toast(msg, 3000) }
@@ -99,8 +106,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             val c = runCatching { Cats.load(ctx) }.getOrDefault(cats)
             if (c.size > 1) {
                 val cur = cats.getOrNull(tab)?.name ?: "推荐"
-                cats = c
-                val i = c.indexOfFirst { it.name == cur }.coerceAtLeast(0)
+                realCats = c
+                val rebuilt = withLocalCats(c)
+                cats = rebuilt
+                val i = rebuilt.indexOfFirst { it.name == cur }.coerceAtLeast(0)
                 tab = i; Prefs.setTab(ctx, i)
                 if (mode == "vod") loadTab(i)
             }
@@ -266,6 +275,7 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             Diag.w("life", "后台：停直播"); android.util.Log.i("YGLife", "background: stop live")
         } else if (zone == Zone.VOD_PLAY) {
             // 点播记着进度，回前台接着看，所以只暂停不 stop
+            saveVodNow()
             live.player.pause()
             Diag.w("life", "后台：暂停点播"); android.util.Log.i("YGLife", "background: pause vod")
         }
@@ -284,10 +294,37 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         if (mode == "live") { zone = Zone.PLAY; barShow = true; osd = true } else zone = Zone.TABS
     }
 
+    /* ==================== 本地虚拟分类：继续观看 ==================== */
+
+    /** 「继续观看」不是源站分类，条目来自本地记录；名字加个前缀避免和源站真有重名 */
+    companion object {
+        const val CONTINUE = "继续观看"
+    }
+
+    /**
+     * 有观看记录才在分类条最前面插一格「继续观看」。
+     * 分类条本身是 0=推荐 的固定结构，插在最前会让 tab 索引整体后移，
+     * 所以只在真有记录时插，并且每次重建都按名字重新定位当前档。
+     */
+    private fun withLocalCats(base: List<Cat>): List<Cat> {
+        val cont = Cat(CONTINUE, emptySet(), emptySet())
+        return if (History.vodAll(ctx).isEmpty()) base else listOf(cont) + base
+    }
+
+    /** 「继续观看」的海报墙：最近看的在前，副标题是「第 3 集 12:34」 */
+    private fun continueItems(): List<Vod> = History.vodAll(ctx).map { it.toVod() }
+
     private fun loadTab(i: Int) {
         tabJob?.cancel(); g = 0
         Prefs.setTab(ctx, i)
         val cat = cats.getOrNull(i) ?: Cat("推荐", emptySet(), emptySet())
+        emptyMsg = ""
+        // 本地那一档不发请求：直接铺记录，没有记录就给一句话，别画骨架屏转圈
+        if (cat.name == CONTINUE) {
+            items = continueItems()
+            emptyMsg = if (items.isEmpty()) "还没有观看记录，随便点一部开个头" else ""
+            return
+        }
         // 这一档在内存里就有：立刻铺上，别让用户先对着骨架等三秒
         val mem = VodRepo.peek(cat)
         items = mem ?: emptyList()
@@ -297,6 +334,39 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             if (got.isNotEmpty()) items = got
             else if (items.isEmpty()) toast("「" + cat.name + "」暂时取不到片子，稍后再试")
         }
+    }
+
+    /**
+     * 「继续观看」点进去：优先回源站把完整线路捞回来（这样选集、换线、▲▼ 切集都能用），
+     * 捞不到就直接用记录里那条直链起播——旧地址哪怕换了域名，也比什么都不放强。
+     */
+    private fun resumeFrom(h: History.VHit) {
+        toast("继续播放《" + h.name + "》" + (if (h.epName.isNotEmpty()) " " + h.epName else ""), 1800)
+        scope.launch {
+            val full = runCatching { VodRepo.byName(ctx, h.name) }.getOrNull()
+            if (full != null && full.lines.isNotEmpty()) {
+                val li = h.li.coerceIn(0, full.lines.size - 1)
+                val ei = h.ei.coerceIn(0, (full.lines[li].eps.size - 1).coerceAtLeast(0))
+                playEpisode(full, li, ei, Zone.GRID, startMs = h.posMs)
+            } else {
+                Diag.w("vod", "续播回源失败，用记录直链《" + h.name + "》")
+                playVodDirect(h)
+            }
+        }
+    }
+
+    /** 兜底：只有一条直链时也要能放，进度照样从记录的位置起 */
+    private fun playVodDirect(h: History.VHit) {
+        val v = Vod(
+            id = h.id, name = h.name, pic = h.pic, url = h.url,
+            remark = h.epName, src = h.src,
+        )
+        playing = v; epLine = 0; epIdx = 0; vodBack = Zone.GRID
+        zone = Zone.VOD_PLAY; barShow = true
+        live.playVod(h.url, listOf(h.url))
+        if (h.posMs > 5000) scope.launch { delay(600); live.player.seekTo(h.posMs) }
+        startVodTick()
+        arm()
     }
 
     private var searchSeq = 0
@@ -365,11 +435,12 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     }
 
     /** 播某一线路的某一集；备选顺序=同集其它线路 → 其它源的同一集 → 其它源第一集 */
-    private fun playEpisode(v: Vod, li: Int, ei: Int, back: Zone) {
+    private fun playEpisode(v: Vod, li: Int, ei: Int, back: Zone, startMs: Long = 0) {
         val line = v.lines.getOrNull(li) ?: return
         val ep = line.eps.getOrNull(ei) ?: return
         playing = v; epLine = li; epIdx = ei; vodBack = back
-        Diag.w("vod", "播放《" + v.name + "》" + line.name + " " + ep.name + " " + ep.url)
+        Diag.w("vod", "播放《" + v.name + "》" + line.name + " " + ep.name + " " + ep.url +
+            (if (startMs > 0) " 从 " + History.mmss(startMs) + " 续播" else ""))
         val cands = ArrayList<String>(8)
         cands.add(ep.url)
         v.lines.forEachIndexed { i, l -> if (i != li) l.eps.getOrNull(ei)?.let { cands.add(it.url) } }
@@ -384,7 +455,19 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             val u = VodRepo.firstPlayable(alts.take(4)) ?: alts.first()
             if (u != alts.first()) Diag.w("vod", "改用备选线路 " + u)
             live.playVod(u, alts)
+            if (startMs > 5000) {
+                // 等播放器把时长摸出来再跳，否则 seek 会被当成 0 时长丢掉
+                repeat(20) {
+                    delay(300)
+                    if (live.player.duration > 0) {
+                        live.player.seekTo(startMs)
+                        Diag.w("vod", "续播跳转 " + History.mmss(startMs))
+                        return@repeat
+                    }
+                }
+            }
         }
+        startVodTick()
     }
 
     /** 播放页 ▲▼ 切集：同一条线路里走，到头给提示不走位 */
@@ -395,7 +478,47 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         val t = epIdx + d
         if (t < 0) { toast("已经是第一集"); return }
         if (t > eps.size - 1) { toast("已经是最后一集"); return }
+        saveVodNow()
         playEpisode(v, epLine, t, vodBack)
+    }
+
+    /* ==================== 点播进度：每 5 秒落一次盘 ==================== */
+
+    /**
+     * 播放期间定时存进度。
+     * 为什么不挂着 Player.Listener 存：这台电视上硬解卡住时 onPlaybackStateChanged 不一定回调，
+     * 定时轮询反而最稳；5 秒一次对 1.5G 剩余空间的机器也毫无压力。
+     */
+    private fun startVodTick() {
+        vodTick?.cancel()
+        vodTick = scope.launch {
+            while (true) {
+                delay(5000)
+                if (zone != Zone.VOD_PLAY) return@launch
+                saveVodNow()
+            }
+        }
+    }
+
+    /** 把「现在演到哪」写进记录；位置太靠前（<5 秒）不写，避免刚打开就留一条没意义的记录 */
+    private fun saveVodNow() {
+        val v = playing ?: return
+        val p = runCatching { live.player }.getOrNull() ?: return
+        val pos = runCatching { p.currentPosition }.getOrDefault(0L)
+        val dur = runCatching { p.duration }.getOrDefault(0L)
+        if (pos < 5000) return
+        val ep = v.lines.getOrNull(epLine)?.eps?.getOrNull(epIdx)
+        History.saveVod(
+            ctx, History.VHit(
+                name = v.name, src = v.src, id = v.id, pic = v.pic,
+                url = ep?.url ?: v.url, epName = ep?.name ?: "",
+                li = epLine, ei = epIdx,
+                posMs = pos, durMs = if (dur > 0) dur else 0L,
+                last = System.currentTimeMillis(),
+            )
+        )
+        // 「继续观看」正开着就把列表刷一遍，退出播放页时看到的顺序是对的
+        if (cats.getOrNull(tab)?.name == CONTINUE) items = continueItems()
     }
 
     private fun action(i: Int) {
@@ -509,12 +632,15 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                     Rk.R -> if (g % COLS < COLS - 1 && g < n - 1) g++
                     Rk.D -> if (g + COLS < n) g += COLS
                     Rk.U -> if (g >= COLS) g -= COLS else zone = Zone.TABS
-                    Rk.OK -> items.getOrNull(g)?.let { openDetail(it, Zone.GRID) }
+                    // 「继续观看」里点片直接接着放；其余档还是先进详情页挑集
+                    Rk.OK -> items.getOrNull(g)?.let { v ->
+                        val h = if (cats.getOrNull(tab)?.name == CONTINUE) History.vodGet(ctx, v.src, v.id) else null
+                        if (h != null) resumeFrom(h) else openDetail(v, Zone.GRID)
+                    }
                     Rk.B -> zone = Zone.SEARCH
                     else -> {}
                 }
-            }
-            Zone.SEARCH_PAGE -> {
+            }            Zone.SEARCH_PAGE -> {
                 val n = KB.size
                 when (k) {
                     Rk.L -> if (kb % KbCols > 0) kb--
@@ -588,7 +714,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
             Zone.VOD_PLAY -> {
                 val p = live.player
                 when (k) {
-                    Rk.B -> { p.stop(); live.vod = false; zone = vodBack }
+                    Rk.B -> {
+                        saveVodNow(); vodTick?.cancel()
+                        p.stop(); live.vod = false; zone = vodBack
+                    }
                     Rk.OK -> p.playWhenReady = !p.playWhenReady
                     Rk.M -> cycleScale()
                     Rk.L -> p.seekTo((p.currentPosition - 10_000).coerceAtLeast(0))

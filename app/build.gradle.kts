@@ -13,8 +13,8 @@ android {
         applicationId = "com.yg.vodtv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 50
-        versionName = "2.37"
+        versionCode = 51
+        versionName = "2.38"
     }
 
     signingConfigs {

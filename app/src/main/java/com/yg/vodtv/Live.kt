@@ -40,7 +40,21 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
     private var vodAlt = 0
     private var src = 0
     private var job: Job? = null
-    val groups: List<String> get() = channels.map { it.group }.distinct()
+    /** 原始分组（频道表自带的那几个），不含「常看」 */
+    private val baseGroups: List<String> get() = channels.map { it.group }.distinct()
+
+    /**
+     * 常看频道（存的是台名，不存索引）：频道表每次启动会从 assets/GitHub 重载，
+     * 索引会错位，名字才是稳的。按最近看过的顺序，最多 12 台。
+     */
+    var recent by mutableStateOf<List<String>>(emptyList()); private set
+
+    /** 面板左栏：有记录就把「常看」顶到第一格 */
+    val groups: List<String>
+        get() {
+            val b = baseGroups
+            return if (recent.isEmpty()) b else listOf(RECENT) + b
+        }
 
     /**
      * 音量回写（移植自旧版 v2.20）：海信固件在解码器起音时会把扬声器增益推满，
@@ -105,6 +119,13 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
         channels = runCatching { LiveData.table(ctx) }.getOrDefault(emptyList())
         val last = Prefs.channel(ctx)
         cur = channels.indexOfFirst { it.name == last }.coerceAtLeast(0)
+        refreshRecent()
+    }
+
+    /** 读一次常看列表；频道表里已经没有的台（下架/改名）要顺手剔掉，否则面板里出现按不进去的格子 */
+    fun refreshRecent() {
+        val names = channels.map { it.name }.toHashSet()
+        recent = History.liveTop(ctx, 12).filter { names.contains(it) }
     }
 
     private fun start() {
@@ -133,16 +154,41 @@ class LiveController(private val ctx: Context, private val scope: CoroutineScope
         if (channels.isEmpty()) return
         cur = ((i % channels.size) + channels.size) % channels.size
         Prefs.setChannel(ctx, channels[cur].name)
+        // 切台即记：常看列表的顺序就是最近观看看过的顺序
+        History.touchLive(ctx, channels[cur].name)
+        refreshRecent()
         src = 0; job?.cancel()
         if (immediate) start() else job = scope.launch { delay(300); start() }
     }
 
-    fun sizeOf(g: Int) = channels.count { it.group == groups.getOrNull(g) }
-    fun inGroup(g: Int) = channels.withIndex().filter { it.value.group == groups.getOrNull(g) }
+    /** 某一组的频道；RECENT 组按常看顺序排，其余按频道表原顺序 */
+    fun inGroup(g: Int): List<IndexedValue<Channel>> {
+        val name = groups.getOrNull(g) ?: return emptyList()
+        if (name == RECENT) {
+            val map = channels.withIndex().associateBy { it.value.name }
+            return recent.mapNotNull { map[it] }
+        }
+        return channels.withIndex().filter { it.value.group == name }
+    }
+
+    fun sizeOf(g: Int) = inGroup(g).size
     fun globalIndex(g: Int, i: Int) = inGroup(g).getOrNull(i)?.index ?: cur
     fun locate(): Pair<Int, Int> {
         val c = channels.getOrNull(cur) ?: return 0 to 0
-        return groups.indexOf(c.group) to channels.filter { it.group == c.group }.indexOf(c)
+        // 常看组在最前面：正在看的这台如果也在常看里，面板默认落在常看组更顺手
+        val gs = groups
+        val ri = gs.indexOf(RECENT)
+        if (ri >= 0) {
+            val k = inGroup(ri).indexOfFirst { it.index == cur }
+            if (k >= 0) return ri to k
+        }
+        val base = gs.indexOf(c.group)
+        return base to channels.filter { it.group == c.group }.indexOf(c)
     }
     fun release() { player.release() }
+
+    companion object {
+        /** 「常看」是虚拟分组，不在频道表里；用不可见字符避免和真实组名撞车 */
+        const val RECENT = "★ 常看"
+    }
 }

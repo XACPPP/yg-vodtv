@@ -452,7 +452,7 @@ fun VodHome(s: UiState) {
         }
         Spacer(Modifier.height(11.dp))
         if (s.items.isEmpty()) {
-            SkeletonGrid()
+            if (s.emptyMsg.isNotEmpty()) EmptyHint(s.emptyMsg) else SkeletonGrid()
         } else {
             val gs = rememberLazyGridState()
             LaunchedEffect(s.g) { if (s.zone == Zone.GRID) gs.animateScrollToItem(s.g / COLS * COLS) }
@@ -480,6 +480,17 @@ fun SearchPill(text: String, focused: Boolean, w: Dp = 186.dp) {
     ) {
         Lens(if (focused) Accent else Muted, 12.dp)
         Text(text, color = if (focused) TextHi else Muted, fontSize = 11.sp, maxLines = 1)
+    }
+}
+
+/** 空档提示：没有观看记录时不该继续假装在加载，直接说清楚下一步该干嘛 */
+@Composable
+fun EmptyHint(text: String) {
+    Box(Modifier.fillMaxWidth().height(PosterH * 1.6f), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(text, color = Muted, fontSize = 15.sp)
+            Text("按「返回」回分类，挑一部开始", color = Panel2, fontSize = 12.sp)
+        }
     }
 }
 

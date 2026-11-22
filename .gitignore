@@ -57,3 +57,4 @@ test/updsrv.log
 test/updsrv/
 dist/_*.png
 dist/_*.apk
+dist/_shot/
