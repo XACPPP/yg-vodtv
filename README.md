@@ -6,8 +6,9 @@
 公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
 所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.35（versionCode 48）** —— 新增 10 个点播源 + 飞牛影视桥接脚本 `fnbridge/`。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
-打 tag 自动出包并发 Release。
+当前版本：**v2.35（versionCode 48）** —— 新增 10 个点播源 + 换新图标 + 飞牛影视桥接脚本 `fnbridge/`。
+源码与成品在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release
+（[v2.35](https://github.com/XACPPP/yg-vodtv/releases/tag/v2.35) 已发布，`YGTV.apk` 11.7MB）。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
 > 源码已整目录归档到 `legacy/java/`（不参与构建），历史章节保留作为参考。
@@ -130,7 +131,7 @@ Web 版 226 → **217 台**。复验 `check_play.py`：App 版 **OK 415 / LIST_O
 `/live/5.m3u8` 返回合法播放列表，拉分片 `HTTP=200 SIZE=3084140 TYPE=video/mp2t` 首字节 `0x47`；
 抽查 15 台播放列表层级 **15/15 单层**。
 
-### v2.35.2：换图标（猫耳女孩 + 场记板）
+### v2.35.2：换图标（猫耳女孩 + 场记板）+ 首次正式发版
 
 老板给了一张 1254×1254 的方形设计稿（紫蓝夜色、猫耳耳机女孩眨眼比赞、抱黑猫、下方场记板与播放三角），替换掉原来的图标。
 
@@ -146,6 +147,13 @@ python tools/gen_icons.py archive/icon-backup-20261122/new-icon-source.png
 - 输出覆盖 `app/src/main/res/drawable{,-mdpi,-hdpi,-xhdpi,-xxhdpi,-xxxhdpi}/ic_launcher.png`，
   尺寸 192 / 48 / 72 / 96 / 144 / 192。`AndroidManifest.xml` 的 `android:icon="@drawable/ic_launcher"` 不用动。
 - 旧图标与源图留档在 `archive/icon-backup-20261122/`（该目录已进 `.gitignore`，不进仓库）。
+- 校验：`tools/verify_apk_icon.py <apk>` 用**像素比对**核对包内 6 份图标（AAPT 会重新压缩 PNG，
+  MD5 对不上是正常的），实测 6/6 平均误差 0.000。
+
+**发版**：v2.33~v2.35 的工作此前一直只在本地工作区（远端 tag 停在 v2.32）。这次补齐流程：
+`git pull --rebase`（落后 7 条巡检提交，只改 `live.json`/`logo/`/`py/`，与本轮无冲突）→ 6 条提交 → `git push origin master`
+→ `git tag -a v2.35 && git push origin v2.35` → Actions `build` 3m41s 出包 → Release v2.35 挂 `YGTV.apk`（11,734,884 B）。
+CI 产物下载回本地后跑 `verify_apk_icon.py` 复核 6/6，`assets/src.txt` 复核 23 源齐全。
 
 ### v2.32：分类切档零空档（海报预热 + 内存直铺）+ 播放器音量回写
 
