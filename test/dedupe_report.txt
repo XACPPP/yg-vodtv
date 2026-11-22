@@ -1,0 +1,33 @@
+片名集合相似度（2 页/源，阈值 0.55）
+
+  0.78  jszyapi <-> haohua
+  0.73  360zy <-> 360zz
+  0.70  ikun <-> iqiyi
+  0.60  wsyzy <-> zuidazy
+  0.60  modu <-> iqiyi
+  0.56  modu <-> ikun
+
+各源条目数：
+  maoyan    60
+  ffzy      40
+  bfzy      40
+  modu      40
+  ikun      35
+  360zy     38
+  360zz     40
+  yhzy      40
+  wsyzy     40
+  cmov      40
+  zuidazy   40
+  dytt      40
+  jszyapi   40
+  uku       40
+  ysxq      40
+  wujin     40
+  haohua    40
+  tianya    40
+  iqiyi     40
+  lzizy     40
+  zeqaht    40
+  xgzy      40
+  hongguo   40
