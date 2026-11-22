@@ -6,9 +6,9 @@
 公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
 所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.35（versionCode 48）** —— 新增 10 个点播源 + 换新图标 + 飞牛影视桥接脚本 `fnbridge/`。
+当前版本：**v2.37（versionCode 50）** —— 检测更新改成真下载 + 拉起系统安装器，并修掉海信机外置存储未挂载导致的下载失败。
 源码与成品在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release
-（[v2.35](https://github.com/XACPPP/yg-vodtv/releases/tag/v2.35) 已发布，`YGTV.apk` 11.7MB）。
+（[v2.37](https://github.com/XACPPP/yg-vodtv/releases/tag/v2.37) 已发布，`YGTV.apk` 11,747,315 B）。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
 > 源码已整目录归档到 `legacy/java/`（不参与构建），历史章节保留作为参考。
@@ -130,6 +130,31 @@ Web 版 226 → **217 台**。复验 `check_play.py`：App 版 **OK 415 / LIST_O
 **验证**：`live_proxy.py` 端到端 —— `/health` 返回 `ok channels=401`，
 `/live/5.m3u8` 返回合法播放列表，拉分片 `HTTP=200 SIZE=3084140 TYPE=video/mp2t` 首字节 `0x47`；
 抽查 15 台播放列表层级 **15/15 单层**。
+
+### v2.37：自动下载更新（真下载 + 拉起安装器）+ 海信机存储坑
+
+原来顶栏「更新」只 `toast("发现新版本 …")`，连下载都没有。这轮做成完整链路。
+
+**实现**（新文件 `app/src/main/java/com/yg/vodtv/Update.kt`）：
+
+- `UpdState(phase, tag, cur, done, total, speed, err)` + `UpdPhase{DOWNLOAD, READY, LAUNCH, ERROR}`，只暴露展示用的 `pct / line`。
+- `Upd.download()`：OkHttp 拉 GitHub Release 的 APK，写 `.part`，64KB buffer，**每 400ms 回调进度并算速度**；下完校验长度 ≥1MB 且等于 `Content-Length`（防 GitHub 回 HTML 错误页）。
+- `Upd.install()`：API≥26 先查 `canRequestPackageInstalls()`，没有就跳 `ACTION_MANAGE_UNKNOWN_APP_SOURCES`；API≥24 走 `FileProvider` 的 `content://`（`file://` 会被 `FileUriExposedException` 拦死），API<24 只能 `Uri.fromFile`。
+- 新增 `res/xml/file_paths.xml` + Manifest 里 `REQUEST_INSTALL_PACKAGES` 权限与 `${applicationId}.fileprovider`。
+- `State.startUpdate()` 串起「下载 → READY → 300ms 后拉起安装器 → LAUNCH」，失败了给 `ERROR`；`onKey` 开头模态拦截，`updKey()` 里 `OK` 重试 / `BACK` 关掉；下载中 `BACK` 直接 cancel。
+- UI：`Ui.kt` 新增 `UpdDialog(u)`，全屏暗罩 + 440dp 卡片 + 自绘进度条，四态文案不同；`App()` 末尾调用，浮层在时不叠 toast。
+
+**踩到的三个坑**：
+
+1. **`when` 漏分支**：状态行原本写成 `if (phase==DOWNLOAD) u.line else when(phase){…}`，Kotlin 报 `'when' expression must be exhaustive`，改成直接 `Text(u.line)`。
+2. **海信机的 `/storage/sdcard` 没挂载**：`getExternalFilesDir(null)` 照样返回路径，但写文件直接 `ENOENT`。
+   → API<24 一律落 `files/`；API≥24 用 `pickExtDir()` 的 `.probe` 探针**真测可写**再返回。
+3. **安装器读不到私有目录**：`files/` 默认 0700/0660，system 身份的安装器进不去，表现是「下完了但没反应」。
+   → 下载完成后 `giftToSystem()` 对目录 `setExecutable(true,false)`、对包 `setReadable(true,false)`。
+
+`cleanup()` 只删 `YGTV-*.apk`（`files/` 里还有 `diag.log` / `live.json`，不能整目录清）。
+
+**真机验证**（10.1.1.13）：本地起 `test/updsrv` 伪造 `v2.99`，**PC 防火墙挡了电视直连**，改用 `adb reverse tcp:8901 tcp:8901` 打通；实测弹出系统安装器「您要安装此应用的新版本吗？」→ 取消 → 换正式包。装后 `versionCode=50 / versionName=2.37`，从电视 `pm path` 拉回 base.apk 跑 `verify_apk_icon.py` **6/6 平均误差 0.000**，点「更新」提示「已是最新版本（v2.37）」。
 
 ### v2.35.2：换图标（猫耳女孩 + 场记板）+ 首次正式发版
 
