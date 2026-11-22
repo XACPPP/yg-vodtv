@@ -682,6 +682,7 @@ rl	软肋
 rlb	人来宝
 rlbb	人类标本
 rlbb	如履薄冰
+rlbbzjtldtl	忍了半辈子,今天轮到他了
 rlbj	熔炉边境
 rlbl	日落巴黎
 rlbsc	人类办事处
@@ -1983,6 +1984,7 @@ rzhwrsdl	入赘后，我仍是大佬
 rzhy	入住汉阳
 rzjh	人在江湖
 rzjhn	忍者结婚难
+rzjrhbdcrcf	若知今日,何必当初惹春风
 rzjt	人在囧途
 rzjt	人在酒途
 rzjtdyjs	人在囧途[电影解说]

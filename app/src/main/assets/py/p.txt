@@ -577,6 +577,7 @@ pjsycj	佩姬苏要出嫁
 pjtcst	破茧：逃出生天
 pjty	破茧2泰语
 pjwdar	普贾，我的爱人
+pjwg	破茧微光
 pjwj	迫降乌江
 pjwl	破茧威龙
 pjwy	平家物语
@@ -1326,6 +1327,7 @@ pw	评委
 pwbsedyjhnksm	骗我半生恩断义绝后你哭什么
 pwcq	皮五传奇
 pwdcj	皮威的长假
+pwddjnfbq	骗我的代价,你付不起
 pwdjqx	飘舞的军旗下
 pwdnr	陪玩的女人
 pwdsj	盼望第三季

@@ -151,6 +151,7 @@ tbpn	泰版跑男
 tbpx	台北飘雪
 tbq	太白拳
 tbqfzr	他比前夫炙热
+tbqj	她本千金
 tbqnygzr	他比前男友更炙热
 tbqnyzr	他比前男友炙热
 tbqq	投币取巧
@@ -1986,6 +1987,7 @@ thzl	​汤河之恋​
 thzl	天河之恋
 thzl	汤河之恋
 thzlccnx	天后之路，璀璨逆袭
+thzlhsza	童话镇连环失踪案
 thzmzjlwjmddf	退婚之魔尊降临:我即魔道巅峰
 thzqgzdxbxd	太后招亲,公主殿下别心动
 thzsbcnzcjs	太后重生：不宠逆子宠江山
@@ -4756,6 +4758,7 @@ ttdsj	泰坦第四季
 ttdst	头条都是他
 ttdst	头条都是他2019
 ttdtfqcdhgeq	通天大逃犯：汽车大亨戈恩奇案
+ttdtyck	挑剔到头一场空
 ttdwx	天堂的微笑
 ttdwxszxxldzsmz	偷听动物心声之乡下来的掌上明珠
 ttdxj	甜甜的陷阱
@@ -6260,6 +6263,7 @@ tzdm	天蛛地灭
 tzdmycbyzhdyh	她占的每一次便宜，最后都要还
 tzdnr	逃走的女人
 tzdpjhsshqfqpt	她整顿婆家后，上司和前夫抢破头
+tzdq	替子道歉
 tzdqx	铁柱的清醒
 tzdshz	同桌的守护者
 tzdsn	讨债的少年

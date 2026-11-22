@@ -330,6 +330,7 @@ hblq	黑白恋曲
 hblr	烘焙恋人
 hblsd	黑帮恋事多
 hblsy	虎豹龙蛇鹰
+hblwnlsgwmsx	回八零,我拧螺丝供我妈上学
 hblxs	哈布洛先生
 hblz	火爆浪子
 hblz	火爆浪子1978
@@ -742,6 +743,7 @@ hczqjlzzzxdl	魂穿真千金，老祖宗在线打脸
 hczqjndsbl	魂穿真千金：女帝飒爆了
 hczqldej	嗨唱转起来第二季
 hczqldyj	嗨唱转起来第一季
+hczqwnzwzjxz	魂穿追妻文女主,我直接掀桌
 hczr	蝗虫之日
 hczz	洪城主宰
 hczzdtw	横冲直撞大逃亡
@@ -1582,6 +1584,7 @@ hftq	阖府统请
 hftqdfj	盒饭摊前的反击
 hftqgy	阖府统请国语
 hftwszj	海风替我说再见
+hftwybn	海风替我拥抱你
 hftxdtm	宦妃天下·动态漫
 hfwhay	皇妃为何那样
 hfwhz	黄蜂尾后针
@@ -1730,6 +1733,7 @@ hgmcgdlsjlyzc	和闺蜜穿古代，联手建了一座城
 hgmcjlhppdzdy	和闺蜜穿九零:和婆婆斗智斗勇
 hgmcjlhppdzdy	和闺蜜穿九零：和婆婆斗智斗勇
 hgmcqldzppyql	和闺蜜穿七零，带着婆婆一起离
+hgmcqldzppyqlh	和闺蜜穿七零,带着婆婆一起离婚
 hgmcsdphmtwsqdtdyj	和闺蜜穿书当炮灰,魔头为啥全倒贴第一季
 hgmcsgxphrs	和闺蜜穿书，改写炮灰人生
 hgmcsgxphrsdej	和闺蜜穿书,改写炮灰人生第二季
@@ -1738,6 +1742,7 @@ hgmcsgxphrsjbdej	和闺蜜穿书,改写炮灰人生剧本第二季
 hgmcyhkmswjjf	和闺蜜穿越后，靠美食旺将军府
 hgmcylpwf	和闺蜜穿越落魄王府
 hgmdasxjlstjl	和闺蜜的男神小舅临时同居了
+hgmdltjlgkl	和闺蜜的聊天记录公开了
 hgmlzhh	凰宫梦＆令章皇后
 hgmt	护国密探
 hgmtpdytbzzh	和闺蜜逃跑第一天，被抓住后
@@ -3554,6 +3559,7 @@ hlstlfkc	赫鲁斯塔廖夫，开车！
 hlswcldtdjf	婚礼上，我成了对头的继父
 hlswengsjzzdkzdd	哈里斯维尔闹鬼事件：真正的康庄大道
 hlswhqqhbyg	婚礼上，未婚妻求婚白月光
+hlswkdlppddm	婚礼上,我看到了婆婆的弹幕
 hlswmtydr	婚礼上我们讨厌的人
 hlswzxlzjsdz	和离时，我只选了自己生的崽
 hlsxdyjs	唬烂三小[电影解说]
@@ -4375,6 +4381,7 @@ hnwygjpeszjlnnnxl	荒年：我有个极品二嫂之锦鲤农女逆袭了
 hnxdq	患难兄弟情
 hnxfl	悍女驯夫录
 hnxfzfj	红娘下凡追夫记
+hnxhhsthwjbrf	和女婿互换身体后我健步如飞
 hnxqwdmmbhr	护女心切我的妈咪不好惹
 hnxtzdjtxddmr	荒年小团子：地窖通现代囤满肉
 hnxwyxzxwgzclpczdsbll	好女婿我也想涨修为＆公主穿龙袍臣真的受不了啦
@@ -7057,6 +7064,7 @@ hyjhdyj	好野计划第一季
 hyjj	火眼金睛
 hyjjblmlgdxcst	好孕娇娇被冷面老公读心宠上天
 hyjjhxsb	花野井君和相思病
+hyjjssh	红缨金甲守山河
 hyjjygxnwssnez	霍爷警局有个小奶娃说是你儿子
 hyjjygxnwssnezdyj	霍爷，警局有个小奶娃说是你儿子第一季
 hyjl	花园精灵

@@ -6357,6 +6357,7 @@ myn	母与女1960
 mync	蚂蚁农场
 myncg	喵语暖辰光
 mynh	谧夜宁魂
+mynl	母有逆鳞
 mynm	漫遊南美
 mynmyw	没有你 没有我
 mynnsgssqswydcw	盲眼农女:上古神兽全是我养的宠物

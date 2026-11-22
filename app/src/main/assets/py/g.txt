@@ -3962,6 +3962,7 @@ gxsjdl	顾先生，久等了
 gxsjezczlp	刚下山捡个总裁做老婆
 gxsjhthdxjtj	刚下山就和逃婚大小姐同居
 gxsjlzjfly	刚下山，救了知己赴良缘
+gxsjtzdfrlm	顾先生今天追到夫人了吗
 gxsjtzdlplm	宫先生今天追到老婆了吗
 gxsmzygn	感谢生命中有个你
 gxsn	怪笑少女
@@ -4577,6 +4578,7 @@ gzjlkhwzcldbs	改造旧冷库后我住成了大别墅
 gzjllgndz	国子监来了个女弟子
 gzjllgnywwkmkl	国子监来了个女阎王纨绔们哭了
 gzjlxfx	谷中锦鲤小福星
+gzjmzzh	跪着进门,站着活2
 gzjnr	格子间女人
 gzjqxhd	顾总娇妻戏好多
 gzjryczg	光之巨人：原初之光
@@ -4854,6 +4856,7 @@ gzzjdyjs	跟踪追击[电影解说]
 gzzjpphycb	跟着主角跑，炮灰也成宝
 gzzjr	诡宅中介人
 gzzmbsb	公主周末不上班
+gzzmbsx	公主周末不上学
 gzzmdlr	苟在宗门当路人
 gzzmdxh	孤舟载梦渡星河
 gzzqlzssf	公主直球撩重生首辅

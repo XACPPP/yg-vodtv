@@ -1911,6 +1911,7 @@ asksyy	奥斯卡十一月
 askszs	埃塞克斯之蛇
 asktedys	奥斯卡探戈地狱水
 askx	傲世狂枭
+askxlgdhzjz	傲世狂枭,龙归大海镇九州
 askxxmcrhswd	傲世狂枭,玄门传人横扫无敌
 askyljdgzshhzkdljss	艾斯卡与罗吉的工作室～黄昏之空的炼金术士～
 askylxd	奥斯卡与露辛达

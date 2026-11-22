@@ -2130,6 +2130,7 @@ xgndyjs	小公女 소공녀[电影解说]
 xgndyjs	小公女[电影解说]
 xgnfz	小鬼闹非洲
 xgnggdzjy	下岗女工古代再就业
+xgngmhffs	下岗女工卖盒饭翻身
 xgntg	性感女特工
 xgntg	性感女特工2
 xgntgdyjs	性感女特工[电影解说]
@@ -5635,6 +5636,7 @@ xsdej	戏神第二季
 xsdesqwbf	消失的二十七万班费
 xsdf	婿势待发
 xsdfa	消失的父爱
+xsdfyf	消失的抚养费
 xsdg	消失的光
 xsdgm	消逝的光芒
 xsdgsdyjs	小树的故事[电影解说]
@@ -6957,6 +6959,7 @@ xwryzz	新无仁义之战
 xws	响尾蛇
 xws	小武士
 xws	锡瓦斯
+xwsc	漩涡深处
 xwsdyjs	血纹身[电影解说]
 xwsh	玄武生花
 xwsj	县委书记
@@ -7432,6 +7435,7 @@ xxjcswnwzbsjsqz	仙侠剧 长生万年，我真不是绝世强者
 xxjd	小心间谍
 xxjd	血玺金刀
 xxjdfj	小小姐的反击
+xxjdhwxz	夏小姐的荒芜序章
 xxjdlzzgwdg	修仙界大佬争着给我打工
 xxjdtmh	西行纪 动态漫画
 xxjdwj	西行纪第五季
@@ -8636,6 +8640,7 @@ xyy	星月夜
 xyy	血与油
 xyybfj	新：一夜暴富62集
 xyybndyjs	想要拥抱你[电影解说]
+xyybzcs	幸运有八只触手
 xyyc	幸运钥匙
 xyyc	星野有茶
 xyycdyjs	幸运钥匙[电影解说]

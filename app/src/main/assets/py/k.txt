@@ -1398,6 +1398,7 @@ kllc	克拉拉传
 klldyjs	卡洛琳[电影解说]
 kllj	咖喱辣椒
 kllj	快乐老家
+kllj	快乐老家2
 klljdyjs	咖喱辣椒[电影解说]
 kllkbkssdnxs	卡罗琳·科贝库斯：圣诞那些事
 kllnkll	卡罗琳娜·卡罗琳
@@ -2571,6 +2572,7 @@ kzxxldez	困在心绪里的儿子
 kzy	空之音
 kzyh	空战英豪
 kzyhdyjs	空战英豪[电影解说]
+kzyhl	困在烟火里
 kzyj	空中营救
 kzyjdyjs	空中营救[电影解说]
 kzyqr	困住有情人
