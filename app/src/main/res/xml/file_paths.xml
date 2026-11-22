@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 更新包放在外部私有目录 Android/data/com.yg.vodtv/files/update/ -->
+    <external-files-path name="update" path="update/" />
+    <files-path name="files" path="." />
+    <cache-path name="cache" path="." />
+</paths>

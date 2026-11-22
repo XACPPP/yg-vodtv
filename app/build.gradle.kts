@@ -13,8 +13,8 @@ android {
         applicationId = "com.yg.vodtv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 48
-        versionName = "2.35"
+        versionCode = 49
+        versionName = "2.36"
     }
 
     signingConfigs {
@@ -64,6 +64,8 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.9.1")
+    // 在线更新要把 APK 用 content:// 交给安装器（API 24+ 禁 file://），走 FileProvider
+    implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-exoplayer-hls:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")

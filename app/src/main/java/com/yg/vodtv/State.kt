@@ -51,6 +51,10 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     var playing by mutableStateOf<Vod?>(null)
     var toast by mutableStateOf("")
 
+    /** 在线更新浮层：null = 没在更新；非空时界面盖一层进度卡并把遥控器焦点抢过来 */
+    var upd by mutableStateOf<UpdState?>(null)
+    private var updJob: Job? = null
+
     /** 画面比例：菜单键循环三档，记到下一次开机（旧 Java 版是按频道记，这里全局一份更省事） */
     var scaleMode by mutableIntStateOf(Prefs.scale(ctx))
     /** 右上角状态胶囊：网络通不通，15 秒刷一次，换网不用重启 */
@@ -80,6 +84,8 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
 
     init {
         live.onVodFail = { msg -> toast(msg, 3000) }
+        // 上一个版本下过的更新包已经装完就删掉，别长期占着 12MB 空间
+        runCatching { Upd.cleanup(ctx) }
         scope.launch {
             live.load()
             if (mode == "live") live.startCurrent()
@@ -122,6 +128,77 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     fun toast(t: String, ms: Long = 2000) {
         toast = t; toastJob?.cancel()
         toastJob = scope.launch { delay(ms); toast = ""; exitPending = false }
+    }
+
+    /**
+     * 在线更新主流程：下载 → 拉起安装器。
+     * 下载期间画面上的浮层显示百分比和速度；失败停在 ERROR，用户可以按 OK 重来、按返回退出。
+     */
+    fun startUpdate(info: Update.Info, cur: String) {
+        updJob?.cancel()
+        upd = UpdState(UpdPhase.DOWNLOAD, info.tag, cur)
+        Diag.w("upd", "开始下载 " + info.tag + " " + info.url)
+        updJob = scope.launch {
+            val f = runCatching {
+                Upd.download(ctx, info.tag, info.url) { d, t, sp ->
+                    upd = upd?.copy(done = d, total = t, speed = sp)
+                }
+            }.getOrElse { e ->
+                Diag.w("upd", "下载失败 " + e.javaClass.simpleName + ":" + e.message)
+                upd = upd?.copy(phase = UpdPhase.ERROR, err = (e.message ?: e.javaClass.simpleName))
+                return@launch
+            }
+            Diag.w("upd", "下载完成 " + f.absolutePath + " " + f.length() + "B")
+            upd = upd?.copy(phase = UpdPhase.READY, done = f.length(), total = f.length(), speed = 0)
+            delay(350)   // 让「下载完成」这行字闪一下，别一帧就跳走
+            val err = Upd.install(ctx, f)
+            if (err.isEmpty()) {
+                Diag.w("upd", "已拉起安装器")
+                upd = upd?.copy(phase = UpdPhase.LAUNCH)
+            } else {
+                Diag.w("upd", "安装器失败 " + err)
+                upd = upd?.copy(phase = UpdPhase.ERROR, err = err)
+            }
+        }
+    }
+
+    /** 更新浮层里的按键：OK 重试/重新拉起，返回关掉浮层 */
+    private fun updKey(k: Rk) {
+        val u = upd ?: return
+        when (k) {
+            Rk.B -> if (u.phase == UpdPhase.DOWNLOAD) {
+                updJob?.cancel(); Diag.w("upd", "用户取消下载"); upd = null
+            } else {
+                Diag.w("upd", "关闭更新浮层 " + u.phase); upd = null
+            }
+            Rk.OK -> when (u.phase) {
+                UpdPhase.ERROR -> {
+                    val f = Upd.apkFile(ctx, u.tag)
+                    if (f.exists() && f.length() > 1024L * 1024L) {
+                        // 包还在（多半是安装器那步失败），直接重试安装，不必重下 12MB
+                        val err = Upd.install(ctx, f)
+                        upd = if (err.isEmpty()) u.copy(phase = UpdPhase.LAUNCH, err = "")
+                        else u.copy(phase = UpdPhase.ERROR, err = err)
+                    } else {
+                        scope.launch {
+                            upd = u.copy(phase = UpdPhase.DOWNLOAD, err = "")
+                            val info = runCatching { Update.latest() }.getOrNull()
+                            if (info == null || info.url.isEmpty()) {
+                                upd = u.copy(phase = UpdPhase.ERROR, err = "拿不到下载地址，请检查网络")
+                                return@launch
+                            }
+                            startUpdate(info, u.cur)
+                        }
+                    }
+                }
+                UpdPhase.LAUNCH -> {
+                    val err = Upd.install(ctx, Upd.apkFile(ctx, u.tag))
+                    if (err.isNotEmpty()) upd = u.copy(phase = UpdPhase.ERROR, err = err)
+                }
+                else -> {}
+            }
+            else -> {}
+        }
     }
 
     /** 播放页 2 秒无操作隐藏菜单；直播卡片被选中后 2 秒自动进入播放 */
@@ -352,11 +429,15 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
                 @Suppress("DEPRECATION")
                 val pi = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
                 val cur = Update.versionOf(pi.versionName)
-                toast(
-                    if (info.versionCode > cur) "发现新版本 ${info.tag}" + (if (info.url.isEmpty()) "" else "：${info.url}")
-                    else "已是最新版本（${info.tag}）",
-                    4500
-                )
+                if (info.versionCode <= cur) {
+                    toast("已是最新版本（${info.tag}）", 3000); return@launch
+                }
+                if (info.url.isEmpty()) {
+                    Diag.w("tool", "release 没有 apk 资产 " + info.tag)
+                    toast("发现 ${info.tag}，但这个 release 没挂 APK", 4000); return@launch
+                }
+                // 有新版就直接下，不再只弹一句提示
+                startUpdate(info, pi.versionName ?: "")
             }
         }
     }
@@ -370,6 +451,8 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
     }
 
     fun onKey(k: Rk) {
+        // 更新浮层是模态的：下载/安装期间所有按键都归它，别让遥控器乱跑到后面的片库里
+        if (upd != null) { updKey(k); return }
         if (k != Rk.B) exitPending = false
         val from = zone
         when (zone) {

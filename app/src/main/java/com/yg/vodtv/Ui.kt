@@ -168,7 +168,7 @@ fun App(s: UiState) {
             }
         }
 
-        if (s.toast.isNotEmpty()) {
+        if (s.toast.isNotEmpty() && s.upd == null) {
             Box(Modifier.fillMaxSize().padding(bottom = HintH + 24.dp), contentAlignment = Alignment.BottomCenter) {
                 Text(
                     s.toast, color = TextHi, fontSize = 13.sp,
@@ -178,6 +178,76 @@ fun App(s: UiState) {
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 )
             }
+        }
+
+        // 更新浮层压在最上层：下载进度要看得到，遥控器也只在这里响应
+        val u = s.upd
+        if (u != null) UpdDialog(u)
+    }
+}
+
+/* ============================ 在线更新浮层 ============================ */
+
+@Composable
+fun UpdDialog(u: UpdState) {
+    val heading = when (u.phase) {
+        UpdPhase.DOWNLOAD -> "正在下载 ${u.tag}"
+        UpdPhase.READY -> "正在拉起安装器"
+        UpdPhase.LAUNCH -> "已就绪，等待安装"
+        UpdPhase.ERROR -> "更新失败"
+    }
+    val tip = when (u.phase) {
+        UpdPhase.DOWNLOAD -> "下载中可以按返回取消；下完会自动打开系统安装界面"
+        UpdPhase.READY -> "马上跳到系统安装页，别走开"
+        UpdPhase.LAUNCH -> "用遥控器选「安装」；装完 App 会自己关掉，重新打开就是新版"
+        UpdPhase.ERROR -> "按 OK 重试，按返回先关掉这个框"
+    }
+    val barColor = when (u.phase) {
+        UpdPhase.ERROR -> Bad
+        UpdPhase.LAUNCH, UpdPhase.READY -> Ok
+        else -> Accent
+    }
+    Box(
+        Modifier.fillMaxSize().background(Color(0xC4060A10)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .width(440.dp)
+                .aurora(if (u.phase == UpdPhase.ERROR) Bad else Accent, 0.35f, 18.dp, 22.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(Panel)
+                .border(1.dp, if (u.phase == UpdPhase.ERROR) Bad else Line, RoundedCornerShape(14.dp))
+                .padding(horizontal = 24.dp, vertical = 20.dp)
+        ) {
+            Text(heading, color = TextHi, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+            Spacer(Modifier.height(4.dp))
+            Text("当前 ${u.cur}  →  ${u.tag}", color = Muted, fontSize = 12.sp)
+            Spacer(Modifier.height(16.dp))
+
+            // 进度条：DOWNLOAD 用真实百分比，其余阶段直接给满格表示媒体已就绪
+            val frac = when (u.phase) {
+                UpdPhase.DOWNLOAD -> if (u.total > 0) (u.done.toFloat() / u.total) else 0f
+                UpdPhase.ERROR -> if (u.total > 0) (u.done.toFloat() / u.total) else 0f
+                else -> 1f
+            }.coerceIn(0f, 1f)
+            Box(
+                Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFF0E141C))
+            ) {
+                Box(
+                    Modifier.fillMaxWidth(frac).fillMaxHeight().clip(RoundedCornerShape(4.dp))
+                        .background(barColor)
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                u.line,
+                color = if (u.phase == UpdPhase.ERROR) Bad else TextHi,
+                fontSize = 13.sp, lineHeight = 19.sp
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(tip, color = Muted, fontSize = 11.sp, lineHeight = 17.sp)
         }
     }
 }
