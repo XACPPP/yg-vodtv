@@ -6,9 +6,9 @@
 公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
 所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.37（versionCode 50）** —— 检测更新改成真下载 + 拉起系统安装器，并修掉海信机外置存储未挂载导致的下载失败。
+当前版本：**v2.38（versionCode 51）** —— 补上历史记录：直播「★ 常看」+ 点播「继续观看」与断点续播。
 源码与成品在 <https://github.com/XACPPP/yg-vodtv>，打 tag 自动出包并发 Release
-（[v2.37](https://github.com/XACPPP/yg-vodtv/releases/tag/v2.37) 已发布，`YGTV.apk` 11,747,315 B）。
+（[v2.38](https://github.com/XACPPP/yg-vodtv/releases/tag/v2.38) 已发布，`YGTV.apk` 11,756,556 B）。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
 > 源码已整目录归档到 `legacy/java/`（不参与构建），历史章节保留作为参考。
@@ -130,6 +130,34 @@ Web 版 226 → **217 台**。复验 `check_play.py`：App 版 **OK 415 / LIST_O
 **验证**：`live_proxy.py` 端到端 —— `/health` 返回 `ok channels=401`，
 `/live/5.m3u8` 返回合法播放列表，拉分片 `HTTP=200 SIZE=3084140 TYPE=video/mp2t` 首字节 `0x47`；
 抽查 15 台播放列表层级 **15/15 单层**。
+
+### v2.38：历史记录 —— 直播「★ 常看」+ 点播「继续观看 / 断点续播」
+
+用户反馈：直播常看的台每次都要重新找，点播看到一半退出去再进来只能从头找片。这轮补上两处历史。
+
+**新增 `app/src/main/java/com/yg/vodtv/History.kt`**（纯本地，SharedPreferences `hist`）：
+
+- 直播：`touchLive()` 记台名 + 次数 + 时间，**同名则次数+1并挪到末尾**，只留 40 条；`liveTop(12)` 按时间倒序。
+- 点播：`VHit(name, src, id, pic, url, epName, li, ei, posMs, durMs, last)`，同一 `src+id` 覆盖，留 60 条；
+  `toVod()` 把它变成海报墙条目，副标题 = `集名 + 已看时长`（如 `20260821闺女面对面  0:51`）。
+
+**直播侧（`Live.kt`）**：`groups` 在真实分组前插一个虚拟组 `RECENT = "★ 常看"`；`switchTo()` 落记录并 `refreshRecent()`；
+`inGroup(g)` 改成返回 `List<IndexedValue<Channel>>`，`★ 常看` 组按记录顺序映射，其余照旧按 `group` 过滤；
+`locate()` 当前台在常看里时优先落到该组。**没记录时不插这个组**，界面和以前一样。
+
+**点播侧（`State.kt`）**：
+
+- 分类表前面插一个本地虚拟档 `CONTINUE = "继续观看"`（`withLocalCats()`），`loadTab()` 碰到它直接铺 `History.vodAll()`，**不发任何网络请求**；空的时候给一句「还没有观看记录，随便点一部开个头」而不是骨架屏。
+- 网格里点这张海报 → `resumeFrom()`：先 `VodRepo.byName()` 回源拿**完整分集线路**（这样选集、换线、▲▼ 切集都能用），拿不到就用记录里的直链兜底起播（`playVodDirect()`）。
+- `playEpisode(..., startMs)` 多了续播位置：起播后 `repeat(20){ delay(300); if (duration>0) seekTo(startMs) }` —— 海信机上时长要等几秒才出来，一次性 seek 会丢掉。
+- `startVodTick()` 每 5 秒 `saveVodNow()`，`BACK` 退出、切集（`stepEpisode`）、回后台（`onBackground`）都会立刻存一次；**播放位置 <5 秒不写**，避免点开就留条垃圾记录。
+- **不用 `Player.Listener` 记进度**：海信硬解卡住时回调不稳定，轮询当前位置更可靠。
+
+**`Data.kt`**：新增 `VodRepo.byName(ctx, name)` —— 内存 `alts` 里先找，没有就逐源 `?ac=detail&wd=` 打，先认完全同名，三源内没有再退「包含命中」，最多问 3 个源；`prefetch()` 跳过 `继续观看` 这一档（本地档不该发请求）。
+
+**`Ui.kt`**：新增 `EmptyHint(text)`，空列表且有提示文案时画引导，不再假装加载。
+
+**真机验证**（10.1.1.13，Android 5.1.1）：开机分类条出现「继续观看」在最左；播完一集按 BACK，重启 App 后该档出现该片海报 + `集名 + 0:51` 副标题；点进去**从头条记录的位置接着播**；直播播过 CCTV-1 / CCTV-2 / CCTV-4 后打开频道面板，`★ 常看` 组按最近观看倒序列出这三台。装后 `versionCode=51 / versionName=2.38`，`verify_apk_icon.py` 6/6。
 
 ### v2.37：自动下载更新（真下载 + 拉起安装器）+ 海信机存储坑
 
