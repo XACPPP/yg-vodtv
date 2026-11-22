@@ -140,6 +140,68 @@ class UiState(private val ctx: Context, private val scope: CoroutineScope, priva
         if (m == "vod") { live.stop(); loadTab(tab) } else live.startCurrent()
     }
 
+    /**
+     * 外部入口：遥控器「直播键」「影视键」把人送进来时要直接落在对应界面上。
+     * 壳 APK 发来的 Intent 带 mode=live|vod；MainActivity 是 singleTask，二次拉起走 onNewIntent，
+     * 所以冷启动与热启动都调这一个口子。
+     *
+     * 规则：正在播的东西一律让位——点播播放页按直播键要停播放器，反之亦然；
+     * 落在直播=直接出画面（等价于在 Zone.BAR 按 OK 进播放），落在点播=分类条停在「影视点播」。
+     */
+    fun applyRoute(m: String) {
+        if (m != "live" && m != "vod") return
+        if (zone == Zone.VOD_PLAY) {
+            live.player.stop(); live.vod = false; zone = Zone.BAR
+        } else if (zone == Zone.PLAY && m == "vod") {
+            live.stop(); zone = Zone.BAR
+        }
+        if (m != mode) applyMode(m)
+        detail = null; dFocus = false; playing = null
+        auto = false
+        if (m == "live") {
+            bar = 0; zone = Zone.PLAY; barShow = true; osd = true
+            when {
+                live.channels.isEmpty() -> toast("直播源还在加载…")   // init 里 load 完会自动起播
+                live.vod || !live.player.playWhenReady -> live.startCurrent()
+            }
+        } else {
+            bar = 1; zone = Zone.BAR; barShow = true
+        }
+        arm()
+        Diag.w("key", "route " + m + " → " + zone.name)
+    }
+
+    /** 退到后台时是不是我们自己把播放停掉的：是的话回前台要接着放 */
+    private var stoppedByBackground = false
+
+    /**
+     * 退到后台（回桌面、切到别的 App）时立刻放掉解码器。
+     *
+     * 为什么必须自己停：本机固件不会把后台的播放器判成 cached —— 实测回桌面 40 秒后
+     * com.yg.vodtv 仍是 oom cur=1 / cached=false，AMS 不回收，killBackgroundProcesses
+     * 也只管 SERVICE_ADJ 以下。只有真正停了播放、进程降成 cached，才能被别人清掉。
+     * player.stop() 会直接释放硬解，比留着后台出画面省得多。
+     */
+    fun onBackground() {
+        if (zone == Zone.PLAY) {
+            stoppedByBackground = true
+            live.stop()
+            Diag.w("life", "后台：停直播"); android.util.Log.i("YGLife", "background: stop live")
+        } else if (zone == Zone.VOD_PLAY) {
+            // 点播记着进度，回前台接着看，所以只暂停不 stop
+            live.player.pause()
+            Diag.w("life", "后台：暂停点播"); android.util.Log.i("YGLife", "background: pause vod")
+        }
+    }
+
+    /** 回前台接着放（只有被我们主动停掉的那次才恢复，用户自己停的不动） */
+    fun onForeground() {
+        if (!stoppedByBackground) return
+        stoppedByBackground = false
+        if (zone == Zone.PLAY && !live.vod) live.startCurrent()
+        Diag.w("life", "前台：恢复直播"); android.util.Log.i("YGLife", "foreground: resume live")
+    }
+
     private fun enter() {
         auto = false
         if (mode == "live") { zone = Zone.PLAY; barShow = true; osd = true } else zone = Zone.TABS
