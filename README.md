@@ -2,11 +2,11 @@
 
 自用的电视端 **影视 + 直播** 双板块 App。**v2.28 起整体重写为 Kotlin + Jetpack Compose + Media3**
 （标准 Gradle 工程），跑在海信 VIDAA 电视（Android 5.1.1 / API 22，1GB 内存）上。
-点播片源来自 **14 个苹果CMS采集源聚合**；直播 **514 台 / 10 组**，由江西电信内网 165 台与
+点播片源来自 **23 个苹果CMS采集源聚合**（v2.35 从 14 扩到 23，按片库去重后新增 10 个独立片库）；直播 **514 台 / 10 组**，由江西电信内网 165 台与
 公共源表 `live.json` 382 台合并（同名台并档）。包名沿用 `com.yg.vodtv`，
 所以从旧的 Java 版（≤v2.26）能原地覆盖升级，不用卸载。
 
-当前版本：**v2.32（versionCode 45）**。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
+当前版本：**v2.35（versionCode 48）** —— 新增 10 个点播源 + 飞牛影视桥接脚本 `fnbridge/`。源码与成品在 <https://github.com/XACPPP/yg-vodtv>，
 打 tag 自动出包并发 Release。
 
 > v2.26 及更早是**旧 Java 版**（原生 View + MediaPlayer，手写 aapt2/javac/d8 打包）的实现记录，
@@ -23,10 +23,10 @@
   v2.29 起把仓库里的公共源表 `live.json`（382 台）和江西电信 165 台内网源合成一张表，同名台多线路自动并档；
   公共源每天由 `scan.yml` 巡检更新，App 启动时再从 GitHub raw 拉一次（有变化才写盘，拉到就留着离线用）；
   播放中按 OK 弹出换台面板（左分组、右频道），选台立即切换；出错自动切同名台下一路源。
-- **影视点播**：分类条与搜索框同高同行，**分类不再写死**：v2.29 起把 14 个采集源的 `class` 表实时汇总、
+- **影视点播**：分类条与搜索框同高同行，**分类不再写死**：v2.29 起把各采集源的 `class` 表实时汇总、
   同义归并，得到 24 档（推荐 / 电影 / 剧集 / 综艺 / 动漫 / 纪录 / 短剧 / 体育 / 伦理 / 动作 / 喜剧 / 爱情 /
   科幻 / 恐怖 / 剧情 / 战争 / 悬疑 / 犯罪 / 灾难 / 动画 / 国产剧 / 欧美剧 / 韩剧 / 日剧），
-  下方 6 列海报墙（1080p 下正好两行 12 张），每类最多 120 部，14 个源并发聚合、按片名去重。
+  下方 6 列海报墙（1080p 下正好两行 12 张），每类最多 120 部，23 个源并发聚合、按片名去重。
 - **详情页（v2.28 新增）**：海报 + 片名 + 年份/地区/评分 + 主演/导演 + 简介（最多 9 行，超出省略号）；
   右侧「线路」切换（源站给了多条线路才出现）+ 选集网格（每行 6 集，进页自动滚到当前集）。
   以前电视剧只能在海报墙上直接起播第一集，现在能先看简介、再挑第几集。
@@ -37,7 +37,7 @@
   遥控器打不出中文，所以**直接敲拼音首字母**：`qyn` 会先用内置拼音索引（已打进 APK，断网也能用）
   翻成「庆余年第二季」这类中文名再去搜；纯字母查不出片名时才退回原文当关键词，
   忽略 `wd` 直接吐整库的源会被片名过滤挡掉（每源最多认 400 条命中，防老电视内存被打爆）。
-- **工具**：自检（真探直播 master + 14 个采集源，输出「直播 N 台 / 点播 X 好 Y 坏」）、
+- **工具**：自检（真探直播 master + 23 个采集源，输出「直播 N 台 / 点播 X 好 Y 坏」）、
   清除缓存（cacheDir + codeCacheDir + 图片/接口内存缓存）、检测更新（读 GitHub Release 最新 tag）。
 - **老 Android 兼容**：Android 5.1 的信任库过旧 → `Net.sslFactory` 全放行，并对 `HttpsURLConnection`
   设全局默认 socket factory（ExoPlayer 的 `DefaultHttpDataSource` 不走 OkHttp，必须改全局）；
@@ -46,6 +46,106 @@
   标签 `[img]` 海报、`[vod]` 点播/详情/换线、`[play]` 播放器状态与画面尺寸、`[key]` 按键与 Zone 变迁、`[tool]` 工具结果。
 
 ## 二、技术方案
+
+### v2.35：点播源 14 → 23（按片库去重扩源）+ 飞牛影视桥接
+
+老板两个新需求：片子不够多；想在手机上用**飞牛影视**看点播和直播。
+
+**扩源（不盲目加，先聚类再去重）**
+
+- 候选池铺到 584 个 base（`test/candidate_pool.txt` 240 条 + `test/candidate_pool2.txt` 68 条 + 资源组接口表），
+  用 `test/probe_sources.py --deep` 真拉首条 m3u8 验 `#EXTM3U`，判活口径：
+  `ac=detail&pg=1` 返回 200 + 合法 JSON + `vod_play_url` 里带 m3u8 直链 + 有海报 + 有 2025/2026 新片。
+- 按片名签名聚类（`test/cluster_sources.py`）：把每站第一页前 10 个片名排序取 md5 当「片库指纹」，
+  指纹相同就是同一套片库的不同域名。run6/run7 两轮共 224 个响应域名 → 89 个独立片库。
+- 再按 3 页片名集合算 Jaccard（`test/dedupe_check.py`）抓出高相似对：
+  `subo↔haohua 0.97`、`huya↔jinying 0.97`、`wujin↔wujin2 0.97`、`ffzy↔ffzy8 0.90`——
+  这几个是同一家的马甲域名，只留响应最快的一个（`haohua` 516ms），其余丢弃。
+- 成人向站点（约 30 个片库）因家庭电视场景全部排除，不入 `src.txt`。
+- 最终 23 源：13 个原有 + 10 个新增，`test/build_src.py` 按各站 `?ac=list` 的真实 class 表生成
+  `src.txt` 的 types 列（这个字段其实没有任何消费方，留着只是兼容旧格式）。
+
+  新增的 10 个：`wujin`(api.wujinapi.me)、`haohua`(hhzyapi.com)、`tianya`(tyyszy.com)、
+  `iqiyi`(iqiyizyapi.com)、`lzizy`(lzizy.net)、`zeqaht`(api.zeqaht.com)、`xgzy`(caiji.xgzyapi.com)、
+  `hongguo`(hong.hgyx.vip)，外加 `uku`/`bfzy` 换到当前可用域名（`api.ukuapi88.com`、`by.bfzyapi.com`）。
+
+  复测：23 源列表均 20~30 条/页、搜索可用；二次去重最高只剩 `jszyapi↔haohua 0.78`（属正常差异）。
+
+**飞牛影视桥接（`fnbridge/`）**
+
+飞牛影视的「影视」和「电视直播」是两条独立链路，各自有硬限制：
+
+- 直播库**填内网 m3u 链接会被判「请填写正确的直播源链接」**，只能上传本地 m3u 文件；
+  且**不支持 udp/rtp 组播**，所以导出时只留 http(s) HLS。
+- 点播库没有本地 nfo 选项（社区建议贴提了两年没落地），只靠**目录/文件名匹配 TMDB**，
+  所以 STRM 必须按 `片名 (年份)/Season 01/片名 S01E01.strm` 铺。
+
+两个脚本都是纯标准库，NAS 上 `python3` 直接跑：
+
+- `gen_live_m3u.py`：合并 `live_jx.txt`(165 台) + `live.json`(382 台)，`--check` 并发探活后只导活的。
+  实测 747 条 http → 734 条存活 → 导出 **535 个频道**（地方 224 / 江西系列 150 / 卫视 38 / 央视 34 / 电影 22 / 港澳台 9 / 体育 5）。
+- `gen_strm.py`：读 `src.txt` 逐源抓 `?ac=detail`，按 `type_name` 分五个库铺 STRM 目录树，
+  多线路取集数最多那条，`--prune` 清下架、`manifest.json` 做增量。
+  另有一条**配音版本归并**（`dedupe_key`）：`名侦探柯南 / 名侦探柯南[普通话版] / 名侦探柯南（中配）`
+  这类同剧不同配音的条目归成一个 key，只留集数最多的一份（第一版没做，光柯南一部就铺了 6 份 7686 个文件）。
+  首轮实测：9400 条原始数据 → **4055 部**（电影 3241 / 电视剧 2709 / 动漫 2069 / 综艺 1321 / 纪录片 58 条目聚合后），
+  落盘 **74160 个 strm**，打包 `dist/yg-strm.zip` 23.4MB。
+
+详细部署步骤（含飞牛按钮路径、踩坑清单、定时任务）见 [`fnbridge/README.md`](fnbridge/README.md)。
+
+### v2.35.1：直播二修 —— 470 台全黑改成「验到分片 + 拍平」
+
+老板验收反馈：飞牛直播库导入只认到 470 个频道，且全都不能播。
+
+**定位**
+- 470 的来源：旧 m3u 535 条里只有 472 个唯一台名，飞牛按台名去重 → 显示 470。
+- 旧文件格式本身没问题（`audit_m3u.py` 审 1072 行，结构问题 0），问题在源：
+  535 条里 159 条是江西电信的**两层列表**（master → 真列表），飞牛拿到第一层里没有分片，一直转圈。
+- 第一版 `gen_live_m3u.py --check` 只验「列表能打开」，没验「分片能下」，这就是漏检点。
+
+**修法**：`build_live_m3u.py`（四关：列表合法 → 分片是 TS/fMP4 → PMT 有编码 → 带 ACAO）
++ `gen_flat_m3u.py`（master 递归 `depth<4` 挑最高 BANDWIDTH，把子列表绝对地址直接写进 m3u）。
+
+全量 535 条判定：`TS/CORS=YES 238`、`TS/CORS=NO 231`、`媒体=NO 47`、`TS/CORS=PART 18`、`FMP4 1`。
+拍平结果：App 版 420 → **418 台单层**（其中 232 条地址被重写成真子列表），
+Web 版 226 → **217 台**。复验 `check_play.py`：App 版 **OK 415 / LIST_ONLY 3 / DEAD 0**。
+
+**踩到的三个坑（都已修）**
+1. `pick.split(",")[0]` 会截掉江西电信的鉴权参数 `?fmt=ts2hls,7824,01.m3u8,0,8467,0,0`，
+   截断后永远退回上一层 → 必须整段当 URL 用。
+2. TS 的 PMT 解析要跳过 payload 的 `pointer_field`（`sec = pkt[p+1+ptr:]`），
+   否则 535 条全判 `NO_PMT`。
+3. `live_proxy.py` 曾固定 `PUBLIC_HOST=127.0.0.1`，手机拿到的列表全是死链 →
+   改成按请求 `Host` 头拼（`10.1.1.9:8899` 访问就输出 `10.1.1.9`）。
+
+**去假台**：`audit_m3u.py` 的 `FAKE_PAT`（无信号/商品/购物/测试/彩条/占位/春晚/花絮/预告/片段/合集/剪辑）
+剔掉 5 条假台 + 8 条同地址多台名，415 → **401 台**。仍缺 CCTV-5+/4K/8K 与 5 个卫视（源里确实没有）。
+
+**最终交付** `dist/飞牛直播/` 七份 m3u + `导入说明.md`：
+`01-先试这10台` / `02-精选240台` / `03-全量415台(手机App)` / `04-网页端216台(免插件)` /
+`05-去假台401台` / `06-纯HTTPS-76台`（排查 http 被拦）/ `07-代理版401台(需本机开机)`。
+旧 `yg-live-alive.m3u` 移到 `dist/旧版请勿使用/` 留证。
+
+**验证**：`live_proxy.py` 端到端 —— `/health` 返回 `ok channels=401`，
+`/live/5.m3u8` 返回合法播放列表，拉分片 `HTTP=200 SIZE=3084140 TYPE=video/mp2t` 首字节 `0x47`；
+抽查 15 台播放列表层级 **15/15 单层**。
+
+### v2.35.2：换图标（猫耳女孩 + 场记板）
+
+老板给了一张 1254×1254 的方形设计稿（紫蓝夜色、猫耳耳机女孩眨眼比赞、抱黑猫、下方场记板与播放三角），替换掉原来的图标。
+
+**做法**：新增 `tools/gen_icons.py`，一张源图切 6 份密度：
+
+```
+python tools/gen_icons.py archive/icon-backup-20261122/new-icon-source.png
+```
+
+- 源图本身是**不透明 RGB**（画布四角是黑色 `(0,0,0)`，不是透明），直接塞进 APK 会出现黑方块。
+  脚本按源图自带的圆角（实测半径 ≈ 300/1254 = 0.2392，由「y=20 处首个非黑像素 x=191」反推）生成 alpha 蒙版，
+  **4× 超采样后 LANCZOS 缩小**做抗锯齿，再缩到各密度。
+- 输出覆盖 `app/src/main/res/drawable{,-mdpi,-hdpi,-xhdpi,-xxhdpi,-xxxhdpi}/ic_launcher.png`，
+  尺寸 192 / 48 / 72 / 96 / 144 / 192。`AndroidManifest.xml` 的 `android:icon="@drawable/ic_launcher"` 不用动。
+- 旧图标与源图留档在 `archive/icon-backup-20261122/`（该目录已进 `.gitignore`，不进仓库）。
 
 ### v2.32：分类切档零空档（海报预热 + 内存直铺）+ 播放器音量回写
 
@@ -2648,13 +2748,15 @@ YG影视TV/
 │   ├── src/main/java/com/yg/vodtv/*.kt   # 6 个 Kotlin 源文件（见「代码结构」）
 │   ├── src/main/assets/live_jx.txt       # 165 台江西电信直播表（组id|台名|url）
 │   ├── src/main/assets/live.json         # 382 台公共源（巡检产物，v2.29 起打进包 + 启动时在线刷新）
-│   ├── src/main/assets/src.txt           # 14 个采集源（key|接口|Referer|type_id 表）
+│   ├── src/main/assets/src.txt           # 23 个采集源（key|接口|Referer|type_id 表，v2.35 扩源后）
 │   ├── src/main/assets/py/               # 拼音首字母索引 24 桶（v2.30 起打进包，断网也能搜）
 │   ├── src/main/assets/{sources.json,logo/}  # 巡检产物，挡在包外（台标只有旧版用）
 │   ├── build/                   # 中间产物与 APK
 │   └── yg.keystore
+├── fnbridge/                    # 飞牛影视桥接：直播 m3u / 点播 STRM / 验播 / 本地反代（见其 README）
+├── tools/gen_icons.py           # 源图 → 六档密度 ic_launcher.png
 ├── legacy/java/                 # 旧 Java 版整目录存档（含 build.sh、build-ci.sh、res、25 个 .java）
-└── test/                        # 旧版巡检脚本（scan.yml 仍在跑 source_scan/pinyin_index/live_scan）
+└── test/                        # 巡检与扩源脚本（scan.yml 仍在跑 source_scan/pinyin_index/live_scan）
 ```
 
 ## 七、已知限制
@@ -2685,6 +2787,61 @@ YG影视TV/
   换机器要先装 Gradle 或在 CI 里用 `gradle/actions/setup-gradle`。
 - **首次装包约 12.5MB、内存占用约 76MB**：Compose 在老电视上的代价，实测 API 22 / 1GB 可跑，
   但比旧 Java 版（0.6MB）重不少。
+
+## 八、外部路由入口 `applyRoute`（v2.33）
+
+**背景**：海信 VIDAA 遥控器的直播键（170）/ 影视键（131）在 `PhoneWindowManager` 层就被固件吃掉，
+App 收不到 `KeyEvent`。按键联动由一个独立的小壳 APK `com.jamdeo.tv.vod` 完成
+（源码 `../_src/vod-stub/`，说明见其 `README.md`），它按 `silo_prog_key` 判断是哪个键，
+再用 `am start` 语义拉起 YG 并带一个 extra：
+
+```
+Intent(ACTION_MAIN).setComponent(ComponentName("com.yg.vodtv", "com.yg.vodtv.MainActivity"))
+  .putExtra("mode", "live" | "vod")
+```
+
+YG 侧要做的就是接住这个 extra。改动三个文件：
+
+- `State.kt`：新增公开入口 `fun applyRoute(m: String)`。它按目标模式把界面状态拨到位
+  （直播：`bar=0 / zone=Zone.PLAY / auto=false` 并 `live.startCurrent()`；点播：
+  `bar=1 / zone=Zone.BAR`），并先收拾掉正在播的点播 / 直播状态。`applyMode` 仍是 private。
+- `MainActivity.kt`：`readRoute(intent)` 读 `mode` extra，读到就 `intent.removeExtra("mode")`
+  （防配置变更重放），有 state 就直接 `applyRoute`，没有就存进 `pendingRoute` 等
+  `LaunchedEffect` 消费；`onCreate` 和 `onNewIntent` 都调用它（`singleTask` 下二次启动只走后者）。
+- `MainActivity.readRoute` 首行有一道守卫：`if (intent?.action == "com.jamdeo.tv.vod.ASSERT") return`。
+  壳会在按键后几秒内反复把 YG 顶回前台（防止固件的 tile 过渡修正抢焦点），
+  那些 intent 只表示"回前台"，**不能重放切换动作**，否则会把直播页刷回点播页。
+
+**验收**：按直播键 → 直播播放页；按影视键 → 影视点播首页；两键在 YG 内可直接互切，不必先回桌面。
+判断直播页不能靠截图（硬解视频层截不到，永远是绿色花屏），用
+`adb shell "dumpsys SurfaceFlinger --list" | grep -c "^SurfaceView$"`：**直播页=1、点播首页=0**。
+
+## 九、退到后台就停播（v2.34）
+
+**背景**：海信 VIDAA 的 tile 栈让「回桌面」后的 activity 停在 `visible=true`，**`onStop()` 根本不会被调到**
+（实测只打 `onPause`，之后没有 `onStart`）。于是 YG 退回桌面后解码器还在跑，实测 5 秒烧 487 jiffies，
+和前台播放几乎一样，机器越用越卡。
+
+**改动**（两个文件）：
+
+- `State.kt`：新增 `fun onBackground()` / `fun onForeground()` 和私有标记 `stoppedByBackground`。
+  直播页 `Zone.PLAY` 走 `live.stop()`；点播播放页 `Zone.VOD_PLAY` 只 `player.pause()`（保住进度）。
+  `onForeground()` 只在"上次是我们主动停的"时恢复，用户自己停的不动。
+- `MainActivity.kt`：`onPause()` → `state?.onBackground()`，`onResume()` → `state?.onForeground()`。
+  **停播只能挂 `onPause`、恢复只能挂 `onResume`**，因为 `onStop`/`onStart` 在这台机器上不出现。
+  日志用 `android.util.Log.i("YGLife", ...)` 直接写，不走 `Diag`——release 包 non-debuggable，
+  `run-as` 读不到 `files/diag.log`，只有 logcat 能看。
+
+**实测**（`/proc/<pid>/stat` 的 `$14+$15`，5 秒增量）：
+
+| 状态 | CPU / 5s | PSS |
+|---|---|---|
+| 直播播放中 | 487 jiffies | 93384 KB |
+| 回桌面 | **2 jiffies** | 79472 KB（+15s） |
+| 回前台 | 316 jiffies | — |
+
+回桌面后重新按直播键，431 jiffies，播放正常恢复。第三方 App（如云视听小电视）改不了代码，
+由壳 APK 抢一次音频焦点让其让步，见 `../_src/vod-stub/README.md` 的「回桌面」一节。
 
 ## 附：江西电信单播源扩充实测（2026-11-14）
 
