@@ -53,3 +53,7 @@ fnbridge/out_*.log
 
 # 本地真机验收截图
 .accept/
+test/updsrv.log
+test/updsrv/
+dist/_*.png
+dist/_*.apk

@@ -47,21 +47,45 @@ data class UpdState(
 
 object Upd {
     /**
-     * 下载目录：这台电视是 Android 5.1，安装器只认 file:// 且要自己读得到这个文件，
-     * 所以放外部私有目录（不需要存储权限），别放 cacheDir——cacheDir 是 0700，安装器打不开。
+     * 安装包最终落在哪。
+     *
+     * API<24：必须放 `files/` 并把目录和文件权限放开到全局可读——Android 5.x 的安装器
+     * 以 system 身份直接按 file:// 路径读文件，私有目录 0700/0660 它进不去，会静默失败。
+     * API>=24：外置私有目录 + FileProvider content://（file:// 已被 FileUriExposedException 拦死）。
+     *
+     * 注意海信这台机的 /storage/sdcard 没正常挂载，`getExternalFilesDir()` 有返回值但写不进去，
+     * 所以宁可先落内部目录，别赌外置存储。
      */
-    fun apkFile(ctx: Context, tag: String): File {
-        val base = ctx.getExternalFilesDir(null) ?: ctx.cacheDir
-        val dir = File(base, "update")
-        if (!dir.exists()) dir.mkdirs()
-        return File(dir, "YGTV-$tag.apk")
+    fun apkFile(ctx: Context, tag: String): File =
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) File(ctx.filesDir, "YGTV-$tag.apk")
+        else File(pickExtDir(ctx), "YGTV-$tag.apk")
+
+    /** 外置私有目录，探到能写才用；探不到退回 files/update */
+    private fun pickExtDir(ctx: Context): File {
+        val cands = ArrayList<File>(2)
+        ctx.getExternalFilesDir(null)?.let { cands.add(File(it, "update")) }
+        cands.add(File(ctx.filesDir, "update"))
+        for (d in cands) {
+            if (!d.exists() && !d.mkdirs()) continue
+            val probe = File(d, ".probe")
+            val ok = runCatching { probe.writeBytes(byteArrayOf(1)); probe.delete(); true }.getOrDefault(false)
+            if (ok) return d
+            Diag.w("upd", "目录不可写，换下一个：" + d.absolutePath)
+        }
+        return File(ctx.filesDir, "update")
     }
 
     /** 开机清掉上次留下的安装包（一个 12MB，别一直躺着占电视那点空间） */
     fun cleanup(ctx: Context) {
         runCatching {
-            val base = ctx.getExternalFilesDir(null) ?: ctx.cacheDir
-            File(base, "update").listFiles()?.forEach { runCatching { it.delete() } }
+            // 只删自己下的包：files/ 里还躺着 diag.log / live.json，不能整目录清
+            ctx.filesDir.listFiles()?.forEach {
+                if (it.isFile && it.name.startsWith("YGTV-") && it.name.endsWith(".apk")) runCatching { it.delete() }
+            }
+            File(ctx.filesDir, "update").listFiles()?.forEach { runCatching { it.delete() } }
+            ctx.getExternalFilesDir(null)?.let { ext ->
+                File(ext, "update").listFiles()?.forEach { runCatching { it.delete() } }
+            }
         }
     }
 
@@ -115,7 +139,22 @@ object Upd {
                 tmp.copyTo(out, overwrite = true)
                 tmp.delete()
             }
+            // Android 5.x 的安装器以 system 身份按 file:// 读这个包，必须放开目录和文件权限
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) giftToSystem(out)
             out
+        }
+    }
+
+    /**
+     * 把包和它所在的 files/ 目录放开成 system 能读的样子。
+     * 私有目录默认 0700/0660，安装器（system，非 root）连目录都进不去，会静默失败——
+     * 这就是「下完了但一点反应都没有」的典型原因。
+     */
+    private fun giftToSystem(f: File) {
+        runCatching {
+            f.parentFile?.setExecutable(true, false)
+            f.parentFile?.setReadable(true, false)
+            f.setReadable(true, false)
         }
     }
 
