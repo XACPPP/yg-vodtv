@@ -1,5 +1,7 @@
 # 构建产物
 app/build/
+dist/
+fnbridge/out/
 app/*.apk
 test/harness/build/
 
@@ -31,3 +33,23 @@ build/
 
 # 本地验收截图（不进仓库）
 _dsh-verify/
+
+# 本轮扩源探测的中间产物：体积大、可随时重跑（脚本都在 test/ 里）
+test/probe_run*.txt
+test/probe_run*.json
+test/clusters7.txt
+test/picked7.txt
+test/pool_extra7.txt
+test/pool_ok7.txt
+test/source_clusters.txt
+test/source_picked.txt
+
+# 图标本地备份（旧图留档用，不进仓库）
+archive/
+
+# 飞牛桥接的备用工具（55MB 的 cloudflared.exe）与跑批日志
+fnbridge/tools/
+fnbridge/out_*.log
+
+# 本地真机验收截图
+.accept/
