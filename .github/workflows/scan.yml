@@ -83,3 +83,5 @@ jobs:
             test/sources_health.json
             test/sources_health.md
           if-no-files-found: warn
+          # 每天一份报告，保留 3 天够排查；报告同时提交回仓库，不怕丢
+          retention-days: 3

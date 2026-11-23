@@ -80,6 +80,8 @@ jobs:
           path: |
             out/YG影视TV.apk
             out/YGTV.apk
+          # 正式包走 Release，artifact 只是临时中转，短保留避免吃满账号存储配额
+          retention-days: 3
 
       - name: 发 Release
         if: startsWith(github.ref, 'refs/tags/')

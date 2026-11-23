@@ -1,0 +1,100 @@
+name: prune-artifacts
+
+# GitHub 的 artifact 过了 retention-days 只是标记 expired，实际仍占账号存储配额，
+# 要等 GitHub 后台真正回收（通常还要几十天）。所以必须主动删，否则配额会被慢慢吃满。
+#
+# 策略：
+#   1) 每个 artifact 名称只留最新 KEEP 个（默认 2）；
+#   2) 缓存按族（gradle-home / gradle-dependencies / gradle-transforms / …）每族留最新 1 个；
+#   3) 顺带删掉 14 天前那些 run 的日志（日志同样计入存储配额）。
+on:
+  schedule:
+    - cron: '47 19 * * *'   # 每天北京时间 03:47，避开 02:00 的源表巡检
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: '每个 artifact 名称保留几个'
+        required: false
+        default: '2'
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: prune-artifacts
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 清理旧 artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KEEP: ${{ github.event.inputs.keep || '2' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          echo "保留策略：每个 artifact 名称最新 $KEEP 个"
+
+          gh api --paginate "repos/$REPO/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | "\(.name)\t\(.created_at)\t\(.id)"' \
+            | sort -t$'\t' -k1,1 -k2,2r \
+            | awk -F'\t' -v k="$KEEP" '{ c[$1]++; if (c[$1] > k) print $3"|"$1 }' \
+            | while IFS='|' read -r id name; do
+                [ -z "$id" ] && continue
+                if gh api -X DELETE "repos/$REPO/actions/artifacts/$id" >/dev/null 2>&1; then
+                  echo "deleted artifact $name ($id)"
+                else
+                  echo "::warning::删除 artifact $name ($id) 失败"
+                fi
+              done
+
+      - name: 清理旧缓存
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          # key 里可能含 "|"，所以用 TAB 分隔
+          gh api --paginate "repos/$REPO/actions/caches?per_page=100" \
+            --jq '.actions_caches[] | "\(.key)\t\(.last_accessed_at)\t\(.id)\t\(.size_in_bytes)"' \
+            | awk -F'\t' '{
+                k=$1;
+                if      (k ~ /^gradle-home/)             f="gradle-home";
+                else if (k ~ /^gradle-dependencies/)     f="gradle-dependencies";
+                else if (k ~ /^gradle-transforms/)       f="gradle-transforms";
+                else if (k ~ /^gradle-instrumented-jars/)f="gradle-instrumented-jars";
+                else if (k ~ /^gradle-groovy-dsl/)       f="gradle-groovy-dsl";
+                else                                     f=k;
+                print f"\t"$2"\t"$3"\t"$4
+              }' \
+            | sort -t$'\t' -k1,1 -k2,2r \
+            | awk -F'\t' '{ c[$1]++; if (c[$1] > 1) printf "%s\t%s\t%.0f\n", $3, $1, $4/1048576 }' \
+            | while IFS=$'\t' read -r id fam mb; do
+                [ -z "$id" ] && continue
+                if gh api -X DELETE "repos/$REPO/actions/caches/$id" >/dev/null 2>&1; then
+                  echo "deleted cache $fam ($id, ${mb}MB)"
+                else
+                  echo "::warning::删除缓存 $fam ($id) 失败"
+                fi
+              done
+
+      - name: 清理 14 天前的 run 日志
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          CUTOFF=$(date -u -d '14 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          echo "删除 created_at < $CUTOFF 的日志"
+          gh api --paginate "repos/$REPO/actions/runs?per_page=100" \
+            --jq ".workflow_runs[] | select(.created_at < \"$CUTOFF\") | \"\(.id)\t\(.created_at)\"" \
+            | while IFS=$'\t' read -r rid created; do
+                [ -z "$rid" ] && continue
+                gh api -X DELETE "repos/$REPO/actions/runs/$rid/logs" >/dev/null 2>&1 \
+                  && echo "deleted logs of run $rid ($created)" || true
+              done
+          echo "完成"
