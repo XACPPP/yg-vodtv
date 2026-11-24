@@ -2389,6 +2389,7 @@ lhxd	猎狐·行动
 lhxd	猎黑行动
 lhxdbclxh	零号小队:北辰揽星河
 lhxdbclxhdej	零号小队:北辰揽星河第二季
+lhxdbclxhdsj	零号小队:北辰揽星河第三季
 lhxf	厉害媳妇
 lhxf	龙虎戏凤
 lhxfgy	烈火雄风1992国语
@@ -3529,6 +3530,7 @@ lmlmdyjs	辣妈辣妹[电影解说]
 lmlmm	辣妈辣么美
 lmlqt	蓝猫龙骑团
 lmlrxly	老妈乱入夏令营
+lmlsndmxxxzn	零魔力少女的魔校学习指南2
 lmlyzj	罗梅莉亚战记
 lmlznjszl	龙鸣$龙之怒$绝世战狼
 lmmbw	浪漫面包屋

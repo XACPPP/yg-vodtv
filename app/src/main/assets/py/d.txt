@@ -997,7 +997,6 @@ ddpylm	跌打婆与辣妹
 ddqbwdzmhswg	大帝起步，我的宗门横扫万古
 ddqfz	爹地请负责
 ddqjt	胆大抢金团
-ddqjtdyjs	胆大抢金团[电影解说]
 ddqk	颠倒乾坤
 ddqm	鼎定千门
 ddqpdx	吊打奇葩弟媳
@@ -2823,6 +2822,7 @@ dkek	敦刻尔克
 dkekdyjs	敦刻尔克[电影解说]
 dkekjsdymhgsdyjs	《敦刻尔克》精神：电影幕后故事[电影解说]
 dketzfzbdxs	188的烤鹅腿,征服早八大学生
+dkfb	代考风暴
 dkfb	断卡风暴
 dkfg	35度咖啡馆
 dkfqy	大狂蜂：起源

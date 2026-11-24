@@ -2074,6 +2074,7 @@ glzl	归来之路
 glzlg	古楼镇陵宫
 glzlr	格利泽恋人
 glznejsqqsf	归来之女儿竟是全球首富
+glznwzgzxydgb	攻略指南:我在贵族学院当跟班
 glzqfrtsxpm	归来掌权，夫人她所向披靡
 glzqqjtsbkd	归来掌权，千金她势不可挡
 glzsrwj	归来者：生人勿近
@@ -3738,6 +3739,7 @@ gwrs	过往人生
 gwrsdyjs	过往人生[电影解说]
 gwsaw	跟我说爱我
 gwsb	怪物事变
+gwsdszx	高武时代双子星
 gwsl	鬼屋实录
 gwsnnmn	怪物少女妮莫娜
 gwsnnmndyjs	怪物少女妮莫娜[电影解说]

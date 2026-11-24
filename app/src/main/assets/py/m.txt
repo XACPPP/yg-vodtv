@@ -2070,6 +2070,8 @@ mhyc	蛮荒幼宠
 mhyc	迷幻演出
 mhycdej	蛮荒幼宠第二季
 mhycdsj	蛮荒幼宠第三季
+mhycdyj	梦幻渔场第一季
+mhychyjmgb	梦幻渔场,海域挤满国宝
 mhycs	鸣鹤4：遇春山
 mhyh	梦幻银河
 mhyhl	暮槐忆恨录
@@ -2424,6 +2426,7 @@ mjzx	魔戒再现
 mjzxdt	面具之下的他
 mjzy	麻将之夜
 mjzyjsh	迷局之义聚山河
+mjzysf	目击者约瑟芬
 mjzz	木匠之子
 mjzz	秘笈追踪
 mjzz	觅迹追踪
@@ -3664,6 +3667,7 @@ mnbbbhr	美女保镖不好惹
 mnbfwymb	鸣鸟不飞：乌云密布
 mnbgwxxd	美女别搞，我修仙的
 mnbh	迷你百合
+mnbhgwnby	妹你别慌,哥稳你霸业
 mnbhwdxsmzsx	美女别慌，我的仙术每周刷新
 mnbj	魔女宝鉴
 mnblgbwsh	美女别撩，哥不玩闪婚
@@ -5044,8 +5048,10 @@ mssbkedsh	魔术师：不可能的生活
 mssc	暮色深藏
 mssc	魔兽赛车
 mssd	密室死斗
+mssd	末世神店
 mssdbb	魔术师的宝贝
 mssdd	米神山大道
+mssddej	末世神店第二季
 mssddx	魔术师的大象
 mssddyjs	密室死斗[电影解说]
 mssdhjkl	魔术师的黄金骷髅
@@ -5677,6 +5683,7 @@ mwwf	目无王法
 mwwfdyjs	目无王法[电影解说]
 mwwlfczdyj	漫威未来复仇者第一季
 mwwq	迷雾温情
+mwwstdddszsdyj	萌娃五岁,她的爹地是战神第一季
 mwxal	冥王星爱恋
 mwxbhnswsxyxs	美味馅饼：汉娜·斯文森悬疑小说
 mwxcs	萌娃小厨神
@@ -6997,6 +7004,7 @@ mzxwlmnxljdydmnjhclbdyn	明智小五郎美女系列15：镜地狱的美女  江�
 mzxwlmnxlyzgdmn	明智小五郎美女系列11：樱之国的美女
 mzxx	寐中行凶
 mzxy	梦中相遇
+mzxzgwhlx	魔尊仙尊跟我回蓝星
 mzy	梦之园
 mzy	谜厄庄园
 mzyhsswy	萌崽以后岁岁无忧
@@ -7040,6 +7048,7 @@ mzzgzyq	迷罪之古镇怨情
 mzzhs	末栈之黑水
 mzzkl	芒着种快乐
 mzzl	民主之澜
+mzzrj	妈祖在人间
 mzzsnwllg	妈,这真是你未来老公
 mzzswzdstxwd	魔主重生:我在都市天下无敌2
 mzzswzdstxwd	魔主重生：我在都市天下无敌
