@@ -2367,6 +2367,7 @@ sgxfd	搜狗小分队
 sgxhb	四个小伙伴
 sgxhhzmwcct	神棍小花花之魔丸闯朝堂
 sgxhhzmwcctdej	神棍小花花之魔丸闯朝堂第二季
+sgxhhzmwcctdsj	神棍小花花之魔丸闯朝堂第三季
 sgxhr	十个小黑人
 sgxld	时光巡逻队
 sgxlddej	时光巡逻队第二季
@@ -4364,6 +4365,7 @@ sjxtwdzsncz	神级系统：我的智商能充值
 sjxw	世界新闻
 sjxwdyjs	世界新闻[电影解说]
 sjxxj	上交修仙界
+sjxxjgjjwkxxxdyjadj	上交修仙界:国家教我科学修仙第一季AI短剧
 sjxxjhdyqqzwcx	上交修仙界后，动员全球助我成仙
 sjxxnsdzsytdms	神级选项：尿素袋战神与他的萌兽
 sjxydmjs	圣剑学院的魔剑使
@@ -4383,6 +4385,7 @@ sjycdlqchfflmndhsl	25-26赛季英超第17轮全场回放：富勒姆1-0诺丁汉
 sjycdlqchflzlsjg	25-26赛季英超第17轮全场回放：利兹联4-1水晶宫
 sjycdlqchfttnmrclwp	25-26赛季英超第17轮全场回放：托特纳姆热刺1-2利物浦
 sjycjh	师姐养成计划
+sjyckjldyj	商贾硬闯科举路第一季
 sjydej	石纪元第二季
 sjydlcjbjsqchfnblsblny	25-26赛季意大利超级杯决赛全场回放：那不勒斯2-0博洛尼亚
 sjydsj	石纪元第三季
@@ -6048,6 +6051,7 @@ smzxdj	双面赘婿第二季
 smzxdyjs	世贸中心[电影解说]
 smzy	生命之源
 smzy	生命之源2000
+smzybwzcql	师门终于把我逐出去了
 smzyjzs	什么，这也叫重生
 smzzdej	神明之胄第二季
 smzzdyj	神明之胄第一季
@@ -10310,6 +10314,7 @@ snzsjhybcjbpdej	傻女重生记,荒院变成聚宝盆第二季
 snzsjzyhgffj	傻女重生记，睁眼后盖房发家
 snzsjzyhgffjdej	傻女重生记，睁眼后盖房发家第二季
 snzsjzyhgffjdsj	傻女重生记,睁眼后盖房发家第三季
+snzsjzyhgffjdsj	傻女重生记,睁眼后盖房发家第四季
 snzssnttbqsm	师娘在上＆师娘她，甜爆全师门
 snzt	少年侦探
 snztdyjs	少年侦探[电影解说]
@@ -12089,6 +12094,7 @@ ssqydyjs	双姝奇缘[电影解说]
 ssqylh	S.H.E十七音乐会
 ssqylhza	三世情缘，轮回之爱
 ssqytzqqyq	顺手牵羊偷走前妻一切
+ssqywlz	502宿舍全员网恋中
 ssqyy	素手青医缘
 ssqz	生死权杖
 ssqzddclwyfwq	上司侵占弟弟车辆我依法维权
@@ -12448,6 +12454,7 @@ ssyfdsj	杀死伊芙第三季
 ssyfdsj	杀死伊芙第四季
 ssyfdyj	杀死伊芙第一季
 ssyfn	说谁妖妃呢
+ssyfwdddmbhradj	岁岁有福,我的爹爹们不好惹AI短剧
 ssyg	双生艳鬼
 ssyg	双色月光
 ssyg	生死攸棺

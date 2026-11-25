@@ -1695,6 +1695,7 @@ mgyzdptmzyy	穆桂英之大破天门阵粤语
 mgyzdyjs	魔高一丈[电影解说]
 mgyzdyjs	魔鬼银爪[电影解说]
 mgyzq	玫瑰与忠犬
+mgyzq	玫瑰引忠犬
 mgyzsegfzxgy	穆桂英之十二寡妇征西国语
 mgyzsegfzxyy	穆桂英之十二寡妇征西粤语
 mgz	猛鬼咒
@@ -4908,6 +4909,7 @@ msljz	谋杀绿脚趾
 msljzdyjs	谋杀绿脚趾[电影解说]
 msljzesldyjs	摩斯拉决战哥斯拉[电影解说]
 msllbsshyslgqnydej	末世来临：变丧尸后遇上狼狗前男友第二季
+msllwkdhztfyzs	末世来临,我靠囤货种田丰衣足食
 msllwxrssgfa	末世来临!我先让丧尸改方案
 msllxdyywz	末世来了，先囤一亿物资
 mslm	秒速5厘米
@@ -4961,6 +4963,7 @@ msndy	蒙上你的眼
 msndyczn	末世女帝养成指南
 msndyczngztcx	末世女帝养成指南，公主她超凶
 msndycznnpzs	末世女帝养成指南:涅槃重生
+msndycznnxzl	末世女帝养成指南:逆袭之路
 msndydyjs	蒙上你的眼[电影解说]
 msndytcbsln	蒙上你的眼：逃出巴塞罗那
 msndytcbslndyjs	蒙上你的眼：逃出巴塞罗那[电影解说]

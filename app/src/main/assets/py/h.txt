@@ -157,6 +157,7 @@ hayxe	黑暗与邪恶
 hayxedyjs	黑暗与邪恶[电影解说]
 hayy	黑暗阴影
 hayydyjs	黑暗阴影[电影解说]
+hayynygqadj	怀安一隅,宁有归期AI短剧
 hayz	黑暗宇宙
 hazc	黑暗制裁
 hazc	黑暗资产
@@ -418,6 +419,7 @@ hbtx	黑豹天下
 hbw	海扁王
 hbw	海扁王2
 hbw	狐步舞
+hbwccyj	黑白无常冲业绩
 hbwcq	哈比王传奇
 hbwddej	黑帮卧底第二季
 hbwdyjs	海扁王2[电影解说]
@@ -6847,6 +6849,7 @@ hydjs	婚姻的救赎
 hydkbwhq	侯爷的哭包未婚妻
 hydlj	红鹰第六季
 hydlzcx	婚姻的两种猜想
+hydnddljbadj	后院嫡女的顶流剧本AI短剧
 hydnf	欢迎到南方
 hydqbst	环游地球八十天
 hydqbstdyjs	环游地球八十天[电影解说]
@@ -7189,6 +7192,7 @@ hyll	好运来临
 hyll	好运连连
 hyll	婚姻料理
 hyllcg	欢迎来龙餐馆
+hyllr	好运连连染
 hyllsjx	花妖乱了时间线
 hyllsjxntgmslj	花妖乱了时间线2逆天改命三连击
 hylm	灰羽联盟

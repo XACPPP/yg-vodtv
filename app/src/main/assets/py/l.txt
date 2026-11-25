@@ -2375,6 +2375,7 @@ lhwdyjs	龙咁威2[电影解说]
 lhwf	猎户为夫
 lhwg	联合王国
 lhwlzasshysq	拉黑网恋挚爱，社死后遇深情
+lhwnmg	梨花误,逆命归
 lhws	龙皇武神
 lhws	龙虎武师
 lhwxg	灵魂维修工
@@ -4279,6 +4280,7 @@ lrswfw	猎人：死亡符文
 lrsx	六人视线
 lrsyh	邻人似银河
 lrszddmhy	落入少主的夺命婚约
+lrszhzx	兰若寺之画中仙
 lrtdtmqt	落入他的甜蜜圈套
 lrtthtdez	洛瑞太太和她的儿子
 lrtthtdezdyjs	洛瑞太太和她的儿子[电影解说]
@@ -4771,6 +4773,7 @@ lsmtdsj	灵书妙探第四季
 lsmtdwj	灵书妙探第五季
 lsmtdyj	灵书妙探第一季
 lsmtl	蓝色马蹄莲
+lsmwcdg	六岁萌娃闯东宫
 lsmxjjwbl	蓝色梦想：进军温布利
 lsmxr	恋上喵星人
 lsmy	孪生魅影
@@ -6530,6 +6533,7 @@ lzdztxyy	龙尊的在逃小妖鱼
 lzdzw	溜走的真味
 lzdzxc	陆总的掌心宠
 lzehedhjzdyjs	来自俄亥俄的获奖者[电影解说]
+lzf	乱针法
 lzf	笼中凤
 lzfc	鸾占凤巢
 lzfj	恋之风景

@@ -1675,6 +1675,7 @@ qjglsgggpdc	千金归来，四个哥哥排队宠
 qjgltbqsjca	千金归来，她被全世界宠爱
 qjgltbqsjcadej	千金归来,她被全世界宠爱第二季
 qjgltbqsjcadsj	千金归来,她被全世界宠爱第四季
+qjgltbqsjcadwj	千金归来,她被全世界宠爱第五季
 qjgltbzzbf	千金归来，她爸专治不服
 qjglwclgjne	千金归来，我成了管家女儿
 qjglwdbmdshm	千金归来我的爸妈都是豪门
@@ -2069,6 +2070,7 @@ qlddzwnhtz	强龙夺嫡之吾乃皇太子
 qldej	前浪 第二季
 qldej	器灵第二季
 qldfrsdp	抢来的夫人是顶配
+qldggstz	抢来的哥哥是太子
 qldhwjdxwcytah	七零大旱，我家地下挖出一条暗河
 qldjtl	全露的金太郎
 qldjyjbwyxttdj	七零嫡姐有剧本，我有系统听得见
@@ -2682,6 +2684,7 @@ qmtwakdyjs	千面特务 AKA[电影解说]
 qmtzwkyjdhn	全民挑战：我靠演技当黄牛
 qmwgzmfqy	奇妙王国之魔法奇缘
 qmwj	千门无间
+qmwjqswmtdecskdyj	全民万界求生:我每天都能抽神卡第一季
 qmwns	情迷维纳斯
 qmwwjyzh	青梅未晚,君亦正好
 qmwyz	契妈唔易做
@@ -3056,6 +3059,7 @@ qpsdsj	奇葩说 第四季 (2017)
 qpsdwj	奇葩说 第五季 (2018)
 qpsdxrk	棋盘上的向日葵
 qpsdyj	奇葩说 第一季 (2014)
+qpsmxxdyjadj	奇葩师妹修仙第一季AI短剧
 qpsnt	球拍少年团
 qpsrx	奇葩三人行
 qpsrxzzhz	奇葩双人行之战杭州
@@ -3809,6 +3813,8 @@ qshy	青色火焰
 qshyd	情深何以渡
 qshygl	恰似红颜归来
 qshytlg	秦始皇一统六国
+qshzyhxqmxzr	秦始皇:朕有华夏全明星阵容
+qshzyhxqmxzrcyzglks	秦始皇朕有华夏全明星阵容从摇诸葛亮开始
 qsj	51区事件
 qsjd	前哨基地
 qsjdbrn	全世界都不如你
@@ -4663,6 +4669,7 @@ qxpr	穷乡僻壤
 qxq	曲线球
 qxqc	亲，向前冲！
 qxqdxmdtyqwzdxbf	求相亲对象们多提要求，我真的想暴富
+qxqdywwmztla	全小区都以为我们在谈恋爱
 qxqmy	2023七夕奇妙游
 qxqmy	2024七夕奇妙游
 qxqmy	2025七夕奇妙游

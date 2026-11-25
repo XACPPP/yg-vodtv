@@ -997,6 +997,7 @@ ddpylm	跌打婆与辣妹
 ddqbwdzmhswg	大帝起步，我的宗门横扫万古
 ddqfz	爹地请负责
 ddqjt	胆大抢金团
+ddqjtdyjs	胆大抢金团[电影解说]
 ddqk	颠倒乾坤
 ddqm	鼎定千门
 ddqpdx	吊打奇葩弟媳
@@ -2065,6 +2066,7 @@ dhwl	大话武林
 dhwq	谍海危情
 dhwszwzzj	斗魂无双之无字真经
 dhwyh	搭伙万元户
+dhwyqbtzbyadj	大荒,我用情报统治冰原AI短剧
 dhwz	德惠翁主
 dhwzdyjs	德惠翁主[电影解说]
 dhx	导火线
@@ -2154,6 +2156,7 @@ dhz	渡红妆
 dhz	第11号站
 dhzfsdtalcbzl	大婚装疯，死对头暗恋藏不住了
 dhzfy	第17号战俘营
+dhzgr	灯火照归人
 dhzhh	大海在呼唤
 dhzhh	大海在呼唤1982
 dhzq	大汉张骞
@@ -6436,6 +6439,7 @@ dxmbynzmdsfbsldsj	大学没毕业,你怎么登上福布斯了第三季
 dxmbynzmdsfbsldsj	大学没毕业,你怎么登上福布斯了第四季
 dxmcq	大熊猫传奇
 dxmhl	赌侠马华力
+dxmlddyj	大雪满龙刀第一季
 dxmllazdsg	大下麻里-恋爱中的傻瓜
 dxmlzcydxfmfsj	当玄门老祖，穿越到西方魔法世界
 dxmlzcydxfmfsjdej	当玄门老祖,穿越到西方魔法世界第二季
@@ -6655,6 +6659,7 @@ dxyhhmqjntgm	读心影后，豪门全家逆天改命
 dxyhyhml	读心影后$隐婚蜜恋
 dxyj	地心游记
 dxyj	地心营救
+dxyjddzyn	大雪夜捡到的状元女
 dxyjdyjs	地心游记[电影解说]
 dxyjr	多喜一家人
 dxyjw	12点，需要接吻
@@ -7007,6 +7012,7 @@ dymdgy	到也门钓鲑鱼
 dymdj	党员马大姐
 dymdn	迪亚曼蒂诺
 dymdyjs	地狱门[电影解说]
+dymg	地狱魔谷
 dymhszzmyzshyngfcj	电影《迷魂山庄之魅影重生》荒野女鬼复仇记
 dymj	盗影迷局
 dymm	代孕妈妈
@@ -7363,6 +7369,7 @@ dytsyy	地狱天使粤语
 dytt	地狱天堂
 dyttdyjs	地狱·天堂[电影解说]
 dyttdyjs	地狱天堂[电影解说]
+dytx	渡月听心
 dyw	地狱屋
 dyw	大鹰王
 dyw	蛋与我

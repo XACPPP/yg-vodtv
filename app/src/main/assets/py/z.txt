@@ -505,6 +505,7 @@ zbymr	追捕野蛮人
 zbypt	足本玉蒲团
 zbyssqtdej	子不雨双姝奇探第二季
 zbyssqtdlj	子不雨双姝奇探第六季
+zbyssqtdqj	子不雨双姝奇探 第七季
 zbyssqtdsj	子不雨双姝奇探第三季
 zbyssqtdsj	子不雨双姝奇探第四季
 zbyssqtdwj	子不雨双姝奇探 第五季
@@ -974,6 +975,7 @@ zczyalkednddyj	转场追忆：艾伦·卡尔的80年代第一季
 zd	303中队
 zd	争嫡
 zd	仲冬
+zd	值得2026
 zd	子弹
 zd	张灯
 zd	战毒2020
@@ -1873,6 +1875,7 @@ zgcj	中国唱将2026
 zgckydd	这个刺客有点癫
 zgclgmzd	中国出了个毛泽东
 zgclymldsj	这个丑陋又美丽的世界
+zgcmzsgsshdadj	这个川妹子是个飒爽活爹AI短剧
 zgcnyydq	这个菜鸟有亿点强
 zgcr	中国超人
 zgcsjdmj	中国传世经典名剧
@@ -6974,6 +6977,7 @@ zshsdxzz	在深灰色的箱子中
 zshsemmhhsl	重生后三个妹妹后悔死了
 zshsjdtnmhsm	朕手绘世界地图，你们慌什么
 zshssdyydrs	真实还是设定：优雅的人生
+zshswdmmjsndzsdej	重生黑蛇:我的妹妹竟是女帝转世!第二季
 zshsxdzcwst	重生后师兄带仔宠我上天
 zshsxjyydq	重生后，沈小姐有亿点强
 zsht	芝士火腿
@@ -7414,6 +7418,7 @@ zsndzhbj	重生60年代纵横北境
 zsndzjsylzbd	重生80年代：这假少爷老子不当
 zsndzsaqas	重生90年代：转身搞钱搞事
 zsndzyllphzrkt	重生:年代1982坐拥了老婆孩子热炕头2
+zsndzyllphzrkt	重生:年代1982坐拥了老婆孩子热炕头3
 zsndzyllphzrkt	重生：年代1982坐拥了老婆孩子热炕头
 zsndzzmngsdl	重生73年，带着丈母娘赶山打猎
 zsnfjhwjdydt	重生77年：分家后我拒当冤大头
@@ -10037,6 +10042,7 @@ zzfzzqsbfjrgdej	栀栀复栀栀!情深不负旧人归第二季
 zzfzztzyftbk	栀栀复栀栀！太子爷非她不可
 zzfzztzyftbkdej	栀栀复栀栀!太子爷非她不可第二季
 zzfzztzyftbkdlj	栀栀复栀栀!太子爷非她不可第六季
+zzfzztzyftbkdqj	栀栀复栀栀!太子爷非她不可第七季
 zzfzztzyftbkdsj	栀栀复栀栀!太子爷非她不可第三季
 zzfzztzyftbkdsj	栀栀复栀栀!太子爷非她不可第四季
 zzfzztzyftbkdwj	栀栀复栀栀!太子爷非她不可第五季
@@ -10250,6 +10256,7 @@ zzqhssan	灼灼其华，岁岁安暖
 zzqjg	至尊清洁工
 zzqjsdbhb	这真千金是东北虎吧
 zzqjsdbhb	这真千金，是东北虎吧
+zzqjsdbhbdej	这真千金是东北虎吧第二季
 zzql	志在千里
 zzql	掌中求鸾
 zzql	栀栀却礼
