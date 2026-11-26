@@ -2536,6 +2536,7 @@ xhjdpgz	星河几度盼归舟
 xhjdyj	驯荒记第一季
 xhjdyjs	驯悍记[电影解说]
 xhjg	星海鲛歌
+xhjgdej	星海鲛歌第二季
 xhjgs	星海机关师
 xhjhsdej	嘻哈进化史第二季
 xhjhsdsj	嘻哈进化史第三季
@@ -2600,6 +2601,7 @@ xhmeydsj	新豪门恩怨第三季
 xhmeydsj	新豪门恩怨第四季
 xhmeydwj	新豪门恩怨第五季
 xhmeydyj	新豪门恩怨第一季
+xhmgbkwadj	玄幻:门规不可违AI短剧
 xhmjcrlzwlz	新：豪门继承人拉着我领证
 xhmml	新婚慢慢恋
 xhmmzwfp	校花妈妈助我翻盘
@@ -2858,6 +2860,7 @@ xhzr	薪火重燃
 xhzs	猩红诊所
 xhzssjbqwzdfx	玄幻：做善事就变强，我正的发邪
 xhzswdjx	仙画在手，万敌皆休
+xhztmbkdxcyj	薪火诸天门,背靠大夏闯异界
 xhzw	相合之物
 xhzwdmr	校花追我到末日
 xhzxtrwdhr	玄幻之系统让我当好人
@@ -2924,6 +2927,7 @@ xjbsdyjs	刑警本色[电影解说]
 xjbsgnlnx	心尖疤：蚀骨虐恋难休
 xjbsgwjyyschlcdyjs	行家本色：歌舞伎演员 市川海老藏[电影解说]
 xjbszbscf	小姐变世子镖师成妃
+xjbwjrwfsjlmz	仙界逼我嫁人,我反手嫁了魔尊
 xjbwzty	喜降八五做太爷
 xjbxd	小姐不熙娣
 xjbxs	相见不相识
@@ -3542,6 +3546,7 @@ xk	欣快
 xk	雪珂
 xkapfsdlxsl	小可爱牌风水大佬下山啦
 xkayqjs	小可爱与拳击手
+xkbb	戏咖北鼻
 xkbdxcljjdl	小哭包的校草邻居惊呆了
 xkbj	虚空北境
 xkcdej	性课程第二季
@@ -4212,6 +4217,7 @@ xmasbqa	性梦爱三部曲：爱
 xmasbqm	性梦爱三部曲：梦
 xmb	小马鞭
 xmb	西门豹
+xmbcxtbhl	兄妹绑错系统爆红了
 xmbcxtbhlgzcwbjdyj	兄妹绑错系统爆红了,哥争宠我败家第一季
 xmbcxtbhlzwbbjl	兄妹绑错系统爆红了之我不败家了
 xmbdlxsmqmzdtcldsj	仙门别等了,小师妹去魔族当团宠了第三季

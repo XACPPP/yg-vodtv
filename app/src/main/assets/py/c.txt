@@ -738,6 +738,7 @@ ccphhkxjsw	穿成炮灰后，靠心机上位
 ccphhqjjxldej	穿成炮灰后,全家觉醒了第二季
 ccphhsjfjdzr	穿成炮灰化身家风教导主任
 ccphhtzxsw	穿成炮灰后他总想杀我
+ccphhwbjbsl	穿成炮灰后我把剧本撕了
 ccphhwbsqj	穿成炮灰后我保送全家
 ccphhwcfxt	穿成炮灰后我踹翻系统
 ccphhwgclqcxjc	穿成炮灰后，我苟成了权臣心尖宠
@@ -759,6 +760,7 @@ ccphnplzqjyjl	穿成炮灰女配，蔺总全家有救了
 ccphnpwbfptcl	穿成炮灰女配,我被反派团宠了
 ccphnpwcqjtcl	穿成炮灰女配，我成全家团宠了
 ccphryhwbpal	穿成炮灰人鱼后，我被偏爱了
+ccphscgglzctwxda	穿成炮灰私厨,给高冷总裁投喂小蛋糕
 ccphsfpszjntjwxs	穿成炮灰鼠,反派世子竟能听见我心声
 ccphsnwkggcljcdl	穿成炮灰庶女，我靠公关成了京城顶流
 ccphtzbxhwdcsp	穿成炮灰太子被陷害，我当场撒泼
@@ -1590,6 +1592,7 @@ cgjdyj	城歌纪第一季
 cgjh	宠冠京华
 cgjjybn	穿过荆棘拥抱你
 cgjjybndej	穿过荆棘拥抱你第二季
+cgjjybndsj	穿过荆棘拥抱你第三季
 cgjt	出轨家庭
 cgjx	瓷骨匠心
 cgjz	出轨禁止
@@ -2072,6 +2075,7 @@ cjdcwbzqcdthxg	抄家当场，我抱住权臣大腿喊相公
 cjdcwzjyjfxhj	春节堵车我直接御剑飞行回家
 cjddflsrnrjsyj	超级大单飞了，谁让你惹技术一姐
 cjdfcwgclyj	穿进毒妃传，我苟成了赢家
+cjdgtztmzwstsadj	错嫁东宫:太子他明知我是替身AI短剧
 cjdhd	超级大坏蛋
 cjdhddyjs	超级大坏蛋[电影解说]
 cjdht	错嫁登凰途
@@ -2698,6 +2702,7 @@ clbstc	成了百兽团宠
 clbstcdej	成了百兽团宠第二季
 clbt	此路不通
 clbtdcszdgkzwstjdej	从路边摊到厨神之巅,顾客追我十条街第二季
+clbtdcszdgkzwstjdsj	从路边摊到厨神之巅,顾客追我十条街第三季
 clbtdcszdgkzwstjdyj	从路边摊到厨神之巅,顾客追我十条街第一季
 clbtl	查理·巴特利
 clbyg	错恋白月光
@@ -4407,6 +4412,7 @@ csfrdyjs	出水芙蓉[电影解说]
 csftwbpkljhd	厨神附体我被迫开了家黑店
 csftwbsxkclhd	厨神附体我把沙县开成了黑店
 csftwbsxkclhddej	厨神附体我把沙县开成了黑店第二季
+csftwbsxkclhddsj	厨神附体我把沙县开成了黑店第三季
 csfwqyz	长嫂扶我青云志
 csfx	春山赴雪
 csfysj	此生风月似锦
@@ -5103,6 +5109,7 @@ csmsdyjs	赤色密室[电影解说]
 csmsndgqwfh	长生面首，女帝跪求我复合
 csmswkxtdhnxdej	穿书末世我靠系统囤货逆袭第二季
 csmswkxtdhnxdsj	穿书末世我靠系统囤货逆袭第三季
+csmswkxtdhnxdsj	穿书末世我靠系统囤货逆袭第四季
 csmswkxtdhnxdyj	穿书末世我靠系统囤货逆袭第一季
 csmswkxtdhnxfp	穿书末世，我靠系统囤货逆袭翻盘
 csmswkxtdhnxl	穿书末世，我靠系统囤货逆袭了
@@ -6247,6 +6254,7 @@ cxyj	赤血营救
 cxylbmjcbzl	除夕夜老爸马甲藏不住了
 cxylczbnzs	茶学院里藏着百年宗师
 cxylxj	丑小鸭历险记
+cxyn	朝夕予你
 cxyn	澄心予你
 cxynglx	此心与你共灵犀
 cxynmka	程序员那么可爱
@@ -6820,6 +6828,7 @@ cyqlxyrgnnndsj	穿越七零:乡野燃光暖念念第三季
 cyqlxyrgnnndsj	穿越七零:乡野燃光暖念念第四季
 cyqlxyrgnnndwj	穿越七零:乡野燃光暖念念第五季
 cyqlxyrgnnnjb	穿越七零：乡野燃光暖念念48集版
+cyqlyjhk	穿越七零_月季花开
 cyqlzgszhld	穿越七零这个嫂子会炼丹
 cyqnasn	穿越千年爱上你
 cyqnjbj	穿越千年嫁暴君
@@ -6903,6 +6912,7 @@ cyskzdqgc	穿越时空之大清宫祠
 cyskzlgg	穿越时空之灵格格
 cyskzlk	穿越时空之来客
 cyskzmyjz	穿越时空之明月郡主
+cysn	沧渊锁念
 cysnhknyxhlghmw	穿越十年后跨年夜喜获老公和萌娃
 cysnndybwghq	穿越十年女帝要把我赶回去
 cysnsfsfss	穿越少女收服四方神兽
@@ -7061,6 +7071,7 @@ cyymx	穿越亚马逊2024
 cyynwkysjyqc	穿越医女：我靠医术惊艳全朝
 cyyqjdswjld	叉腰腰，全家都是我捡来哒
 cyys	穿越原始
+cyysblzsfzz	穿越原始部落之兽夫主宰
 cyysjhhxhqlj	穿越异世界，黑化校花请冷静
 cyyssjwjxjhxt	穿越妖兽世界，我觉醒进化系统
 cyyssjxtmysy	穿越异世:神级系统买一送一
@@ -7256,6 +7267,7 @@ czjjwxs	忏·再见，绝望先生
 czjnsjwtzcxl	充值就能升级：我躺着成仙了
 czjrpthb	出租家人普通话版
 czjryyb	出租家人粤语版
+czjsz	出租救世主
 czjt	车在囧途
 czjtlhlm	陈助今天离婚了吗
 czjttbfz	从最尽头徒步5分钟

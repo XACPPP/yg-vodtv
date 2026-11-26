@@ -504,6 +504,7 @@ yccm	一场春梦
 yccm	一朝成名
 yccmtxz	一朝成名天下知
 yccq	咏春传奇
+yccsphfsdtcadj	一朝穿书,炮灰翻身当团宠AI短剧
 yccszadj	一池春水皱Ai短剧
 yccwycl	一寸车位一寸理
 yccymcmghwld	一朝穿越，满城猫狗喊我老大
@@ -2808,6 +2809,7 @@ yhss	引火烧身
 yhss	银狐双生
 yhst	鱼和薯条
 yhswd	银河守卫队
+yhswjdcfy	运河是我家:大厂风云
 yhsx	野火烧心
 yhsxdsjjn	樱花树下的时间胶囊
 yhsxmyjdgb	隐婚是蓄谋已久的告白
@@ -3477,6 +3479,7 @@ yjttn	又见天堂鸟
 yjttnyjttn	又见天堂鸟 又見天堂鳥
 yjtwzrwwcfcbzc	御姐替我做任务，我从废柴变总裁
 yjtxjrjdej	与君同心济人间第二季
+yjtxjrjdsj	与君同心济人间第三季
 yjtxs	与君同心声
 yjtxzzl	伊基塔：蝎子之路
 yjty	一剑天涯
@@ -3848,6 +3851,7 @@ ylcdyjs	幽灵船[电影解说]
 ylcf	杨柳春风
 ylcggsd	一路闯关过圣诞
 ylcj	隐龙出京
+ylcjc	玉兰辞惊春
 ylcjh	璎珞垂锦华
 ylcjzxwp	云岭藏金，真心为聘
 ylckdml	牙狼：苍哭的魔龙
@@ -3932,6 +3936,7 @@ ylfhxzn	一路繁花香正浓
 ylfq	一路夫妻
 ylfrx	月落妇人心
 ylft	一路疯逃
+ylftl	杨澜访谈录2026
 ylfx	一路福星
 ylfy	夜来风雨
 ylfy	娱乐风云
@@ -6933,6 +6938,7 @@ ytfzsdej	遇棠方知涉第二季
 ytfzsdejwjp	遇棠方知涉!第二季完结篇
 ytfzspldwbpznyljhl	遇棠方知涉:跑路当晚被偏执男友揽进怀里
 ytfzspznzdzxcdej	遇棠方知涉:偏执男主的掌心宠第二季
+ytfzstzcwyrdej	遇棠方知涉:他只宠我一人(第二季)
 ytfzswnphjbbtpa	遇棠方知涉:我拿炮灰剧本被他偏爱
 ytfzsxdplzx	遇棠方知涉:心动偏离主线
 ytgdhjl	一条狗的回家路
@@ -7474,6 +7480,7 @@ ywrhtbseyq	一碗热馄饨，半生恩与情
 ywrj	养娃日记
 ywrjcsywrcdej	养娃日记：穿书养娃日常第二季
 ywrm	有物如魔
+ywrmdtq	一碗热面等天晴
 ywrmyfzx	一碗热面，一份真心
 ywrs	意外人生
 ywrwrjsdlqs	以温柔为刃,救赎堕落骑士
@@ -8590,6 +8597,7 @@ yygdfzywmzd	有一个地方只有我们知道
 yygdsl	羊与钢的森林
 yyggtc	演员龟冈拓次
 yyggzsh	愿以孤光照山河
+yygjmdx	又一个寂寞冬夏
 yygladj	月月归梨Ai短剧
 yyglwzgtm	乙游攻略？我只搞逃命
 yygm	与鱼共眠
@@ -8782,6 +8790,7 @@ yym	盈盈满
 yymbdyjs	疑云密布[电影解说]
 yymdlx	演员们的旅行
 yymdqny	一亿买断前男友
+yymg	屿与眠归
 yymg	诱引玫瑰
 yymj	阴阳魔界
 yymjdyjs	阴阳魔界[电影解说]
@@ -8914,6 +8923,7 @@ yyss	御用杀手
 yyss	月月兽世
 yyss	银翼杀手
 yyss	银翼杀手2049
+yyss	银翼杀手2099
 yyss	阴阳神算
 yyssdyjs	银翼杀手[电影解说]
 yysshahj	银翼杀手：2022黑暗浩劫

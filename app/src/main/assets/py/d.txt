@@ -3941,6 +3941,7 @@ dnglzqf	嫡女归来掌全府
 dngqnnys	等你归期念念有声
 dngs	嫡女闺杀
 dnh	帝女花2002
+dnhbk	大女孩不哭
 dnhcxfhdltx	嫡女回朝，休夫后独揽天下
 dnhhk	冬暖花会开
 dnhj	等你回家
@@ -4314,6 +4315,8 @@ dqdzzz	地球大战蜘蛛
 dqedz	斗球儿弹子
 dqf	大秦赋
 dqfb	地球风暴
+dqfhhyldej	帝阙风华回忆录第二季
+dqfhhyldyj	帝阙风华回忆录第一季
 dqfl	地球分裂
 dqfwj	地球防卫军
 dqfwsn	地球防卫少年
@@ -4719,6 +4722,7 @@ dscaqgm	第四次爱情革命
 dsccl	第三次初恋
 dsccybyhzbzf	带商场穿越，边养皇子边致富
 dscdzzsj	董事长的专职司机
+dsce	大嫂:除恶
 dscezxjc	董事长儿子下基层
 dscezxjc	董事长儿子下基层2
 dscf	单身厨房2010
@@ -4825,6 +4829,7 @@ dsdthyy	都市的童话粤语
 dsdts	都市大天师
 dsdwm	当时的我们
 dsdx	当树倒下
+dsdxdxh	大叔的心动讯号
 dsdxgy	对手的心国语
 dsdxjbwdcqgy	毒舌大小姐把我调成妻管严
 dsdxw	大山的希望
@@ -6397,6 +6402,7 @@ dxjtzwgllm	殿下今天自我攻略了吗
 dxjwqywd	大小姐无情又无敌
 dxjwsmwdnmmzqw	大小姐，我算命无敌，你妹命中缺我
 dxjxfm	大小姐续费吗
+dxjxssss	大小姐下山,扇扇扇
 dxjyhgl	大小姐浴火归来
 dxjyhzs	大小姐浴火重生
 dxjyjssc	大小姐与绝世神厨
@@ -6833,6 +6839,8 @@ dydxsdej	德云斗笑社 第二季
 dydxsdej	德云斗笑社第二季
 dydxsdsj	德云斗笑社第三季
 dydxt	大院的夏天
+dydxtdyj	大院的夏天第一季
+dydxtdyjadj	大院的夏天第一季AI短剧
 dydxzhdx	第一滴血5：最后的血
 dydxzhdxdyjs	第一滴血5：最后的血[电影解说]
 dydy	电影电影

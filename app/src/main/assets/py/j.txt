@@ -1979,6 +1979,7 @@ jhcg	君恨长歌
 jhcgdsj	江湖菜馆第三季
 jhcggy	警花出更国语
 jhcgl	静候春归来
+jhchztk	久候成婚之停卡
 jhcjhxh	旧婚辞尽换新欢
 jhcky	结婚才可以
 jhcl	禁海苍狼
@@ -3904,6 +3905,7 @@ jmbjxz	见面吧就现在
 jmblksmsdsg	吉米・布莱克史密斯的圣歌
 jmbmhwldcx	家门被灭后我立地成仙
 jmbrxl	见面不如相恋
+jmbwdchew	舅妈,把我的车还给我
 jmbyn	巨蟒博尤纳
 jmbzllsnxcjq	姐妹变妯娌，联手逆袭超解气
 jmbzw	旧梦不重温
@@ -4380,6 +4382,7 @@ jmyemzzszjbjzsj	杰姆·耶尔马兹：钻石尊爵白金再升级
 jmyglsz	假名媛攻略守则
 jmygp	解密[预告片]
 jmyh	镜面影后
+jmyhtsgl	假面影后,替身归来
 jmyl	九命怨灵
 jmymg	假面与玫瑰
 jmyn	靓妹有难
@@ -4902,6 +4905,7 @@ jqjqwsfhzgszdxj	假千金抢我身份，还在公司装大小姐
 jqjs	建群囧事
 jqjs	绝情救赎
 jqjsfqjwxxgtca	假千金飒翻全家，外星小狗他超爱
+jqjshqbygbhdl	剧情结束后前白月光被豪夺了
 jqjssjb	假千金手撕剧本
 jqjt	激情警探
 jqjtbdljdl	假千金她绑定了假大佬
@@ -4915,6 +4919,7 @@ jqjtkyjcjztc	假千金她靠演技成家族团宠
 jqjtmtdzff	假千金她每天都在发疯
 jqjtsfcy	假千金她身份超硬
 jqjtsrsz	假千金她是软柿子
+jqjtszdl	假千金她是真大佬
 jqjtszgz	假千金她是真公主
 jqjtwtl	假千金她玩脱了
 jqjtymys	假千金她又美又飒
@@ -5728,6 +5733,7 @@ jsjldywcl	僵尸降临，道爷我成了
 jsjm	尽善尽美
 jsjmdyjs	尽善尽美[电影解说]
 jsjp	金沙江畔
+jsjq	家书寄情
 jsjqyh	金三角群英会
 jsjrytbcbjdszx	就算嫁人，也逃不出暴君的手掌心
 jsjs	今生今世
@@ -7743,6 +7749,7 @@ jyccxz	加油！村超小子
 jycj	家有错局
 jycl	京夜沉沦
 jyclwxsdxa	假意沉沦:我向宿敌献爱
+jycm	京夜迟暮
 jycm	烬月成冕
 jycn	今夜沉溺
 jycndwdej	家有超能迪翁第二季
@@ -8195,6 +8202,7 @@ jywzxdbflxdq	假意伪装心动，并非率先动情
 jyx	假阳性
 jyx	烬余香
 jyx	饥饿游戏
+jyx	饥饿游戏（2012）
 jyxbbylslr	假意相伴，扮演临时恋人
 jyxbl	九幽寻宝录
 jyxbl	今夜笑巴黎

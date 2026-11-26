@@ -489,6 +489,7 @@ mdhdsjf	门当户对是家风
 mdhfh	摩登黄飞鸿
 mdhkyyn	牡丹花开又一年
 mdhwqcylgd	满电后我弃穿越留古代
+mdhws	墓地黑巫术
 mdhx	牡丹花下
 mdhxdyjs	牡丹花下[电影解说]
 mdhy	魔袋谎言
@@ -697,6 +698,7 @@ mdzsryb	魔道祖师日语版
 mdzsygp	乜代宗师[预告片]
 mdzt	摩登澡堂
 mdztmq	迷毒之天命圈
+mdztztzqs	锚定诸天之天灾启世
 mdzw	名单之外
 mdzw	蜜的滋味
 mdzwyzj	魔弹之王与战姬
@@ -1787,6 +1789,7 @@ mhcf	魔幻厨房
 mhcg	梦回朝歌
 mhcs	猛虎出山
 mhcs	魔幻车神
+mhcssyzf	猛虎出山,谁与争锋
 mhcswdnenygp	猛虎出山，我的女儿你也敢碰
 mhctdej	迷糊餐厅第二季
 mhctdsj	迷糊餐厅第三季
@@ -2272,6 +2275,7 @@ mjq	鸣金阙
 mjqjr	梦境俏佳人
 mjql	民间奇案录2026
 mjqs	木匠奇事
+mjqsnpgl	梦惊前世,涅槃归来
 mjqtc	民间奇谈传
 mjqtdej	魔界奇谭第二季
 mjqtdlj	魔界奇谭第六季
@@ -2363,6 +2367,7 @@ mjxs	满级下山
 mjxsdhm	麦进小说当后妈
 mjxshk	魔君心上花开
 mjxsmnqlwlz	满级下山，美女强拉我领证
+mjxszgarydk	满级下山,这个男人有点狂
 mjxw	摸金笑尉
 mjxwgstb	摸金校尉：观山太保
 mjxwzdswjdwd	满级修为在都市：我绝对无敌
@@ -3479,6 +3484,7 @@ mmss	渺渺兽世
 mmssdej	渺渺兽世第二季
 mmssdt	明明是死对头
 mmssdy	妈妈是神队友
+mmssdydj	妈妈是神队友 第四季
 mmsss	妈妈是杀手
 mmsssdyjdyjs	妈妈是杀手 第一季[电影解说]
 mmsssnzx	名门绅士2 淑女之心
@@ -4002,6 +4008,7 @@ mpjsy	默片解说员
 mpjsydyjs	默片解说员[电影解说]
 mpjt	冒牌家庭
 mpjtdyjs	冒牌家庭[电影解说]
+mpjtybxsbdyj	孟婆今天也不想上班第一季
 mpjxdyjs	冒牌剑侠[电影解说]
 mpjy	马屁精 呀！
 mpjz	冒牌君主
@@ -5918,6 +5925,7 @@ mxmyxj	美幸梦游仙境
 mxna	蒙心匿爱
 mxnh	冒险男孩
 mxnl	卖笑女郎
+mxnqhsc	梦醒宁栖怀山处
 mxpayngcl	满心偏爱,与你共沉沦
 mxpl	喵仙跑路
 mxpr	买凶拍人

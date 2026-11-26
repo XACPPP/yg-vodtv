@@ -275,6 +275,7 @@ gcjdlzbmdrc	给残疾大佬做保姆的日常
 gcjh	公车惊魂
 gcjh	谷仓惊魂
 gcjhzjlzt	港城江湖之见龙在田
+gcjhzszww	港城江湖之胜者为王
 gcjtkxxzxdfssq	古穿今：她靠修仙在现代风生水起
 gcjymswdhydd	刚抄家又末世，我囤货亿点点
 gcjymswzgddhth	刚抄家又末世，我在古代囤货逃荒
@@ -526,6 +527,7 @@ gdlew	瓜德利尔舞
 gdlfykjztxdcsc	古代老妇有空间，直通现代菜市场
 gdlhhwclsznw	高调离婚后我成了收租女王
 gdlhlsjsbpdl	雇的离婚律师竟是帮派大佬
+gdlhsxjqsxzl	高调离婚,沈小姐强势掀桌了
 gdlhsxjsbkd	高调离婚，沈小姐势不可挡
 gdlhytttyhyy	高调离婚,叶太太她又狠又硬
 gdlq	古德里奇
@@ -2907,6 +2909,7 @@ gsdxcq	顾少的小宠妻
 gsdxdyjs	怪兽大学[电影解说]
 gsdxjhxhlptjl	刚上大学就和校花老婆同居了
 gsdxjhxhlptjladj	刚上大学,就和校花老婆同居了Ai短剧
+gsdxjhxhlptjldyjadj	刚上大学,就和校花老婆同居了第一季AI短剧
 gsdxq	鬼神的香气
 gsdxqdyjs	鬼神的香气[电影解说]
 gsdxs	刚20岁的学生
@@ -3885,6 +3888,7 @@ gxgxfdc	恭喜恭喜发大财
 gxh	诡小孩
 gxhdyjs	鬼讯号[电影解说]
 gxhlytsdyjs	鬼讯号2：灵异透视[电影解说]
+gxhwwlsj	归乡后我旺了苏家
 gxj	刿心剑
 gxj	攻心计
 gxjd	港媳嫁到
@@ -3956,6 +3960,7 @@ gxsdlptx	顾先生的落跑甜心
 gxsdpzjs	顾先生的偏执救赎
 gxsdqycn	顾先生的契约厨娘
 gxsdqyxwr	顾先生的契约小温柔
+gxsdsyza	顾先生的失约挚爱
 gxsdxgcadj	顾先生的西瓜车AI短剧
 gxshhqzj	顾先生婚后请指教
 gxsj	归心似箭
@@ -4220,6 +4225,7 @@ gyqmdyjs	鬼影敲门[电影解说]
 gyqqjccdlx	根源奇巧计程车的路线
 gyqqtjmfrhh	孤与卿卿，替嫁萌妃软乎乎
 gyqsba	高腰裙谁不爱
+gyqswdjeyydd	国运求生,我的技能有亿点多
 gyqswdjeyyddd	国运求生：我的技能有亿点点多
 gyqwkbjcbhg	归玉阙:我靠背景称霸后宫
 gyrdyjs	鬼影人[电影解说]
@@ -4545,6 +4551,7 @@ gzgtyhbajbz	规则怪谈：影后不按剧本走
 gzgtzgtkz	规则怪谈之怪谈客栈
 gzgwnsx	敢ZUO敢为女声秀
 gzgx	公子贵姓
+gzgxwrmnzhwd	规则改写_万人迷女主换我当
 gzgydz	公主挂已到账
 gzgzdn	嘎喳嘎喳的鸟
 gzgzwmzjdhgdej	贵族高中：我们之间的鸿沟第二季

@@ -1065,6 +1065,7 @@ qftjm	弃妃天机谋
 qfttxswbzzc	全府偷听心声我被追着宠
 qfttxzxsyzdhlt	全府偷听仙尊心声，养子大祸临头
 qftwxzmnzwzq	全府听我心主母虐渣我赚钱
+qftwxzmnzwzqdyj	全府听我心,主母虐渣我赚钱第一季
 qftys	恰逢听雨时
 qftzhmj	前夫他追悔莫及
 qfwdzzdyjdyjs	穷富翁大作战 第一辑[电影解说]
@@ -2265,6 +2266,7 @@ qlsmdcsjxysn	清冷神明独宠山间许愿少女
 qlsnswdbgz	七零飒女：谁我都不惯着
 qlsntbdl	秦律师你逃不掉了
 qlsnzwhnys	囚牢十年，只为护女一生
+qlsqe	歧路失亲恩
 qlss	秦岭神树
 qlss	麒麟双生
 qlssqj	擒龙三十七计
@@ -3402,6 +3404,8 @@ qqwx	卿卿我心2021
 qqwxdj	卿卿我心短剧
 qqwyx	情起屋檐下!
 qqwyxadj	情起屋檐下AI短剧
+qqwyxbnhdnelch	情起屋檐下:八年后的女儿来催婚
+qqwyxbnhdnelch	情起屋檐下:八年后的女儿来催婚2
 qqwyxbnhdnelch	情起屋檐下:八年后的女儿来催婚3
 qqwyxcbzmxwr	情起屋檐下,藏不住满心温柔
 qqwyxdej	情起屋檐下第二季
@@ -3937,6 +3941,7 @@ qsnh	巧手女孩
 qsnl	情殇逆旅
 qsnmy	球胜难民营
 qsnndccjm	七岁那年的初次见面
+qsnnssyn	琴声年年,岁岁有你
 qsnnz	青少年哪吒
 qsnnzdyjs	青少年哪吒[电影解说]
 qsnrzxk	其实男人最辛苦

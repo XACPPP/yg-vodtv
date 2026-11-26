@@ -446,6 +446,7 @@ hbxlr	互补型恋人
 hbxtwfh	何必谢他误芳华
 hbxtwzdsdcs	红包系统，我在都市当财神
 hbxz	护宝寻踪
+hbxz	海豹小子
 hbxz	虎豹小子
 hbyc	火爆英雌
 hbyghdf	河边有个好地方
@@ -981,6 +982,7 @@ hdjzdsj	黑道家族第四季
 hdjzdwj	黑道家族第五季
 hdjzdyj	黑道家族第一季
 hdjzdyjdyjs	黑道家族 第一季[电影解说]
+hdkhwdygssqmc	海岛开荒:我的员工是史前萌宠
 hdkldsysde	唤的骷髅都是异世大能
 hdks	好的开始
 hdks	海的开始
@@ -1484,6 +1486,7 @@ hfhzxyxsdyjs	黄飞鸿之西域雄狮[电影解说]
 hfhzyxym	黄飞鸿之英雄有梦
 hfhzyxymdyjs	黄飞鸿之英雄有梦[电影解说]
 hfj	212号房间
+hfj	444号房间
 hfj	9号房间
 hfja	红粉金刚
 hfjdej	104号房间第二季
@@ -2695,6 +2698,7 @@ hjmcjbrqc	换嫁谋：错嫁病弱权臣
 hjmdej	坏姐妹第二季
 hjmdlzdzd	皇家马德里：直到终点
 hjmdyj	坏姐妹第一季
+hjmdyj	换嫁谋第一季
 hjmk	滑稽面孔
 hjmm	黄金密码
 hjmsl	皇家密杀令
@@ -2761,6 +2765,7 @@ hjs	90婚介所2025
 hjs	火箭手
 hjsbk	黄金三镖客
 hjsbkdyjs	黄金三镖客[电影解说]
+hjscwjwkladj	花轿送错,误嫁纨绔郎AI短剧
 hjsd	滑稽时代
 hjsd	花街时代
 hjsd	黄金时代
@@ -4849,6 +4854,7 @@ hrmasjbdessj	骇人命案事件簿第二十三季
 hrmasjbdeswj	骇人命案事件簿 第二十五季
 hrmddyjs	活人墓地[电影解说]
 hrmsbbt	骇人秘事波比特
+hrmx	婚然梦醒
 hrnd	好人难当
 hrnd	火热年代
 hrndnjbdl	好人难当，那就不当了
@@ -5731,6 +5737,9 @@ htbxyzs	海棠不惜胭脂色
 htc	画堂春
 htc	糊涂虫
 htc	花田错
+htccyzkscs	黑塔:从超忆症开始成神
+htccyzkscsdej	黑塔:从超忆症开始成神第二季
+htccyzkscsdsj	黑塔:从超忆症开始成神第三季
 htch	黄铜茶壶
 htchdyjs	黄铜茶壶[电影解说]
 htcl	海棠春令
@@ -5817,6 +5826,7 @@ htj	皇太极
 htj	红天机
 htjcwbc	好兔就吃窝边草
 htjdarm	和田家的男人们
+htjfh	伙头军封侯
 htjkz	伙头军客栈
 htjsqyzm	荒唐镜三气胭脂马
 htjxq	胡同交响曲
