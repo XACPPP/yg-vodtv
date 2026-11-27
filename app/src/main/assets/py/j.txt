@@ -1117,6 +1117,7 @@ jdsdyjs	角斗士[电影解说]
 jdsgdj	见多识广第一季
 jdsh	尖东双虎
 jdshdej	绝地生还第二季
+jdshdsj	绝地生还第三季
 jdshdyjs	极度深寒[电影解说]
 jdsj	绝代双骄
 jdsj	绝代双骄1979
@@ -1833,6 +1834,7 @@ jgry	巾帼仁医
 jgrz	巾帼荣妆
 jgs	井冈山
 jgs	井冈山1993
+jgs	捡骨师
 jgsdlh	金箍上的裂痕
 jgsf	见鬼十法
 jgsfdyjs	见鬼十法[电影解说]
@@ -3833,6 +3835,7 @@ jlxzjsmgjbchtc	九零小作精！随母改嫁被糙汉甜宠
 jly	嫁良缘
 jlydgs	敬老院的故事
 jlyf	锦鸾医妃
+jlygr	金陵夜归人
 jlygzyl	家里有个状元郎
 jlyhsqy	机灵丫鬟上青云
 jlylm	锦鲤跃龙门
@@ -4378,6 +4381,7 @@ jmxzygp	绝密型战[预告片]
 jmy	救命药
 jmy	烬明月
 jmybzyldej	旧梦慵便枕玉凉第二季
+jmydcgh	将门有朵刺骨花
 jmyemzzszjbjzsj	杰姆·耶尔马兹：钻石尊爵白金再升级
 jmyglsz	假名媛攻略守则
 jmygp	解密[预告片]
@@ -5333,6 +5337,7 @@ jryhdyjs	假日约会[电影解说]
 jryjh	今日宜结婚
 jryjy	今日宜加油
 jryjy	皎若云间月
+jrylh	今日宜离婚
 jrypa	今日宜偏爱
 jrypa	今日宜偏爱2026
 jryqx	匠人有七喜
@@ -6307,6 +6312,7 @@ jsyx	寄生异形
 jsyx	街市英雄
 jsyx	鉴识英雄
 jsyxdyjs	寄生异形[电影解说]
+jsyxnghdzw	惊悚游戏:女诡皇倒追我
 jsyxqszsfddnj	惊悚游戏:七十正是奋斗的年纪
 jsyxqszsfddnjdej	惊悚游戏:七十正是奋斗的年纪第二季
 jsyxwclgldldzxc	惊悚游戏：我成了高冷大佬的掌心宠
@@ -8078,6 +8084,7 @@ jyrczwn	记忆人潮再无你
 jyrdg	惊羽入东宫
 jyrg	锦月如歌
 jyrlxq	骄阳入鹿心企鹅
+jyrs	旧义如山
 jyryh	江鱼入衍怀
 jyrzyyx	九义人之烟云绣
 jys	九月说
@@ -8293,6 +8300,7 @@ jyydej	君有云第二季
 jyyfgy	九月鹰飞国语
 jyyfyy	九月鹰飞粤语
 jyygcl	今夜，阳光灿烂
+jyyh	今夜宜婚
 jyyh	惊夜有囍
 jyyh	金言玉谎
 jyyjy	京夜有佳音
@@ -9090,6 +9098,7 @@ jzznzzdyjs	精装追女仔之2[电影解说]
 jzznzzlzyz	精装追女仔之3狼之一族
 jzzq	惊蛰之前
 jzzqqht	九重追妻请回头
+jzzqx	急症最前线
 jzzr	举证责任
 jzzszyj	假作真时真亦假
 jzztd	决战中途岛

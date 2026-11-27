@@ -95,6 +95,7 @@ camwlznyn	长安秘闻录之聂隐娘
 camz	错爱迷踪
 can	长安诺
 canj	错爱难解
+canlq	此爱难两清
 canqwrltqwrm	炽爱你弃我如履,他娶我如命
 cantysm	错爱难逃忆似梦
 cany	此爱难言
@@ -1687,6 +1688,7 @@ cgyy	春港夜雨
 cgyyxs	超感应医学生
 cgyzzjfc	春闺怨之真假凤钗
 cgzbky	长公主不可以
+cgzbwrzwclszw	长公主逼我入赘,我成了摄政王
 cgzcchmxjq	长公主穿成豪门小娇妻
 cgzdqxzc	长公主的裙下之臣
 cgzdtsfm	长公主的贴身驸马
@@ -3233,6 +3235,7 @@ cmfz	沉默法则
 cmfzjhzs	催命符之劫后重生
 cmgb	沉迷改变
 cmgdmx	从民工到明星
+cmgdzwzgddbs	茶马古道之我在古代当镖师
 cmgg	草莓公馆
 cmghmz	超魔鬼毁灭者
 cmgj	尘梦归玦
@@ -4200,6 +4203,7 @@ cs	锤神
 cs	长生
 csapnrwkjmcxssn	穿书男频：你让我氪金冒充显圣神女
 csb	出师表
+csb	差生班
 csbb	超神保镖
 csbc	传世宝藏
 csbdbql	财神不渡薄情郎
@@ -4366,6 +4370,7 @@ csdzl	财神窦占龙
 csdzx	沉睡的真相
 csdzyzc	厨神大战预制菜
 csdzz	城市的主宰
+csednpbgyz	穿书:恶毒女配爆改原著
 csednplmssfkytt	穿书恶毒女配:冷面少帅疯狂要贴贴
 csex	船上恶熊
 csf	传送法

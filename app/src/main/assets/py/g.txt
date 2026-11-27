@@ -1500,6 +1500,7 @@ gjqtzlyzm	古剑奇谭之流月昭明
 gjqtzqxjp	古剑奇谭之琴心剑魄
 gjqtzyhzl	古剑奇谭之厌火之乱
 gjqwmwyqbzwg	诡境欺吾妹，吾以权柄镇万诡
+gjqx	骨鉴卿心
 gjqy	归家奇遇
 gjqzj	冠军请指教
 gjrc	搞姬日常
@@ -4433,6 +4434,7 @@ gzccqdwj	古战场传奇第五季
 gzccqdyj	古战场传奇第一季
 gzccqwxzqdej	古战场传奇：吾血之亲 第二季
 gzccqwxzqdyj	古战场传奇：吾血之亲 第一季
+gzcfp	刚子裁缝铺
 gzcj	公正裁决
 gzcs	公主出山
 gzcsbyx	桂子初生傍月香
@@ -4631,6 +4633,7 @@ gzlscs	鬼族：雷神传说
 gzlx	诡蛛来袭
 gzlydx	给朱丽叶的信
 gzlydxdyjs	给朱丽叶的信[电影解说]
+gzlyjbdzygss	古宅老友记：巴顿庄园鬼上身
 gzlyjdej	古宅老友记第二季
 gzlyjdsj	古宅老友记第三季
 gzlyjdsj	古宅老友记第四季

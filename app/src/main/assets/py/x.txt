@@ -5630,6 +5630,7 @@ xsdbdj	小师弟不对劲
 xsdbdnzj	小叔的笨蛋女主角
 xsdbj	24小时第八季
 xsdc	小生当差
+xsdcj	消失的成绩
 xsdcjsd	小时代3：刺金时代
 xsdcl	消失的初恋
 xsdcr	信使2稻草人
@@ -6541,6 +6542,7 @@ xtgjhqdqlgncf	系统刚激活，亲爹娶了个女财阀
 xtglacks	心跳归零爱才开始
 xtglwkzhycgsdw	系统攻略:我靠种花养出盖世帝王
 xtglydrc	系统管理员的日常
+xtgrsncy	戏台归人十年沉冤
 xtgs	学堂故事
 xtgwlsxkls	系统，给我来十箱快乐水
 xtgz	心跳共振
@@ -6735,6 +6737,7 @@ xtt	血图腾
 xttbasn	心跳同步爱上你
 xttdtcdyj	谢太太的退场第一季
 xttgpxcyl	乡土团购:婆媳创业路
+xttjdqjhybp	小饕餮驾到全家好运爆棚
 xttljydlsglmngz	系统通两界，一袋零食攻略美女公主
 xttpfzndmjl	心跳同频，傅总你掉马甲啦
 xttsndqydz	系统提示您的钱已到账
@@ -7324,6 +7327,7 @@ xxglwwescqypt	修仙归来，我为儿孙撑起一片天
 xxglwxssnezhsj	修仙归来，我携三岁女儿纵横世间
 xxglwywd	修仙归来我已无敌
 xxglwzdsdsy	修仙归来：我在都市当神医
+xxglwzszt	修仙归来,我只手遮天
 xxglzcjjdzw	修仙归来，总裁姐姐倒追我
 xxgmss	吸血鬼马上死
 xxgmssdej	吸血鬼马上死第二季

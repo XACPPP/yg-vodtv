@@ -877,6 +877,7 @@ ddgd	等待戈多
 ddgdrzszfl	丢掉古董肉，走上致富路
 ddgfm	等待古夫曼
 ddgl	大导归来
+ddglwsljds	低调够了,我是林家大少
 ddglzcjrm	弟弟归来之长姐如母
 ddgsnygr	大胆国士你也敢辱
 ddgszdysszc	岛的故事之大屿山沙之城
@@ -2173,6 +2174,7 @@ dhzz	谍海追踪
 dhzzdyjs	大海作证[电影解说]
 dj	东京！
 dj	代价2024
+dj	冬季
 dj	冻劫
 dj	刀尖
 dj	刀尖2023
@@ -7281,6 +7283,7 @@ dyswlxsdh	德云社网络相声大会2014
 dyswxnasjqd	德云社戊戌年纲丝节庆典2018
 dyswxnfxqd	德云社戊戌年封箱庆典2019
 dyswxnkxqd	德云社戊戌年开箱庆典2018
+dysx	大炎双雄
 dysx	第一神婿
 dysylyhzcycsjz	德云社岳来越好专场演出 石家庄2017
 dysysnasjxlzykms	德云社乙巳年纲丝节系列之一开幕式

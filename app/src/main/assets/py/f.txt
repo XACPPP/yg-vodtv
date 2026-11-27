@@ -406,6 +406,7 @@ fcs	伏藏师
 fcsc	凤池生春
 fcsc	非常市长
 fcscs	风驰赛车手
+fcsd	菲常圣诞
 fcsdfdc	分错手但发对财
 fcsj	富春山居
 fcsj	逢春时节
@@ -947,6 +948,7 @@ fgcryy	富贵超人粤语
 fgcsm	法国潮什么
 fgcsnpnzpawcf	反骨穿书女配:男主偏爱我成疯
 fgct	凤骨承天
+fgctjqlhh	凤归巢:踏尽千里花红
 fgctjqlhh	凤归巢踏尽千里花红
 fgczmbtzxqj	凤归巢之萌宝太子寻亲记
 fgddbgyqdh	反骨弟弟不乖要轻点哄
@@ -1766,6 +1768,7 @@ fkld	疯狂老爹
 fkllz	疯狂流浪者
 fkls	疯狂兰蛇
 fkmhc	疯狂梦幻城
+fkmhmxg	疯狂魔幻墨西哥
 fkmldyh	疯狂玛丽的约会
 fkngnw	放开那个女巫
 fkngnwdtm	放开那个女巫 动态漫

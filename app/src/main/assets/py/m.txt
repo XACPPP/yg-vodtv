@@ -4040,6 +4040,7 @@ mpt	谜案拼图
 mptg	冒牌特工
 mptgllq	冒牌特工零零七
 mptgygp	冒牌特工[预告片]
+mpts	冒牌天师
 mpts	冒牌天神2
 mptsdyjs	冒牌天神2[电影解说]
 mptsdyjs	冒牌天神[电影解说]
@@ -4809,6 +4810,7 @@ msgw	暮色归晚
 msgwlzcmx	民俗怪闻录之出马仙
 msgwlzgxb	民俗怪闻录之诡戏班
 msgwlzgxbdyjs	民俗怪闻录之诡戏班[电影解说]
+msgx	媚色攻心
 msgx	暮色归心
 msgxdyjs	末世孤行[电影解说]
 msgy	眠山怪影
@@ -4927,6 +4929,7 @@ mslr	暮色撩人
 mslw	谋杀论文
 mslx	墨色怜心
 mslx	萌孙来袭
+mslx	蜜色沦陷
 msly	迷失乐园
 mslzdlx	猫说陆总动了心
 msm	皿三昧
@@ -5311,6 +5314,7 @@ mszzyebd	暮色之战：异能部队
 mszzzry	猫神之重铸荣耀
 mt	妙探
 mt	密探
+mt	密探2025
 mt	密谈
 mt	模特2016
 mt	猫汤
@@ -5615,6 +5619,7 @@ mwfy	美味风云
 mwfydpq	名为富有的贫穷
 mwfygwpyybb	萌娃翻译官:王牌婴语保镖
 mwfygy	美味风云国语
+mwfyl	冥王风云录
 mwfyl	明王风云录
 mwfyyy	美味风云粤语
 mwglaewsplsldzxjq	猫王归来：埃尔维斯·普雷斯利的重新崛起
@@ -6428,6 +6433,7 @@ myrs	明月如霜
 myrsh	明月入山海
 myrx	明月若雪
 myrxhhy	没有人喜欢黑夜
+myrxhk	没有人喜欢凯
 mys	木与水
 mys	梦魇三
 mysb	魅影神捕
