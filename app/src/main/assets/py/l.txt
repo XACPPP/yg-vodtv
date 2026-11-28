@@ -206,6 +206,7 @@ laxfdyjs	恋爱学分[电影解说]
 laxj	猎爱陷阱
 laxjyqkl	恋爱选举与巧克力
 laxm	恋爱兄妹
+laxm	恋爱兄妹2
 laxm	恋爱兄妹2024
 laxmzgb	恋爱兄妹(中国版)
 laxmzn	恋爱续命指南
@@ -984,6 +985,7 @@ ldgmbdesbj	老大哥(美版) 第二十八季
 ldgrzgdbz	劳动光荣之工地霸主
 ldgs	楼道诡事
 ldgsdhjjqs	凛冬跟随囤货绝境求生
+ldgsdhwgzzszmmm	凛冬跟随囤货我跟着重生者买买买
 ldgsdhzzswczydyj	凛冬跟随囤货之重生我抄作业第一季
 ldgsgh	凛冬跟随国货
 ldgsghdej	凛冬跟随国货第二季
@@ -1714,6 +1716,7 @@ lgwzbygrwezhm	老公挽着白月光让我儿子喊妈
 lgx	骊歌行
 lgxar	六个小矮人
 lgxbtfpqjwlj	老公先别跳!反派全家我来救
+lgxbtfpqjwljdej	老公先别跳!反派全家我来救第二季
 lgxlt	两个小洛特
 lgxqdzkbgs	乐高星球大战：恐怖故事
 lgxqdzmdlr	乐高星球大战：曼达洛人
@@ -3450,6 +3453,7 @@ lmfj	龙门飞甲
 lmfjdyb	龙门飞甲电影版
 lmfjdyjs	龙门飞甲[电影解说]
 lmfjjlp	龙门飞甲纪录片
+lmfpjwhjdnz	脸盲反派捡我回家当女主
 lmfqh	罗马风情画
 lmfqhdyjs	罗马风情画[电影解说]
 lmfxxlj	龙门飞雪：寻龙教
@@ -7030,6 +7034,7 @@ lzzcnjjdzz	聊宅之超能姐姐大作战
 lzzcxhdcw	恋综炸场,校花独宠我
 lzzdckbj	陆昭昭的刺客笔记
 lzzdqzybzl	老祖宗的情债,压不住了
+lzzdqzybzldej	老祖宗的情债,压不住了第二季
 lzzdwcyfczsklbj	老祖宗带娃穿越，废柴子孙快来拜见
 lzzdyjs	恋之罪[电影解说]
 lzzdyjs	龙之战[电影解说]

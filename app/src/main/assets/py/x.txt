@@ -786,6 +786,7 @@ xcmbwxx	熊出没·伴我“熊芯”
 xcmbwxxdyjs	熊出没·伴我“熊芯”[电影解说]
 xcmbxjdyjs	熊出没·变形记[电影解说]
 xcmc	香草抹茶
+xcmccqlx	小厨喵餐车去旅行
 xcmkydl	熊出没·狂野大陆
 xcmkydldyjs	熊出没·狂野大陆[电影解说]
 xcml	乡村名流
@@ -1254,6 +1255,7 @@ xdnydqsjcb	希德尼娅的骑士 剧场版
 xdnyh	许多年以后
 xdnzj	雪地娘子军
 xdpl	心动频率
+xdplh	心动偏了航
 xdplw	仙都破烂王
 xdpnc	心动匹诺曹
 xdqd	新地群岛
@@ -3343,6 +3345,7 @@ xjsshjsdyjs	血溅十三号警署[电影解说]
 xjssj	小加速世界
 xjssq	仙剑三生情
 xjsszhdlk	星际史诗之黑洞裂空
+xjsszsgzdnxztadj	星际兽世:重生公主的逆袭征途AI短剧
 xjstkzdsnm	下级生2 瞳孔中的少女们
 xjstm	锈剑碎天门
 xjswsny	想假死，我随你愿
@@ -6740,6 +6743,7 @@ xttgpxcyl	乡土团购:婆媳创业路
 xttjdqjhybp	小饕餮驾到全家好运爆棚
 xttljydlsglmngz	系统通两界，一袋零食攻略美女公主
 xttpfzndmjl	心跳同频，傅总你掉马甲啦
+xttpz	笑探太平镇
 xttsndqydz	系统提示您的钱已到账
 xttsrsjdbg	系统提示人生进度变更
 xttwsxhn	夏天替我说喜欢你
@@ -6752,6 +6756,7 @@ xtwlyy	学堂威龙粤语
 xtwmnxlsyxq	系统为媒逆袭路上遇贤妻
 xtwncl	心跳为你沉沦
 xtwnlzysdjlwy	系统玩腻了，这一世当纪律委员
+xtwrmsydlzxyph	系统:万人迷神颜顶流只想演炮灰1
 xtwz	小逃亡者
 xtx	新同学
 xtxb	锡铁小兵
@@ -7734,6 +7739,7 @@ xxwdctnkgdsj	修仙:我的词条能开挂第三季
 xxwdctnkgdsj	修仙:我的词条能开挂第四季
 xxwdctnkgdwj	修仙:我的词条能开挂第五季
 xxwdyjs	猩猩王[电影解说]
+xxwflzy	玄学王妃路子野
 xxwfnhqlwyrrlx	玄学王妃难哄，清冷王爷日日沦陷
 xxwfsgl	玄学王妃算卦灵
 xxwj	向西闻记
@@ -8421,6 +8427,7 @@ xyrzcawdjmgsy	谢邀人在长安:我带姐妹搞事业2
 xyrzcyjj	嫌疑人之长夜将尽
 xyrzxyztcs	谢邀，人在西游种田长生
 xysadt	象牙山爱逗团
+xysb	星渊双宝
 xysbddmtdzzq	幸运双宝：爹地每天都在装穷
 xysbglddhha	幸孕双宝高冷爹地狠狠爱
 xysbx	行运扫把星

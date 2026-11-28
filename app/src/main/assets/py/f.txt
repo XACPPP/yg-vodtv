@@ -864,6 +864,7 @@ fflx	放飞理想
 fflxt	放飞旅行团
 ffpdyjs	方法派[电影解说]
 ffqxqx	彷佛清新气息
+ffqy	疯妃青云
 ffrctcqd	封夫人超甜超强的
 ffrj	夫妇日记
 ffrj	非法入境
@@ -2566,6 +2567,7 @@ fpkjcfsnjrmj	反派：开局策反圣女加入魔教
 fpkjwllnzcjkt	反派：开局喂萝莉女主吃进口糖
 fpldbhr	反派老爹不好惹
 fplghdxl	反派老公会读心了
+fplgndx	反派老公能读心
 fplj	风平浪静
 fpljdxxdyjs	风平浪静的闲暇[电影解说]
 fpljdyjs	风平浪静[电影解说]
@@ -2583,6 +2585,7 @@ fpmztlan	反派魔尊他恋爱脑
 fpng	父凭女贵
 fpngdqclz	父凭女贵，帝阙藏灵珠
 fpngwbwqndghg	父凭女贵：我被无情女帝拐回国
+fpnn	反派拿捏!
 fpnnnjx	肥婆奶奶扭计媳
 fpnnnjxgy	肥婆奶奶扭计媳国语
 fpnpxscbz	反派女配，心声藏不住
@@ -3173,6 +3176,7 @@ fryzjjfdsd	夫人一坐将军府抖三抖
 fryzqqs	芙蓉映照千秋岁
 fryzwmyl	夫人又在外面野了
 fryzyhy	夫人又在演侯爷
+fryzyhydej	夫人又在演侯爷第二季
 frz	芙蓉昭
 frz	芙蓉镇
 frz	非人哉
@@ -3508,6 +3512,7 @@ fssntbwqjqbzwha	分手三年，他把我囚禁，却不知我患癌
 fssnwsltw	分手三年我刷了他37万
 fssq	2024风生水起
 fssq	浮世三千
+fssq	风生水起
 fsssbgsedhm	放肆！谁说本宫是恶毒后妈
 fsswdj	疯书生无敌剑
 fssx	拂色生香
@@ -4237,6 +4242,7 @@ fyfrmjbbqq	傅爷，夫人马甲遍布全球
 fyfry	飞越疯人院
 fyfrydyjs	飞越疯人院[电影解说]
 fyfryzsjxd	飞越疯人院之随机兄弟
+fyfsladj	疯院封神录AI短剧
 fyfsykzzcqt	废窑翻身_一块砖砸出青天
 fyfy	蜂言疯语
 fyfy	覆雨翻云

@@ -980,6 +980,7 @@ sdjblssyyyd	税调~“缴不了税”是有原因的~
 sdjbqcsqddw	杀敌就变强从死囚到帝王
 sdjbqmjdlczyks	扫地就变强：满级大佬从杂役开始
 sdjdsecyh	圣诞节的十二次约会
+sdjdzhyt	圣诞节的最后一天
 sdjf	圣诞交锋
 sdjf	宿敌交锋
 sdjfg	拾得旧佛归
@@ -1118,6 +1119,7 @@ sdnsyydej	圣丹尼斯医院第二季
 sdnsyydsj	圣丹尼斯医院 第三季
 sdnsyydyj	圣丹尼斯医院 第一季
 sdnw	善德女王
+sdnw	速度女王
 sdnz	撒旦酿造
 sdogqmsx	圣诞狗狗1：全面搜寻
 sdp	苏东坡
@@ -1285,6 +1287,7 @@ sdwtlxj	圣诞顽童历险记
 sdww	山道弯弯
 sdwzhjbb	圣诞王子：皇家宝宝
 sdwzmdlxldyjs	上帝，我怎么掉了下来！[电影解说]
+sdwzwkcydazhj	怂胆忤作:我靠虫语断案攒黄金
 sdx	三滴血
 sdx	三滴血2025
 sdx	闪电侠
@@ -2570,6 +2573,7 @@ shcxwfscsbfxjdej	韶华错许，王妃说此生不复相见第二季
 shcxwyktdej	山海藏墟，无眼窥天第二季
 shcxwyktdsj	山海藏墟,无眼窥天第四季
 shcxwyktdsj	山海藏墟，无眼窥天第三季
+shcxwyktdwj	山海藏墟,无眼窥天第五季
 shcylksdzxcdg	神豪：从养龙开始打造乡村帝国
 shcz	社会传真
 shczdlpsdl	死后才知道老婆是大佬
@@ -3145,6 +3149,7 @@ shqz	神画奇踪
 shqzsfp	闪婚妻子是富婆
 shqzssjsf	闪婚妻子是世界首富
 shr	生化人
+shrhqqbjhdyj	山海入画:青丘不见狐(第一季)
 shrj	韶华若锦
 shrljttgfbh	闪婚热恋纪太太过分彪悍
 shrn	生化人脑
@@ -10501,6 +10506,7 @@ sqdfyz	神奇的飞跃周
 sqdhy	逝去的婚姻
 sqdhz	神奇的孩子
 sqdhz	神奇的汉字
+sqdhz	逝去的孩子
 sqdhzdej	神奇的汉字第二季
 sqdknx	深秋的康乃馨
 sqdmls	神奇的莫里斯
@@ -11570,6 +11576,7 @@ sshckdsj	十三号仓库第三季
 sshckdsj	十三号仓库第四季
 sshckdwj	十三号仓库第五季
 sshckdyj	十三号仓库第一季
+sshcldgsdh	丧尸寒潮,凛冬跟随囤货
 sshcpzdlqrm	盛世婚宠:偏执大佬请饶命
 sshddxsr	谁是皇帝的心上人
 sshdej	杀手猴第二季
@@ -11636,6 +11643,7 @@ sshxsdla	三色幻想：生动恋爱
 sshxyzzx	三色幻想：宇宙之星
 sshy	生死花园
 sshy	盛世华衣
+sshz	神手皇子
 sshzhsmtl	双生花之红色曼陀罗
 sshzl	十三号指令
 sshzsdyjs	死神喝醉时[电影解说]
@@ -14232,6 +14240,7 @@ sxzlq	盛夏灼浪起
 sxzm	死小子们
 sxzmxh	盛夏撞满西怀
 sxzpxxdjh	社畜再培训先导计划
+sxzr	随性周日
 sxzs	嗜血战神
 sxzsgsy	伤心最是关山月
 sxzw	散修之王
@@ -14355,6 +14364,7 @@ sycl	深夜沉沦
 sycnwjszfdc	山野厨娘，挖尽山珍发大财
 sycnwjszfdc	山野厨娘：挖尽山珍发大财
 sycnwjszfdcdej	山野厨娘,挖尽山珍发大财第二季
+sycnwjszfdcdlj	山野厨娘,挖尽山珍发大财第六季
 sycnwjszfdcdsj	山野厨娘,挖尽山珍发大财第三季
 sycnwjszfdcdsj	山野厨娘,挖尽山珍发大财第四季
 sycnwjszfdcdwj	山野厨娘,挖尽山珍发大财第五季
@@ -15721,6 +15731,7 @@ szwmfscqdyjs	狮子王：木法沙传奇[电影解说]
 szwmfscqygp	狮子王：木法沙传奇[预告片]
 szwn	苏镇巫女
 szwndlmjykgl	摄政王,你的老母鸡又开挂了
+szwndlmjykgldej	摄政王,你的老母鸡又开挂了第二季
 szwndyjs	苏镇巫女[电影解说]
 szwnjwfychl	摄政王,你家王妃又闯祸了
 szwqzdr	水自无情舟渡人

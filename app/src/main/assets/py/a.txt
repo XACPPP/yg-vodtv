@@ -493,6 +493,7 @@ aewsynbedyjs	埃尔维斯与安娜贝尔[电影解说]
 aeyxdyjs	挨饿游戏[电影解说]
 aez	阿尔泽
 aezg	艾尔之光
+af	傲风
 af	暗房
 af	阿飞
 afd	阿凡达
@@ -2155,6 +2156,7 @@ awz	爱未知
 awz	爱未知2017
 awzh	爱我中华
 awzj	爱无止境
+awzxxx	啊我只想学习
 ax	暗线
 ax	暗香
 ax	阿信2013

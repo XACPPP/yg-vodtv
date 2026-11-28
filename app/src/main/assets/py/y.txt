@@ -604,6 +604,7 @@ ychsqdej	忧愁河上桥第二季
 ychsqdsj	忧愁河上桥第三季
 ychsqdsj	忧愁河上桥第四季
 ychsqdyj	忧愁河上桥第一季
+ychsxysadj	一尺红绳系余生AI短剧
 ychx	一出好戏
 ychx	一出好戏2025
 ychx	油菜花香
@@ -3314,6 +3315,7 @@ yjmdhlhwbzldsj	隐居魔帝:和离后我不装了第四季
 yjmdt	又见牡丹亭
 yjmh	异界魔盒
 yjmllxj	又见面了楼小姐
+yjmndwjg	异界魔女带娃建国
 yjmrddygp	援军明日到达[预告片]
 yjms	一级谋杀
 yjmsdyjs	一级谋杀[电影解说]
@@ -3586,6 +3588,7 @@ yjxz	余烬行者
 yjxzladj	异界修真录AI短剧
 yjy	研究院
 yjy	研究院2025
+yjycf	一剑蕴长风
 yjydej	玉阶引第二季
 yjydlzdyjs	艺妓院的凉子[电影解说]
 yjyg	喻见月光
@@ -4100,6 +4103,7 @@ ylmfzdej	音乐魔法镇第二季
 ylmfzdyj	音乐魔法镇！第一季
 ylmgj	月笼玫瑰劫
 ylmhd	夜落曼哈顿
+ylmhzcyssdcyr	月落蛮荒之穿越兽世独宠一人
 ylmjwkyyyqbfm	鱼类灭绝我靠养鱼迎娶白富美
 ylmjxz	异林：秘境寻踪
 ylmjzh	牙狼：魔戒之花
@@ -4830,8 +4834,10 @@ ymqxtcxsmyjhtmd	一梦青玄，团宠小师妹一剑毁天灭地
 ymqxtcxsmyjhtmddej	一梦青玄，团宠小师妹一剑毁天灭地第二季
 ymqxtcxsmyjhtmddsj	一梦青玄,团宠小师妹一剑毁天灭地第三季
 ymqxtcxsmyjhtmddsj	一梦青玄,团宠小师妹一剑毁天灭地第四季
+ymqxtcxsmyjhtmddwj	一梦青玄,团宠小师妹一剑毁天灭地第五季
 ymqxxsmtjcx	一梦青玄：小师妹她卷成仙
 ymqxxsmtjcxdej	一梦青玄:小师妹她卷成仙第二季
+ymqxzxsmkjjdyj	一梦青玄之小师妹哭唧唧第一季
 ymqy	云梦奇缘
 ymqzm	以母亲之名
 ymr	夜魔人
@@ -7660,6 +7666,7 @@ ywzxanzx	以我之幸安你之心
 ywzxh	与我坠星河
 ywzy	与温作野
 ywzy	欲望之翼
+ywzy	言外之易
 ywzz	一屋之主
 ywzzdej	遗忘种子—第二季
 ywzzgs	意外制造公司
@@ -8965,6 +8972,7 @@ yytbzlab	癒月兔-扮装！恋爱吧
 yytd	淫狱团地
 yytddsjn	养育她的第十九年
 yytg	月影特工
+yytgkdzf	妖域天工2·鲲岛争锋
 yytglxcm	妖域天工：灵械初鸣
 yythydej	一夜桃花运第二季
 yythydyj	一夜桃花运第一季

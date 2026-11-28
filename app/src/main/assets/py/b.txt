@@ -1813,6 +1813,7 @@ bgzmgy	把关者们国语
 bgzmyqjhl	报告掌门，又去进货了
 bgzmyy	把关者们粤语
 bgzs	八卦宗师
+bgzsjhltzdgr	边关战神竟怀了天子的骨肉
 bgzthhwhldd	被公主退婚后，我化龙登帝
 bgzxgqhsfycw	本宫只想搞钱，皇上非要宠我
 bgzxkmg	本宫只想开面馆
@@ -2467,6 +2468,7 @@ bjydyjs	不羁夜[电影解说]
 bjyfdr	拜见岳父大人
 bjyfdr	拜见岳父大人2
 bjyfdr	拜见岳父大人3
+bjyfdr	拜见岳父大人4
 bjyfdrdyjs	拜见岳父大人[电影解说]
 bjyhjzj	白键与黑键之间
 bjyjdwxshjwtcl	暴君一家读我心声后，将我团宠了
@@ -3068,6 +3070,7 @@ blledzczs	比利·林恩的中场战事
 blledzczsdyjs	比利·林恩的中场战事[电影解说]
 bllghcq	八零老公很纯情
 bllgjtlfhkcl	八零老公肩挑两房后哭惨了
+bllgkyktcsnpbzldyj	八零老公可盐可甜,穿书女配不作了第一季
 bllgtmm	八零老公甜蜜蜜
 bllgxdcbz	八零老公心动藏不住
 bllhbdk	百里莲花并蒂开
@@ -5474,6 +5477,7 @@ btwzbszj	拜托我真不是主角
 btwzhnjchfl	不听我指挥，女机长悔疯了
 btwzybxm	变态王子与不笑猫
 btxcxhwkzldsfs	被同学嘲笑后，我靠真龙赌石封神
+btxghymzycrjyh	被剔仙骨后予魔尊一场人间烟火3
 btxghymzycrjyh	被剔仙骨后，予魔尊一场人间烟火
 btxhwjxlxtdsj	被退学后，我觉醒了系统第四季
 btxhy	奔腾向海洋

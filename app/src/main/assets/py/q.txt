@@ -884,6 +884,7 @@ qdzmsldsqs	七大罪：默示录的四骑士
 qdzmsldsqsdej	七大罪：默示录的四骑士第二季
 qdzmsldsqsdyj	七大罪：默示录的四骑士第一季
 qdzrm	情到自然明
+qdzs	穹顶之上
 qdzshszx	情敌之上婚书之下
 qdzshyzx	情敌之上婚约之下
 qdzszdyz	七大罪 圣战的预兆
@@ -1787,6 +1788,7 @@ qjrm	前进，人民
 qjrm	请君入梦
 qjrq	千金认亲
 qjrwh	请君入我怀
+qjrwh	请君入我怀!
 qjrwhhlhwcltdxjc	请君入我怀：和离后我成了他的心尖宠
 qjrwhzl	请君入我画中来
 qjrwhzsbcrwyqca	请君入我怀：重生被孱弱王爷强宠爱
@@ -2519,6 +2521,7 @@ qmhkfzsdyjs	荞麦花开放之时[电影解说]
 qmhsl	情迷黑森林
 qmhslgy	情迷黑森林国语
 qmhslyy	情迷黑森林粤语
+qmhsqswdzjssgxw	全民海上求生:我的载具是神龟玄武
 qmhy	全面回忆
 qmhy	全面回忆2012
 qmhydyjs	全面回忆[电影解说]
@@ -2610,6 +2613,7 @@ qmqswdjeyyddd	全民求生_我的技能有亿点点多
 qmqswdjeyyddddej	全民求生_我的技能有亿点点多!第二季
 qmqswdjeyyddddej	全民求生：我的技能有亿点点多第二季
 qmqswdjeyyddddlj	全民求生:我的技能有亿点点多第六季
+qmqswdjeyyddddqj	全民求生我的技能有亿点点多第七季
 qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第三季
 qmqswdjeyyddddsj	全民求生：我的技能有亿点点多第四季
 qmqswdjeyyddddwj	全民求生:我的技能有亿点点多第五季
@@ -3369,6 +3373,7 @@ qqsyqan	倾其所有去爱你
 qqsyzmcx	前妻说养猪没出息
 qqt	七囚徒
 qqt	欺妻49天
+qqtgsmjt	七犬特攻·沙漠惊天
 qqtk	窃取天空
 qqtpwkbbszd	乔乔摊牌:我刻薄不是装的
 qqts	清清特殊
@@ -3806,6 +3811,7 @@ qshgyxd	恰似寒光遇心动
 qshj	情深后觉
 qshj	锖色护甲
 qshjdej	情深后觉第二季
+qshjdsj	情深后觉第三季
 qshkzys	青涩花开终有时
 qshlgzhmj	去世后老公追悔莫及
 qshs	起死回生
@@ -4179,10 +4185,10 @@ qtdgsdyjs	秋天的故事[电影解说]
 qtdmy	秋天的命运
 qtds	齐天大圣
 qtdsh	抢滩大上海
+qtdsj	去他*的世界第一季
 qtdsj	去他的世界
 qtdsjdej	去他*的世界第二季
 qtdsjdej	去他的世界第二季
-qtdsjdyj	去他*的世界第一季
 qtdsjdyj	去他的世界第一季
 qtdsswkgy	齐天大圣孙悟空国语
 qtdsws	齐天大圣·无双

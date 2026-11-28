@@ -2799,6 +2799,7 @@ mljsdyb	麻辣教师电影版
 mljsdyjs	麻辣教授[电影解说]
 mljsz	末路救赎者
 mljt	末路囧徒
+mljtbwbhkxt	魔临九天:百万倍回馈系统
 mljx	陌路惊笑
 mljxs	美丽见习生
 mljz	末路兼职
@@ -3690,6 +3691,7 @@ mncmjsjmss	美女超模竟是绝命杀手
 mncs	明年此时
 mnctg	美女闯通关
 mncwmfsdnhzdgs	没能成为魔法师的女孩子的故事
+mndbsnyadj	魔女的不死男友AI短剧
 mndcjbb	美女的超级保镖
 mndds	美女的诞生
 mnddwzbzdwwdl	美女等等，我真不知道我无敌了
@@ -5270,6 +5272,7 @@ mszg	美食掌柜
 mszg	迷失之光
 mszg	魔神之骨
 mszgdsj	美食掌柜第三季
+mszgdwj	美食掌柜第五季
 mszghmyycqrm	萌孙助攻，豪门爷爷宠妻如命
 mszgjj	末世之过家家
 mszgtdej	末世之归途第二季
@@ -5798,6 +5801,7 @@ mxdnxxddbtcdw	魔修的娘邪修的爹，被团宠的我
 mxdnxxddbtcdw	魔修的娘，邪修的爹被团宠的我
 mxdnxxddbtcdw	魔修的娘，邪修的爹，被团宠的我
 mxdnxxddbtcdwdej	魔修的娘,邪修的爹,被团宠的我第二季
+mxdnxxddbtcdwdsj	魔修的娘,邪修的爹,被团宠的我第三季
 mxdnxxddbtcdwdyj	魔修的娘，邪修的爹，被团宠的我第一季
 mxdnxxddbtcdwy	魔修的娘邪修的爹被团宠的我哟
 mxdnxxddbtcdwydej	魔修的娘邪修的爹被团宠的我哟第二季
